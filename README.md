@@ -114,6 +114,7 @@ cd Mistborn
 1. Open Unity Hub
 2. Click "Add"
 3. Click "Add project from disk"
+**Note that Unity will force you to download another LTS version to join the project in Unity**
 4. Navigate to where you saved the project
 5. Select the **Mistborn folder** (the root folder, NOT a scene file)
 6. Click "Open"
