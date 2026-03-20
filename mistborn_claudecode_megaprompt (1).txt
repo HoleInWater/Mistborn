@@ -1,0 +1,637 @@
+# 🌑 MISTBORN ERA ONE — CLAUDE CODE MEGA-PROMPT
+# Assassin's Creed-style 3D Game | Unity (C#) | Private GitHub Repo
+# Paste this entire prompt into Claude Code to bootstrap the project.
+
+---
+
+## ═══════════════════════════════════════════
+## SECTION 1 — WHO YOU ARE AND WHAT YOU'RE DOING
+## ═══════════════════════════════════════════
+
+You are a senior Unity game developer and GitHub project architect.
+You are setting up a **private collaborative Unity project** for a small team.
+The game is a **Mistborn Era One** third-person action game inspired by
+Assassin's Creed (movement, traversal, melee combat framework) but the
+weapon system is entirely replaced by **Allomancy** — the hard magic system
+from Brandon Sanderson's Mistborn series.
+
+This is a **collaborative project**. Every file, folder, and system you create
+must be clearly documented so any teammate can open the project and immediately
+understand what exists, what is in progress, and what still needs to be built.
+
+---
+
+## ═══════════════════════════════════════════
+## SECTION 2 — IMMEDIATE TASKS (DO THESE IN ORDER)
+## ═══════════════════════════════════════════
+
+### TASK 1 — ENVIRONMENT CHECK
+Before touching any files, run these checks and report results:
+```
+gh --version
+git --version
+unity-hub --version || echo "Unity Hub not in PATH — note this for user"
+dotnet --version
+```
+If `gh` (GitHub CLI) is not installed, tell the user:
+> "GitHub CLI (gh) is not found. Install it from https://cli.github.com
+> then run `gh auth login` before continuing."
+Stop and wait if gh is missing. Do not proceed to Task 2 until it is confirmed.
+
+---
+
+### TASK 2 — CREATE THE PRIVATE GITHUB REPOSITORY
+```bash
+gh repo create mistborn-era-one \
+  --private \
+  --description "Mistborn Era One | Allomancy-based 3rd person action game | Unity 2022 LTS" \
+  --clone
+cd mistborn-era-one
+```
+
+---
+
+### TASK 3 — SCAFFOLD THE FULL UNITY PROJECT STRUCTURE
+Unity projects require a very specific folder structure. Create it exactly as follows:
+
+```
+mistborn-era-one/
+├── README.md                          ← project overview (you will write this)
+├── CONTRIBUTING.md                    ← collaboration guide (you will write this)
+├── TODO.md                            ← master task tracker (you will write this)
+├── .gitignore                         ← Unity-specific (you will write this)
+├── .gitattributes                     ← Unity LFS settings (you will write this)
+│
+├── Assets/
+│   ├── _Project/                      ← ALL custom project files live here
+│   │   ├── Scripts/
+│   │   │   ├── Allomancy/             ← magic system scripts
+│   │   │   ├── Player/                ← player controller, camera, input
+│   │   │   ├── Combat/                ← melee, hit detection, damage
+│   │   │   ├── UI/                    ← HUD, metal reserves display
+│   │   │   ├── World/                 ← environment, metal objects, triggers
+│   │   │   └── Utilities/             ← helpers, constants, extensions
+│   │   │
+│   │   ├── Models/
+│   │   │   ├── Player/                ← player character model placeholders
+│   │   │   ├── Environment/           ← city/building placeholder models
+│   │   │   └── Props/                 ← metal objects (coins, brackets, etc.)
+│   │   │
+│   │   ├── Materials/
+│   │   │   ├── Player/
+│   │   │   ├── Environment/
+│   │   │   └── Allomancy/             ← pulse/glow VFX materials
+│   │   │
+│   │   ├── Prefabs/
+│   │   │   ├── Player/
+│   │   │   ├── AllomanticTargets/     ← metal objects the player can push/pull
+│   │   │   └── Environment/
+│   │   │
+│   │   ├── Scenes/
+│   │   │   ├── MainMenu.unity
+│   │   │   └── TestArena.unity        ← first playable scene
+│   │   │
+│   │   ├── Animations/
+│   │   │   └── Player/
+│   │   │
+│   │   └── VFX/
+│   │       └── Allomancy/             ← blue metal lines, push/pull particles
+│   │
+│   └── ThirdParty/                    ← any external assets go here, NOT in _Project
+│
+├── Packages/
+│   └── manifest.json                  ← Unity package dependencies
+│
+├── ProjectSettings/                   ← Unity auto-generates this on project open
+└── docs/
+    ├── allomancy-design.md            ← magic system design document
+    ├── architecture.md                ← code architecture overview
+    └── onboarding.md                  ← "I just cloned this, what do I do?"
+```
+
+Create every folder using `mkdir -p`. Create placeholder `.gitkeep` files in
+empty folders so git tracks them.
+
+---
+
+### TASK 4 — WRITE ALL ROOT DOCUMENTATION FILES
+
+#### 4a — Write `README.md`
+Write a detailed README that includes:
+- Project name and Mistborn lore summary (2-3 sentences on Allomancy)
+- Current build status badge (hardcode as "🚧 Pre-Alpha")
+- Tech stack: Unity 2022 LTS, C#, GitHub
+- How to clone and open in Unity
+- Folder structure explanation
+- Links to docs/onboarding.md, docs/allomancy-design.md
+- Team section with placeholder names: "Owner: [YOUR NAME]", "Collaborator: [FRIEND NAME]"
+- License: Private / All Rights Reserved
+
+#### 4b — Write `CONTRIBUTING.md`
+Write a collaboration guide covering:
+- Branch naming convention: `feature/steel-push`, `fix/player-camera`, `docs/update-readme`
+- Commit message format: `[SYSTEM] Short description` e.g. `[Allomancy] Add SteelPush force calculation`
+- Pull request rules: always request review from at least one teammate
+- How to leave TODO comments in code (explained in detail — see Task 5 below)
+- Scene merge conflict warning: "Never work in the same scene simultaneously"
+- How to run the `check` command (explained in Task 8)
+
+#### 4c — Write `TODO.md`
+Write a master task tracker with these sections:
+
+```markdown
+# 🌑 MISTBORN ERA ONE — MASTER TODO
+
+## ✅ DONE
+- [ ] (nothing yet)
+
+## 🔧 IN PROGRESS
+- [ ] Basic Unity project structure
+- [ ] GitHub repository setup
+
+## 📋 BACKLOG — SPRINT 1 (Foundation)
+- [ ] Third-person player controller (movement, jump, crouch)
+- [ ] Basic placeholder character model rigged and imported
+- [ ] Camera system (Assassin's Creed style follow cam)
+- [ ] Basic melee attack animation framework (no weapons, just stances)
+- [ ] Metal reserve system (data model for 16 metals, only Steel/Iron active)
+- [ ] Allomantic Metals enum and MetalReserve ScriptableObject
+- [ ] SteelPush — physics-based force push on metal objects
+- [ ] IronPull — physics-based force pull on metal objects
+- [ ] Blue line visual effect (Allomantic sight — lines to nearby metals)
+- [ ] AllomanticTarget component for metal objects in the scene
+- [ ] Basic test arena scene with metal objects to push/pull
+- [ ] HUD: steel/iron reserve bars
+
+## 📋 BACKLOG — SPRINT 2 (Combat)
+- [ ] Enemy AI placeholder
+- [ ] Coin pouch mechanic (shoot coins with Steelpush)
+- [ ] Anchored Steelpush (launch player upward off metal below)
+- [ ] Ironpull grab and throw objects at enemies
+
+## 📋 BACKLOG — SPRINT 3 (World)
+- [ ] City block environment (placeholder geometry)
+- [ ] Vertical traversal (Steelpush off ground metal to scale buildings)
+- [ ] Metal-rich environment props
+
+## 💡 IDEAS / FUTURE
+- [ ] Add remaining 14 metals (Pewter, Tin, Brass, etc.)
+- [ ] Mistborn vs Misting character select
+- [ ] Skaa vs Noble faction system
+```
+
+#### 4d — Write `.gitignore`
+Write a Unity-specific .gitignore that ignores:
+- `[Ll]ibrary/`, `[Tt]emp/`, `[Oo]bj/`, `[Bb]uild/`, `[Bb]uilds/`
+- `[Ll]ogs/`, `[Mm]emory[Cc]aptures/`
+- `*.pidb`, `*.suo`, `*.user`, `*.userprefs`
+- `.DS_Store`, `Thumbs.db`
+- `*.csproj`, `*.unityproj`, `*.sln` (Unity regenerates these)
+- `*.booproj`, `*.svd`, `*.pdb`, `*.mdb`
+- `sysinfo.txt`, `*.apk`, `*.aab`
+- `/[Aa]ssets/AssetStoreTools*`
+- `ExportedObj/`, `.consulo/`, `.externalCodeEditor/`
+
+#### 4e — Write `.gitattributes`
+Write Unity LFS gitattributes for:
+- `*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.psd`, `*.tiff` — binary
+- `*.fbx`, `*.obj`, `*.blend`, `*.3ds`, `*.dae` — binary
+- `*.mp3`, `*.wav`, `*.ogg` — binary
+- `*.mp4`, `*.mov`, `*.avi` — binary
+- `*.asset`, `*.prefab`, `*.unity` — LFS tracking
+
+---
+
+### TASK 5 — WRITE THE C# SCRIPT STUBS WITH FULL COMMENT HEADERS
+
+For every script, use this **exact comment header format** at the top:
+
+```csharp
+// ============================================================
+// FILE: [FileName].cs
+// SYSTEM: [e.g. Allomancy / Player / Combat / UI]
+// STATUS: STUB — Not yet implemented
+// AUTHOR: [leave blank — teammate fills in]
+//
+// PURPOSE:
+//   [2-3 sentence description of what this script does]
+//
+// DEPENDENCIES:
+//   - [list other scripts/components this will need]
+//
+// TODO (AI Agent):
+//   - [specific thing still needed — be precise]
+//   - [another thing]
+//
+// TODO (Team):
+//   - [design decision needed from the humans]
+//   - [another human decision]
+//
+// LAST UPDATED: [today's date]
+// ============================================================
+```
+
+Now write stubs for ALL of the following scripts:
+
+#### Assets/_Project/Scripts/Allomancy/AllomanticMetal.cs
+An enum of all 16 Mistborn Era One metals, grouped by pair:
+```
+Physical Pushing: Steel, Iron
+Physical Pulling: (same pair)
+Physical Enhancement: Pewter, Tin
+Mental: Brass, Zinc
+Enhancement: Copper, Bronze
+Temporal: Gold, Electrum, Atium, Malatium
+Noble: Aluminum, Duralumin, Chromium, Nicrosil, Bendalloy, Cadmium
+```
+Include XML doc comments on each value explaining its Allomantic power.
+Only Steel and Iron are marked `// ACTIVE — Sprint 1`.
+All others are marked `// INACTIVE — Future Sprint`.
+
+#### Assets/_Project/Scripts/Allomancy/MetalReserve.cs
+A `[System.Serializable]` class (not MonoBehaviour) representing one metal's reserve:
+- `AllomanticMetal metalType`
+- `float currentAmount` (0-100)
+- `float maxAmount` (100 default)
+- `bool isBurning`
+- `float burnRate` (units per second)
+- Methods: `StartBurning()`, `StopBurning()`, `Consume(float dt)`, `IsEmpty()`
+Full XML doc comments on all members.
+
+#### Assets/_Project/Scripts/Allomancy/AllomancerController.cs
+MonoBehaviour that sits on the player. Manages all metal reserves:
+- `List<MetalReserve> reserves` initialized with all 16 metals
+- `GetReserve(AllomanticMetal metal)` method
+- `CanBurn(AllomanticMetal metal)` check
+- Calls `Consume()` in Update for all burning metals
+- Stub `OnMetalDepleted(AllomanticMetal metal)` event
+
+#### Assets/_Project/Scripts/Allomancy/SteelPushAbility.cs
+MonoBehaviour implementing Steel Allomancy (Steelpushing):
+- `[Header("Steel — Steelpush")]` attributes
+- `float pushForce = 500f`
+- `float pushRange = 30f`
+- `int maxTargets = 5`
+- `KeyCode activationKey = KeyCode.Mouse1` (right click)
+- Uses `Physics.SphereCast` to find `AllomanticTarget` objects in range
+- Applies `Rigidbody.AddForce` away from player on each target
+- If target is anchored/heavy: applies force TO the player instead (Newton's 3rd law — this is key Mistborn physics)
+- Stubs: `FindMetalTargetsInRange()`, `PushTarget(AllomanticTarget target)`, `ApplyRecoilToPlayer(Vector3 direction)`
+- Burns Steel reserve each frame it's active
+
+#### Assets/_Project/Scripts/Allomancy/IronPullAbility.cs
+MonoBehaviour implementing Iron Allomancy (Ironpulling):
+- Mirror of SteelPushAbility but PULLS targets toward player
+- `KeyCode activationKey = KeyCode.Mouse0` (left click hold — when in Allomantic mode)
+- Same Newton's 3rd law mechanic: heavy anchor = player moves toward it
+- Stubs same methods as Steel but named Pull variants
+
+#### Assets/_Project/Scripts/Allomancy/AllomanticTarget.cs
+MonoBehaviour that marks an object as metal (detectable by Allomancers):
+- `AllomanticMetal metalType` (what metal this object is made of)
+- `bool isAnchored` (if true, pushing it moves the player, not the object)
+- `float metalMass` (affects force calculations)
+- `Rigidbody rb` cached reference
+- `GetPushDirection(Vector3 fromPosition)` returns normalized direction
+Include a `[RequireComponent(typeof(Rigidbody))]` attribute.
+
+#### Assets/_Project/Scripts/Allomancy/AllomanticSight.cs
+MonoBehaviour implementing the "blue lines" visual — the iconic Allomantic detection:
+- Finds all `AllomanticTarget` objects within range using `Physics.OverlapSphere`
+- Draws lines using `Debug.DrawLine` for now (full VFX later)
+- `lineColor = Color.blue`
+- `detectionRange = 50f`
+- `bool sightActive` toggled by Tab key
+- TODO comment: "Replace Debug.DrawLine with LineRenderer VFX in Sprint 2"
+
+#### Assets/_Project/Scripts/Player/PlayerController.cs
+Third-person character controller stub:
+- Uses Unity's `CharacterController` component
+- Variables: `moveSpeed`, `sprintSpeed`, `jumpForce`, `gravity`
+- Stubs: `HandleMovement()`, `HandleJump()`, `HandleSprint()`
+- TODO: "Integrate with Allomancer for Steelpush-assisted jumps"
+
+#### Assets/_Project/Scripts/Player/PlayerCamera.cs
+Third-person camera controller:
+- Follows player with offset
+- Mouse look on X and Y axes
+- `mouseSensitivity`, `cameraDistance`, `cameraHeight`
+- TODO: "Add camera collision with environment geometry"
+
+#### Assets/_Project/Scripts/UI/MetalHUD.cs
+UI controller for displaying metal reserves:
+- References `AllomancerController`
+- Stubs for updating UI bars for Steel and Iron
+- TODO: "Hook up to Unity UI Slider components in TestArena scene"
+
+#### Assets/_Project/Scripts/Utilities/AllomancyConstants.cs
+Static class of game-wide constants:
+```csharp
+public static class AllomancyConstants {
+    public const float BASE_BURN_RATE = 1f;          // units/sec
+    public const float STEEL_PUSH_FORCE = 500f;
+    public const float IRON_PULL_FORCE = 500f;
+    public const float ALLOMANTIC_SIGHT_RANGE = 50f;
+    public const float METAL_DETECTION_RANGE = 30f;
+    // TODO: Tune all values during playtesting
+}
+```
+
+---
+
+### TASK 6 — WRITE THE DOCS FOLDER DOCUMENTS
+
+#### docs/allomancy-design.md
+Write a full design document covering:
+- What Allomancy is (lore summary)
+- The hard magic rules: ingestion → burning → effect → depletion
+- The 16 metals table with columns: Metal | Pulls/Pushes | Effect | Status
+- Steel/Iron physics design: Newton's 3rd law explanation with game examples
+  - "Light coin: coin flies away" vs "Metal anchor in wall: player flies toward it"
+- Allomantic Sight design: blue lines, range, intensity by mass
+- Metal reserve balance notes (burn rates, starting amounts)
+- Open design questions marked `> ❓ TEAM DECISION NEEDED:`
+
+#### docs/architecture.md
+Write a code architecture overview covering:
+- The script dependency diagram (text-based, using ASCII arrows)
+- How AllomancerController owns all MetalReserves
+- How SteelPushAbility and IronPullAbility talk to AllomancerController
+- How AllomanticTarget is the "receiver" of all push/pull physics
+- How AllomanticSight is purely visual and reads AllomanticTargets
+- Scene setup checklist: what components go on the Player GameObject
+
+#### docs/onboarding.md
+Write a "I just cloned this repo — what do I do?" guide:
+1. Install Unity 2022 LTS via Unity Hub
+2. Open the project folder (not a scene — open the project root)
+3. Let Unity import everything (will take a few minutes first time)
+4. Open Assets/_Project/Scenes/TestArena.unity
+5. Read TODO.md to see what's in progress
+6. Read docs/architecture.md before touching any scripts
+7. Branch naming and commit rules are in CONTRIBUTING.md
+8. Run the `check` command (explained — see Task 8)
+
+---
+
+### TASK 7 — CREATE PLACEHOLDER PRIMITIVE MODELS AS PREFABS
+
+Since we don't have real models yet, create a `ModelPlaceholders.md` in
+`Assets/_Project/Models/` explaining:
+- Player: Use Unity Capsule primitive (2m tall, placeholder material)
+- Metal coins: Use Unity Sphere primitive (0.05m radius, silver material)
+- Metal bracket (wall anchor): Use Unity Cube primitive (0.3m, grey material)
+- Environment buildings: Use Unity Cube primitives at various scales
+
+Also create `Assets/_Project/Prefabs/AllomanticTargets/PREFABS_README.md`:
+```
+When creating metal object prefabs, every prefab MUST have:
+  1. A Rigidbody component (with appropriate mass)
+  2. An AllomanticTarget component (set metalType and isAnchored)
+  3. A Collider component
+  4. A material from Assets/_Project/Materials/
+
+Naming convention:
+  Metal_Coin_01.prefab
+  Metal_Bracket_Wall_01.prefab
+  Metal_Railing_01.prefab
+```
+
+---
+
+### TASK 8 — CREATE THE `check` COMMAND SCRIPT
+
+Create a file at the project root called `check.sh` (and `check.bat` for Windows):
+
+#### check.sh
+```bash
+#!/bin/bash
+# ============================================================
+# check.sh — Mistborn Project Health Check
+# Run this with: bash check.sh
+# ============================================================
+# This script scans the codebase for all TODO comments left
+# by the AI agent and teammates, prints them grouped by file,
+# and shows a summary count.
+# ============================================================
+
+echo ""
+echo "🌑 MISTBORN ERA ONE — PROJECT CHECK"
+echo "======================================"
+echo "📅 $(date)"
+echo ""
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 TODO COMMENTS IN CODE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Find all TODO comments in C# scripts, grouped by file
+grep -rn "TODO" Assets/_Project/Scripts/ --include="*.cs" \
+  | sed 's|Assets/_Project/Scripts/||' \
+  | awk -F: '{
+      file=$1;
+      if(file != lastfile) {
+        print "\n📄 " file;
+        lastfile=file;
+      }
+      print "   Line " $2 ": " $3
+    }'
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 TODO SUMMARY COUNT"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+TOTAL=$(grep -rn "TODO" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
+AI_TODOS=$(grep -rn "TODO (AI Agent):" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
+TEAM_TODOS=$(grep -rn "TODO (Team):" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
+echo "  Total TODOs   : $TOTAL"
+echo "  AI Agent TODOs: $AI_TODOS  ← things Claude Code still needs to implement"
+echo "  Team TODOs    : $TEAM_TODOS  ← decisions your team needs to make"
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🌿 GIT STATUS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+git status --short
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🌿 RECENT COMMITS (last 10)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+git log --oneline -10
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 MASTER TODO.md STATUS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+DONE=$(grep -c "\[x\]" TODO.md 2>/dev/null || echo 0)
+OPEN=$(grep -c "\[ \]" TODO.md 2>/dev/null || echo 0)
+echo "  Completed tasks : $DONE"
+echo "  Open tasks      : $OPEN"
+
+echo ""
+echo "🌑 Check complete. Good luck, Mistborn."
+echo ""
+```
+
+#### check.bat (Windows version)
+```bat
+@echo off
+echo.
+echo MISTBORN ERA ONE - PROJECT CHECK
+echo ======================================
+echo.
+echo TODO COMMENTS IN CODE:
+echo ----------------------
+findstr /s /n "TODO" Assets\_Project\Scripts\*.cs
+echo.
+echo GIT STATUS:
+git status --short
+echo.
+echo RECENT COMMITS:
+git log --oneline -10
+echo.
+echo Check complete.
+```
+
+Make `check.sh` executable: `chmod +x check.sh`
+
+---
+
+### TASK 9 — INITIAL GIT COMMIT AND PUSH
+
+After ALL files are created, run:
+
+```bash
+git add .
+git commit -m "[Setup] Initial project scaffold — Unity structure, all script stubs, docs, check command
+
+- Created full Unity folder structure under Assets/_Project/
+- Written all Allomancy script stubs: AllomanticMetal, MetalReserve,
+  AllomancerController, SteelPushAbility, IronPullAbility,
+  AllomanticTarget, AllomanticSight
+- Written Player stubs: PlayerController, PlayerCamera
+- Written UI stub: MetalHUD
+- Written Utilities: AllomancyConstants
+- Added docs: allomancy-design.md, architecture.md, onboarding.md
+- Added README.md, CONTRIBUTING.md, TODO.md
+- Added check.sh / check.bat for project health scanning
+- All scripts have structured TODO headers for AI and Team tasks"
+
+git push origin main
+```
+
+---
+
+### TASK 10 — INVITE COLLABORATOR TO THE PRIVATE REPO
+
+Run:
+```bash
+gh repo edit --add-collaborator [FRIEND_GITHUB_USERNAME]
+```
+Replace `[FRIEND_GITHUB_USERNAME]` with the actual GitHub username.
+Then tell the user:
+> "Your collaborator will receive a GitHub email invitation.
+> Once they accept, they can clone with: git clone [repo URL]
+> Have them read docs/onboarding.md first!"
+
+---
+
+### TASK 11 — FINAL REPORT
+
+After everything is done, print a clean summary:
+```
+✅ SETUP COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Repository : https://github.com/[USERNAME]/mistborn-era-one (private)
+Engine     : Unity 2022 LTS
+Language   : C#
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Files created:
+  📁 Full Unity folder structure
+  📜 10 C# script stubs with TODO headers
+  📚 3 docs (allomancy-design, architecture, onboarding)
+  📋 README, CONTRIBUTING, TODO
+  🔧 check.sh / check.bat
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEXT STEPS FOR YOUR TEAM:
+  1. Open project in Unity 2022 LTS
+  2. Open Assets/_Project/Scenes/TestArena.unity
+  3. Read docs/onboarding.md
+  4. Run: bash check.sh  (to see all open TODOs)
+  5. Pick a task from TODO.md and create a branch:
+     git checkout -b feature/your-task-name
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The Lord Ruler's records are sealed. The Final Empire begins. 🌑
+```
+
+---
+
+## ═══════════════════════════════════════════
+## SECTION 3 — ONGOING MAINTENANCE (THE `check` WORKFLOW)
+## ═══════════════════════════════════════════
+
+After the initial setup, you can re-run Claude Code at any time with this
+follow-up prompt to have it do maintenance work:
+
+```
+Run `bash check.sh` and read the output.
+Then do the following:
+1. For every "TODO (AI Agent):" comment you find, implement that feature now.
+2. For every "TODO (Team):" comment, leave it alone but summarize it for me.
+3. After implementing, update the comment from "TODO (AI Agent):" to "DONE (AI Agent): [date]"
+4. Check if any TODO.md items can be marked [x] as complete.
+5. Stage all changes and make a commit with a descriptive message.
+6. Push to origin main.
+7. Print a summary of what you implemented and what team decisions are still pending.
+```
+
+Run this whenever you want a "work session" — Claude Code will pick up
+exactly where it left off.
+
+---
+
+## ═══════════════════════════════════════════
+## SECTION 4 — MISTBORN LORE REFERENCE (FOR AI CONTEXT)
+## ═══════════════════════════════════════════
+
+Use this lore to write accurate comments, docs, and variable names:
+
+**Allomancy Rules (Hard Magic System):**
+- Users must INGEST metal physically (swallow metal flakes/dust)
+- They then "burn" it — consuming the metal for power
+- Power ends when the metal reserve is depleted
+- Mistborn can burn all 16 metals
+- Mistings can burn exactly ONE metal
+- The power comes from Preservation (one of the two Shards of Adonalsium)
+
+**Steel (Steelpushing):**
+- Pushes on metals in the Allomancer's line of sight
+- Force is applied AWAY from the Allomancer
+- Newton's 3rd Law: if target is heavier/anchored, the Allomancer moves instead
+- Used for: launching coins as projectiles, pushing metal enemies,
+  pushing off metal surfaces to fly/leap
+- Iconic use: standing on a metal surface and Steelpushing downward = flight
+
+**Iron (Ironpulling):**
+- Pulls on metals TOWARD the Allomancer
+- Same Newton's 3rd Law applies: heavy anchor = Allomancer pulled toward it
+- Used for: disarming enemies, pulling self toward metal anchors to swing/climb
+- Complementary to Steel (same "line" of metals — physical external pushing metals)
+
+**Allomantic Sight:**
+- When burning Steel or Iron, the Allomancer sees faint blue lines
+- Lines extend from their chest to every metal object in range
+- Line thickness/brightness indicates mass of the object
+- Critical for targeting during push/pull
+
+**Metal Reserves:**
+- Burning faster = more power but depletes faster
+- Flaring: burning at max power, faster depletion, stronger effect
+- A Mistborn manages 16 separate reserves simultaneously
+
+---
+
+*End of Mega-Prompt. Paste everything above into Claude Code and let it run.*
+*The ash falls. The mists rise. The Lord Ruler waits.*
+*— Generated for the Mistborn Era One project team*

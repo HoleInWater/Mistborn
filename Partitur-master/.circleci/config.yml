@@ -1,0 +1,27 @@
+version: 2.1
+orbs:
+  python: circleci/python@0.2.1
+
+jobs:
+  build-and-test:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache
+      - python/install-deps
+      - python/save-cache
+      - run:
+          name: Code Has Arrived
+          command: |
+            ls ./ressources/
+            echo '^^^That should look familiar^^^'
+      - run:
+          name: Test
+          command: |
+            python run.py
+            python test.py
+
+workflows:
+  main:
+    jobs:
+      - build-and-test

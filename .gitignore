@@ -1,0 +1,20 @@
+# Audio files - large binaries
+*.mp3
+*.wav
+*.flac
+*.ogg
+*.midi
+*.mid
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Documents
+*.pdf
+*.docx
+
+# OS files
+.DS_Store
+Thumbs.db
