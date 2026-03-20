@@ -112,10 +112,11 @@ cd Mistborn
 ### Step 2: Open in Unity
 
 1. Open Unity Hub
-2. Click "Open" 
-3. Navigate to where you saved the project
-4. Select the **Mistborn folder** (the root folder, NOT a scene file)
-5. Click "Open"
+2. Click "Add"
+3. Click "Add project from disk"
+4. Navigate to where you saved the project
+5. Select the **Mistborn folder** (the root folder, NOT a scene file)
+6. Click "Open"
 
 Unity will import everything — this takes a few minutes the first time.
 
