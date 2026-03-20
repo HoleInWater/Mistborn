@@ -134,29 +134,88 @@ Then open a Pull Request on GitHub.
 
 ## Controls
 
-| Action | Key |
-|--------|-----|
-| Move | WASD |
-| Sprint | Left Shift |
-| Jump | Space |
-| Iron Pull (left) | Mouse Left Click |
-| Steel Push (right) | Mouse Right Click |
-| Allomantic Sight | Tab |
+| Action | Key | What It Does |
+|--------|-----|--------------|
+| Move | WASD | Walk around |
+| Sprint | Left Shift | Run faster |
+| Jump | Space | Jump / Vault |
+| Iron Pull | Mouse Left Click (hold) | Pull metal toward you |
+| Steel Push | Mouse Right Click (hold) | Push metal away |
+| Allomantic Sight | Tab | See blue lines to all metal |
+
+### How It Works
+
+- **Iron Pull (Left Click):** Hold to pull metal toward you. Light objects (coins) fly to you. Heavy anchored objects (wall brackets) pull YOU toward them instead.
+
+- **Steel Push (Right Click):** Hold to push metal away. Light objects fly away. Heavy anchored objects push YOU in the opposite direction.
+
+- **Allomantic Sight (Tab):** Toggle to see blue lines pointing to all metal within range. Thicker lines = heavier metal.
+
+### Future Controls
+
+| Action | Key | Status |
+|--------|-----|--------|
+| Pewter Enhancement | Q | Ready, needs hooking up |
+| Tin Enhancement | E | Ready, needs hooking up |
+| Steelpush Jump | Space + anchor below | Ready, needs hooking up |
+| Coin Throw | F | Sprint 2 |
 
 ## Project Structure
 
 ```
-Assets/_Project/
-├── Scripts/          # All C# code
-│   ├── Allomancy/    # Magic system
-│   ├── Player/       # Character & camera
-│   ├── Combat/       # Fighting mechanics
-│   ├── GUI/          # HUD elements
-│   └── Utilities/    # Helpers & constants
-├── Prefabs/          # Reusable game objects
-├── Scenes/           # Unity scenes
-└── Materials/        # Visual materials
+Mistborn/
+├── Assets/_Project/
+│   ├── Scripts/
+│   │   ├── Allomancy/     # Steel, Iron, Pewter, Tin abilities
+│   │   ├── Player/        # Movement, camera, assisted jump
+│   │   ├── Combat/        # Enemy base, enemy coinshot
+│   │   ├── GUI/           # Metal reserve display
+│   │   ├── World/         # Arena setup tools
+│   │   ├── Utilities/     # Sound, save/load, constants
+│   │   └── Physics/       # Allomancy force calculations
+│   ├── Prefabs/           # Metal objects (coins, brackets)
+│   ├── Scenes/            # Unity scenes
+│   ├── Materials/         # Visual materials
+│   ├── Models/           # 3D models
+│   └── Animations/       # Character animations
+├── docs/                  # Design docs, lore, guides
+├── Packages/              # Unity packages
+└── ProjectSettings/      # Unity settings
 ```
+
+## Ready-to-Use Scripts
+
+These are written and waiting to be hooked up:
+
+| Script | What It Does |
+|--------|--------------|
+| `AllomancerController` | Manages metal reserves |
+| `SteelPushAbility` | Push metal objects |
+| `IronPullAbility` | Pull metal objects |
+| `AllomanticTarget` | Marks objects as metal |
+| `AllomanticSight` | Shows blue lines |
+| `PlayerController` | WASD movement |
+| `PlayerCamera` | Third-person camera |
+| `MetalReserveUI` | Shows reserve bars |
+| `EnemyBase` | Basic enemy AI |
+| `EnemyCoinshot` | Enemy that uses push/pull |
+| `PewterEnhancement` | Strength/speed boost |
+| `TinEnhancement` | Enhanced senses |
+| `SaveLoadSystem` | Save/load game state |
+| `SoundManager` | Audio system |
+
+## Common Issues
+
+**"Scripts are missing errors"**
+- Make sure you opened the ROOT folder, not just a scene
+- Try: Assets → Reimport All
+
+**"Scene looks empty"**
+- The TestArena scene needs to be set up in Unity
+- Run: Mistborn → Setup Test Arena
+
+**"Camera is weird"**
+- Press Escape to unlock the mouse cursor
 
 ## The Team
 
