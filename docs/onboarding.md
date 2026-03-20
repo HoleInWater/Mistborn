@@ -240,6 +240,35 @@ Unity scene files (.unity) are text-based but complex. If you get conflicts:
 
 ---
 
+## Glossary of Terms
+
+| Term | What It Means |
+|------|---------------|
+| **Root folder** | The main project folder. The one with `.git` inside. For this project, it's the `Mistborn` folder you cloned. |
+| **Subfolder** | A folder inside another folder. `Assets/_Project/Scripts/` is a subfolder of `Assets/`. |
+| **Repository (Repo)** | The entire project folder tracked by Git. Contains `.git` and all your files. |
+| **Branch** | A separate copy of the project to work on without affecting the main version. Like a save file for your work-in-progress. |
+| **Commit** | A snapshot of changes. Like saving your game — Git saves exactly what changed. |
+| **Push** | Upload your commits to GitHub (the cloud). |
+| **Pull** | Download commits from GitHub to your computer. |
+| **Merge** | Combine one branch into another. |
+| **Clone** | Download a repository to your computer for the first time. |
+| **Fork** | Make your own copy of someone else's repo (not what we use here). |
+| **Pull Request (PR)** | Ask to merge your branch into the main project. Lets others review your changes. |
+| **Origin** | The default name for the remote repository (GitHub). `origin/master` = the master branch on GitHub. |
+| **HEAD** | Your current position. HEAD points to the latest commit on your current branch. |
+| **.gitignore** | A file that tells Git which folders/files to ignore (like Library/, Temp/). |
+| **Conflict** | When two people edited the same thing. Git can't auto-merge — you have to pick which version to keep. |
+| **Stash** | Temporarily save your changes to switch branches. Like pausing a game. |
+| **Scene (.unity)** | A Unity file that contains your game level, objects, settings. |
+| **Prefab** | A reusable game object template. Make one, use it many times. |
+| **Asset** | Anything in the Assets folder — scripts, models, textures, scenes, prefabs. |
+| **Script** | C# code file that makes things happen in the game. |
+| **Component** | A piece attached to a GameObject in Unity. Scripts become components. |
+| **GameObject** | An object in your Unity scene. Everything is a GameObject. |
+| **Rigidbody** | A Unity component that makes objects move with physics. |
+| **Collider** | A Unity component that defines an object's shape for collision detection. |
+
 ## Questions?
 
 Ask the team. Don't sit on confusion — reach out.
