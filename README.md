@@ -151,7 +151,7 @@ Assets/_Project/
 │   ├── Allomancy/    # Magic system
 │   ├── Player/       # Character & camera
 │   ├── Combat/       # Fighting mechanics
-│   ├── UI/           # HUD elements
+│   ├── GUI/          # HUD elements
 │   └── Utilities/    # Helpers & constants
 ├── Prefabs/          # Reusable game objects
 ├── Scenes/           # Unity scenes
