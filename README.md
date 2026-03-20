@@ -47,8 +47,8 @@ Assets/_Project/
 
 ## The Team
 
-- Owner: [Your Name]
-- Collaborator: Nathan (thenbuzzard100@gmail.com)
+- Owner: HoleInWater
+- Collaborator: thenbuzzard100@gmail.com
 
 ## License
 
