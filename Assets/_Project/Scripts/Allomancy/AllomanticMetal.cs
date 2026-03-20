@@ -11,7 +11,7 @@
 // DEPENDENCIES:
 //   - Referenced by MetalReserve, SteelPushAbility, IronPullAbility
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement full burn rate modifiers per metal
 //   - Add XML documentation for visual metal types (Bendalloy, Cadmium)
 //

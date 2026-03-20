@@ -31,7 +31,7 @@
 - [ ] Playtesting push/pull force balance
 
 ## 📋 BACKLOG — SPRINT 2 (Combat)
-- [ ] Enemy AI placeholder
+- [ ] Enemy placeholder
 - [ ] Coin pouch mechanic (shoot coins with Steel)
 - [ ] Anchored Steelpush (launch self upward)
 - [ ] Ironpull grab and throw

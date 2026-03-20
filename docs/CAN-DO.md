@@ -1,6 +1,6 @@
-# What I Can Do — AI Generated Content
+# What Can Be Done — Project Capabilities
 
-*This file lists everything I've created and can create for the project.*
+*This file lists what can be created for the project.*
 
 ## ✅ Already Done
 
@@ -39,15 +39,18 @@
 | `docs/steelpush-range.md` | ✅ Done |
 | `docs/scene-setup.md` | ✅ Done |
 | `docs/team-playbook.md` | ✅ Done |
+| `docs/CAN-DO.md` | ✅ Done |
+| `docs/TEAM-TASKS.md` | ✅ Done |
+| `docs/magic-qa-reference.md` | ✅ Done |
 
 ---
 
-## 🔧 I Can Write (Just Ask)
+## 🔧 Can Write (Just Ask)
 
-If you need any of these, just ask and I'll write them:
+If you need any of these, just ask:
 
 ### More Scripts
-- Enemy AI (basic patrol, chase, attack)
+- Enemy placeholder
 - More Allomancy abilities (Pewter, Tin, etc.)
 - Inventory system
 - Save/load system
@@ -69,9 +72,9 @@ If you need any of these, just ask and I'll write them:
 
 ---
 
-## ❌ I Cannot Do (Needs Human with Unity)
+## ❌ Cannot Do (Needs Human with Unity)
 
-See `PROJECT_REQUESTS.md` for what needs to be done by the team.
+See `docs/TEAM-TASKS.md` for what needs to be done by the team.
 
 **Short version:**
 - Unity scene files (.unity)
@@ -84,6 +87,6 @@ See `PROJECT_REQUESTS.md` for what needs to be done by the team.
 ## How to Request Something
 
 Just tell me what you need in plain English. Examples:
-- "Write me an enemy AI script"
+- "Write me an enemy script"
 - "Create a spec for the combat system"
 - "Write a project request for the environment team"

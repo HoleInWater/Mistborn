@@ -8,7 +8,7 @@
 //   Displays metal reserve bars in the HUD.
 //   Shows current amount, burn state, and depletion warning.
 //
-// TODO (AI Agent):
+// TODO:
 //   - Hook up to actual MetalReserve data
 //   - Add depletion warning (flash when low)
 //   - Add flaring indicator

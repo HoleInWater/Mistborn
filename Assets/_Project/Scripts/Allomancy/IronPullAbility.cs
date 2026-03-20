@@ -14,7 +14,7 @@
 //   - AllomanticTarget
 //   - AllomanticMetal.Iron
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement visual effects for iron pull
 //   - Add audio feedback
 //

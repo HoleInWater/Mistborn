@@ -11,7 +11,7 @@
 // DEPENDENCIES:
 //   - Referenced by all Allomancy scripts
 //
-// TODO (AI Agent):
+// TODO:
 //   - Add constants for remaining metals
 //   - Document all constants
 //

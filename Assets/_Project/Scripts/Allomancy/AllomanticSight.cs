@@ -13,7 +13,7 @@
 //   - AllomanticTarget
 //   - Toggle on Tab key
 //
-// TODO (AI Agent):
+// TODO:
 //   - Replace Debug.DrawLine with LineRenderer VFX in Sprint 2
 //   - Add line thickness based on metal mass
 //   - Add fading based on distance

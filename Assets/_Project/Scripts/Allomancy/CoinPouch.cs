@@ -12,7 +12,7 @@
 //   Coinshots are known for their coin-shooting ability.
 //   "A steel Misting is known as a Coinshot" — Coppermind
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement coin spawning
 //   - Add throwing arc visualization
 //   - Connect to Steelpush for launch force

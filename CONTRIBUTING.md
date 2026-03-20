@@ -36,7 +36,7 @@ Examples:
 We use structured TODO comments so everyone knows what's done and what needs attention:
 
 ```csharp
-// TODO (AI Agent):
+// TODO:
 //   - Specific implementation task
 
 // TODO (Team):

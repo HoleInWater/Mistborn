@@ -15,7 +15,7 @@
 //   "Coinshots commonly crouch down before they push, to give 
 //    the push a little more lift." — Coppermind
 //
-// TODO (AI Agent):
+// TODO:
 //   - Detect anchored metal below player
 //   - Calculate launch force based on distance and metal mass
 //   - Add visual feedback (crouch, launch, trail)

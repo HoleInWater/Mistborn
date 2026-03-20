@@ -13,7 +13,7 @@
 //   - AllomanticMetal enum
 //   - SteelPushAbility, IronPullAbility
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement event system for metal depletion
 //   - Add flaring mechanic support
 //

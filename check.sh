@@ -21,10 +21,8 @@ grep -rn "TODO" Assets/_Project/Scripts/ --include="*.cs" | sed 's|Assets/_Proje
 echo ""
 echo "--- TODO COUNT ---"
 TOTAL=$(grep -rn "TODO" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
-AI_TODOS=$(grep -rn "TODO (AI Agent):" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
 TEAM_TODOS=$(grep -rn "TODO (Team):" Assets/_Project/Scripts/ --include="*.cs" | wc -l)
 echo "  Total TODOs   : $TOTAL"
-echo "  AI TODOs: $AI_TODOS"
 echo "  Team TODOs: $TEAM_TODOS"
 
 echo ""

@@ -12,7 +12,7 @@
 //   - AllomancerController
 //   - Unity UI Slider components
 //
-// TODO (AI Agent):
+// TODO:
 //   - Hook up to Unity UI Slider components in TestArena scene
 //   - Add visual indicators for burning state
 //   - Implement flaring indicator

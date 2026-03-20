@@ -1,6 +1,6 @@
 # What Needs to Be Done — Team Tasks
 
-*Things I (the AI) can't do. Needs someone with Unity installed.*
+*Things that need to be done in Unity. Needs someone with Unity installed.*
 
 ---
 

@@ -22,7 +22,7 @@
 // RANGE:
 //   ~100 paces (~75m) max, with distance falloff
 //
-// TODO (AI Agent):
+// TODO:
 //   - Add audio feedback
 //
 // TODO (Team):

@@ -12,7 +12,7 @@
 //   - AllomanticMetal enum
 //   - Requires Rigidbody component
 //
-// TODO (AI Agent):
+// TODO:
 //   - Add visual editor customization
 //   - Implement mass-based force calculations
 //

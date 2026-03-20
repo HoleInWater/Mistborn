@@ -1,0 +1,1079 @@
+================================================================================
+  MISTBORN ERA 1 — METALLIC ARTS Q&A SESSION
+  For: Digital Video Game Implementation Reference
+  Magic Systems: Allomancy | Feruchemy | Hemalurgy
+  Format: Q → A → GAME IMPLEMENTATION PROMPT
+================================================================================
+
+Use this document as a read-off session with your AI collaborator.
+Each entry follows this structure:
+
+  Q:    The lore/mechanics question
+  A:    The canon answer from Era 1
+  GAME: A design prompt to get your AI thinking about implementation
+
+Work through each metal. Take notes. Let the GAME prompts drive your
+design conversations before committing to any system decisions.
+
+================================================================================
+  SECTION 1 — PHYSICAL METALS
+================================================================================
+
+--------------------------------------------------------------------------------
+  IRON  |  Allomancy: Ironpulling  |  Feruchemy: Weight  |  Hemalurgy: Steal Physical Powers
+--------------------------------------------------------------------------------
+
+Q: What exactly does burning iron allow a Lurcher to Pull, and what can they NOT Pull?
+
+A: Burning iron lets a Lurcher Pull on metal objects — coins, weapons, armor, anything
+   made of or containing metal. They cannot Pull on living flesh or organic matter. The
+   metal must exist as actual metal. This is why Allomancers can be partially countered
+   by simply not carrying metal on your person.
+
+GAME: How will your engine distinguish "metal" from "non-metal" objects in the world?
+      Consider a tagging or material system on game objects. What happens when a player
+      tries to Pull on a wooden sword with a metal pommel — does only the pommel react?
+      How will you communicate to the player what is Pullable and what is not, without
+      breaking immersion? Think about the blue-line detection system from the books as
+      a potential UI solution.
+
+--------------------------------------------------------------------------------
+
+Q: Is there a range on Ironpulling? What determines how far away a metal object
+   can be before it becomes unreachable?
+
+A: Yes, range exists. It scales with the Allomancer's power level and how much metal
+   they are actively burning. Flaring iron extends reach. An average Lurcher can Pull
+   metals within roughly a few dozen meters. Savants or those burning heavily can push
+   this further. The books intentionally leave the exact number flexible.
+
+GAME: Will range be a fixed stat, a scaling resource tied to metal reserves, or a
+      player-upgradeable attribute? If flaring increases range at greater metal cost,
+      how do you balance that economy? Consider whether range should be visible to the
+      player as a radius indicator, or kept deliberately vague to encourage exploration
+      and discovery. How does range interact with line-of-sight versus the blue-line
+      detection system?
+
+--------------------------------------------------------------------------------
+
+Q: What governs which direction the PLAYER moves versus which direction the OBJECT
+   moves when Pulling?
+
+A: Relative mass. The lighter object moves more. Pull a coin lighter than you — the
+   coin flies toward you. Pull a wall bracket bolted to a building (effectively infinite
+   mass) — you fly toward it. This is consistent for both iron and steel. The physics
+   follow Newton's third law throughout.
+
+GAME: This is one of your most important physics design decisions. Will you simulate
+      actual mass differentials, or use simplified rules (e.g. "anchored objects always
+      pull the player, loose objects always come to the player")? How will the player
+      learn this system intuitively without a tutorial wall of text? Consider whether
+      environmental puzzles or combat scenarios can teach this organically. How will you
+      handle edge cases like very heavy but unanchored objects?
+
+--------------------------------------------------------------------------------
+
+Q: What does an iron metalmind store in Feruchemy, and what does it feel like to
+   fill one versus tap one?
+
+A: An ironmind stores weight. Filling it makes the Feruchemist literally lighter —
+   easier to move, harder to stay grounded, almost ghostlike. Tapping makes them
+   dramatically heavier — useful for anchoring themselves, breaking through floors,
+   or becoming immovable in a grapple. Unlike Allomantic iron which affects external
+   metals, Feruchemical iron is entirely about the user's own physical mass.
+
+GAME: How will weight changes affect your physics and movement systems? A lighter
+      player might be pushed by wind, float further when jumping, or struggle to resist
+      knockback. A heavier player might break through weak floors, resist crowd control,
+      or deal more damage in a charge. Consider whether weight storage has a visual
+      tell — does the character visibly shrink or swell? How does this interact with
+      swimming, climbing, or mounted movement if those exist in your game?
+
+--------------------------------------------------------------------------------
+
+Q: What does an iron Hemalurgic spike steal, and from what part of the body must
+   it be driven?
+
+A: An iron spike steals Allomantic strength in Physical metals — specifically the
+   powers of Ironpulling and Steelpushing. The spike must be driven through the
+   bicep of the donor to correctly steal this power. Placement is critical — the
+   wrong location steals a different or diminished power.
+
+GAME: Will Hemalurgy be a player-accessible system or only an enemy/NPC mechanic?
+      If players can use Hemalurgy, how will you handle the morality and consequence
+      systems around spiking other characters? If it is enemy-only, consider how
+      spiked enemies (koloss, Inquisitors, kandra) will have different power profiles
+      based on their spikes. Will spike placement be simulated, or abstracted to
+      spike type only?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  STEEL  |  Allomancy: Steelpushing  |  Feruchemy: Speed  |  Hemalurgy: Steal Physical Powers
+--------------------------------------------------------------------------------
+
+Q: How does a Coinshot use steel to "fly," given that steel only Pushes metals?
+
+A: By Pushing downward against coins dropped on the ground — or any metal anchor
+   below them — the equal-and-opposite reaction launches the Allomancer upward. To
+   sustain movement they keep dropping coins and Pushing, or Push against metals
+   embedded in buildings. It is not true flight — it is controlled ballistic movement
+   using consistent physics.
+
+GAME: Traversal is likely one of your game's most visible and feel-defining systems.
+      Will the player have infinite coins or a limited economy that makes every Push
+      a resource decision? Consider the difference between Vin's acrobatic style and
+      a more grounded approach. How will you design urban environments specifically
+      to reward steel-based traversal — metal beams, iron railings, lamp posts?
+      What is the "feel goal" for Steelpushing movement — weighty and deliberate,
+      or fast and fluid?
+
+--------------------------------------------------------------------------------
+
+Q: Is there a range on Steelpushing? Can you Push on metals you cannot see?
+
+A: Range exists and scales with power. Crucially, you can sense metals through
+   Allomantic blue lines even through walls and in darkness, as long as they are
+   within range. You do not need direct line-of-sight. This is one of the most
+   tactically important mechanics in combat.
+
+GAME: The blue-line detection system is both a UI challenge and an opportunity. Will
+      you render blue lines as an always-on overlay, a toggleable mode, or something
+      the player activates when burning iron or steel? How will you handle visual
+      clutter in a metal-rich environment like Luthadel — too many lines could be
+      overwhelming. Consider whether blue line thickness (based on metal mass) can
+      double as an environmental puzzle mechanic, helping players identify key objects.
+
+--------------------------------------------------------------------------------
+
+Q: Why does burning steel show the Allomancer blue lines pointing toward metals?
+   What is the in-world explanation?
+
+A: The blue lines are the Allomancer's perceptual sense granted by burning steel or
+   iron. Lines vary in thickness based on the mass of the metal. There is no hard
+   physics explanation given in Era 1 — it is understood as part of how Preservation's
+   power manifests through the Allomancer. It lets you map a room through walls.
+
+GAME: This is your built-in radar/detection system and it has enormous gameplay
+      potential. Consider designing specific puzzles where blue lines are the only
+      information available — a dark room, a hidden door, an ambush. How will enemy
+      Allomancers interact with the blue-line system? Can enemies also sense the
+      player's metal through their own blue lines, creating a mutual detection dynamic?
+      Think about what happens to the blue-line display during a coppercloud.
+
+--------------------------------------------------------------------------------
+
+Q: What does a steelmind store, and what is the tradeoff of filling one?
+
+A: A steelmind stores physical speed. While filling it, the Feruchemist moves
+   sluggishly — banking their own speed for later. When tapping, they can move at
+   superhuman velocity. The cost is always paid upfront. A Steelrunner who stores
+   heavily will be frustratingly slow for days to build a meaningful reserve.
+
+GAME: Speed changes have profound implications for gameplay feel. Will slowed
+      movement during storage be a meaningful penalty or a minor inconvenience?
+      Consider whether the player can pre-fill metalminds before dangerous situations
+      or whether filling happens in real time with real consequences. When tapping,
+      should the world visually slow down (bullet-time aesthetic) or should the
+      player simply move faster? How will sped-up movement interact with combat
+      hit detection and collision?
+
+--------------------------------------------------------------------------------
+
+Q: Steel in Allomancy and Steel in Feruchemy both relate to speed and movement.
+   What is the fundamental difference in HOW the power is accessed?
+
+A: Allomantic steel uses external metals as anchors to create kinetic force —
+   it manipulates physical objects through external physics. Feruchemical steel
+   stores and retrieves the user's own biological speed. One is an external
+   physics-based push; the other is an internal personal enhancement. Same metal,
+   completely different magic.
+
+GAME: If your game includes both Allomancy and Feruchemy as player options, how
+      will you communicate this distinction clearly without a lecture? Consider
+      whether a character who has both (a Twinborn) might feel qualitatively
+      different to play than one with only one system. Think about whether the
+      visual and audio design for each system should feel distinct — perhaps
+      Allomancy is loud and explosive, while Feruchemy is internal and quiet.
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  TIN  |  Allomancy: Enhanced Senses  |  Feruchemy: Sensory Acuity  |  Hemalurgy: Steal Senses
+--------------------------------------------------------------------------------
+
+Q: Burning tin enhances all five senses — but what is the dangerous downside of
+   having enhanced senses in the wrong environment?
+
+A: Enhanced senses can be weaponized against the Tineye. A sudden loud noise becomes
+   agonizing. A bright flash is blinding. Strong smells are overwhelming. Vin learns
+   this the hard way early in the series. The power itself becomes the weakness —
+   having enhanced senses in combat is a liability as much as an asset.
+
+GAME: This is one of the most game-design-ready mechanics in the entire series.
+      Consider enemies or environmental traps designed specifically to counter a
+      tin-burning player — flashbang-style explosions, deafening bell towers, smoke
+      bombs with strong chemical smells. Will enhanced senses give the player tangible
+      UI benefits like extended enemy audio detection radius? Balance the reward of
+      enhanced perception against the deliberate sensory-overload counterplay.
+
+--------------------------------------------------------------------------------
+
+Q: Can a Tineye selectively enhance only some senses, or does burning tin always
+   affect all five equally?
+
+A: By default all five senses are enhanced simultaneously. Skilled Tineyes can learn
+   to focus on specific senses and dampen others through practice, but this requires
+   significant training and is not the natural default.
+
+GAME: Consider making selective sense control a skill tree unlock or a practiced
+      ability that improves with use. Early game: burning tin always creates the
+      full vulnerability. Late game: the player can choose to enhance only sight
+      while keeping hearing at normal levels. This creates natural character
+      progression tied directly to mastery of the magic system. How will you teach
+      this to the player without explicitly saying "you will unlock this later"?
+
+--------------------------------------------------------------------------------
+
+Q: What does a tinmind store, and how does it differ mechanically from
+   Allomantic tin?
+
+A: A tinmind stores sensory acuity — but crucially, the Feruchemist can choose
+   which specific sense to store in a given tinmind. Feruchemical tin does not
+   enhance all senses at once unless multiple tinminds are tapped simultaneously.
+   Sazed uses this constantly — storing sight while reading large print, then
+   tapping it to read small script later. The Feruchemical version offers more
+   precise control than the Allomantic version.
+
+GAME: The granularity of Feruchemical tin offers interesting puzzle design space.
+      A player might store their night vision during a bright day to later tap it
+      in a dark cave. Consider environmental puzzles that require specific sensory
+      combinations. A door with a barely audible pattern lock, a poison identifiable
+      only by smell, a hidden passage visible only with enhanced sight. How will
+      you make the player feel clever for managing their sensory reserves correctly?
+
+--------------------------------------------------------------------------------
+
+Q: What is a Tineye savant and why is it considered dangerous or damaging?
+
+A: A savant has burned tin so intensively and consistently that their senses are
+   permanently heightened even without burning. Sounds are always too loud, lights
+   always too harsh. Savantism is presented as a corruption, not a blessing — the
+   power cannot be turned off. It functions as a cautionary tale about overuse.
+
+GAME: Will savantism be a mechanic in your game? It creates a compelling risk-reward
+      design space — powerful players who over-rely on a single metal could develop
+      permanent drawbacks alongside permanent bonuses. Consider whether savantism
+      is a player choice, an unavoidable consequence of heavy use, or something
+      players can actively seek out as a build path. How does permanent sensory
+      enhancement change your game's difficulty if the player cannot turn it off?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  PEWTER  |  Allomancy: Physical Enhancement  |  Feruchemy: Strength  |  Hemalurgy: Steal Physical Powers
+--------------------------------------------------------------------------------
+
+Q: Burning pewter enhances physical strength — but what OTHER benefits does it
+   grant beyond raw strength?
+
+A: Pewter enhances strength, speed, endurance, balance, and pain tolerance
+   simultaneously. It also dramatically speeds healing from injuries sustained
+   while burning. A Pewterarm can run for hours, take wounds that would cripple
+   a normal person, and stay functional through injuries that would be immediately
+   incapacitating. It is a full physical augmentation, not just a strength buff.
+
+GAME: Pewter as a "combat mode" has enormous design potential. Consider whether
+      burning pewter changes your combat feel entirely — heavier hits, different
+      animation states, altered movement weight. Will pewter-burning affect the
+      player's damage threshold or use a stagger/stun resistance system? The
+      pain tolerance aspect could translate into a mechanic where pewter-burning
+      players ignore status effects like bleeding or slowing that would affect
+      a non-burning character.
+
+--------------------------------------------------------------------------------
+
+Q: What happens when a Pewterarm runs out of pewter mid-fight or during
+   extended use?
+
+A: The "pewter drag" hits. The body suddenly deals with all accumulated damage
+   and exertion that pewter was masking. Broken bones that were held together
+   suddenly become fully broken. Exhaustion that was suppressed floods back at
+   once. Running someone out of pewter is a deliberate combat strategy.
+
+GAME: This is a high-stakes resource management mechanic with massive gameplay
+      implications. Consider a visual and mechanical "crash" state that punishes
+      players who over-commit to pewter burning — dramatically slowed movement,
+      reduced damage, vulnerability window. Enemies in your game who know about
+      pewter drag would specifically try to outlast or deplete a Pewterarm's
+      reserves before closing in. How long is the crash state? Can it be
+      mitigated with other metals or Feruchemical health?
+
+--------------------------------------------------------------------------------
+
+Q: What does a pewtermind store, and what does the Feruchemist physically look
+   like while filling versus tapping?
+
+A: A pewtermind stores physical strength. While filling, the Feruchemist visibly
+   weakens — muscles shrink and they struggle with ordinary tasks. When tapping
+   heavily, muscles visibly bulge and expand to inhuman size temporarily. The
+   books describe Feruchemists tapping pewter heavily as appearing almost
+   monstrous in stature.
+
+GAME: This is a strong visual opportunity. Consider dynamic character model
+      changes tied to pewtermind state — a visibly diminished weak-state model
+      and an enlarged powerful-state model. If your game has NPC reactions,
+      a monstrous-looking player character tapping pewter heavily could cause
+      fear or panic in crowds. Think about how this visual transformation
+      interacts with stealth systems — you cannot exactly sneak when you
+      look like a giant.
+
+--------------------------------------------------------------------------------
+
+Q: Both Allomantic pewter and Feruchemical pewter make you physically stronger.
+   What is the key philosophical difference in where that strength comes from?
+
+A: Allomantic pewter draws on external power — Preservation's Investiture channeled
+   through the metal. The Allomancer gains something from outside themselves.
+   Feruchemical pewter draws only on what the user already possesses — you bank
+   your own strength and retrieve it. Feruchemy is end-neutral: no net gain,
+   just redistribution across time.
+
+GAME: Consider whether this philosophical distinction should have a mechanical
+      expression in your game. Perhaps Allomantic pewter feels "borrowed" —
+      it can be blocked, dampened, or stolen by Hemalurgy or specific enemies.
+      Feruchemical pewter is intrinsic — harder to counter because it is
+      genuinely the player's own stored attribute. This asymmetry could create
+      interesting build diversity and enemy design around which system to target.
+
+================================================================================
+  SECTION 2 — MENTAL METALS
+================================================================================
+
+--------------------------------------------------------------------------------
+  ZINC  |  Allomancy: Riot Emotions  |  Feruchemy: Mental Speed  |  Hemalurgy: Steal Mental Powers
+--------------------------------------------------------------------------------
+
+Q: What exactly does Rioting an emotion do — and what does it NOT do?
+
+A: Rioting amplifies and inflames an emotion that already exists in the target.
+   If someone already feels a flicker of fear, a Rioter can make that fear
+   overwhelming. Crucially it cannot create emotions from nothing. You cannot make
+   someone hate someone they feel nothing about. You cannot instill loyalty where
+   none exists. It is amplification, not creation.
+
+GAME: Rioting as a player ability in a digital game raises fascinating design
+      questions. Will NPCs have tracked emotional states that the player can
+      read and amplify? Consider an emotion system where NPCs have baseline
+      attitudes and the player can push those attitudes to extremes — a nervous
+      guard becomes panicked and abandons their post, a suspicious merchant
+      becomes paranoid and locks down. What prevents this from being a
+      solve-everything button? The "cannot create from nothing" rule is your
+      natural balancing mechanism.
+
+--------------------------------------------------------------------------------
+
+Q: Can a Rioter target a specific individual in a crowd, or does the effect
+   hit everyone nearby?
+
+A: Both are possible. Unfocused Rioting affects everyone in range. Focused Rioting
+   requires concentration and can target a single person's specific emotion. Skilled
+   operators like Breeze can surgically manipulate one person in a crowd without
+   anyone else noticing. This precision makes skilled Rioters far more dangerous
+   than unskilled ones.
+
+GAME: Focused versus unfocused Rioting could function as two distinct input modes —
+      a quick-use area effect and a slower precision interaction. Consider stealth
+      implications: unfocused Rioting might alert nearby NPCs who notice others
+      acting strangely, while focused Rioting leaves no visible trace. Skill
+      progression could unlock finer precision — early game you riot a room,
+      late game you riot exactly one guard's fear without their partner noticing.
+      How will you represent the concentration cost of focused use?
+
+--------------------------------------------------------------------------------
+
+Q: What does a zincmind store, and how might filling one feel?
+
+A: A zincmind stores mental speed — the quickness of thought. Filling makes you
+   noticeably mentally slower, foggy, harder to focus. Tapping lets you think
+   extraordinarily fast — processing complex scenarios in seconds, following
+   multiple reasoning chains simultaneously. It does not increase raw intelligence,
+   only the speed at which existing intelligence operates.
+
+GAME: Mental speed is tricky to represent in a video game without resorting to
+      bullet-time. Consider whether tapping a zincmind slows the world around
+      the player for a few seconds, giving them time to plan a move in combat or
+      a solution in a puzzle. While filling, you might introduce a deliberate
+      UI fog — slower menu navigation, delayed NPC dialogue comprehension, reduced
+      map reading speed. How will you make the player actually feel mentally slow
+      without making the experience frustrating?
+
+--------------------------------------------------------------------------------
+
+Q: What does a zinc Hemalurgic spike steal?
+
+A: A zinc spike steals Allomantic powers of the mental class — specifically the
+   ability to affect emotions, both Rioting and Soothing. This follows Hemalurgy's
+   consistent pattern: each metal steals powers thematically related to that
+   metal's domain.
+
+GAME: If enemy types in your game carry Hemalurgic spikes, zinc-spiked enemies
+      would be capable of emotional manipulation — perhaps fear-inducing enemies
+      that make the player's character act erratically or have impaired controls
+      for a duration. Consider whether the player can remove spikes from defeated
+      enemies and use them, raising the moral complexity of the Hemalurgy system.
+      What are the consequences of having a spike — does it come with Ruin's
+      influence as a persistent debuff?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  BRASS  |  Allomancy: Soothe Emotions  |  Feruchemy: Body Heat  |  Hemalurgy: Steal Mental Powers
+--------------------------------------------------------------------------------
+
+Q: What does Soothing do, and how is a skilled Soother more dangerous than
+   an unskilled one?
+
+A: Soothing dampens and suppresses emotions. An unskilled Soother makes people
+   feel vaguely calm. A skilled Soother like Breeze can suppress all emotions
+   except one — leaving a target with only a single feeling while everything
+   else is stripped away. This precision makes Soothing potentially more
+   manipulative than Rioting.
+
+GAME: Soothing as a stealth or social tool has enormous potential. Consider
+      using it to pacify aggressive enemies without combat — a guard's hostility
+      stripped away so they simply let you pass. A skilled player could use
+      precision Soothing to isolate loyalty in a target NPC, making them
+      cooperative despite having no prior relationship. How will you balance
+      Soothing against Rioting in terms of utility? Will there be NPCs with
+      enough emotional complexity that choosing what to suppress is a meaningful
+      decision rather than always stripping everything to zero?
+
+--------------------------------------------------------------------------------
+
+Q: Is there any protection against Soothing or Rioting?
+
+A: Yes. Aluminum protects against emotional Allomancy when worn or carried.
+   A Smoker's coppercloud blocks emotional Allomancy for all within it, though
+   a sufficiently powerful operator can push through. Another Allomancer actively
+   burning brass or zinc can notice and counteract an emotional effect in progress.
+
+GAME: Protection mechanics create counterplay depth. Consider environmental
+      storytelling through aluminum — wealthy or paranoid NPCs might wear
+      aluminum jewelry precisely to resist emotional manipulation, signaling
+      their awareness of Allomancy. The coppercloud as a protection zone
+      creates interesting tactical scenarios: safe houses within copperclouds,
+      emotional-manipulation-free zones. How will the player know when their
+      Soothing or Rioting is being resisted?
+
+--------------------------------------------------------------------------------
+
+Q: What does a brassmind store, and what is the physical experience of filling one?
+
+A: A brassmind stores body heat. While filling, the Feruchemist becomes physically
+   cold — body temperature drops noticeably. When tapping, they generate unusual
+   warmth from within. It is one of the more unusual Feruchemical attributes with
+   limited obvious combat application but significant survival utility.
+
+GAME: Consider whether your game has environmental temperature systems — cold
+      weather, blizzards, frozen environments. A brassmind becomes highly valuable
+      in those contexts. Alternatively, the heat output when tapping could have
+      secondary effects — melting ice, warming allies nearby, potentially igniting
+      flammable objects. While filling in cold environments, the player might
+      take cold damage faster. This could create an interesting risk: filling
+      a brassmind while in a warm environment to spend the cold penalty safely.
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  COPPER  |  Allomancy: Coppercloud  |  Feruchemy: Memory  |  Hemalurgy: Steal Mental Powers
+--------------------------------------------------------------------------------
+
+Q: What does a Smoker's coppercloud actually do, and what are its exact limits?
+
+A: Burning copper creates a sphere around the Smoker that hides all Allomantic
+   activity within it from Seekers burning bronze. Anyone burning metals inside
+   the cloud is undetectable. The limits: it only hides Allomancy, not the people
+   themselves. It does not make you invisible, quiet, or undetectable by non-
+   Allomantic means. A sufficiently powerful Seeker can in rare cases detect through it.
+
+GAME: The coppercloud is a zone-control mechanic with stealth implications.
+      Consider the coppercloud as a placeable stealth field in your game —
+      within it, the player's Allomantic activity cannot be detected by
+      bronze-burning enemies. Enemies with bronze detection might be a
+      persistent threat that makes the player constantly aware of their
+      Allomantic signature. A coppercloud zone as a safe house or preparation
+      area before a mission creates natural gameplay structure. What does the
+      edge of a coppercloud look like visually?
+
+--------------------------------------------------------------------------------
+
+Q: Why was a Smoker so strategically essential to Kelsier's crew even though
+   copper seems like a "boring" power?
+
+A: Without a Smoker, every Allomancer in the crew is detectable by Seekers.
+   The Ministry trained Seekers specifically to hunt unauthorized Allomancers.
+   Operating in Luthadel without a Smoker meant constant risk of exposure and
+   capture. Copper is unglamorous but is the difference between operating safely
+   for months and being caught in days.
+
+GAME: Consider how to make support roles feel valuable and interesting in your
+      game rather than mandatory but boring. If the player can recruit crew
+      members, a Smoker NPC could provide a persistent passive benefit that
+      lets the player use Allomancy more freely. Without one, the player
+      might need to limit Allomantic use or accept higher detection risk.
+      How will you communicate the threat of Seeker detection in a way
+      that makes the player appreciate what a Smoker does for them?
+
+--------------------------------------------------------------------------------
+
+Q: What does a coppermind store, and why is it especially significant
+   to Terris Keepers?
+
+A: A coppermind stores memories — perfectly and completely. Anything stored is
+   removed from the Feruchemist's mind while stored. Tapping recalls it perfectly,
+   as if re-experiencing it. For Keepers like Sazed, copperminds are the foundation
+   of their role: storing entire libraries of knowledge and cultural traditions the
+   Lord Ruler tried to erase. Sazed's many copperminds are his life's work.
+
+GAME: Memory storage has profound narrative potential in a video game. Consider
+      a mechanic where the player can store memories of discovered locations,
+      NPC conversations, or lore documents in a coppermind — removing them from
+      active recall but allowing perfect retrieval later. This could serve as
+      both a gameplay mechanic and an in-world explanation for a journal or
+      codex system. Narratively, could a coppermind be stolen, recovered,
+      or found containing someone else's memories as a story device?
+
+--------------------------------------------------------------------------------
+
+Q: Can one Feruchemist access another Feruchemist's coppermind?
+
+A: No. This is a fundamental rule of Feruchemy. A metalmind can only be accessed
+   by the Feruchemist who charged it. Another person touching it would sense power
+   just out of reach but cannot use it. Sazed's copperminds are useless to anyone
+   who kills him — the knowledge dies with his ability to tap them.
+
+GAME: This rule has significant implications for your world design and quest
+      structure. A dead Feruchemist's metalminds are effectively locked vaults —
+      valuable but inaccessible. Consider quests built around finding ways to
+      access lost metalminds, or the tragedy of a Keeper's knowledge being
+      irretrievably lost. As a player protection mechanic, this means stolen
+      metalminds cannot be used against the player by enemies. Does this
+      rule hold even for Compounders or Hemalurgic spike interactions?
+      Worth discussing with your AI.
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  BRONZE  |  Allomancy: Detect Allomancy  |  Feruchemy: Wakefulness  |  Hemalurgy: Steal Mental Powers
+--------------------------------------------------------------------------------
+
+Q: What can a skilled Seeker detect when burning bronze, beyond just knowing
+   that someone nearby is burning metals?
+
+A: An unskilled Seeker only knows someone is burning something. A skilled Seeker
+   can identify which specific metal is being burned — each metal produces a
+   slightly different rhythm or pulse. Very skilled Seekers or savants can detect
+   multiple Allomancers simultaneously and distinguish between them. Marsh
+   demonstrates this ability throughout the series.
+
+GAME: Seeker detection as an enemy ability creates a threat that punishes
+      aggressive Allomantic use. Consider bronze-burning enemies that can
+      pinpoint which of the player's metals are active and call in appropriate
+      counters — calling a steel-armed soldier to handle a Coinshot, or deploying
+      emotional dampeners against a Rioter. The detection skill gap between
+      common Seekers and elite Seekers lets you design tiered enemy types.
+      How will you communicate to the player that they have been detected,
+      and by what?
+
+--------------------------------------------------------------------------------
+
+Q: What is the one thing that blocks a Seeker's bronze from working?
+
+A: A Smoker burning copper. The coppercloud blinds bronze detection for all
+   Allomancers within it. A Seeker outside the cloud cannot detect anyone
+   burning metals inside. This copper-bronze counter-relationship is one of
+   the most important tactical dynamics in the series, and why the Ministry
+   hunted Smokers aggressively.
+
+GAME: This creates a rock-paper-scissors dynamic worth formalizing in your
+      design: Bronze detects Allomancy, Copper blocks detection, and powerful
+      Seekers can sometimes pierce Copper. Consider making this visible in
+      your enemy faction design — Ministry patrols might include both a Seeker
+      and a soldier specifically assigned to find and kill Smokers first.
+      How will the player learn that staying inside a coppercloud protects them?
+      Can the player visually see when they are inside versus outside a cloud?
+
+--------------------------------------------------------------------------------
+
+Q: What does a bronzemind store, and how is it different from Allomantic bronze?
+
+A: A bronzemind stores wakefulness — the body's need for sleep. Filling it
+   makes the Feruchemist drowsy. Tapping lets them stay awake and alert far
+   beyond normal human limits. The contrast with Allomantic bronze is total:
+   the Allomantic version detects external Allomancy, while the Feruchemical
+   version has nothing to do with detection — it is purely about biological
+   need for rest.
+
+GAME: Wakefulness could interact with a fatigue or rest system if your game
+      has one. A player tapping bronzemind might be immune to sleep-inducing
+      effects or environmental fatigue. Consider a stealth scenario where
+      guards fall asleep at night but a player with tapped bronze can remain
+      alert for 72 hours straight before crashing. Filling a bronzemind at
+      an inopportune moment — becoming drowsy during an infiltration — could
+      be a compelling risk-reward decision. Does your game have a day-night
+      cycle that makes wakefulness mechanically relevant?
+
+================================================================================
+  SECTION 3 — HIGHER METALS
+================================================================================
+
+--------------------------------------------------------------------------------
+  GOLD  |  Allomancy: Past Self Vision  |  Feruchemy: Health  |  Hemalurgy: Steal Feruchemical Powers
+--------------------------------------------------------------------------------
+
+Q: What does burning gold actually show — and why is it considered
+   psychologically dangerous?
+
+A: Burning gold shows a vision of who you could have been — alternate versions
+   of yourself based on different life choices. The experience is deeply
+   unsettling because you see these ghost-versions of yourself alongside the
+   real you. Most people find it profoundly disturbing. Vin's experience with
+   gold is one of the trilogy's most philosophically charged moments.
+
+GAME: This is a rare Allomantic power with narrative rather than combat utility.
+      Consider using gold visions as a storytelling device — a way to show the
+      player alternate backstories, reveal character history, or present moral
+      dilemmas about choices already made. Could the player burn gold at key
+      story moments to see "the road not taken"? Are these visions mechanically
+      useful (revealing information) or purely atmospheric? The psychological
+      cost could be a temporary mental state debuff representing the distress
+      of confronting alternate selves.
+
+--------------------------------------------------------------------------------
+
+Q: What does a goldmind store, and why is it one of the most practically
+   desirable Feruchemical powers?
+
+A: A goldmind stores health and healing ability. Filling makes the Feruchemist
+   sickly and slow to heal. Tapping allows dramatically accelerated healing —
+   recovering from wounds in hours that would take weeks. Broken bones knit,
+   deep cuts close. In a world without advanced medicine, this is extraordinarily
+   valuable. Wayne in Era 2 is effectively unkillable in combat because of his
+   goldmind reserves.
+
+GAME: The goldmind is your Feruchemical sustain system. Consider it as an
+      alternative to traditional health potions — the player stores health
+      during safe periods and taps it during emergencies. This creates
+      pre-planning gameplay: you cannot just find a health item in a chest;
+      you must spend time weakened to build reserves. Will healing be
+      instant-use or gradual regeneration when tapping? How will you balance
+      goldmind sustain against making the player feel invincible if they
+      stored large reserves before a boss fight?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  ELECTRUM  |  Allomancy: Own Future Shadow
+--------------------------------------------------------------------------------
+
+Q: Electrum is the "poor man's atium" — what does it actually show, and how
+   is it different from atium?
+
+A: Electrum shows the burner a shadow of their own future actions — a brief
+   flickering glimpse of what they themselves are about to do. Atium shows the
+   future actions of others. Electrum counters atium because if your opponent
+   can see your future moves but you are also seeing your own future moves,
+   you can consciously change them — making the atium vision inaccurate and
+   the advantage meaningless.
+
+GAME: Electrum creates a fascinating "nullification" mechanic. Consider whether
+      burning electrum gives the player brief flickers of their own near-future —
+      a ghost of where they will be a second from now. Against atium-burning
+      enemies this becomes your counter tool. In design terms, electrum might
+      manifest as a brief "phantom self" preview that the player can consciously
+      deviate from to break an enemy Allomancer's prediction. How do you make
+      the intentional act of "acting against your predicted future" feel
+      satisfying and learnable?
+
+--------------------------------------------------------------------------------
+
+Q: Why was the discovery of electrum so strategically important for the crew?
+
+A: It effectively neutralized the Lord Ruler's greatest combat advantage —
+   his seemingly limitless atium supply made him near-invincible. The crew
+   realized burning electrum while fighting an atium-burner cancels the
+   predictive advantage. Vin uses this in the climax of the first book.
+   The solution to an "unbeatable" power was another metal that made
+   the prediction useless.
+
+GAME: This is an important design lesson embedded in the source material:
+      every powerful mechanic should have a discoverable counter. Consider
+      structuring your game so the player encounters atium-enhanced enemies
+      that feel genuinely unbeatable before they discover electrum — making
+      that discovery feel earned. How will you communicate to the player
+      that electrum is the counter without simply telling them? Environmental
+      storytelling, NPC hints, or a failed combat encounter that forces
+      experimentation?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  ATIUM  |  Allomancy: See Others' Futures  |  Hemalurgy: Steal Feruchemical Powers
+--------------------------------------------------------------------------------
+
+Q: What exactly does burning atium show, and what are the physical and mental
+   demands of using it in combat?
+
+A: Burning atium shows ghostly images of what every nearby person and moving
+   object is about to do — showing the near future. In combat you see attacks
+   before they happen. The mental demand is severe: processing future-images of
+   multiple opponents is cognitively overwhelming. Atium also burns extremely fast,
+   making it prohibitively expensive to use for more than a few seconds.
+
+GAME: Atium as a player ability is among your highest-risk design decisions.
+      If the player can use it, it must feel extraordinary but limited. Consider
+      a very short duration, a very limited resource pool, and a distinct visual
+      state — ghost images of enemies' future movements rendered clearly.
+      If atium is only an enemy or boss ability, it needs a readable tell so
+      players understand why they cannot land hits. The cognitive overwhelm
+      from multiple opponents could translate into the ghost images becoming
+      cluttered and unreadable above a certain number of enemies — a built-in
+      counter to atium being used in crowd scenarios.
+
+--------------------------------------------------------------------------------
+
+Q: Is an atium-burning Allomancer truly unbeatable? What are the counters?
+
+A: Not unbeatable. Counters include: burning electrum (your own future shadow
+   confuses atium's prediction), attacking with multiple opponents simultaneously
+   so the cognitive load becomes unmanageable, simply waiting them out since
+   atium burns incredibly fast and is rare, and acting with true randomness or
+   pure instinct which partially defeats the prediction.
+
+GAME: Designing counterplay into your most powerful ability is essential.
+      Consider building each of these counters into your enemy AI and
+      encounter design: swarm enemies specifically counter atium, while
+      elite single enemies are countered by it. The "randomness defeats
+      prediction" rule is interesting in a video game context — could
+      certain attack patterns be flagged as unpredictable enough to
+      partially bypass atium vision? Make sure the player discovers
+      these counters through play before they face an atium boss.
+
+--------------------------------------------------------------------------------
+
+Q: What is atium at a cosmere level, and why was the Lord Ruler so desperate
+   to control its supply?
+
+A: Atium is the physical body of the Shard Ruin — condensed divine power in
+   metal form. The Lord Ruler controlled the Pits of Hathsin, the only known
+   source, and used atium as the empire's economic foundation. Controlling
+   atium meant controlling wealth, power, and military supremacy simultaneously.
+   Every bead burned was literally consuming Ruin's power — which is why Ruin
+   wanted it hoarded, not burned.
+
+GAME: The cosmere lore of atium has world-building implications for your game's
+      economy and faction design. Consider whether atium scarcity is reflected
+      in your economy — is it a currency, a crafting material, a plot-critical
+      resource? The revelation that burning atium literally consumes a god's
+      body could be a late-game narrative revelation with mechanical weight.
+      How does atium's divine nature interact with your Hemalurgy system?
+      Are there NPCs or factions aware of what atium truly is?
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  ALUMINUM  |  Allomancy: Wipe Own Metals  |  Feruchemy: Identity  |  Hemalurgy: Steal Identity
+--------------------------------------------------------------------------------
+
+Q: What happens when an Allomancer burns aluminum, and why is this considered
+   "useless" on the surface?
+
+A: Burning aluminum instantly destroys all other metals in the Allomancer's stomach
+   — leaving them with nothing to burn. It grants no power; it removes the possibility
+   of powers. On the surface this seems worthless. Strategically however: it protects
+   against a Nicroburst forcing you to expend all your metals, and aluminum objects
+   or clothing block external emotional Allomancy. Aluminum is an Allomantic null zone.
+
+GAME: Consider aluminum as an emergency panic button — burning it when you are
+      about to be Nicrob-burst by an enemy saves you from losing all your best
+      reserves. Aluminum-lined armor or equipment as craftable items that reduce
+      emotional Allomancy damage from enemies adds strategic depth to gear choices.
+      The counterintuitive design of "a power that removes powers" is worth leaning
+      into — it rewards players who understand the system deeply enough to know
+      when destroying your own resources is the correct move.
+
+--------------------------------------------------------------------------------
+
+Q: What does burning duralumin do, and what is the dramatic cost?
+
+A: Burning duralumin while burning another metal creates a massive instantaneous
+   burst of that metal's power — consuming both the duralumin and all remaining
+   reserves of that metal in one explosive release. A Coinshot gets one Push
+   that could hurl coins through walls. The cost is total: all metal is gone
+   afterward. It is a one-shot nuclear option — incredibly powerful, leaves you
+   completely defenseless after.
+
+GAME: Duralumin is your "ultimate ability" mechanic and needs careful balancing.
+      Consider it as a high-commitment finisher — the player must have built up
+      reserves of another metal to make it worthwhile. The decision of which metal
+      to nova with duralumin should feel meaningful and situational: nova pewter
+      for a survival clutch, nova steel for an impossible-distance traversal move,
+      nova zinc for a crowd-wide emotional break. The vulnerability window after
+      use should be long enough to create real risk. How will you communicate
+      to the player that they are now completely out of metals and exposed?
+
+--------------------------------------------------------------------------------
+
+Q: What does an aluminum Hemalurgic spike steal, and why is it particularly
+   disturbing?
+
+A: An aluminum spike steals the target's Identity — their sense of self, their
+   spiritual signature. A person stripped of Identity is a blank slate, their soul
+   partially erased. This is what makes kandra so malleable with the right spikes.
+   Hemalurgy stealing not just powers but personhood itself is one of the series'
+   darkest revelations.
+
+GAME: Identity theft through Hemalurgy opens dark narrative territory. Consider
+      whether Identity-stripped characters in your game have visible behavioral
+      tells — hollow responses, empty emotional reactions, susceptibility to
+      commands. Kandra as a character type in your game would require a robust
+      identity system to represent their ability to take on other personas.
+      From a design perspective: if the player can have their Identity spiked
+      or threatened, how does that manifest mechanically? Loss of skill memory?
+      Altered faction relationships? Discuss the implications carefully with
+      your AI before implementing.
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  CHROMIUM / NICROSIL  |  Allomancy: Drain / Burst Others' Metals  |  Hemalurgy: Steal Enhancement Powers
+--------------------------------------------------------------------------------
+
+Q: What does burning chromium do, and how is it different from burning aluminum?
+
+A: Chromium drains the metal reserves of someone you are touching — burning them
+   away uselessly. Aluminum drains your own metals. Nicrosil bursts someone else's
+   metals in a massive surge — forcing them to expend all reserves of one metal
+   immediately. Both require physical contact, making them high-risk powers with
+   extraordinary payoff against other Allomancers. These are anti-Allomancer weapons.
+
+GAME: Contact-requirement powers create a close-range high-risk-high-reward archetype.
+      Consider an enemy type built around chromium — a grappler that closes distance
+      and attempts to drain the player's metal reserves, forcing the player to
+      escape the grapple before their pewter or steel is gone. A player using
+      chromium against enemies would need to close to melee range deliberately —
+      a risky commitment for a devastating payoff. How will you handle the tactile
+      feel of the drain effect? A visual of metals dissolving from the player's
+      reserve UI would communicate it clearly.
+
+================================================================================
+
+--------------------------------------------------------------------------------
+  CADMIUM / BENDALLOY  |  Allomancy: Slow / Speed Time Bubbles  |  Feruchemy: Breath / Nutrition
+--------------------------------------------------------------------------------
+
+Q: What do cadmium and bendalloy do, and what is the key constraint on both powers?
+
+A: Cadmium slows time in a bubble around the Allomancer. Bendalloy speeds time in
+   a bubble. The crucial constraint: the Allomancer is always inside their own bubble.
+   A cadmium-burner aging slowly is also stuck moving slowly relative to the world.
+   A bendalloy-burner can act extremely quickly but the bubble is visible and
+   stationary. Neither allows you to affect time for enemies without being in it yourself.
+
+GAME: Time bubbles are one of your most visually spectacular potential mechanics.
+      Bendalloy as a combat ability could let the player act several times within
+      a single enemy action window — a brief flurry of hits before the bubble
+      drops. Cadmium has more defensive and environmental use: slow down incoming
+      projectiles, create a safe window to plan, outlast a timed mechanism.
+      The "stationary bubble" constraint means the player cannot move and maintain
+      the effect — forcing them to commit to a position. How will you visually
+      represent the boundary of a time bubble and the distortion at its edge?
+
+--------------------------------------------------------------------------------
+
+Q: What are the physical effects on objects or people crossing the boundary
+   of a time bubble?
+
+A: Crossing the edge of a time bubble causes deflection — projectiles and objects
+   passing through the boundary are deflected at an angle rather than continuing
+   straight. This makes shooting into or out of a time bubble unreliable. The
+   bubble's edge is also somewhat detectable because of this effect.
+
+GAME: Deflection at the time bubble boundary is a built-in puzzle mechanic.
+      Consider puzzles where the player must position a bendalloy bubble to
+      deflect a projectile around a corner, or use cadmium deflection to
+      redirect enemy fire back toward them. In combat, enemies firing into
+      a bendalloy bubble will find their shots going wide — making the bubble
+      both a speed boost and a partial projectile shield. Will the deflection
+      angle be physically simulated or use a simpler rule-based redirect?
+
+--------------------------------------------------------------------------------
+
+Q: What do cadmium and bendalloy store in Feruchemy, and how do they contrast
+   with their Allomantic versions?
+
+A: A cadmiummind stores breath — the body's oxygenation needs. Tapping lets you
+   go without breathing for extended periods. A bendalloy metalmind stores nutrition
+   and calories. Filling while eating heavily, tapping when you need to survive
+   without food. Both are completely different from their time-bubble Allomantic
+   counterparts — Feruchemical cadmium and bendalloy are purely biological
+   and metabolic.
+
+GAME: Breath storage has clear survival mechanic applications — underwater sections,
+      toxic gas environments, vacuum scenarios if your game has them. Consider
+      a cadmiummind as equipment that allows extended underwater exploration
+      or navigation through smoke-filled buildings without suffocation damage.
+      Bendalloy nutrition storage is more niche but could matter in survival
+      or resource-management game segments. Both could be implemented as
+      passive equipment bonuses rather than active powers to avoid UI complexity.
+
+================================================================================
+  SECTION 4 — HEMALURGY SYSTEM-LEVEL QUESTIONS
+================================================================================
+
+Q: What are the two things that determine what a Hemalurgic spike steals —
+   metal type AND what else?
+
+A: Both the type of metal and the precise location on the body where the spike
+   is driven. Metal type determines the category of power stolen. Placement
+   determines the specific power within that category. The wrong location steals
+   a different power, or steals it imperfectly. This knowledge was deliberately
+   suppressed by the Lord Ruler — only he and the Steel Inquisitors had the
+   complete map.
+
+GAME: Consider whether spike placement is simulated in your game or abstracted.
+      A full simulation opens interesting crafting depth — players experimenting
+      with placement to find the right combination, NPCs or documents in the world
+      containing fragments of the placement map as discoverable lore. An abstracted
+      system (spike type determines power only) is simpler but loses some of the
+      horror and precision of canon Hemalurgy. What level of complexity serves
+      your game's tone and target player?
+
+--------------------------------------------------------------------------------
+
+Q: Hemalurgy steals powers — but what is always lost in the transfer, and
+   why does this matter?
+
+A: Hemalurgy is end-negative. Power is always lost in the transfer. The recipient
+   always receives less than the donor had. This is why Inquisitors needed many
+   spikes — each grants less than the original holder possessed. You cannot build
+   an infinite power chain. There is always a cost, always entropy. Ruin's magic
+   system literally embodies degradation.
+
+GAME: End-negativity as a systemic property should be reflected in your mechanics.
+      If players can use Hemalurgy, the math should always show diminishment —
+      taking a power from an NPC gives a lesser version of what that NPC had.
+      This prevents Hemalurgy from becoming an overpowered acquisition loop.
+      It also creates a philosophical design statement: the game punishes
+      Hemalurgic accumulation with diminishing returns, making it feel
+      genuinely costly rather than just a different upgrade path.
+
+--------------------------------------------------------------------------------
+
+Q: Why do Hemalurgic spikes create a "hole" in a person's soul, and how
+   does Ruin exploit this?
+
+A: The spike tears through the Spiritweb — the spiritual component of a person —
+   creating a gap. This gap gives Ruin a point of access to influence and control
+   the host's mind. This is how the Lord Ruler controlled kandra and koloss —
+   through spikes that kept them permanently vulnerable to Ruin's whispers.
+   Steel Inquisitors were similarly controllable. Power came at the price of autonomy.
+
+GAME: Spiritual vulnerability as a mechanic has narrative and gameplay implications.
+      Consider a Corruption or Influence system where spiked characters — including
+      the player if they use Hemalurgy — accumulate Ruin's influence over time.
+      At low levels this might be subtle whispers, audio cues, or strange impulses
+      in the interface. At high levels it could begin affecting player control —
+      brief moments of loss of agency, NPCs reacting to the player differently.
+      This creates a genuine cost for Hemalurgic power that goes beyond resource loss.
+
+--------------------------------------------------------------------------------
+
+Q: How many spikes does a Steel Inquisitor typically have, and what powers
+   do those spikes give them?
+
+A: Inquisitors have approximately ten spikes, most visibly through their eyes.
+   Their spikes typically grant Allomantic steel and iron via the eye-spikes,
+   plus combinations of other Allomantic and Feruchemical powers that vary by
+   individual. The eye-spikes replace their eyes — they see via Allomantic metal
+   detection rather than normal vision. Blinding them does not work.
+
+GAME: Inquisitors as boss enemies are one of your most important design challenges.
+      Their Allomantic metal-detection sight means darkness or blindness effects
+      do not work against them — the player cannot simply turn off the lights.
+      Their multiple spiked powers mean they should feel like they are multiple
+      Allomancers in one body. Consider which spikes each Inquisitor has as a
+      design choice that creates varied boss encounters — one Inquisitor heavy
+      on pewter and steel, another on zinc and emotional manipulation. How will
+      you communicate which powers an Inquisitor has before the fight begins?
+
+================================================================================
+  SECTION 5 — CROSS-SYSTEM QUESTIONS
+================================================================================
+
+Q: The three Metallic Arts are linked to the Shards Preservation and Ruin.
+   Which system connects to which Shard, and what does that tell us about
+   each system's nature?
+
+A: Allomancy draws on Preservation — it is end-positive, gaining external power.
+   Hemalurgy serves Ruin — it is end-negative, always losing power, always tearing.
+   Feruchemy is balanced between both — end-neutral, neither gaining nor losing,
+   only redistributing across time. This maps perfectly onto the Shards' philosophies:
+   Preservation creates and sustains, Ruin destroys and degrades, Feruchemy
+   represents the equilibrium that existed before their conflict.
+
+GAME: This three-system philosophical framework could be your design's thematic
+      backbone. Consider whether your game's tone and narrative reinforce these
+      associations — Allomancy as explosive and external, Hemalurgy as dark and
+      costly, Feruchemy as balanced and internal. If the player can use all three,
+      think about whether a "corruption" or "alignment" system tracks which magic
+      they use most heavily and reflects that in story outcomes or NPC reactions.
+      What does a player who relies entirely on Hemalurgy tell you about their
+      playstyle — and should the game acknowledge that?
+
+--------------------------------------------------------------------------------
+
+Q: What does "Compounding" mean, and why is it so extraordinarily powerful?
+
+A: Compounding is when a Twinborn uses the same metal for both Allomancy and
+   Feruchemy. They store an attribute Feruchemically, then burn the charged
+   metalmind Allomantically — which supercharges the Feruchemical output to
+   enormous levels. The Lord Ruler compounded gold: stored health, then burned
+   the goldmind Allomantically to get near-infinite regeneration. Compounding
+   converts external Investiture into amplification of stored personal attributes —
+   turning end-neutral Feruchemy into something end-positive.
+
+GAME: Compounding is your late-game power fantasy system and requires very careful
+      balancing. Consider gating it behind significant progression — the player
+      must understand both magic systems deeply before they can exploit their
+      combination. The Lord Ruler's near-immortality via gold Compounding suggests
+      that unrestricted Compounding breaks the game. Think about whether Compounding
+      is a player ability at all, or reserved for specific story-significant characters.
+      If it is available, what is the cost or limitation that prevents it from
+      trivializing all combat? Discuss this one carefully with your AI — it is
+      the most balance-sensitive mechanic in the system.
+
+================================================================================
+  END OF Q&A SESSION
+================================================================================
+
+  Total questions: 54
+  Metals covered: Iron, Steel, Tin, Pewter, Zinc, Brass, Copper, Bronze,
+                  Gold, Electrum, Atium, Aluminum, Duralumin, Chromium,
+                  Nicrosil, Cadmium, Bendalloy
+  Systems covered: Allomancy, Feruchemy, Hemalurgy
+  Question types: Mechanics, Limitations, Lore, Cross-System Comparisons,
+                  Game Implementation Prompts
+
+  SUGGESTED NEXT SESSION TOPICS FOR YOUR AI:
+  - Define which magic systems the player character can access
+  - Establish the metal economy (how do players acquire metals to burn?)
+  - Decide which mechanics are simulated vs abstracted
+  - Determine Hemalurgy's role: player tool, enemy mechanic, or both
+  - Design the blue-line detection UI system
+  - Balance Compounding if it will be a player ability
+  - Define savantism as a progression risk vs reward system
+  - Establish which metals are rare/late-game vs common/early-game
+
+================================================================================

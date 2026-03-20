@@ -11,7 +11,7 @@
 // DEPENDENCIES:
 //   - Target (Player) transform
 //
-// TODO (AI Agent):
+// TODO:
 //   - Add camera collision with environment geometry
 //   - Implement camera shake for Allomantic effects
 //   - Add smooth follow damping

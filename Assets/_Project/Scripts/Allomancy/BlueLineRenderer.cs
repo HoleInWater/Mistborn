@@ -19,7 +19,7 @@
 //   Invested project uses "Volumetric Lines" by Johannes Unterguggenberger
 //   https://assetstore.unity.com/packages/tools/particles-effects/volumetric-lines-29160
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement LineRenderer version for Sprint 1
 //   - Upgrade to Volumetric Lines in Sprint 2
 //   - Add line thickness based on mass

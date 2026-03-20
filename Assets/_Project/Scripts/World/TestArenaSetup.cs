@@ -8,7 +8,7 @@
 //   Editor utility to quickly set up the TestArena scene with
 //   metal objects at various positions for testing push/pull.
 //
-// TODO (AI Agent):
+// TODO:
 //   - Create actual Unity scene file
 //   - Add menu option to auto-generate test environment
 //

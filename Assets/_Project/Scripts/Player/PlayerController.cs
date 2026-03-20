@@ -12,7 +12,7 @@
 //   - CharacterController component required
 //   - AllomancerController for Steelpush-assisted jumps
 //
-// TODO (AI Agent):
+// TODO:
 //   - Integrate with Allomancer for Steelpush-assisted jumps
 //   - Add crouch functionality
 //   - Implement ledge detection

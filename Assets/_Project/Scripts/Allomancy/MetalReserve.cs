@@ -12,7 +12,7 @@
 //   - AllomanticMetal enum
 //   - Referenced by AllomancerController
 //
-// TODO (AI Agent):
+// TODO:
 //   - Implement burn rate modifiers for different metals
 //   - Add flaring mechanic support
 //
