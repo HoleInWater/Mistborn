@@ -28,6 +28,7 @@ Here's where to start:
 - Pick something from `TODO.md` or `docs/TEAM-TASKS.md`
 - Create a branch: `git checkout -b feature/your-feature-name`
 - Make changes, commit, push, open a PR
+- See `docs/git-guide.md` for the full workflow
 
 ### Need Help?
 Ping the team. Don't sit on questions.
@@ -38,6 +39,36 @@ Ping the team. Don't sit on questions.
 - **Language**: C#
 - **Version Control**: Git + GitHub
 - **Team Size**: Small collaborative team
+
+---
+
+## About the .git Folder
+
+When you clone the repo, you'll see folders like `Assets`, `docs`, and a hidden folder called `.git`. **This is important:**
+
+| What's in `.git` | Why You Shouldn't Touch It |
+|-----------------|--------------------------|
+| All your commit history | This IS your project history |
+| Branch information | Where branches are stored |
+| Settings for this repo | Your identity, remote URL, etc. |
+
+**DO NOT:**
+- Delete the `.git` folder
+- Edit files inside `.git`
+- Move the `.git` folder
+- Commit changes inside `.git`
+
+The `.git` folder is what makes this folder a Git repository. Without it, Git doesn't know this is a tracked project. Everything else (Assets, docs, Scripts) is just regular files.
+
+**If you accidentally deleted `.git`:**
+```bash
+git init
+git remote add origin https://github.com/HoleInWater/Mistborn.git
+git pull origin master
+```
+This restores it.
+
+For more on how Git works, see `docs/git-guide.md`.
 
 ## How to Get Started
 
@@ -116,14 +147,16 @@ git config --global user.name "YourUsername"
 git config --global user.email "your@email.com"
 ```
 
-Create a branch for your work:
+**Need help understanding Git?** See `docs/git-guide.md` for a full explanation of branches, commits, pushing, and pulling.
 
+### Quick Version
+
+Create a branch for your work:
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
 After making changes:
-
 ```bash
 git add .
 git commit -m "[SYSTEM] What you changed"
