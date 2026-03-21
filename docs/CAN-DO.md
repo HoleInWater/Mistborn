@@ -6,17 +6,84 @@
 
 ## Current State: IN DEVELOPMENT
 
-**The team has set up the foundation. Scene 1.unity is ready for playtesting.**
+**The team has implemented Allomancy mechanics, combat, movement abilities, and UI systems.**
 
 ---
 
 ## Scripts Created
 
+### Allomancy (16 Metals)
 | Script | Status | What It Does |
 |--------|--------|--------------|
-| `PlayerMove.cs` | ✅ Done | WASD movement, third-person camera, collision handling |
-| `AnimationStateController.cs` | ✅ Done | Controls player walking/idle animations |
-| `PlayerCollisionHandler3D.cs` | ✅ Done | Health bar decreases on enemy collision |
+| `SteelPush.cs` | ✅ Done | Push metals away from player |
+| `IronPull.cs` | ✅ Done | Pull metals toward player |
+| `PewterBurn.cs` | ✅ Done | Enhanced strength, speed, healing |
+| `TinEnhance.cs` | ✅ Done | Enhanced senses, zoom vision |
+| `ZincRiot.cs` | ✅ Done | Enrage enemies |
+| `BrassSoothe.cs` | ✅ Done | Calm enemies |
+| `CopperCloud.cs` | ✅ Done | Hide Allomantic pulses |
+| `BronzeDetect.cs` | ✅ Done | Detect burning Allomancers |
+| `AtiumBurn.cs` | ✅ Done | See enemy futures |
+| `GoldPast.cs` | ✅ Done | See past selves |
+| `ElectrumFuture.cs` | ✅ Done | See own futures |
+| `AluminumPurge.cs` | ✅ Done | Purge all metal reserves |
+| `DuraluminBurst.cs` | ✅ Done | Mega Allomancy burst |
+| `MalatiumReveal.cs` | ✅ Done | Reveal true nature |
+| `TimeBubble.cs` | ✅ Done | Speed/slow time bubbles |
+| `Allomancer.cs` | ✅ Done | Base Allomancer component |
+| `AllomanticSight.cs` | ✅ Done | Blue lines to metals |
+| `MetalReserveManager.cs` | ✅ Done | Manage all metal reserves |
+
+### Player Systems
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `PlayerMove.cs` | ✅ Done | WASD movement, third-person camera |
+| `AnimationStateController.cs` | ✅ Done | Player animations |
+| `PlayerCombat.cs` | ✅ Done | Basic attack system |
+| `Health.cs` | ✅ Done | Player health |
+| `PlayerStamina.cs` | ✅ Done | Sprint stamina |
+| `BlockAbility.cs` | ✅ Done | Block with pewter |
+| `DashAbility.cs` | ✅ Done | Pewter dash |
+| `DodgeRoll.cs` | ✅ Done | Invincible dodge roll |
+| `WallRun.cs` | ✅ Done | Wall running |
+| `MetalMagnet.cs` | ✅ Done | Attract nearby metals |
+| `StealthSystem.cs` | ✅ Done | Crouch for stealth |
+| `VaultJump.cs` | ✅ Done | Vault over obstacles |
+
+### Combat
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `ComboSystem.cs` | ✅ Done | Combo attacks with multipliers |
+| `EnemyHealth.cs` | ✅ Done | Enemy health system |
+| `AIController.cs` | ✅ Done | Enemy AI |
+
+### UI/HUD
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `MetalHUD.cs` | ✅ Done | Display metal reserves |
+| `StaminaHUD.cs` | ✅ Done | Stamina bar |
+
+### Effects & Audio
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `ParticleEffect.cs` | ✅ Done | VFX for abilities |
+| `SoundManager.cs` | ✅ Done | Audio management |
+
+### World
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `MetalPickup.cs` | ✅ Done | Pickup metal for reserves |
+
+### Skill Tree
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `AllomancySkill.cs` | ✅ Done | Skill definition |
+| `AllomancySkillTreeController.cs` | ✅ Done | Skill tree UI |
+| `AllomancySkillUI.cs` | ✅ Done | Skill UI logic |
+
+---
+
+## Total Scripts: 32
 
 ---
 
@@ -25,60 +92,59 @@
 | Asset | Status |
 |-------|--------|
 | `Scene 1.unity` | ✅ Done - Playable test scene |
-| `PlayerController.controller` | ✅ Done - Breathing Idle, Walking animations |
-| Mixamo X Bot models | ✅ Done - Character model |
-| `Ground(Temp).mat` | ✅ Done - Blue ground material |
-| `Player(Temp).mat` | ✅ Done - Red player material |
-| HUD (HUD.uss, HUD.uxml) | ✅ Done - Health & Metal progress bars |
+| `PlayerController.controller` | ✅ Done - Animations |
+| Mixamo X Bot models | ✅ Done |
+| `Ground(Temp).mat` | ✅ Done |
+| `Player(Temp).mat` | ✅ Done |
+| HUD (HUD.uss, HUD.uxml) | ✅ Done |
 | Health Bar sprites (14) | ✅ Done |
 | Metal Progress Bar sprites (14) | ✅ Done |
+| Skill Tree UI (AllomancySkillVisualTree.uss/uxml) | ✅ Done |
+| Allomancy sprites | ✅ Done |
 
 ---
 
-## Documentation
-
-| Category | Count |
-|----------|-------|
-| Game Design | 10 docs |
-| Lore & Story | 5 docs |
-| Technical Docs | 8 docs |
-| Team Guides | 6 docs |
-| **Total Docs** | **32** |
-
----
-
-## Project Foundation
-
-- [x] Unity project set up
-- [x] .gitignore configured
-- [x] README with onboarding guide
-- [x] Git workflow documented
-
----
-
-## Controls Working
+## Controls Implemented
 
 | Action | Key |
 |--------|-----|
 | Move | WASD |
 | Look | Mouse |
-| Camera | Follows player |
+| Sprint | Left Shift |
+| Dodge Roll | Space |
+| Steel Push | Right Mouse |
+| Iron Pull | Left Mouse |
+| Pewter Enhancement | Q |
+| Tin Senses | E |
+| Zinc Riot | Z |
+| Brass Soothe | X |
+| Copper Cloud | C |
+| Bronze Detect | V |
+| Atium Future | T |
+| Gold Past | G |
+| Electrum Future | 5 |
+| Aluminum Purge | F |
+| Duralumin Burst | R |
+| Bendalloy Bubble | 8 |
+| Cadmium Bubble | 9 |
+| Skill Tree | Tab |
 
 ---
 
 ## What's Left
 
 **In Unity:**
-1. Implement Steel/Iron push/pull mechanics
-2. Add metal objects to scene
-3. Create Enemy AI
-4. Add Allomantic Sight (blue lines)
+- Tune metal physics
+- Add particle effects
+- Balance damage numbers
+- Create enemy prefabs
+- Add audio clips
 
 **Art/Assets:**
 - Real character model
 - Environment art
-- Particle effects
-- Audio
+- Weapon models
+- More VFX
 
 ---
 
@@ -87,6 +153,6 @@
 | Doc | Purpose |
 |-----|---------|
 | `onboarding.md` | Setup guide |
-| `allomancy-design.md` | How magic works |
+| `allomancy-design.md` | How Allomancy works |
 | `magic-qa-reference.md` | All 16 metals |
 | `mistborn-era-one-lore.md` | Lore reference |
