@@ -9,7 +9,7 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     private VisualElement _AllomancyTabContent;
 
-    bool CheckIfPrerequisitesMet(MagicSkill skill)
+    bool CheckIfPrerequisitesMet(AllomancySkill skill)
     {
         // If there are no prerequisites, it's a starting skill!
         if (skill.prerequisites == null || skill.prerequisites.Count == 0)
