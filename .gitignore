@@ -1,4 +1,28 @@
-# Audio files - large binaries
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Visual Studio / VSCode
+.vs/
+.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Audio files
 *.mp3
 *.wav
 *.flac
@@ -14,7 +38,3 @@
 # Documents
 *.pdf
 *.docx
-
-# OS files
-.DS_Store
-Thumbs.db
