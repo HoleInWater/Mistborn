@@ -101,20 +101,20 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     void ToggleSkillTree()
     {
-        var root = GetComponent<UI.SkillTree>().rootVisualElement;
-    
-        // Check current state: if it's 'Flex' (visible), change to 'None' (hidden)
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        
         if (root.style.display == DisplayStyle.Flex)
         {
             root.style.display = DisplayStyle.None;
-            Cursor.lockState = CursorLockMode.Locked; // Hide mouse for gameplay
-            Cursor.visible = false;
+            // Explicitly use UnityEngine.Cursor to avoid the ambiguous error
+            UnityEngine.Cursor.lockState = CursorLockMode.Locked; 
+            UnityEngine.Cursor.visible = false;
         }
         else
         {
             root.style.display = DisplayStyle.Flex;
-            Cursor.lockState = CursorLockMode.None; // Show mouse to click skills
-            Cursor.visible = true;
+            UnityEngine.Cursor.lockState = CursorLockMode.None; 
+            UnityEngine.Cursor.visible = true;
         }
     }
 }
