@@ -15,7 +15,7 @@ public class AllomancySkill : ScriptableObject
     public List<AllomancySkill> prerequisites; // Other skills that must be unlocked first
 
     [Header("Allomancy Stats")]
-    public int manaCost;
+    public int metalCost;
     public float cooldown;
     public float damage;
 
