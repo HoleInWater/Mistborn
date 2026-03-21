@@ -20,5 +20,48 @@ public class AllomancySkill : ScriptableObject
     public float damage;
 
     [Header("State")]
-    public bool isUnlocked; // Tracks if the player has bought this skill
+    public bool isUnlocked;
+    public bool isPassive;
+
+    [Header("Metal Type")]
+    public MetalType metalType;
+
+    public enum MetalType
+    {
+        Steel,
+        Iron,
+        Pewter,
+        Tin,
+        Zinc,
+        Brass,
+        Copper,
+        Bronze,
+        Atium,
+        Malatium,
+        Gold,
+        Electrum,
+        Aluminum,
+        Duralumin,
+        Bendalloy,
+        Cadmium
+    }
+
+    public bool CanUnlock(int availablePoints, int[] metalReserves)
+    {
+        if (isUnlocked) return false;
+        if (skillPointCost > availablePoints) return false;
+        if (metalReserves[(int)metalType] < metalCost) return false;
+        
+        foreach (var prereq in prerequisites)
+        {
+            if (!prereq.isUnlocked) return false;
+        }
+        return true;
+    }
+
+    public void Unlock()
+    {
+        isUnlocked = true;
+        Debug.Log($"Unlocked skill: {skillName}");
+    }
 }

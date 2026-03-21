@@ -17,22 +17,20 @@ The power comes from Preservation, one of the two Shards that created Scadrial. 
 |-------|-----------|--------|--------------|--------|
 | **Steel** | Push | Propels metal objects away | Coinshot | ACTIVE |
 | **Iron** | Pull | Attracts metal objects toward | Lurcher | ACTIVE |
-| Pewter | — | Enhanced strength/durability | Thug | Future |
-| Tin | — | Enhanced senses | Tineye | Future |
-| Brass | Soothe | Calms emotions | Soother | Future |
-| Zinc | Riot | Provokes emotions | Rioter | Future |
-| Copper | — | Masks Allomancy detection | Smoker | Future |
-| Bronze | — | Detects burning Allomancers | Seeker | Future |
-| Gold | — | See possible pasts | Augur | Future |
-| Electrum | — | See possible futures | Oracle | Future |
-| Atium | — | See others' futures | — | Future |
-| Malatium | — | See true nature | — | Future |
-| Aluminum | — | Drains own metals | Aluminum Gnat | Future |
-| Duralumin | — | Drains others' metals | Duralumin Gnat | Future |
-| Chromium | — | Stores metals externally | Leecher | Future |
-| Nicrosil | — | Stores others' metals | Nicroburst | Future |
-| Bendalloy | — | Time dilation bubble | Slider | Future |
-| Cadmium | — | Time compression bubble | Pulser | Future |
+| **Pewter** | — | Enhanced strength/durability | Thug | ACTIVE |
+| **Tin** | — | Enhanced senses | Tineye | ACTIVE |
+| Brass | Soothe | Calms emotions | Soother | ACTIVE |
+| Zinc | Riot | Provokes emotions | Rioter | ACTIVE |
+| Copper | — | Masks Allomancy detection | Smoker | ACTIVE |
+| Bronze | — | Detects burning Allomancers | Seaker | ACTIVE |
+| Atium | — | See others' futures | — | ACTIVE |
+| Malatium | — | See true nature | — | Planned |
+| Gold | — | See possible pasts | Augur | Planned |
+| Electrum | — | See possible futures | Oracle | Planned |
+| Aluminum | — | Drains own metals | Aluminum Gnat | Planned |
+| Duralumin | — | Drains others' metals | Duralumin Gnat | Planned |
+| Bendalloy | — | Time dilation bubble | Slider | ACTIVE |
+| Cadmium | — | Time compression bubble | Pulser | ACTIVE |
 
 ## Steel & Iron: The Physical Pair
 
