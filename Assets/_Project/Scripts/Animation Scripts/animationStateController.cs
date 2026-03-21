@@ -16,7 +16,7 @@ public class animationStateController : MonoBehaviour
         // If player presses W, the animator starts isWalking
         if (Input.GetKey("w"))
         {
-            animator.setBool("isWalking", true);
+            animator.SetBool("isWalking", true);
         }
     }
 }
