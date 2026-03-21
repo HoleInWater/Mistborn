@@ -27,6 +27,7 @@ public class PlayerCollisionHandler3D : MonoBehaviour
     // This handles physical collisions in 3D
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("I hit something named: " + collision.gameObject.name); // Add this!
         if (collision.gameObject.CompareTag("Enemy"))
         {
             TriggerDamageTransition();
@@ -54,14 +55,5 @@ public class PlayerCollisionHandler3D : MonoBehaviour
         }
         
         Debug.Log("3D Hit Detected! Sprite switched.");
-    }
-    
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("I hit something named: " + collision.gameObject.name); // Add this!
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            TriggerDamageTransition();
-        }
     }
 }
