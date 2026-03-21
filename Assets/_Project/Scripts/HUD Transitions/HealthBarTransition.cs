@@ -48,10 +48,20 @@ public class PlayerCollisionHandler3D : MonoBehaviour
 
     void TriggerDamageTransition()
     {
-        _progressBar.value -= 10; 
-        if (damagedSprite != null && _progressFill != null)
+        _progressBar.value -= 20; // Subtract more to make it obvious
+        
+        if (damagedSprite != null)
         {
+            // 1. Clear any default Unity colors
+            _progressFill.style.backgroundColor = Color.clear; 
+            
+            // 2. Set the sprite
             _progressFill.style.backgroundImage = new StyleBackground(damagedSprite);
+            
+            // 3. Ensure it stretches to the fill area
+            _progressFill.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+            
+            Debug.Log($"Bar Value is now: {_progressBar.value}");
         }
     }
 }
