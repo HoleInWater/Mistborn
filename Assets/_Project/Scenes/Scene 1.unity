@@ -394,7 +394,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 68b66ba9e2239bb4980552208b30e25f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -457,6 +457,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   moveSpeed: 5
+  rotationSpeed: 10
   mouseSensitivity: 200
   cameraTransform: {fileID: 53509033}
   cameraPivot: {fileID: 39780562}
@@ -464,7 +465,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   smoothSpeed: 10
-  rotationSmoothing: 15
   cameraRadius: 0.2
   minDistance: 0.5
 --- !u!4 &641062187 stripped
