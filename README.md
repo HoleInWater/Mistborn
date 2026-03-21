@@ -207,7 +207,7 @@ Unity will import everything — this takes a few minutes the first time.
 
 1. In Unity, find the Project window
 2. Navigate to `Assets/_Project/Scenes/`
-3. Double-click `TestArena.unity`
+3. Double-click `Scene 1.unity`
 4. The scene opens in the Editor
 
 ---
@@ -361,8 +361,8 @@ Instead of having all of these keybinds, just have like a scroll wheel and it sl
 - Try: Assets → Reimport All
 
 **"Scene looks empty"**
-- The TestArena scene needs to be set up in Unity
-- Run: Mistborn → Setup Test Arena (menu item)
+- Make sure you're in `Scene 1.unity`
+- Click the scene file in Assets to open it
 
 **"Camera is weird"**
 - Press Escape to unlock the mouse cursor
