@@ -1,41 +1,36 @@
-// ============================================================
-// FILE: AllomancerController.cs
-// SYSTEM: Allomancy
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Core component that manages all metal reserves for the player.
-//   Handles reserve consumption, burning states, and metal detection.
-//
-// DEPENDENCIES:
-//   - MetalReserve
-//   - AllomanticMetal enum
-//   - SteelPushAbility, IronPullAbility
-//
-// TODO:
-//   - Implement event system for metal depletion
-//   - Add flaring mechanic support
-//
-// TODO (Team):
-//   - Define starting reserve amounts
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mistborn.Allomancy
 {
+    [RequireComponent(typeof(CharacterController))]
     public class AllomancerController : MonoBehaviour
     {
-        public List<MetalReserve> reserves = new List<MetalReserve>();
+        [Header("Metal Reserves")]
+        [SerializeField] private float[] startingAmounts = new float[16];
 
-        public event Action<AllomanticMetal> OnMetalDepleted;
-        public event Action<AllomanticMetal> OnMetalStartBurning;
-        public event Action<AllomanticMetal> OnMetalStopBurning;
+        [Header("Burn Rates (per second)")]
+        [SerializeField] private float steelBurnRate = 8f;
+        [SerializeField] private float ironBurnRate = 8f;
+        [SerializeField] private float pewterBurnRate = 10f;
+        [SerializeField] private float tinBurnRate = 7f;
+        [SerializeField] private float brassBurnRate = 5f;
+        [SerializeField] private float zincBurnRate = 5f;
+        [SerializeField] private float copperBurnRate = 5f;
+        [SerializeField] private float bronzeBurnRate = 5f;
+        [SerializeField] private float bendalloyBurnRate = 10f;
+
+        [Header("Flare Settings")]
+        [SerializeField] private float flareMultiplier = 2f;
+
+        private MetalReserve[] reserves;
+        
+        public MetalReserve[] Reserves => reserves;
+        public bool IsInitialized { get; private set; }
+        public float FlareMultiplier => flareMultiplier;
+
+        public event System.Action<AllomanticMetal> OnMetalDepleted;
+        public event System.Action<AllomanticMetal> OnStartBurning;
+        public event System.Action<AllomanticMetal> OnStopBurning;
 
         private void Awake()
         {
@@ -44,59 +39,101 @@ namespace Mistborn.Allomancy
 
         private void InitializeReserves()
         {
-            reserves = new List<MetalReserve>();
-            
-            foreach (AllomanticMetal metal in Enum.GetValues(typeof(AllomanticMetal)))
+            int metalCount = System.Enum.GetValues(typeof(AllomanticMetal)).Length;
+            reserves = new MetalReserve[metalCount];
+
+            for (int i = 0; i < metalCount; i++)
             {
-                reserves.Add(new MetalReserve(metal));
+                float amount = i < startingAmounts.Length ? startingAmounts[i] : 100f;
+                reserves[i] = new MetalReserve((AllomanticMetal)i, amount, GetBurnRate((AllomanticMetal)i));
+            }
+
+            IsInitialized = true;
+        }
+
+        private float GetBurnRate(AllomanticMetal metal)
+        {
+            return metal switch
+            {
+                AllomanticMetal.Steel => steelBurnRate,
+                AllomanticMetal.Iron => ironBurnRate,
+                AllomanticMetal.Pewter => pewterBurnRate,
+                AllomanticMetal.Tin => tinBurnRate,
+                AllomanticMetal.Brass => brassBurnRate,
+                AllomanticMetal.Zinc => zincBurnRate,
+                AllomanticMetal.Copper => copperBurnRate,
+                AllomanticMetal.Bronze => bronzeBurnRate,
+                AllomanticMetal.Bendalloy => bendalloyBurnRate,
+                _ => 5f
+            };
+        }
+
+        private void Update()
+        {
+            if (!IsInitialized) return;
+
+            foreach (MetalReserve reserve in reserves)
+            {
+                if (reserve.IsBurning)
+                {
+                    reserve.Consume(Time.deltaTime);
+
+                    if (reserve.IsEmpty)
+                    {
+                        reserve.StopBurning();
+                        OnMetalDepleted?.Invoke(reserve.MetalType);
+                    }
+                }
             }
         }
 
         public MetalReserve GetReserve(AllomanticMetal metal)
         {
-            return reserves.Find(r => r.metalType == metal);
+            return reserves[(int)metal];
         }
 
         public bool CanBurn(AllomanticMetal metal)
         {
-            MetalReserve reserve = GetReserve(metal);
-            return reserve != null && reserve.CanBurn();
+            return !GetReserve(metal).IsEmpty;
         }
 
         public void StartBurning(AllomanticMetal metal)
         {
             MetalReserve reserve = GetReserve(metal);
-            if (reserve != null && reserve.CanBurn())
+            if (!reserve.IsEmpty)
             {
                 reserve.StartBurning();
-                OnMetalStartBurning?.Invoke(metal);
+                OnStartBurning?.Invoke(metal);
             }
         }
 
         public void StopBurning(AllomanticMetal metal)
         {
-            MetalReserve reserve = GetReserve(metal);
-            if (reserve != null)
-            {
-                reserve.StopBurning();
-                OnMetalStopBurning?.Invoke(metal);
-            }
+            GetReserve(metal).StopBurning();
+            OnStopBurning?.Invoke(metal);
         }
 
-        private void Update()
+        public void RefillAllMetals()
         {
             foreach (MetalReserve reserve in reserves)
             {
-                if (reserve.isBurning)
-                {
-                    reserve.Consume(Time.deltaTime);
-                    
-                    if (reserve.IsEmpty())
-                    {
-                        OnMetalDepleted?.Invoke(reserve.metalType);
-                    }
-                }
+                reserve.Refill();
             }
+        }
+
+        [ContextMenu("Debug: Drain All Metals")]
+        private void DebugDrain()
+        {
+            foreach (MetalReserve reserve in reserves)
+            {
+                reserve.Consume(90f);
+            }
+        }
+
+        [ContextMenu("Debug: Fill All Metals")]
+        private void DebugFill()
+        {
+            RefillAllMetals();
         }
     }
 }

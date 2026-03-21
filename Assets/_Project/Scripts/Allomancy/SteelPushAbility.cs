@@ -1,151 +1,137 @@
-// ============================================================
-// FILE: SteelPushAbility.cs
-// SYSTEM: Allomancy
-// STATUS: IMPLEMENTED — Uses physics formulas
-// AUTHOR: 
-//
-// PURPOSE:
-//   Implements Steel Allomancy (Steelpushing) - pushes metal objects
-//   away from the Allomancer. Heavier/anchored objects cause the
-//   Allomancer to move instead (Newton's 3rd Law).
-//
-// LORE:
-//   "A steel Misting is known as a Coinshot... pushes on nearby metals." — Coppermind
-//   "The strength of your push is roughly proportional to your physical weight." — Coppermind
-//
-// DEPENDENCIES:
-//   - AllomancerController
-//   - AllomanticTarget
-//   - AllomanticMetal.Steel
-//   - AllomancyPhysicsFormulas
-//
-// RANGE:
-//   ~100 paces (~75m) max, with distance falloff
-//
-// TODO:
-//   - Add audio feedback
-//
-// TODO (Team):
-//   - Tune base push force
-//   - Adjust mass threshold for "anchored" behavior
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using System.Collections.Generic;
 using UnityEngine;
-using Mistborn.Allomancy.Physics;
 
 namespace Mistborn.Allomancy
 {
     public class SteelPushAbility : MonoBehaviour
     {
-        [Header("Steel — Steelpush")]
-        public float basePushForce = 500f;
-        public float pushRange = 30f;
-        public int maxTargets = 5;
-        public KeyCode activationKey = KeyCode.Mouse1;
-        
-        [Header("Physics Settings")]
-        public float playerWeight = 80f;
-        public float anchorMassThreshold = 50f;
-        public bool useFlaring = true;
+        [Header("Push Settings")]
+        [SerializeField] private float pushForce = 500f;
+        [SerializeField] private float pushRange = 30f;
+        [SerializeField] private int maxTargets = 5;
+        [SerializeField] private KeyCode activationKey = KeyCode.Mouse1;
+
+        [Header("Physics")]
+        [SerializeField] private float playerWeight = 80f;
+        [SerializeField] private float anchorMassThreshold = 50f;
+        [SerializeField] private bool allowFlaring = true;
 
         private AllomancerController allomancer;
-        private Rigidbody playerRb;
+        private Rigidbody playerRigidbody;
         private List<AllomanticTarget> currentTargets = new List<AllomanticTarget>();
 
-        private void Start()
+        public float PushRange => pushRange;
+        public List<AllomanticTarget> CurrentTargets => currentTargets;
+
+        private void Awake()
         {
             allomancer = GetComponent<AllomancerController>();
-            playerRb = GetComponent<Rigidbody>();
-            
-            if (allomancer == null)
-            {
-                Debug.LogError("SteelPushAbility requires AllomancerController on same GameObject");
-            }
+            playerRigidbody = GetComponent<Rigidbody>();
         }
 
         private void Update()
         {
-            bool isFlaring = useFlaring && Input.GetKey(KeyCode.LeftShift);
-            
+            if (allomancer == null || !allomancer.IsInitialized)
+                return;
+
+            bool isFlaring = allowFlaring && Input.GetKey(KeyCode.LeftShift);
+
             if (Input.GetKey(activationKey) && allomancer.CanBurn(AllomanticMetal.Steel))
             {
-                if (!allomancer.GetReserve(AllomanticMetal.Steel).isBurning)
-                {
+                if (!allomancer.GetReserve(AllomanticMetal.Steel).IsBurning)
                     allomancer.StartBurning(AllomanticMetal.Steel);
-                }
-                FindMetalTargetsInRange();
+
+                FindMetalTargets();
                 PushAllTargets(isFlaring);
             }
-            else if (allomancer.GetReserve(AllomanticMetal.Steel)?.isBurning == true)
+            else if (allomancer.GetReserve(AllomanticMetal.Steel)?.IsBurning == true)
             {
                 allomancer.StopBurning(AllomanticMetal.Steel);
                 currentTargets.Clear();
             }
         }
 
-        public void FindMetalTargetsInRange()
+        public void FindMetalTargets()
         {
             currentTargets.Clear();
-            
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, pushRange);
-            
-            int targetCount = 0;
-            foreach (Collider hit in hitColliders)
+            int count = 0;
+
+            foreach (Collider hit in Physics.OverlapSphere(transform.position, pushRange))
             {
-                AllomanticTarget target = hit.GetComponent<AllomanticTarget>();
-                if (target != null && target.metalType == AllomanticMetal.Steel && targetCount < maxTargets)
+                if (count >= maxTargets) break;
+
+                if (hit.TryGetComponent(out AllomanticTarget target) && target.MetalType == AllomanticMetal.Steel)
                 {
                     currentTargets.Add(target);
-                    targetCount++;
+                    count++;
                 }
+            }
+        }
+
+        public void PushAllTargets(bool isFlaring)
+        {
+            foreach (AllomanticTarget target in currentTargets)
+            {
+                PushTarget(target, isFlaring);
             }
         }
 
         public void PushTarget(AllomanticTarget target, bool isFlaring)
         {
-            if (target == null || target.rb == null) return;
+            if (target == null || target.Rigidbody == null) return;
 
             float distance = Vector3.Distance(transform.position, target.transform.position);
-            bool isAnchored = target.isAnchored || target.metalMass > anchorMassThreshold;
-            
-            float force = AllomancyPhysicsFormulas.CalculatePushForce(
-                playerWeight,
-                target.metalMass,
-                distance,
-                isAnchored,
-                isFlaring
-            );
-            
+            bool isAnchored = target.IsAnchored || target.MetalMass > anchorMassThreshold;
+            float force = CalculatePushForce(target, distance, isAnchored, isFlaring);
             Vector3 pushDirection = target.GetPushDirection(transform.position);
-            
+
             if (isAnchored)
             {
                 ApplyRecoilToPlayer(pushDirection, force);
             }
             else
             {
-                target.rb.AddForce(pushDirection * force, ForceMode.Impulse);
+                target.Rigidbody.AddForce(pushDirection * force, ForceMode.Impulse);
             }
+        }
+
+        private float CalculatePushForce(AllomanticTarget target, float distance, bool isAnchored, bool isFlaring)
+        {
+            float force = pushForce;
+
+            // Distance falloff
+            float distanceFactor = 1f - (distance / pushRange);
+            distanceFactor = Mathf.Clamp01(distanceFactor);
+            force *= distanceFactor;
+
+            // Anchored objects push back harder
+            if (isAnchored)
+            {
+                force *= (playerWeight / target.MetalMass) * 0.5f;
+            }
+
+            // Flaring doubles the force
+            if (isFlaring)
+            {
+                force *= 2f;
+            }
+
+            return force;
         }
 
         public void ApplyRecoilToPlayer(Vector3 direction, float force)
         {
-            if (playerRb != null)
+            if (playerRigidbody != null)
             {
-                float recoil = AllomancyPhysicsFormulas.CalculateRecoilForce(force, playerWeight, 100f);
-                playerRb.AddForce(direction * recoil, ForceMode.Impulse);
+                float recoil = (force / playerWeight) * 0.5f;
+                playerRigidbody.AddForce(direction * recoil, ForceMode.Impulse);
             }
         }
 
-        private void PushAllTargets(bool isFlaring)
+        private void OnDrawGizmosSelected()
         {
-            foreach (AllomanticTarget target in currentTargets)
-            {
-                PushTarget(target, isFlaring);
-            }
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, pushRange);
         }
     }
 }

@@ -1,71 +1,55 @@
-// ============================================================
-// FILE: PewterEnhancement.cs
-// SYSTEM: Allomancy
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Implements Pewter Allomancy — enhanced physical abilities.
-//   Grants strength, speed, endurance, and pain tolerance.
-//
-// LORE:
-//   "Pewter enhances strength, speed, endurance, balance, and pain 
-//    tolerance simultaneously." — Coppermind
-//
-// TODO:
-//   - Tune enhancement multipliers
-//   - Add visual effects (pewter glow)
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Allomancy
 {
     public class PewterEnhancement : MonoBehaviour
     {
-        [Header("Pewter Enhancement Settings")]
-        public KeyCode activationKey = KeyCode.Q;
-        public float strengthMultiplier = 2f;
-        public float speedMultiplier = 1.5f;
-        public float enduranceMultiplier = 3f;
-        public float painResistance = 0.5f; // 50% pain reduction
-        public float burnRate = 1.5f;
-        
-        [Header("Pewter Drag")]
-        public float dragDuration = 3f;
-        public float dragSpeedPenalty = 0.5f;
-        public float dragStrengthPenalty = 0.5f;
-        
+        [Header("Enhancement Settings")]
+        [SerializeField] private float strengthMultiplier = 2f;
+        [SerializeField] private float speedMultiplier = 1.5f;
+        [SerializeField] private float painResistance = 0.5f;
+
+        [Header("Drag Settings (when depleted)")]
+        [SerializeField] private float dragSpeedPenalty = 0.5f;
+        [SerializeField] private float dragStrengthPenalty = 0.5f;
+        [SerializeField] private float dragDuration = 3f;
+
+        [Header("Input")]
+        [SerializeField] private KeyCode activationKey = KeyCode.Q;
+
         private AllomancerController allomancer;
-        private CharacterController characterController;
         private bool isEnhanced;
         private bool isDragging;
-        private float normalSpeed;
-        private float normalStrength;
-        
-        private void Start()
+        private float dragTimer;
+
+        public bool IsEnhanced => isEnhanced;
+        public bool IsDragging => isDragging;
+
+        public event System.Action OnEnhancementStart;
+        public event System.Action OnEnhancementEnd;
+        public event System.Action OnDragStart;
+        public event System.Action OnDragEnd;
+
+        private void Awake()
         {
             allomancer = GetComponent<AllomancerController>();
-            characterController = GetComponent<CharacterController>();
-            
-            if (characterController != null)
-            {
-                normalSpeed = characterController.slopeLimit / 10f; // Approximate base speed
-            }
         }
-        
+
         private void Update()
         {
+            // Handle drag state (can't do anything while dragging)
             if (isDragging)
             {
-                UpdateDrag();
+                dragTimer -= Time.deltaTime;
+                if (dragTimer <= 0)
+                {
+                    EndDrag();
+                }
                 return;
             }
-            
-            // Toggle pewter burning
-            if (Input.GetKeyDown(activationKey))
+
+            // Toggle enhancement
+            if (Input.GetKeyDown(activationKey) && CanUse())
             {
                 StartEnhancement();
             }
@@ -73,121 +57,70 @@ namespace Mistborn.Allomancy
             {
                 StopEnhancement();
             }
-            
-            // Continue burning if active
+
+            // Check for depletion
             if (isEnhanced && allomancer != null)
             {
-                allomancer.GetReserve(AllomanticMetal.Pewter).Consume(Time.deltaTime * burnRate);
-                
-                if (allomancer.GetReserve(AllomanticMetal.Pewter).IsEmpty())
+                if (allomancer.GetReserve(AllomanticMetal.Pewter).IsEmpty)
                 {
-                    TriggerPewterDrag();
+                    TriggerDrag();
                 }
             }
         }
-        
+
+        private bool CanUse()
+        {
+            return allomancer != null && allomancer.CanBurn(AllomanticMetal.Pewter);
+        }
+
         private void StartEnhancement()
         {
-            if (allomancer == null || !allomancer.CanBurn(AllomanticMetal.Pewter))
-            {
-                Debug.Log("Cannot burn pewter - no reserves");
-                return;
-            }
-            
             isEnhanced = true;
             allomancer.StartBurning(AllomanticMetal.Pewter);
-            ApplyEnhancement();
-            
-            Debug.Log("Pewter burning - enhanced");
+            OnEnhancementStart?.Invoke();
         }
-        
+
         private void StopEnhancement()
         {
             if (!isEnhanced) return;
-            
+
             isEnhanced = false;
-            
-            if (allomancer != null)
-            {
-                allomancer.StopBurning(AllomanticMetal.Pewter);
-            }
-            
-            RemoveEnhancement();
-            
-            Debug.Log("Pewter stopped");
+            allomancer.StopBurning(AllomanticMetal.Pewter);
+            OnEnhancementEnd?.Invoke();
         }
-        
-        private void ApplyEnhancement()
-        {
-            // Apply visual effect
-            // TODO: Add pewter glow VFX
-            
-            // Enhance will be applied in movement/combat systems
-        }
-        
-        private void RemoveEnhancement()
-        {
-            // Remove visual effect
-            // TODO: Remove pewter glow VFX
-        }
-        
-        private void TriggerPewterDrag()
+
+        private void TriggerDrag()
         {
             isEnhanced = false;
             isDragging = true;
-            
-            if (allomancer != null)
-            {
-                allomancer.StopBurning(AllomanticMetal.Pewter);
-            }
-            
-            RemoveEnhancement();
-            Invoke(nameof(EndDrag), dragDuration);
-            
-            Debug.Log("PEWTER DRAG - depleted!");
+            dragTimer = dragDuration;
+            allomancer.StopBurning(AllomanticMetal.Pewter);
+            OnDragStart?.Invoke();
         }
-        
-        private void UpdateDrag()
-        {
-            // During drag, player is slowed and weakened
-            // This is handled by checking isDragging in combat/movement
-        }
-        
+
         private void EndDrag()
         {
             isDragging = false;
-            Debug.Log("Drag ended");
+            OnDragEnd?.Invoke();
         }
-        
-        // Called by combat system to check enhancement state
-        public bool IsEnhanced()
-        {
-            return isEnhanced;
-        }
-        
-        public bool IsDragging()
-        {
-            return isDragging;
-        }
-        
+
         public float GetDamageMultiplier()
         {
-            if (isDragging) return dragStrengthPenalty;
+            if (isDragging) return 1f - dragStrengthPenalty;
             if (isEnhanced) return strengthMultiplier;
             return 1f;
         }
-        
+
         public float GetSpeedMultiplier()
         {
-            if (isDragging) return dragSpeedPenalty;
+            if (isDragging) return 1f - dragSpeedPenalty;
             if (isEnhanced) return speedMultiplier;
             return 1f;
         }
-        
+
         public float GetPainResistance()
         {
-            if (isEnhanced) return painResistance;
-            return 0f;
+            return isEnhanced ? painResistance : 0f;
         }
     }
 }

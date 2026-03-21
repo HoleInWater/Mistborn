@@ -1,24 +1,3 @@
-// ============================================================
-// FILE: BronzeDetection.cs
-// SYSTEM: Allomancy
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Implements Bronze Allomancy — detects when nearby Allomancers
-//   are burning metals.
-//
-// LORE:
-//   "An unskilled Seeker only knows someone is burning something.
-//    A skilled Seeker can identify which specific metal." — Coppermind
-//
-// TODO:
-//   - Add skill system for identifying specific metals
-//   - Add visual/audio feedback for detection
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -26,121 +5,81 @@ namespace Mistborn.Allomancy
 {
     public class BronzeDetection : MonoBehaviour
     {
-        [Header("Detection Settings")]
-        public float detectionRange = 30f;
-        public float detectionInterval = 0.5f;
-        public bool canIdentifyMetal = false; // Skill upgrade
-        
-        [Header("Audio")]
-        public AudioClip detectionSound;
-        
-        private float detectionTimer;
-        private List<DetectedAllomancer> detectedAllomancers = new List<DetectedAllomancer>();
-        
-        private class DetectedAllomancer
+        [Header("Detection")]
+        [SerializeField] private float m_range = 30f;
+        [SerializeField] private float m_interval = 0.5f;
+        [SerializeField] private bool m_canIdentify;
+
+        private float m_timer;
+        private List<Detected> m_detected = new List<Detected>();
+
+        public struct Detected
         {
             public GameObject target;
-            public AllomanticMetal? activeMetal;
+            public AllomanticMetal? metal;
             public float distance;
-            public bool isInCopperCloud;
+            public bool inCloud;
         }
-        
+
         private void Update()
         {
-            detectionTimer -= Time.deltaTime;
-            if (detectionTimer > 0) return;
-            
-            detectionTimer = detectionInterval;
-            ScanForAllomancers();
-        }
-        
-        private void ScanForAllomancers()
-        {
-            detectedAllomancers.Clear();
-            
-            // Find all Allomancers in range
-            AllomancerController[] allomancers = Object.FindObjectsOfType<AllomancerController>();
-            
-            foreach (AllomancerController allomancer in allomancers)
+            m_timer -= Time.deltaTime;
+            if (m_timer <= 0)
             {
-                if (allomancer.gameObject == gameObject) continue; // Don't detect self
-                
-                float distance = Vector3.Distance(transform.position, allomancer.transform.position);
-                if (distance > detectionRange) continue;
-                
-                // Check if in coppercloud
-                bool inCloud = CopperCloud.IsInAnyCopperCloud(allomancer.transform.position);
-                
-                // Find what metal is being burned
-                AllomanticMetal? activeMetal = null;
-                foreach (MetalReserve reserve in allomancer.reserves)
+                m_timer = m_interval;
+                Scan();
+            }
+        }
+
+        private void Scan()
+        {
+            m_detected.Clear();
+
+            foreach (AllomancerController allomancer in Object.FindObjectsOfType<AllomancerController>())
+            {
+                if (allomancer.gameObject == gameObject) continue;
+
+                float dist = Vector3.Distance(transform.position, allomancer.transform.position);
+                if (dist > m_range) continue;
+
+                AllomanticMetal? metal = null;
+                foreach (MetalReserve reserve in allomancer.Reserves)
                 {
-                    if (reserve.isBurning)
+                    if (reserve.IsBurning)
                     {
-                        activeMetal = reserve.metalType;
-                        if (!canIdentifyMetal) break; // Unskilled seeker can't tell which metal
+                        metal = reserve.MetalType;
+                        if (!m_canIdentify) break;
                     }
                 }
-                
-                DetectedAllomancer detected = new DetectedAllomancer
+
+                Detected d = new Detected
                 {
                     target = allomancer.gameObject,
-                    activeMetal = activeMetal,
-                    distance = distance,
-                    isInCopperCloud = inCloud
+                    metal = metal,
+                    distance = dist,
+                    inCloud = CopperCloud.IsAnyActiveAt(allomancer.transform.position)
                 };
-                
-                detectedAllomancers.Add(detected);
-                
-                if (!inCloud)
-                {
-                    OnAllomancerDetected(detected);
-                }
+
+                m_detected.Add(d);
+                if (!d.inCloud) OnDetected?.Invoke(d);
             }
         }
-        
-        private void OnAllomancerDetected(DetectedAllomancer detected)
+
+        public List<Detected> GetVisible()
         {
-            Debug.Log($"Detected Allomancer at {detected.distance}m");
-            
-            if (detected.activeMetal.HasValue)
-            {
-                Debug.Log($"Burning: {detected.activeMetal.Value}");
-            }
-            else
-            {
-                Debug.Log("Burning unknown metal");
-            }
-            
-            // TODO: Trigger alert behavior
-            // TODO: Play sound
-            // TODO: Show UI indicator
-        }
-        
-        public List<DetectedAllomancer> GetDetectedAllomancers()
-        {
-            // Filter out those in copperclouds
-            List<DetectedAllomancer> visible = new List<DetectedAllomancer>();
-            foreach (DetectedAllomancer detected in detectedAllomancers)
-            {
-                if (!detected.isInCopperCloud)
-                {
-                    visible.Add(detected);
-                }
-            }
+            List<Detected> visible = new List<Detected>();
+            foreach (var d in m_detected)
+                if (!d.inCloud) visible.Add(d);
             return visible;
         }
-        
-        public bool HasDetectedAnyAllomancer()
+
+        public bool HasAnyVisible()
         {
-            foreach (DetectedAllomancer detected in detectedAllomancers)
-            {
-                if (!detected.isInCopperCloud)
-                {
-                    return true;
-                }
-            }
+            foreach (var d in m_detected)
+                if (!d.inCloud) return true;
             return false;
         }
+
+        public event System.Action<Detected> OnDetected;
     }
 }

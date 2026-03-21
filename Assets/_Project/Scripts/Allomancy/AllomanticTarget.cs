@@ -1,27 +1,3 @@
-// ============================================================
-// FILE: AllomanticTarget.cs
-// SYSTEM: Allomancy
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Marks a game object as a metal target detectable by Allomancers.
-//   Contains physics data and directional calculations for push/pull.
-//
-// DEPENDENCIES:
-//   - AllomanticMetal enum
-//   - Requires Rigidbody component
-//
-// TODO:
-//   - Add visual editor customization
-//   - Implement mass-based force calculations
-//
-// TODO (Team):
-//   - Define standard mass values for different metal objects
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Allomancy
@@ -29,20 +5,29 @@ namespace Mistborn.Allomancy
     [RequireComponent(typeof(Rigidbody))]
     public class AllomanticTarget : MonoBehaviour
     {
-        [Header("Allomantic Properties")]
-        public AllomanticMetal metalType = AllomanticMetal.Steel;
-        public bool isAnchored = false;
-        public float metalMass = 1f;
+        [Header("Metal Properties")]
+        [SerializeField] private AllomanticMetal metalType = AllomanticMetal.Steel;
+        [SerializeField] private float metalMass = 1f;
+        [SerializeField] private bool isAnchored;
 
-        public Rigidbody rb { get; private set; }
+        public AllomanticMetal MetalType => metalType;
+        public float MetalMass => metalMass;
+        public bool IsAnchored => isAnchored;
+        public Rigidbody Rigidbody { get; private set; }
+
+        public void SetMetalMass(float mass) => metalMass = Mathf.Max(0.01f, mass);
+        public void SetAnchored(bool anchored) => isAnchored = anchored;
 
         private void Awake()
         {
-            rb = GetComponent<Rigidbody>();
+            Rigidbody = GetComponent<Rigidbody>();
             if (metalMass <= 0)
-            {
-                metalMass = rb.mass;
-            }
+                metalMass = Rigidbody.mass;
+        }
+
+        private void OnValidate()
+        {
+            metalMass = Mathf.Max(0.01f, metalMass);
         }
 
         public Vector3 GetPushDirection(Vector3 fromPosition)

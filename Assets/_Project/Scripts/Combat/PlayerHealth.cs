@@ -1,157 +1,93 @@
-// ============================================================
-// FILE: PlayerHealth.cs
-// SYSTEM: Combat
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Handles player health, damage, and death.
-//   Integrates with Allomancy (pewter damage resistance, etc.)
-//
-// TODO:
-//   - Add animation hooks
-//   - Add death screen
-//   - Add respawn system
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
+using Mistborn.Allomancy;
 
 namespace Mistborn.Combat
 {
-    public class PlayerHealth : MonoBehaviour
+    public class PlayerHealth : MonoBehaviour, IDamageable
     {
-        [Header("Health Settings")]
-        public float maxHealth = 100f;
-        public float currentHealth;
-        
-        [Header("Invincibility")]
-        public float invincibilityDuration = 0.5f;
-        public bool isInvincible;
-        private float invincibilityTimer;
-        
-        [Header("Death")]
-        public bool isDead;
-        public GameObject deathScreen;
-        
-        [Header("Audio")]
-        public AudioClip damageSound;
-        public AudioClip deathSound;
-        
-        [Header("Components")]
-        public PewterEnhancement pewterEnhancement;
-        
-        private void Start()
+        [SerializeField] private float m_maxHealth = 100f;
+        [SerializeField] private float m_invincibilityDuration = 0.5f;
+        [SerializeField] private GameObject m_deathScreen;
+
+        private float m_currentHealth;
+        private float m_invincibilityTimer;
+        private bool m_isInvincible;
+        private bool m_isDead;
+
+        public float health => m_currentHealth;
+        public float maxHealth => m_maxHealth;
+        public bool isDead => m_isDead;
+        public bool isInvincible => m_isInvincible;
+
+        public event System.Action OnDeath;
+        public event System.Action<float> OnDamaged;
+        public event System.Action<float> OnHealed;
+
+        private void Awake()
         {
-            currentHealth = maxHealth;
+            m_currentHealth = m_maxHealth;
         }
-        
+
         private void Update()
         {
-            if (isInvincible)
+            if (m_isInvincible)
             {
-                invincibilityTimer -= Time.deltaTime;
-                if (invincibilityTimer <= 0)
-                {
-                    isInvincible = false;
-                }
+                m_invincibilityTimer -= Time.deltaTime;
+                if (m_invincibilityTimer <= 0)
+                    m_isInvincible = false;
             }
         }
-        
-        public void TakeDamage(float damage)
+
+        public void TakeDamage(DamageData damage)
         {
-            if (isDead || isInvincible) return;
+            if (m_isDead || m_isInvincible) return;
+
+            float actual = damage.amount;
             
-            // Check for pewter damage resistance
-            float actualDamage = damage;
-            if (pewterEnhancement != null && pewterEnhancement.IsEnhanced())
+            PewterEnhancement pewter = GetComponent<PewterEnhancement>();
+            if (pewter != null && pewter.isEnhanced)
+                actual *= (1f - pewter.GetPainResistance());
+
+            m_currentHealth -= actual;
+            OnDamaged?.Invoke(actual);
+
+            if (m_currentHealth <= 0)
             {
-                actualDamage *= (1f - pewterEnhancement.GetPainResistance());
-                Debug.Log($"Pewter reduced damage from {damage} to {actualDamage}");
-            }
-            
-            currentHealth -= actualDamage;
-            Debug.Log($"Player took {actualDamage} damage, {currentHealth}/{maxHealth} HP");
-            
-            // TODO: Play damage animation
-            // TODO: Screen shake
-            // TODO: Damage number popup
-            
-            if (SoundManager.Instance != null && damageSound != null)
-            {
-                SoundManager.Instance.PlaySound(damageSound);
-            }
-            
-            if (currentHealth <= 0)
-            {
+                m_currentHealth = 0;
                 Die();
             }
             else
             {
-                StartInvincibility();
+                m_isInvincible = true;
+                m_invincibilityTimer = m_invincibilityDuration;
             }
         }
-        
+
         public void Heal(float amount)
         {
-            if (isDead) return;
-            
-            currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-            Debug.Log($"Player healed {amount}, now at {currentHealth}/{maxHealth} HP");
+            if (m_isDead) return;
+            m_currentHealth = Mathf.Min(m_currentHealth + amount, m_maxHealth);
+            OnHealed?.Invoke(amount);
         }
-        
-        public void Die()
+
+        private void Die()
         {
-            if (isDead) return;
-            
-            isDead = true;
-            currentHealth = 0;
-            
-            Debug.Log("Player died");
-            
-            if (SoundManager.Instance != null && deathSound != null)
-            {
-                SoundManager.Instance.PlaySound(deathSound);
-            }
-            
-            // TODO: Play death animation
-            // TODO: Disable controls
-            // TODO: Show death screen
-            
-            if (deathScreen != null)
-            {
-                deathScreen.SetActive(true);
-            }
-            
-            // TODO: Auto-reload or show respawn option
+            if (m_isDead) return;
+            m_isDead = true;
+            OnDeath?.Invoke();
+            m_deathScreen?.SetActive(true);
         }
-        
-        private void StartInvincibility()
-        {
-            isInvincible = true;
-            invincibilityTimer = invincibilityDuration;
-        }
-        
+
         public void Respawn()
         {
-            isDead = false;
-            currentHealth = maxHealth;
-            isInvincible = true;
-            invincibilityTimer = invincibilityDuration;
-            
-            if (deathScreen != null)
-            {
-                deathScreen.SetActive(false);
-            }
-            
-            // TODO: Move player to checkpoint
-            // TODO: Reset enemy states
+            m_isDead = false;
+            m_currentHealth = m_maxHealth;
+            m_isInvincible = true;
+            m_invincibilityTimer = m_invincibilityDuration;
+            m_deathScreen?.SetActive(false);
+            OnRespawn?.Invoke();
         }
-        
-        public float GetHealthPercent()
-        {
-            return currentHealth / maxHealth;
-        }
+
+        public event System.Action OnRespawn;
     }
 }

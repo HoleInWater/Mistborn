@@ -1,40 +1,15 @@
-// ============================================================
-// FILE: PlayerCamera.cs
-// SYSTEM: Player
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Third-person camera controller following Assassin's Creed style.
-//   Handles mouse look and smooth camera following.
-//
-// DEPENDENCIES:
-//   - Target (Player) transform
-//
-// TODO:
-//   - Add camera collision with environment geometry
-//   - Implement camera shake for Allomantic effects
-//   - Add smooth follow damping
-//
-// TODO (Team):
-//   - Define default camera distance and height
-//   - Set mouse sensitivity preference
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Player
 {
     public class PlayerCamera : MonoBehaviour
     {
-        [Header("Camera Settings")]
-        public Transform target;
-        public float mouseSensitivity = 100f;
-        public float cameraDistance = 5f;
-        public float cameraHeight = 2f;
-        public float followSmoothness = 10f;
+        [Header("Settings")]
+        [SerializeField] private Transform target;
+        [SerializeField] private float mouseSensitivity = 100f;
+        [SerializeField] private float cameraDistance = 5f;
+        [SerializeField] private float cameraHeight = 2f;
+        [SerializeField] private float followSmoothness = 10f;
 
         private float cameraYaw;
         private float cameraPitch;
@@ -44,7 +19,6 @@ namespace Mistborn.Player
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            
             cameraYaw = transform.eulerAngles.y;
             cameraPitch = transform.eulerAngles.x;
         }
@@ -52,7 +26,7 @@ namespace Mistborn.Player
         private void LateUpdate()
         {
             HandleMouseLook();
-            UpdateCameraPosition();
+            UpdatePosition();
         }
 
         private void HandleMouseLook()
@@ -60,20 +34,19 @@ namespace Mistborn.Player
             cameraYaw += Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
             cameraPitch -= Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
             cameraPitch = Mathf.Clamp(cameraPitch, -45f, 60f);
-            
             transform.eulerAngles = new Vector3(cameraPitch, cameraYaw, 0f);
         }
 
-        private void UpdateCameraPosition()
+        private void UpdatePosition()
         {
             if (target == null) return;
             
-            Vector3 targetPosition = target.position - transform.forward * cameraDistance;
-            targetPosition.y += cameraHeight;
+            Vector3 targetPos = target.position - transform.forward * cameraDistance;
+            targetPos.y += cameraHeight;
             
             transform.position = Vector3.SmoothDamp(
                 transform.position, 
-                targetPosition, 
+                targetPos, 
                 ref currentVelocity, 
                 1f / followSmoothness
             );
@@ -81,7 +54,24 @@ namespace Mistborn.Player
 
         public void Shake(float intensity, float duration)
         {
-            // TODO: Implement camera shake
+            StartCoroutine(ShakeCoroutine(intensity, duration));
+        }
+
+        private System.Collections.IEnumerator ShakeCoroutine(float intensity, float duration)
+        {
+            Vector3 original = transform.localPosition;
+            float elapsed = 0f;
+            
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float x = Random.Range(-1f, 1f) * intensity;
+                float y = Random.Range(-1f, 1f) * intensity;
+                transform.localPosition = original + new Vector3(x, y, 0);
+                yield return null;
+            }
+            
+            transform.localPosition = original;
         }
     }
 }

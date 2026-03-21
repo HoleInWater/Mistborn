@@ -1,30 +1,3 @@
-// ============================================================
-// FILE: AllomanticSight.cs
-// SYSTEM: Allomancy
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Implements the iconic Allomantic "blue lines" visual effect.
-//   Displays blue lines from the Allomancer to all metal objects in range.
-//   Currently uses Debug.DrawLine; VFX upgrade planned for Sprint 2.
-//
-// DEPENDENCIES:
-//   - AllomanticTarget
-//   - Toggle on Tab key
-//
-// TODO:
-//   - Replace Debug.DrawLine with LineRenderer VFX in Sprint 2
-//   - Add line thickness based on metal mass
-//   - Add fading based on distance
-//
-// TODO (Team):
-//   - Define line color preferences
-//   - Choose VFX library for visual upgrade
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,53 +5,54 @@ namespace Mistborn.Allomancy
 {
     public class AllomanticSight : MonoBehaviour
     {
-        [Header("Allomantic Sight Settings")]
-        public Color lineColor = Color.blue;
-        public float detectionRange = 50f;
-        public bool sightActive = false;
+        [Header("Sight")]
+        [SerializeField] private Color m_color = Color.cyan;
+        [SerializeField] private float m_range = 50f;
+        [SerializeField] private KeyCode m_toggle = KeyCode.Tab;
 
-        private List<AllomanticTarget> visibleTargets = new List<AllomanticTarget>();
+        private List<AllomanticTarget> m_targets = new List<AllomanticTarget>();
+        private bool m_active;
+        private BlueLineRenderer m_lines;
+
+        public bool isActive => m_active;
+
+        private void Awake() => m_lines = GetComponent<BlueLineRenderer>();
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(m_toggle))
             {
-                sightActive = !sightActive;
+                m_active = !m_active;
+                if (!m_active) m_lines?.HideAllLines();
             }
 
-            if (sightActive)
+            if (m_active)
             {
-                UpdateVisibleTargets();
-                DrawAllomanticLines();
+                FindTargets();
+                DrawLines();
             }
         }
 
-        public void UpdateVisibleTargets()
+        public void FindTargets()
         {
-            visibleTargets.Clear();
-            
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRange);
-            
-            foreach (Collider hit in hitColliders)
-            {
-                AllomanticTarget target = hit.GetComponent<AllomanticTarget>();
-                if (target != null)
-                {
-                    visibleTargets.Add(target);
-                }
-            }
+            m_targets.Clear();
+            foreach (Collider hit in Physics.OverlapSphere(transform.position, m_range))
+                if (hit.TryGetComponent(out AllomanticTarget t)) m_targets.Add(t);
         }
 
-        public void DrawAllomanticLines()
+        private void DrawLines()
         {
-            foreach (AllomanticTarget target in visibleTargets)
-            {
-                if (target != null)
-                {
-                    float lineWidth = Mathf.Lerp(0.5f, 3f, target.metalMass / 50f);
-                    Debug.DrawLine(transform.position, target.transform.position, lineColor);
-                }
-            }
+            if (m_lines != null)
+                m_lines.UpdateLines(m_targets, transform.position);
+            else
+                foreach (var t in m_targets)
+                    Debug.DrawLine(transform.position, t.transform.position, m_color);
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = m_color;
+            Gizmos.DrawWireSphere(transform.position, m_range);
         }
     }
 }

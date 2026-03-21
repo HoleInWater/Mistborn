@@ -1,29 +1,3 @@
-// ============================================================
-// FILE: IronPullAbility.cs
-// SYSTEM: Allomancy
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Implements Iron Allomancy (Ironpulling) - pulls metal objects
-//   toward the Allomancer. Heavier/anchored objects cause the
-//   Allomancer to move instead (Newton's 3rd Law).
-//
-// DEPENDENCIES:
-//   - AllomancerController
-//   - AllomanticTarget
-//   - AllomanticMetal.Iron
-//
-// TODO:
-//   - Implement visual effects for iron pull
-//   - Add audio feedback
-//
-// TODO (Team):
-//   - Tune pull force values
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,91 +5,103 @@ namespace Mistborn.Allomancy
 {
     public class IronPullAbility : MonoBehaviour
     {
-        [Header("Iron — Ironpull")]
-        public float pullForce = 500f;
-        public float pullRange = 30f;
-        public int maxTargets = 5;
-        public KeyCode activationKey = KeyCode.Mouse0;
+        [Header("Pull Settings")]
+        [SerializeField] private float pullForce = 500f;
+        [SerializeField] private float pullRange = 30f;
+        [SerializeField] private int maxTargets = 5;
+        [SerializeField] private KeyCode activationKey = KeyCode.Mouse0;
+
+        [Header("Physics")]
+        [SerializeField] private float playerWeight = 80f;
+        [SerializeField] private float anchorMassThreshold = 10f;
+        [SerializeField] private float recoilMultiplier = 0.5f;
 
         private AllomancerController allomancer;
+        private Rigidbody playerRigidbody;
         private List<AllomanticTarget> currentTargets = new List<AllomanticTarget>();
 
-        private void Start()
+        public float PullRange => pullRange;
+        public List<AllomanticTarget> CurrentTargets => currentTargets;
+
+        private void Awake()
         {
             allomancer = GetComponent<AllomancerController>();
-            if (allomancer == null)
-            {
-                Debug.LogError("IronPullAbility requires AllomancerController on same GameObject");
-            }
+            playerRigidbody = GetComponent<Rigidbody>();
         }
 
         private void Update()
         {
+            if (allomancer == null || !allomancer.IsInitialized)
+                return;
+
             if (Input.GetKey(activationKey) && allomancer.CanBurn(AllomanticMetal.Iron))
             {
-                if (!allomancer.GetReserve(AllomanticMetal.Iron).isBurning)
-                {
+                if (!allomancer.GetReserve(AllomanticMetal.Iron).IsBurning)
                     allomancer.StartBurning(AllomanticMetal.Iron);
-                }
-                FindMetalTargetsInRange();
+
+                FindMetalTargets();
                 PullAllTargets();
             }
-            else if (allomancer.GetReserve(AllomanticMetal.Iron)?.isBurning == true)
+            else if (allomancer.GetReserve(AllomanticMetal.Iron)?.IsBurning == true)
             {
                 allomancer.StopBurning(AllomanticMetal.Iron);
                 currentTargets.Clear();
             }
         }
 
-        public void FindMetalTargetsInRange()
+        public void FindMetalTargets()
         {
             currentTargets.Clear();
-            
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, pullRange);
-            
-            int targetCount = 0;
-            foreach (Collider hit in hitColliders)
+            int count = 0;
+
+            foreach (Collider hit in Physics.OverlapSphere(transform.position, pullRange))
             {
-                AllomanticTarget target = hit.GetComponent<AllomanticTarget>();
-                if (target != null && target.metalType == AllomanticMetal.Iron && targetCount < maxTargets)
+                if (count >= maxTargets) break;
+
+                if (hit.TryGetComponent(out AllomanticTarget target) && target.MetalType == AllomanticMetal.Iron)
                 {
                     currentTargets.Add(target);
-                    targetCount++;
+                    count++;
                 }
             }
         }
 
-        public void PullTarget(AllomanticTarget target)
-        {
-            if (target == null || target.rb == null) return;
-
-            Vector3 pullDirection = (transform.position - target.transform.position).normalized;
-            
-            if (target.isAnchored || target.metalMass > 10f)
-            {
-                ApplyRecoilToPlayer(-pullDirection);
-            }
-            else
-            {
-                target.rb.AddForce(pullDirection * pullForce);
-            }
-        }
-
-        public void ApplyRecoilToPlayer(Vector3 direction)
-        {
-            Rigidbody playerRb = GetComponent<Rigidbody>();
-            if (playerRb != null)
-            {
-                playerRb.AddForce(direction * pullForce * 0.5f);
-            }
-        }
-
-        private void PullAllTargets()
+        public void PullAllTargets()
         {
             foreach (AllomanticTarget target in currentTargets)
             {
                 PullTarget(target);
             }
+        }
+
+        public void PullTarget(AllomanticTarget target)
+        {
+            if (target == null || target.Rigidbody == null) return;
+
+            Vector3 pullDirection = target.GetPullDirection(transform.position);
+
+            if (target.IsAnchored || target.MetalMass > anchorMassThreshold)
+            {
+                ApplyRecoilToPlayer(-pullDirection);
+            }
+            else
+            {
+                target.Rigidbody.AddForce(pullDirection * pullForce);
+            }
+        }
+
+        public void ApplyRecoilToPlayer(Vector3 direction)
+        {
+            if (playerRigidbody != null)
+            {
+                playerRigidbody.AddForce(direction * pullForce * recoilMultiplier);
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, pullRange);
         }
     }
 }

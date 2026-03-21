@@ -1,176 +1,168 @@
-// ============================================================
-// FILE: CameraController.cs
-// SYSTEM: Player
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Advanced camera with collision, shake, and cutscene support.
-//
-// TODO:
-//   - Add camera collision
-//   - Add head bob
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Player
 {
+    /// <summary>
+    /// Third-person camera controller with mouse look, collision, and FOV kick.
+    /// </summary>
+    [RequireComponent(typeof(Camera))]
     public class CameraController : MonoBehaviour
     {
         [Header("Target")]
-        public Transform target;
-        public Vector3 offset = new Vector3(0, 2, -5);
+        [SerializeField] private Transform m_target;
+        [SerializeField] private Vector3 m_offset = new Vector3(0, 2, -5);
         
         [Header("Rotation")]
-        public float mouseSensitivity = 100f;
-        public float minPitch = -45f;
-        public float maxPitch = 60f;
+        [Range(10f, 500f)]
+        [SerializeField] private float m_mouseSensitivity = 100f;
+        [Range(-90f, 0f)]
+        [SerializeField] private float m_minPitch = -45f;
+        [Range(0f, 90f)]
+        [SerializeField] private float m_maxPitch = 60f;
         
         [Header("Follow")]
-        public float followSmoothness = 10f;
-        public float rotationSmoothness = 10f;
+        [Range(1f, 30f)]
+        [SerializeField] private float m_followSmoothness = 10f;
+        [Range(1f, 30f)]
+        [SerializeField] private float m_rotationSmoothness = 10f;
         
         [Header("Collision")]
-        public bool enableCollision = true;
-        public float collisionRadius = 0.3f;
-        public LayerMask collisionLayers;
+        [SerializeField] private bool m_enableCollision = true;
+        [SerializeField] private float m_collisionRadius = 0.3f;
+        [SerializeField] private LayerMask m_collisionLayers;
         
-        [Header("Effects")]
-        public bool enableFOVKick = true;
-        public float sprintFOV = 75f;
-        public float normalFOV = 60f;
-        public float fovLerpSpeed = 5f;
-        
-        private float cameraYaw;
-        private float cameraPitch;
-        private Vector3 currentVelocity;
-        private Camera cam;
-        
+        [Header("FOV")]
+        [SerializeField] private bool m_enableFOVKick = true;
+        [Range(30f, 120f)]
+        [SerializeField] private float m_sprintFOV = 75f;
+        [Range(30f, 120f)]
+        [SerializeField] private float m_normalFOV = 60f;
+        [Range(1f, 20f)]
+        [SerializeField] private float m_fovLerpSpeed = 5f;
+
+        private float m_yaw;
+        private float m_pitch;
+        private Vector3 m_currentVelocity;
+        private Camera m_cam;
+
+        public Camera cam => m_cam;
+
+        private void Awake()
+        {
+            m_cam = GetComponent<Camera>();
+        }
+
         private void Start()
         {
-            cam = GetComponent<Camera>();
-            
-            if (target != null)
+            if (m_target != null)
             {
-                cameraYaw = target.eulerAngles.y;
-                cameraPitch = transform.eulerAngles.x;
+                m_yaw = m_target.eulerAngles.y;
+                m_pitch = transform.eulerAngles.x;
             }
             
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-        
+
         private void LateUpdate()
         {
-            HandleMouseLook();
-            UpdateCameraPosition();
+            HandleInput();
+            UpdatePosition();
             UpdateFOV();
         }
-        
-        private void HandleMouseLook()
+
+        private void HandleInput()
         {
-            float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
-            float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
-            
-            cameraYaw += mouseX;
-            cameraPitch -= mouseY;
-            cameraPitch = Mathf.Clamp(cameraPitch, minPitch, maxPitch);
+            m_yaw += Input.GetAxisRaw("Mouse X") * m_mouseSensitivity * Time.deltaTime;
+            m_pitch -= Input.GetAxisRaw("Mouse Y") * m_mouseSensitivity * Time.deltaTime;
+            m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
         }
-        
-        private void UpdateCameraPosition()
+
+        private void UpdatePosition()
         {
-            if (target == null) return;
+            if (m_target == null) return;
             
-            // Calculate rotation
-            Quaternion rotation = Quaternion.Euler(cameraPitch, cameraYaw, 0);
+            Quaternion rotation = Quaternion.Euler(m_pitch, m_yaw, 0);
+            Vector3 desiredPos = m_target.position + rotation * m_offset;
             
-            // Calculate desired position
-            Vector3 desiredPosition = target.position + rotation * offset;
-            
-            // Handle collision
-            if (enableCollision)
+            if (m_enableCollision)
             {
-                desiredPosition = HandleCollision(target.position, desiredPosition);
+                desiredPos = GetCollisionPosition(desiredPos);
             }
             
-            // Smooth follow
             transform.position = Vector3.SmoothDamp(
-                transform.position,
-                desiredPosition,
-                ref currentVelocity,
-                1f / followSmoothness
+                transform.position, 
+                desiredPos, 
+                ref m_currentVelocity, 
+                1f / m_followSmoothness
             );
             
-            // Look at target
-            Quaternion desiredRotation = Quaternion.LookRotation(target.position - transform.position);
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
-                desiredRotation,
-                Time.deltaTime * rotationSmoothness
+                Quaternion.LookRotation(m_target.position - transform.position),
+                Time.deltaTime * m_rotationSmoothness
             );
         }
-        
-        private Vector3 HandleCollision(Vector3 targetPos, Vector3 desiredPos)
+
+        private Vector3 GetCollisionPosition(Vector3 desired)
         {
-            Vector3 direction = desiredPos - targetPos;
-            float distance = direction.magnitude;
-            direction = direction.normalized;
+            Vector3 dir = (desired - m_target.position).normalized;
+            float dist = Vector3.Distance(m_target.position, desired);
             
-            if (Physics.SphereCast(targetPos, collisionRadius, direction, out RaycastHit hit, distance, collisionLayers))
+            if (Physics.SphereCast(m_target.position, m_collisionRadius, dir, out RaycastHit hit, dist, m_collisionLayers))
             {
-                return targetPos + direction * (hit.distance - collisionRadius * 0.5f);
+                return m_target.position + dir * (hit.distance - m_collisionRadius * 0.5f);
             }
             
-            return desiredPos;
+            return desired;
         }
-        
+
         private void UpdateFOV()
         {
-            if (!enableFOVKick || cam == null) return;
+            if (!m_enableFOVKick || m_cam == null) return;
             
-            float targetFOV = normalFOV;
-            
-            if (Input.GetKey(KeyCode.LeftShift))
-            {
-                targetFOV = sprintFOV;
-            }
-            
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime * fovLerpSpeed);
+            float targetFOV = Input.GetKey(KeyCode.LeftShift) ? m_sprintFOV : m_normalFOV;
+            m_cam.fieldOfView = Mathf.Lerp(m_cam.fieldOfView, targetFOV, Time.deltaTime * m_fovLerpSpeed);
         }
-        
+
+        /// <summary>Shakes the camera for impact effects.</summary>
         public void Shake(float intensity, float duration)
         {
-            StartCoroutine(ShakeRoutine(intensity, duration));
+            StartCoroutine(ShakeCoroutine(intensity, duration));
         }
-        
-        private System.Collections.IEnumerator ShakeRoutine(float intensity, float duration)
+
+        private System.Collections.IEnumerator ShakeCoroutine(float intensity, float duration)
         {
-            float elapsed = 0;
-            Vector3 originalPos = transform.localPosition;
+            Vector3 original = transform.localPosition;
+            float elapsed = 0f;
             
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float x = Random.Range(-1f, 1f) * intensity;
                 float y = Random.Range(-1f, 1f) * intensity;
-                
-                transform.localPosition = originalPos + new Vector3(x, y, 0);
-                
+                transform.localPosition = original + new Vector3(x, y, 0);
                 yield return null;
             }
             
-            transform.localPosition = originalPos;
+            transform.localPosition = original;
         }
-        
-        public void SetTarget(Transform newTarget)
+
+        public void SetTarget(Transform target)
         {
-            target = newTarget;
+            m_target = target;
             if (target != null)
             {
-                cameraYaw = target.eulerAngles.y;
+                m_yaw = target.eulerAngles.y;
+            }
+        }
+
+        public void SetFOV(float fov)
+        {
+            if (m_cam != null)
+            {
+                m_normalFOV = fov;
+                m_cam.fieldOfView = fov;
             }
         }
     }

@@ -1,42 +1,34 @@
-// ============================================================
-// FILE: GameManager.cs
-// SYSTEM: Utilities
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Central game manager. Handles game state, pausing, checkpoints.
-//
-// TODO:
-//   - Add checkpoint system
-//   - Add game state machine
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mistborn.Utilities
 {
+    /// <summary>
+    /// Central game manager handling game state, pausing, and checkpoints.
+    /// </summary>
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
-        
-        [Header("Game State")]
-        public GameState currentState = GameState.Playing;
+
+        [Header("State")]
+        [SerializeField] private GameState m_currentState = GameState.Playing;
         
         [Header("UI")]
-        public GameObject pauseMenu;
-        public GameObject deathScreen;
+        [SerializeField] private GameObject m_pauseMenu;
+        [SerializeField] private GameObject m_deathScreen;
         
-        [Header("Checkpoint")]
-        public Transform lastCheckpoint;
-        public Vector3 spawnPosition;
+        [Header("Checkpoints")]
+        [SerializeField] private Transform m_lastCheckpoint;
+        [SerializeField] private Vector3 m_spawnPosition;
         
         [Header("Settings")]
-        public bool canPause = true;
-        
+        [SerializeField] private bool m_canPause = true;
+
+        public GameState currentState => m_currentState;
+        public Transform lastCheckpoint => m_lastCheckpoint;
+
+        public event System.Action<GameState> OnStateChanged;
+
         public enum GameState
         {
             Playing,
@@ -45,7 +37,7 @@ namespace Mistborn.Utilities
             Cutscene,
             Menu
         }
-        
+
         private void Awake()
         {
             if (Instance == null)
@@ -58,133 +50,104 @@ namespace Mistborn.Utilities
                 Destroy(gameObject);
             }
         }
-        
+
         private void Update()
         {
-            HandlePauseInput();
-        }
-        
-        private void HandlePauseInput()
-        {
-            if (!canPause) return;
-            
-            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+            if (m_canPause && Input.GetKeyDown(KeyCode.Escape))
             {
                 TogglePause();
             }
         }
-        
+
         public void TogglePause()
         {
-            if (currentState == GameState.Playing)
-            {
+            if (m_currentState == GameState.Playing)
                 Pause();
-            }
-            else if (currentState == GameState.Paused)
-            {
+            else if (m_currentState == GameState.Paused)
                 Resume();
-            }
         }
-        
+
         public void Pause()
         {
-            currentState = GameState.Paused;
+            SetState(GameState.Paused);
             Time.timeScale = 0f;
+            ShowCursor(true);
             
-            if (pauseMenu != null)
-            {
-                pauseMenu.SetActive(true);
-            }
-            
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            
-            Debug.Log("Game Paused");
+            if (m_pauseMenu != null)
+                m_pauseMenu.SetActive(true);
         }
-        
+
         public void Resume()
         {
-            currentState = GameState.Playing;
+            SetState(GameState.Playing);
             Time.timeScale = 1f;
+            ShowCursor(false);
             
-            if (pauseMenu != null)
-            {
-                pauseMenu.SetActive(false);
-            }
-            
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            
-            Debug.Log("Game Resumed");
+            if (m_pauseMenu != null)
+                m_pauseMenu.SetActive(false);
         }
-        
+
+        private void SetState(GameState state)
+        {
+            m_currentState = state;
+            OnStateChanged?.Invoke(state);
+        }
+
         public void PlayerDied()
         {
-            currentState = GameState.Dead;
+            SetState(GameState.Dead);
             
-            if (deathScreen != null)
-            {
-                deathScreen.SetActive(true);
-            }
-            
-            Debug.Log("Player Died - Game Over");
+            if (m_deathScreen != null)
+                m_deathScreen.SetActive(true);
         }
-        
+
         public void RespawnAtCheckpoint()
         {
-            if (deathScreen != null)
-            {
-                deathScreen.SetActive(false);
-            }
-            
-            // Move player to checkpoint
+            if (m_deathScreen != null)
+                m_deathScreen.SetActive(false);
+
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
-                Vector3 respawnPos = spawnPosition;
-                if (lastCheckpoint != null)
-                {
-                    respawnPos = lastCheckpoint.position;
-                }
-                
-                player.transform.position = respawnPos;
-                
-                // Reset health
-                PlayerHealth health = player.GetComponent<PlayerHealth>();
-                if (health != null)
-                {
-                    health.Respawn();
-                }
+                Vector3 pos = m_lastCheckpoint != null ? m_lastCheckpoint.position : m_spawnPosition;
+                player.transform.position = pos;
+                player.GetComponent<PlayerHealth>()?.Respawn();
             }
-            
-            currentState = GameState.Playing;
-            
-            Debug.Log($"Respawned at checkpoint");
+
+            SetState(GameState.Playing);
         }
-        
+
+        public void SetCheckpoint(Transform checkpoint)
+        {
+            m_lastCheckpoint = checkpoint;
+            m_spawnPosition = checkpoint.position;
+        }
+
         public void RestartLevel()
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-        
+
         public void LoadScene(string sceneName)
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene(sceneName);
         }
-        
+
         public void QuitGame()
         {
-            Debug.Log("Quitting game");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
+#endif
         }
-        
-        public void SetCheckpoint(Transform checkpoint)
+
+        private void ShowCursor(bool show)
         {
-            lastCheckpoint = checkpoint;
-            spawnPosition = checkpoint.position;
-            Debug.Log($"Checkpoint set at {checkpoint.position}");
+            Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = show;
         }
     }
 }

@@ -1,29 +1,3 @@
-// ============================================================
-// FILE: PlayerController.cs
-// SYSTEM: Player
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Third-person character controller for the player.
-//   Handles basic movement, jumping, sprinting with CharacterController.
-//
-// DEPENDENCIES:
-//   - CharacterController component required
-//   - AllomancerController for Steelpush-assisted jumps
-//
-// TODO:
-//   - Integrate with Allomancer for Steelpush-assisted jumps
-//   - Add crouch functionality
-//   - Implement ledge detection
-//
-// TODO (Team):
-//   - Define movement speed values
-//   - Choose input scheme preferences
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Player
@@ -31,62 +5,90 @@ namespace Mistborn.Player
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
     {
-        [Header("Movement Settings")]
-        public float moveSpeed = 5f;
-        public float sprintSpeed = 8f;
-        public float jumpForce = 5f;
-        public float gravity = -20f;
+        [Header("Movement")]
+        [SerializeField] private float m_moveSpeed = 5f;
+        [SerializeField] private float m_sprintSpeed = 8f;
+        [SerializeField] private float m_jumpForce = 5f;
+        [SerializeField] private float m_gravity = -20f;
 
-        private CharacterController characterController;
-        private Vector3 velocity;
-        private bool isSprinting = false;
-        private bool isGrounded = true;
+        private CharacterController m_controller;
+        private Vector3 m_velocity;
+        private bool m_isSprinting;
 
-        private void Start()
+        public Vector3 velocity => m_velocity;
+        public bool isSprinting => m_isSprinting;
+
+        private void Awake()
         {
-            characterController = GetComponent<CharacterController>();
+            m_controller = GetComponent<CharacterController>();
         }
 
         private void Update()
         {
-            isGrounded = characterController.isGrounded;
+            if (!m_controller.enabled) return;
             
-            HandleMovement();
-            HandleJump();
-            HandleSprint();
-            
-            velocity.y += gravity * Time.deltaTime;
-            characterController.Move(velocity * Time.deltaTime);
+            HandleInput();
+            ApplyGravity();
+            Move();
         }
 
-        public void HandleMovement()
+        private void HandleInput()
         {
             float horizontal = Input.GetAxisRaw("Horizontal");
             float vertical = Input.GetAxisRaw("Vertical");
             
-            Vector3 direction = transform.right * horizontal + transform.forward * vertical;
-            direction = direction.normalized;
+            Vector3 direction = (transform.right * horizontal + transform.forward * vertical).normalized;
             
-            float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
-            characterController.Move(direction * currentSpeed * Time.deltaTime);
-        }
-
-        public void HandleJump()
-        {
-            if (Input.GetButtonDown("Jump") && isGrounded)
+            m_isSprinting = Input.GetKey(KeyCode.LeftShift);
+            float currentSpeed = m_isSprinting ? m_sprintSpeed : m_moveSpeed;
+            
+            m_velocity.x = direction.x * currentSpeed;
+            m_velocity.z = direction.z * currentSpeed;
+            
+            if (Input.GetButtonDown("Jump") && IsGrounded)
             {
-                velocity.y = jumpForce;
+                m_velocity.y = m_jumpForce;
             }
         }
 
-        public void HandleSprint()
+        private void ApplyGravity()
         {
-            isSprinting = Input.GetKey(KeyCode.LeftShift);
+            if (!IsGrounded)
+            {
+                m_velocity.y += m_gravity * Time.deltaTime;
+            }
         }
 
+        private void Move()
+        {
+            m_controller.Move(m_velocity * Time.deltaTime);
+        }
+
+        public bool IsGrounded => m_controller.isGrounded;
+
+        /// <summary>
+        /// Applies a vertical boost from Steelpush-assisted jump.
+        /// </summary>
         public void ApplySteelpushBoost(float force)
         {
-            velocity.y = force;
+            m_velocity.y = force;
+        }
+
+        /// <summary>
+        /// Freezes player movement (for cutscenes, etc.).
+        /// </summary>
+        public void FreezeMovement()
+        {
+            m_controller.enabled = false;
+            m_velocity = Vector3.zero;
+        }
+
+        /// <summary>
+        /// Unfreezes player movement.
+        /// </summary>
+        public void UnfreezeMovement()
+        {
+            m_controller.enabled = true;
         }
     }
 }

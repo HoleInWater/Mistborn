@@ -1,154 +1,88 @@
-// ============================================================
-// FILE: SteelpushAssistedJump.cs
-// SYSTEM: Player / Movement
-// STATUS: PLANNED — Sprint 2
-// AUTHOR: 
-//
-// PURPOSE:
-//   Allows the player to use anchored Steelpush for super-jumps.
-//   Push off metal below to launch upward.
-//
-// LORE:
-//   "This functions through essentially attempting to push the 
-//    planet itself, which... causes one to be pushed away." — Coppermind
-//
-//   "Coinshots commonly crouch down before they push, to give 
-//    the push a little more lift." — Coppermind
-//
-// TODO:
-//   - Detect anchored metal below player
-//   - Calculate launch force based on distance and metal mass
-//   - Add visual feedback (crouch, launch, trail)
-//
-// TODO (Team):
-//   - Launch force balance
-//   - Air control during ascent/descent
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Player
 {
     public class SteelpushAssistedJump : MonoBehaviour
     {
-        [Header("Assisted Jump Settings")]
-        public float baseLaunchForce = 15f;
-        public float maxLaunchForce = 40f;
-        public float minMetalMass = 50f; // Minimum mass to push off
-        public float detectionRange = 10f;
-        public float maxDetectionAngle = 45f; // Below player only
-        
-        [Header("Timing")]
-        public float holdDuration = 0.5f; // Hold to charge
-        public float maxChargeTime = 2f;
-        public float releaseBoost = 1.5f;
-        
-        [Header("References")]
-        public KeyCode activateKey = KeyCode.Space;
-        public LayerMask metalLayer;
-        
-        private AllomancerController allomancer;
-        private Rigidbody playerRb;
-        private bool isCharging;
-        private float chargeStartTime;
-        private AllomanticTarget currentAnchor;
-        
-        private void Start()
+        [Header("Jump")]
+        [SerializeField] private float m_baseForce = 15f;
+        [SerializeField] private float m_maxForce = 40f;
+        [SerializeField] private float m_minMass = 50f;
+        [SerializeField] private float m_detectionRange = 10f;
+
+        [Header("Charge")]
+        [SerializeField] private float m_holdDuration = 0.5f;
+        [SerializeField] private float m_maxCharge = 2f;
+        [SerializeField] private float m_chargeBoost = 1.5f;
+
+        [Header("Input")]
+        [SerializeField] private KeyCode m_key = KeyCode.Space;
+        [SerializeField] private LayerMask m_metalLayer;
+
+        private AllomancerController m_allomancer;
+        private Rigidbody m_rb;
+        private bool m_charging;
+        private float m_chargeStart;
+        private AllomanticTarget m_anchor;
+
+        private void Awake()
         {
-            allomancer = GetComponent<AllomancerController>();
-            playerRb = GetComponent<Rigidbody>();
+            m_allomancer = GetComponent<AllomancerController>();
+            m_rb = GetComponent<Rigidbody>();
         }
-        
+
         private void Update()
         {
-            // Only work if burning steel
-            if (allomancer == null || !allomancer.CanBurn(AllomanticMetal.Steel))
+            if (m_allomancer == null || !m_allomancer.CanBurn(AllomanticMetal.Steel))
                 return;
-            
-            // Find anchor below
-            currentAnchor = FindAnchorBelow();
-            
-            // Charge and release
-            if (Input.GetKeyDown(activateKey) && currentAnchor != null && IsGrounded())
-            {
+
+            m_anchor = FindAnchor();
+
+            if (Input.GetKeyDown(m_key) && m_anchor != null && IsGrounded())
                 StartCharge();
-            }
-            
-            if (Input.GetKeyUp(activateKey) && isCharging)
-            {
-                ExecuteLaunch();
-            }
-            
-            if (isCharging && Time.time - chargeStartTime >= maxChargeTime)
-            {
-                ExecuteLaunch(); // Auto-release at max
-            }
+
+            if (Input.GetKeyUp(m_key) && m_charging)
+                Launch();
+
+            if (m_charging && Time.time - m_chargeStart >= m_maxCharge)
+                Launch();
         }
-        
-        private AllomanticTarget FindAnchorBelow()
+
+        private AllomanticTarget FindAnchor()
         {
-            RaycastHit[] hits = Physics.RaycastAll(
-                transform.position, 
-                Vector3.down, 
-                detectionRange, 
-                metalLayer
-            );
-            
-            foreach (RaycastHit hit in hits)
+            foreach (RaycastHit hit in Physics.RaycastAll(transform.position, Vector3.down, m_detectionRange, m_metalLayer))
             {
-                AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
-                if (target != null && target.isAnchored && target.metalMass >= minMetalMass)
+                if (hit.collider.TryGetComponent(out AllomanticTarget target) && 
+                    target.IsAnchored && 
+                    target.MetalMass >= m_minMass)
                 {
-                    // Check angle (must be somewhat below)
-                    float angle = Vector3.Angle(Vector3.down, hit.normal);
-                    if (angle <= maxDetectionAngle)
-                    {
-                        return target;
-                    }
+                    return target;
                 }
             }
-            
             return null;
         }
-        
+
         private void StartCharge()
         {
-            isCharging = true;
-            chargeStartTime = Time.time;
-            allomancer.StartBurning(AllomanticMetal.Steel);
-            
-            // TODO: Play charge effect (blue glow, crouch animation)
+            m_charging = true;
+            m_chargeStart = Time.time;
+            m_allomancer.StartBurning(AllomanticMetal.Steel);
         }
-        
-        private void ExecuteLaunch()
+
+        private void Launch()
         {
-            if (!isCharging || currentAnchor == null) return;
-            
-            isCharging = false;
-            
-            // Calculate charge multiplier
-            float chargeTime = Time.time - chargeStartTime;
-            float chargeMultiplier = Mathf.Clamp(chargeTime / holdDuration, 1f, releaseBoost);
-            
-            // Calculate launch force based on anchor mass
-            float massMultiplier = Mathf.Clamp(currentAnchor.metalMass / 100f, 0.5f, 2f);
-            float force = baseLaunchForce * chargeMultiplier * massMultiplier;
-            force = Mathf.Min(force, maxLaunchForce);
-            
-            // Launch upward
-            playerRb.AddForce(Vector3.up * force, ForceMode.Impulse);
-            
-            // Stop burning steel (or keep going for sustained flight?)
-            allomancer.StopBurning(AllomanticMetal.Steel);
-            
-            // TODO: Play launch effect
+            if (!m_charging || m_anchor == null) return;
+            m_charging = false;
+
+            float chargeTime = Time.time - m_chargeStart;
+            float multiplier = Mathf.Clamp(chargeTime / m_holdDuration, 1f, m_chargeBoost);
+            float massMult = Mathf.Clamp(m_anchor.MetalMass / 100f, 0.5f, 2f);
+            float force = Mathf.Min(m_baseForce * multiplier * massMult, m_maxForce);
+
+            m_rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            m_allomancer.StopBurning(AllomanticMetal.Steel);
         }
-        
-        private bool IsGrounded()
-        {
-            return Physics.Raycast(transform.position, Vector3.down, 1.1f);
-        }
+
+        private bool IsGrounded() => Physics.Raycast(transform.position, Vector3.down, 1.1f);
     }
 }

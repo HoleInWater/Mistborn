@@ -1,126 +1,81 @@
-// ============================================================
-// FILE: BlueLineRenderer.cs
-// SYSTEM: Allomancy / Visual Effects
-// STATUS: PLANNED — For Sprint 2
-// AUTHOR: 
-//
-// PURPOSE:
-//   Renders the iconic blue Allomantic lines from player to metal targets.
-//   Uses LineRenderer for smooth, performant rendering.
-//
-// LORE:
-//   "When burning steel, blue lines emerge from the Coinshot and 
-//    connect themselves to pieces of nearby metal" — Coppermind
-//
-//   Lines exist on the Spiritual Realm and pass through walls!
-//   Line brightness indicates metal mass.
-//
-// VFX ASSET RECOMMENDATION:
-//   Invested project uses "Volumetric Lines" by Johannes Unterguggenberger
-//   https://assetstore.unity.com/packages/tools/particles-effects/volumetric-lines-29160
-//
-// TODO:
-//   - Implement LineRenderer version for Sprint 1
-//   - Upgrade to Volumetric Lines in Sprint 2
-//   - Add line thickness based on mass
-//
-// TODO (Team):
-//   - Choose VFX library (Volumetric Lines vs custom shader)
-//   - Set default line color/brightness
-//   - Decide if lines pass through walls (should, lore-wise)
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Mistborn.Allomancy.VFX
+namespace Mistborn.Allomancy
 {
     public class BlueLineRenderer : MonoBehaviour
     {
-        [Header("Line Settings")]
-        public Color lineColor = new Color(0.2f, 0.5f, 1f, 0.8f); // Blue-ish
-        public float lineWidth = 0.05f;
-        public float maxLineLength = 50f;
-        
-        [Header("Mass Scaling")]
-        public float minLineWidth = 0.02f;
-        public float maxLineWidth = 0.15f;
-        public float minMassForMaxWidth = 50f;
-        
-        private LineRenderer lineRenderer;
-        private List<GameObject> linePool = new List<GameObject>();
-        private const int MAX_LINES = 20;
-        
-        private void Awake()
+        [Header("Lines")]
+        [SerializeField] private Color m_color = new Color(0.2f, 0.5f, 1f, 0.8f);
+        [SerializeField] private float m_width = 0.05f;
+        [SerializeField] private float m_maxDist = 50f;
+        [SerializeField] private float m_minWidth = 0.02f;
+        [SerializeField] private float m_maxWidth = 0.15f;
+        [SerializeField] private float m_minMass = 50f;
+
+        private const int POOL_SIZE = 20;
+        private LineRenderer[] m_pool;
+        private bool m_init;
+
+        private void Awake() => Init();
+
+        private void Init()
         {
-            InitializeLinePool();
-        }
-        
-        private void InitializeLinePool()
-        {
-            for (int i = 0; i < MAX_LINES; i++)
+            m_pool = new LineRenderer[POOL_SIZE];
+            for (int i = 0; i < POOL_SIZE; i++)
             {
-                GameObject lineObj = new GameObject("AllomancyLine");
-                lineObj.transform.SetParent(transform);
-                lineObj.SetActive(false);
-                
-                LineRenderer lr = lineObj.AddComponent<LineRenderer>();
+                GameObject obj = new GameObject($"Line_{i}");
+                obj.transform.SetParent(transform);
+                obj.SetActive(false);
+
+                LineRenderer lr = obj.AddComponent<LineRenderer>();
                 lr.material = new Material(Shader.Find("Sprites/Default"));
-                lr.startColor = lineColor;
-                lr.endColor = lineColor;
-                lr.startWidth = lineWidth;
-                lr.endWidth = lineWidth;
+                lr.startColor = m_color;
+                lr.endColor = m_color;
+                lr.startWidth = m_width;
+                lr.endWidth = m_width;
                 lr.useWorldSpace = true;
-                
-                linePool.Add(lineObj);
+                lr.receiveShadows = false;
+                lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                m_pool[i] = lr;
             }
+            m_init = true;
         }
-        
-        public void UpdateLines(List<AllomanticTarget> targets, Vector3 playerCenter)
+
+        public void UpdateLines(List<AllomanticTarget> targets, Vector3 center)
         {
-            // Hide all lines first
-            foreach (GameObject line in linePool)
-            {
-                line.SetActive(false);
-            }
-            
-            // Show lines to targets
-            for (int i = 0; i < targets.Count && i < MAX_LINES; i++)
+            if (!m_init) return;
+            HideAll();
+
+            for (int i = 0; i < targets.Count && i < POOL_SIZE; i++)
             {
                 if (targets[i] == null) continue;
-                
-                GameObject lineObj = linePool[i];
-                lineObj.SetActive(true);
-                
-                LineRenderer lr = lineObj.GetComponent<LineRenderer>();
-                lr.SetPosition(0, playerCenter);
+                LineRenderer lr = m_pool[i];
+                lr.gameObject.SetActive(true);
+                lr.SetPosition(0, center);
                 lr.SetPosition(1, targets[i].transform.position);
-                
-                // Scale width based on target mass (lore accurate)
-                float width = Mathf.Lerp(minLineWidth, maxLineWidth, 
-                    targets[i].metalMass / minMassForMaxWidth);
-                lr.startWidth = width;
-                lr.endWidth = width * 0.5f; // Taper toward target
-                
-                // Brightness based on distance (closer = brighter)
-                float dist = Vector3.Distance(playerCenter, targets[i].transform.position);
-                float brightness = 1f - (dist / maxLineLength);
-                Color displayColor = new Color(lineColor.r, lineColor.g, lineColor.b, 
-                    Mathf.Clamp01(brightness));
-                lr.startColor = displayColor;
-                lr.endColor = new Color(displayColor.r, displayColor.g, displayColor.b, 
-                    displayColor.a * 0.5f);
+
+                float w = Mathf.Lerp(m_minWidth, m_maxWidth, Mathf.Clamp01(targets[i].MetalMass / m_minMass));
+                lr.startWidth = w;
+                lr.endWidth = w * 0.5f;
+
+                float brightness = 1f - Vector3.Distance(center, targets[i].transform.position) / m_maxDist;
+                Color c = new Color(m_color.r, m_color.g, m_color.b, Mathf.Lerp(0.3f, m_color.a, brightness));
+                lr.startColor = c;
+                lr.endColor = new Color(c.r, c.g, c.b, c.a * 0.5f);
             }
         }
-        
-        public void HideAllLines()
+
+        public void HideAll()
         {
-            foreach (GameObject line in linePool)
-            {
-                line.SetActive(false);
-            }
+            for (int i = 0; i < POOL_SIZE; i++)
+                if (m_pool[i] != null) m_pool[i].gameObject.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < POOL_SIZE; i++)
+                if (m_pool[i] != null) Destroy(m_pool[i].gameObject);
         }
     }
 }
