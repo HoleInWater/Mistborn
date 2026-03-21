@@ -6,62 +6,63 @@ public class PlayerMove : MonoBehaviour
     public float moveSpeed = 5f;
     public float mouseSensitivity = 200f;
 
-    [Header("Camera Collision")]
-    public Transform cameraTransform;    // Your Main Camera
-    public LayerMask collisionLayers;    // Select "Default", "Ground", and "Wall" layers here
+    [Header("Camera Settings")]
+    public Transform cameraTransform;    // The Main Camera
+    public Transform cameraPivot;        // The Empty Object the camera is inside
+    public LayerMask collisionLayers;    // MUST check "Default" or "Ground" in Inspector
     public float cameraRadius = 0.2f;    // Thickness of the camera "bubble"
-    public float minDistance = 0.5f;     // Closest zoom
-
+    public float minDistance = 0.5f;
+    
     private float xRotation = 0f;
-    private Vector3 cameraDirection;
     private float maxDistance;
+    private Vector3 dollyDir;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        // Store the original offset
-        cameraDirection = cameraTransform.localPosition.normalized;
+        // Calculate original direction and distance
+        dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
     }
 
     void Update()
     {
-        // 1. WASD Movement
+        // 1. Movement
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         Vector3 move = transform.right * x + transform.forward * z;
         transform.position += move * moveSpeed * Time.deltaTime;
 
-        // 2. Mouse Look
+        // 2. Mouse Rotation
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         transform.Rotate(Vector3.up * mouseX);
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -85f, 85f); // Prevent vertical flipping
+        xRotation = Mathf.Clamp(xRotation, -80f, 80f); // Stops camera from flipping
         
-        cameraTransform.parent.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cameraPivot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // 3. Smooth Camera Collision
-        UpdateCameraPosition();
+        // 3. Collision Logic
+        UpdateCameraCollision();
     }
 
-    void UpdateCameraPosition()
+    void UpdateCameraCollision()
     {
-        Vector3 desiredPos = cameraTransform.parent.TransformPoint(cameraDirection * maxDistance);
+        // Target position if there were no obstacles
+        Vector3 desiredCameraPos = cameraPivot.TransformPoint(dollyDir * maxDistance);
         RaycastHit hit;
 
-        // SphereCast checks for volume, not just a single point
-        if (Physics.SphereCast(cameraTransform.parent.position, cameraRadius, (desiredPos - cameraTransform.parent.position).normalized, out hit, maxDistance, collisionLayers))
+        // SphereCast acts like a thick beam to prevent corner clipping
+        if (Physics.SphereCast(cameraPivot.position, cameraRadius, (desiredCameraPos - cameraPivot.position).normalized, out hit, maxDistance, collisionLayers))
         {
-            // Move camera to hit point, slightly offset by radius to prevent clipping
-            float distance = Mathf.Clamp(hit.distance, minDistance, maxDistance);
-            cameraTransform.localPosition = cameraDirection * distance;
+            // If we hit something, move camera to that point (clamped for safety)
+            cameraTransform.localPosition = dollyDir * Mathf.Clamp(hit.distance, minDistance, maxDistance);
         }
         else
         {
-            // No hit, go to full distance
-            cameraTransform.localPosition = cameraDirection * maxDistance;
+            // No obstacles, stay at max distance
+            cameraTransform.localPosition = dollyDir * maxDistance;
         }
     }
 }
