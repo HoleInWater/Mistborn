@@ -88,4 +88,32 @@ public class AllomancySkillTreeController : MonoBehaviour
         Debug.Log($"Attempting to unlock: {skill.skillName}");
         // Here you will eventually call your 'Purchase' logic
     }
+    
+    void Update()
+    {
+        // Check if the Tab key was pressed this frame
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            ToggleSkillTree();
+        }
+    }
+
+    void ToggleSkillTree()
+    {
+        var root = GetComponent<SkillTree>().rootVisualElement;
+    
+        // Check current state: if it's 'Flex' (visible), change to 'None' (hidden)
+        if (root.style.display == DisplayStyle.Flex)
+        {
+            root.style.display = DisplayStyle.None;
+            Cursor.lockState = CursorLockMode.Locked; // Hide mouse for gameplay
+            Cursor.visible = false;
+        }
+        else
+        {
+            root.style.display = DisplayStyle.Flex;
+            Cursor.lockState = CursorLockMode.None; // Show mouse to click skills
+            Cursor.visible = true;
+        }
+    }
 }
