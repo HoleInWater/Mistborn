@@ -17,6 +17,6 @@ public class animationStateController : MonoBehaviour
         if (Input.Getkey("w"))
         {
             animator.setBool("isWalking", true);
-        ]
+        }
     }
 }
