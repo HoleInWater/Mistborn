@@ -46,8 +46,8 @@ Force
 | Coin 100m away | Maybe, very weak |
 | Coin 200m away | No |
 | Metal car 100m away | Yes |
-| Airship 500m up | No (and probably aluminum) |
-| Satellite | No |
+| Heavy gate 100m away | Yes |
+| Metal fortress wall | Yes |
 
 ## Zenith Point
 
@@ -58,7 +58,7 @@ There's a maximum height you can reach with a single push:
 
 ## Aluminum Note
 
-**Planes are aluminum.** Aluminum is Allomantically inert — you can't push or pull it. The Malwish airship in TLM was specifically aluminum, which is why Wax couldn't reach it from the ground.
+Aluminum is Allomantically inert — you can't push or pull it. Any aluminum objects are invisible to Allomancy.
 
 ## Game Implementation
 

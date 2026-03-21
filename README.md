@@ -76,6 +76,82 @@ For more on how Git works, see `docs/git-guide.md`.
 
 ---
 
+## Understanding .gitignore — Why Some Files Don't Sync
+
+Unity generates **huge** cache files (500MB+) that rebuild automatically. These should **NOT** be synced:
+
+| Folder | What It Is | Why We Exclude It |
+|--------|------------|-------------------|
+| `Library/` | Asset cache, compiled data | Rebuilds automatically, huge, machine-specific |
+| `Temp/` | Temporary Unity files | Disposable, regenerated constantly |
+| `Obj/` | Build intermediates | Generated during compilation |
+| `Logs/` | Unity error logs | Not relevant to the project |
+| `UserSettings/` | Your personal editor preferences | Everyone has different settings |
+| `.vs/` `.vscode/` | IDE cache files | IDE-specific, causes merge conflicts |
+
+### The .gitignore File
+
+This file tells Git **what to ignore**. When you see something NOT in the repo:
+
+1. **Check if it's in `.gitignore`** — If yes, that's intentional
+2. **Don't force-add it** with `git add -f`
+3. **Don't commit build outputs** like `.dll` or `.exe` files
+
+### When You Clone a Fresh Repo
+
+```bash
+# After cloning, Unity needs to rebuild the Library folder
+# Just open the project in Unity and wait for import to finish
+```
+
+**First-time clone important steps:**
+```bash
+# 1. Clone the repo
+git clone https://github.com/HoleInWater/Mistborn.git
+
+# 2. OPEN THE FOLDER IN UNITY FIRST
+# Unity will rebuild Library/ automatically
+
+# 3. If you have errors after pulling new changes:
+#    - Close Unity
+#    - DELETE the Library folder
+#    - Reopen Unity (it will rebuild)
+
+# 4. To ensure a clean state (if asked by team):
+#    - Close Unity
+#    - Delete Library/, Temp/, Obj/
+#    - Reopen Unity
+```
+
+### Why This Matters for Teamwork
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| Git changes don't appear in Unity | Library cache is stale | Delete `Library/`, let Unity rebuild |
+| Merge conflicts in binary files | Tracked `.dll` or `.asset` files | Remove them from git, add to `.gitignore` |
+| Repo is huge (>1GB) | Tracked cache files | Fix `.gitignore`, remove cached files |
+
+### Files We DO Track
+
+```
+Assets/_Project/    ← All your scripts, scenes, prefabs, models
+docs/               ← Design documents, lore, guides
+Packages/          ← Unity package manifest (not the packages themselves)
+ProjectSettings/   ← Core Unity settings (keep minimal)
+```
+
+### Files We DON'T Track
+
+```
+Library/           ← Asset database cache
+Temp/              ← Temporary files
+obj/               ← Build intermediates
+.vs/               ← VS cache
+UserSettings/      ← Personal settings
+```
+
+---
+
 ## How to Get Started
 
 ### Step 1: Clone the Repo

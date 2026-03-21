@@ -41,12 +41,6 @@ Same rules as Steel but reversed direction.
 - **Marsh** — Inquisitor (atium + iron spikes)
 - **Spook** — Tin (Tineye)
 
-### Era 2 Characters
-- **Waxillium Ladrian** — Coinshot, retired Twinborn
-- **Wayne** — Zinc (Rioter)
-- **Marasi** — Copper (Smoker)
-- **Miles Dagouter** — Compounder
-
 ## The Final Empire Setting
 
 ### Society
