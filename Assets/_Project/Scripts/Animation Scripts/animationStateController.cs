@@ -16,7 +16,7 @@ public class animationStateController : MonoBehaviour
     void Update()
     {
         bool isWalking = animator.GetBool("isWalking");
-        bool forwardPressed = Input.GetKey("w" || "a" || "s" || "d");
+        bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         
         // If player presses W, the animator starts isWalking
         if (!isWalking && forwardPressed)
