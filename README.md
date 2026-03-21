@@ -192,12 +192,12 @@ cd Mistborn
 
 1. Open Unity Hub
 2. Click "Add"
-3. Click "Add project from disk"
+3. Click "Add project from disk" - **Note that Unity will force you to download another LTS version to join the project in Unity**
 4. Navigate to where you saved the project
 5. Select the **Mistborn folder** (the root folder, NOT a scene file)
 6. Click "Open"
 7. Select Unity install "6000.4 LTS"
-8. Select "Set Default"
+8. Select "Set Default" (Might not be what it actually says)
 
 Unity will import everything — this takes a few minutes the first time.
 
@@ -285,7 +285,7 @@ Mistborn/
 │   │   ├── Managers/        # Game state, events
 │   │   ├── Player/           # Movement, camera, skills
 │   │   ├── Quests/           # Quest system
-│   │   ├── UI/               # HUD, menus, dialogue
+│   │   ├── GUI/              # HUD, menus, dialogue
 │   │   ├── Utilities/        # Managers, helpers
 │   │   └── World/            # Spawners, interactions
 │   ├── Prefabs/             # Metal objects, enemies
