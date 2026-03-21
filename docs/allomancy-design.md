@@ -118,6 +118,14 @@ Should burn rate be:
 
 > ❓ **TEAM**: Should we implement the "metal in bodies" rule? (Realistic but complex)
 
+## Voting
+Vote here
+ - Tannon: B
+ - Lori:
+ - Landon:
+ - Garrett:
+ - Deegan:
+
 ## Reference: Invested Project
 
 The game "Invested" (github.com/austin-j-taylor/Invested) has working Allomancy physics we can reference.
