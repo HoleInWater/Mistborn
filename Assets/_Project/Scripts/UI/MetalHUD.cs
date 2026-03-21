@@ -1,88 +1,47 @@
 using UnityEngine;
 using UnityEngine.UI;
-using Mistborn.Allomancy;
+using TMPro;
 
 namespace Mistborn.UI
 {
-    /// <summary>
-    /// Displays metal reserve HUD elements for the player.
-    /// Shows burn state and remaining amount for each metal.
-    /// </summary>
     public class MetalHUD : MonoBehaviour
     {
-        [Header("Metal Controller")]
+        [Header("Metal Bars")]
+        [SerializeField] private Image m_steelBar;
+        [SerializeField] private Image m_ironBar;
+        [SerializeField] private Image m_pewterBar;
+        [SerializeField] private Image m_tinBar;
+
+        [Header("References")]
         [SerializeField] private AllomancerController m_allomancer;
-        
-        [Header("Metal UI - Steel")]
-        [SerializeField] private Image m_steelFillImage;
-        [SerializeField] private Text m_steelText;
-        [SerializeField] private Image m_steelBurningIndicator;
-        
-        [Header("Metal UI - Iron")]
-        [SerializeField] private Image m_ironFillImage;
-        [SerializeField] private Text m_ironText;
-        [SerializeField] private Image m_ironBurningIndicator;
-        
-        [Header("Colors")]
-        [SerializeField] private Color m_burningColor = Color.cyan;
-        [SerializeField] private Color m_idleColor = Color.white;
 
         private void Start()
         {
             if (m_allomancer == null)
             {
-                m_allomancer = FindObjectOfType<AllomancerController>();
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                    m_allomancer = player.GetComponent<AllomancerController>();
             }
         }
 
         private void Update()
         {
-            UpdateMetalDisplay(AllomanticMetal.Steel, m_steelFillImage, m_steelText, m_steelBurningIndicator);
-            UpdateMetalDisplay(AllomanticMetal.Iron, m_ironFillImage, m_ironText, m_ironBurningIndicator);
-        }
-
-        private void UpdateMetalDisplay(AllomanticMetal metal, Image fillImage, Text text, Image burningIndicator)
-        {
             if (m_allomancer == null) return;
-            
-            MetalReserve reserve = m_allomancer.GetReserve(metal);
-            if (reserve == null) return;
-            
-            float percent = reserve.CurrentAmount / reserve.MaxAmount;
-            
-            if (fillImage != null)
-            {
-                fillImage.fillAmount = percent;
-            }
-            
-            if (text != null)
-            {
-                text.text = $"{reserve.CurrentAmount:F0}/{reserve.MaxAmount:F0}";
-            }
-            
-            if (burningIndicator != null)
-            {
-                burningIndicator.enabled = reserve.IsBurning;
-            }
-            
-            if (text != null)
-            {
-                text.color = reserve.IsBurning ? m_burningColor : m_idleColor;
-            }
+            UpdateHUD();
         }
 
-        /// <summary>Updates display for a specific metal.</summary>
-        public void UpdateDisplay(AllomanticMetal metal)
+        private void UpdateHUD()
         {
-            switch (metal)
-            {
-                case AllomanticMetal.Steel:
-                    UpdateMetalDisplay(metal, m_steelFillImage, m_steelText, m_steelBurningIndicator);
-                    break;
-                case AllomanticMetal.Iron:
-                    UpdateMetalDisplay(metal, m_ironFillImage, m_ironText, m_ironBurningIndicator);
-                    break;
-            }
+            float steel = m_allomancer.GetReserve(AllomanticMetal.Steel);
+            float iron = m_allomancer.GetReserve(AllomanticMetal.Iron);
+            float pewter = m_allomancer.GetReserve(AllomanticMetal.Pewter);
+            float tin = m_allomancer.GetReserve(AllomanticMetal.Tin);
+
+            if (m_steelBar != null) m_steelBar.fillAmount = steel / 100f;
+            if (m_ironBar != null) m_ironBar.fillAmount = iron / 100f;
+            if (m_pewterBar != null) m_pewterBar.fillAmount = pewter / 100f;
+            if (m_tinBar != null) m_tinBar.fillAmount = tin / 100f;
         }
     }
 }

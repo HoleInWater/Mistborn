@@ -4,74 +4,56 @@ namespace Mistborn.Player
 {
     public class PlayerCamera : MonoBehaviour
     {
-        [Header("Settings")]
-        [SerializeField] private Transform target;
-        [SerializeField] private float mouseSensitivity = 100f;
-        [SerializeField] private float cameraDistance = 5f;
-        [SerializeField] private float cameraHeight = 2f;
-        [SerializeField] private float followSmoothness = 10f;
+        [Header("References")]
+        [SerializeField] private Transform m_player;
+        [SerializeField] private Vector3 m_offset = new Vector3(0, 2, -5);
 
-        private float cameraYaw;
-        private float cameraPitch;
-        private Vector3 currentVelocity;
+        [Header("Rotation")]
+        [SerializeField] private float m_sensitivity = 100f;
+        [SerializeField] private float m_minPitch = -30f;
+        [SerializeField] private float m_maxPitch = 60f;
+
+        private float m_yaw;
+        private float m_pitch;
 
         private void Start()
         {
+            if (m_player == null)
+            {
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if (player != null)
+                    m_player = player.transform;
+            }
+
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            cameraYaw = transform.eulerAngles.y;
-            cameraPitch = transform.eulerAngles.x;
         }
 
         private void LateUpdate()
         {
-            HandleMouseLook();
-            UpdatePosition();
+            if (m_player == null) return;
+
+            CameraRotation();
+            PositionCamera();
         }
 
-        private void HandleMouseLook()
+        private void CameraRotation()
         {
-            cameraYaw += Input.GetAxisRaw("Mouse X") * mouseSensitivity * Time.deltaTime;
-            cameraPitch -= Input.GetAxisRaw("Mouse Y") * mouseSensitivity * Time.deltaTime;
-            cameraPitch = Mathf.Clamp(cameraPitch, -45f, 60f);
-            transform.eulerAngles = new Vector3(cameraPitch, cameraYaw, 0f);
+            m_yaw += Input.GetAxis("Mouse X") * m_sensitivity * Time.deltaTime;
+            m_pitch -= Input.GetAxis("Mouse Y") * m_sensitivity * Time.deltaTime;
+            m_pitch = Mathf.Clamp(m_pitch, m_minPitch, m_maxPitch);
         }
 
-        private void UpdatePosition()
+        private void PositionCamera()
         {
-            if (target == null) return;
-            
-            Vector3 targetPos = target.position - transform.forward * cameraDistance;
-            targetPos.y += cameraHeight;
-            
-            transform.position = Vector3.SmoothDamp(
-                transform.position, 
-                targetPos, 
-                ref currentVelocity, 
-                1f / followSmoothness
-            );
+            transform.eulerAngles = new Vector3(m_pitch, m_yaw, 0);
+
+            Vector3 desiredPosition = m_player.position + transform.rotation * m_offset;
+            transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * 10f);
         }
 
-        public void Shake(float intensity, float duration)
+        public void SetSensitivity(float sensitivity)
         {
-            StartCoroutine(ShakeCoroutine(intensity, duration));
-        }
-
-        private System.Collections.IEnumerator ShakeCoroutine(float intensity, float duration)
-        {
-            Vector3 original = transform.localPosition;
-            float elapsed = 0f;
-            
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float x = Random.Range(-1f, 1f) * intensity;
-                float y = Random.Range(-1f, 1f) * intensity;
-                transform.localPosition = original + new Vector3(x, y, 0);
-                yield return null;
-            }
-            
-            transform.localPosition = original;
+            m_sensitivity = sensitivity;
         }
     }
 }

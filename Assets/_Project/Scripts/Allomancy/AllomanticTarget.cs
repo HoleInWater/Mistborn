@@ -2,42 +2,25 @@ using UnityEngine;
 
 namespace Mistborn.Allomancy
 {
-    [RequireComponent(typeof(Rigidbody))]
     public class AllomanticTarget : MonoBehaviour
     {
         [Header("Metal Properties")]
-        [SerializeField] private AllomanticMetal metalType = AllomanticMetal.Steel;
-        [SerializeField] private float metalMass = 1f;
-        [SerializeField] private bool isAnchored;
+        [SerializeField] private AllomanticMetal m_metalType = AllomanticMetal.Iron;
+        [SerializeField] private float m_metalMass = 1f;
+        [SerializeField] private bool m_isAnchored = false;
 
-        public AllomanticMetal MetalType => metalType;
-        public float MetalMass => metalMass;
-        public bool IsAnchored => isAnchored;
-        public Rigidbody Rigidbody { get; private set; }
+        public AllomanticMetal MetalType => m_metalType;
+        public float MetalMass => m_metalMass;
+        public bool IsAnchored => m_isAnchored;
 
-        public void SetMetalMass(float mass) => metalMass = Mathf.Max(0.01f, mass);
-        public void SetAnchored(bool anchored) => isAnchored = anchored;
-
-        private void Awake()
+        public void SetMetalMass(float mass)
         {
-            Rigidbody = GetComponent<Rigidbody>();
-            if (metalMass <= 0)
-                metalMass = Rigidbody.mass;
+            m_metalMass = mass;
         }
 
-        private void OnValidate()
+        public void SetAnchored(bool anchored)
         {
-            metalMass = Mathf.Max(0.01f, metalMass);
-        }
-
-        public Vector3 GetPushDirection(Vector3 fromPosition)
-        {
-            return (transform.position - fromPosition).normalized;
-        }
-
-        public Vector3 GetPullDirection(Vector3 toPosition)
-        {
-            return (toPosition - transform.position).normalized;
+            m_isAnchored = anchored;
         }
     }
 }
