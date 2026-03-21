@@ -1,0 +1,40 @@
+name: Unity Build
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Cache Unity licenses
+        uses: actions/cache@v4
+        with:
+          path: .unitylicenses
+          key: Unity-${{ hashFiles('**/ProjectVersion.txt') }}
+          restore-keys: Unity-
+          
+      - name: Setup Unity
+        uses: game-ci/unity-setup@v4
+        with:
+          unityVersion: 2022.3 LTS
+          
+      - name: Build Unity Project
+        uses: game-ci/unity-builder@v4
+        with:
+          buildTarget: StandaloneWindows
+          unityVersion: 2022.3 LTS
+          
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Artifact
+          path: build/Build
