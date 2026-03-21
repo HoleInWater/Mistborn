@@ -44,7 +44,7 @@ public class AllomancySkillTreeController : MonoBehaviour
         }
     }
 
-    void UpdateNodeVisuals(VisualElement node, MagicSkill skill)
+    void UpdateNodeVisuals(VisualElement node, AllomancySkill skill)
     {
         // Find the button inside the template
         var button = node.Q<Button>();
