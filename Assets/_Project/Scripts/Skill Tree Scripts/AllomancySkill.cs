@@ -21,3 +21,4 @@ public class AllomancySkill : ScriptableObject
 
     [Header("State")]
     public bool isUnlocked; // Tracks if the player has bought this skill
+}
