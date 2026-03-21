@@ -9,6 +9,26 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     private VisualElement _AllomancyTabContent;
 
+    bool CheckIfPrerequisitesMet(MagicSkill skill)
+    {
+        // If there are no prerequisites, it's a starting skill!
+        if (skill.prerequisites == null || skill.prerequisites.Count == 0)
+        {
+            return true;
+        }
+    
+        // Check if EVERY prerequisite skill is unlocked
+        foreach (var pre in skill.prerequisites)
+        {
+            if (!pre.isUnlocked)
+            {
+                return false; // Found one that isn't unlocked yet
+            }
+        }
+    
+        return true; // All requirements are met!
+    }
+
     void OnEnable()
     {
         // 1. Get the root of your UI Document
