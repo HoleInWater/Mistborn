@@ -22,3 +22,26 @@
     -unity-text-align: middle-center;
     left: 35%;
 }
+/* The default "Locked" state */
+.skill-node {
+    background-color: rgba(50, 50, 50, 0.8);
+    border-color: #444;
+    transition: 0.2s all; /* Smoothly change colors */
+}
+
+/* When a skill is available but not yet bought */
+.skill-node--available {
+    border-color: #ffd700; /* Gold border */
+}
+
+/* When the skill is fully unlocked */
+.skill-node--unlocked {
+    background-color: #2a4d2a; /* Greenish background */
+    border-color: #00ff00;
+}
+
+/* Hover effect */
+.skill-node:hover {
+    scale: 1.1;
+    background-color: #444;
+}
