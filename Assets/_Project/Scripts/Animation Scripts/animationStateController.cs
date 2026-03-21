@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class animationStateController : MonoBehaviour
+public class AnimationStateController : MonoBehaviour
 {
 
     Animator animator;
