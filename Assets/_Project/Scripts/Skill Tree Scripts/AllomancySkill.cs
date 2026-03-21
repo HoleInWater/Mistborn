@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 // This attribute allows you to create new skill assets via the right-click menu
-[CreateAssetMenu(fileName = "NewMagicSkill", menuName = "Skill Tree/Magic Skill")]
-public class MagicSkill : ScriptableObject 
+[CreateAssetMenu(fileName = "NewAllomancySkill", menuName = "Skill Tree/Allomancy Skill")]
+public class AllomancySkill : ScriptableObject 
 {
     [Header("General Info")]
     public string skillName;
@@ -14,7 +14,7 @@ public class MagicSkill : ScriptableObject
     public int skillPointCost;
     public List<MagicSkill> prerequisites; // Other skills that must be unlocked first
 
-    [Header("Magic Stats")]
+    [Header("Allomancy Stats")]
     public int manaCost;
     public float cooldown;
     public float damage;
