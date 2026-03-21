@@ -89,16 +89,11 @@ v_final = min(v_cap, (2 * F_0 * R_max / m_c)^0.5)
 ## DESMOS EXPRESSIONS TO COPY
 
 ```
-F_0 = 1500
+F_max = 1500
 R_max = 50
-k = 1
-v_cap = 1000
 m_c = 0.00567
-m_p = 77
-C_d = 0.47
-ρ = 1.225
 
-F(d) = F_0 e^{-k d / R_max}
+F(d) = F_max (1 - d/R_max)
 
 v_final(d) = \sqrt{2 F(d) R_max / m_c}
 

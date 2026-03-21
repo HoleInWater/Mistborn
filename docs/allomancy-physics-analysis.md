@@ -111,24 +111,40 @@ If P is limited, then: F = P_max / v
 
 Based on the discussion, here's a balanced model:
 
-### Force Calculation
+### Force Calculation - LINEAR MODEL (Better for Gameplay!)
+
+**From Reddit discussion:** Inverse square law causes problems:
+- Standing on coin + pushing = infinite force
+- Pull doesn't work well at all
+- Books show force DECREASES with distance (Vin hovering scene)
+
+**LINEAR FALLOFF formula:**
 ```
-F_push = baseForce × (1 - distance/maxRange)^decayExponent × velocityDamping
+F_push = F_max × (1 - d / R_max)
 ```
+
+Where:
+- `F_max` = Maximum force at point-blank
+- `d` = Distance to target
+- `R_max` = Maximum push range
+- Result: 0 when at max range, F_max when touching
 
 ### Key Variables:
 | Variable | Effect | Recommended Value |
 |----------|--------|------------------|
-| `baseForce` | Maximum push strength | 1500-2000 N |
-| `maxRange` | Maximum push distance | 50 meters |
-| `decayExponent` | How fast force drops off | 1.0-2.0 |
-| `velocityDamping` | Reduces force on fast targets | 0.1-0.3 |
+| `F_max` | Maximum push strength | 1500-2000 N |
+| `R_max` | Maximum push distance | 50 meters |
+| `linearFalloff` | Force decreases linearly | No decay constant needed |
 
 ### Coin Launch Velocity (Game Balance)
 ```
 maxCoinVelocity = ~800-1200 m/s (tunable for gameplay)
 NOT 2400+ m/s (would be unbalancing)
 ```
+
+### Key Book Evidence:
+From The Final Empire (Vin hovering):
+> "The fainter the line grew, the more her speed decreased"
 
 ---
 
@@ -161,18 +177,31 @@ From the discussion:
 
 ## Implementation Reference
 
-### Steel Push Force Formula
+### Steel Push Force Formula - LINEAR (Recommended!)
+```csharp
+public float CalculatePushForce(float distance)
+{
+    // LINEAR falloff - no infinite force at zero distance!
+    float distanceFactor = 1f - (distance / maxRange);
+    distanceFactor = Mathf.Max(0f, distanceFactor); // Can't be negative
+    
+    float force = baseForce * distanceFactor;
+    return force;
+}
+```
+
+### Better Implementation (with velocity damping):
 ```csharp
 public float CalculatePushForce(float distance, float targetVelocity)
 {
-    // Distance falloff (exponential decay)
-    float distanceFactor = Mathf.Exp(-distance / effectiveRange);
+    // LINEAR distance falloff
+    float distanceFactor = 1f - Mathf.Clamp01(distance / maxRange);
     
     // Velocity damping (harder to push fast objects)
-    float velocityDamping = 1f - Mathf.Clamp01(Mathf.Abs(targetVelocity) / maxEffectVelocity);
+    float velocityFactor = 1f - Mathf.Clamp01(Mathf.Abs(targetVelocity) / maxTargetVelocity);
     
     // Combine factors
-    float force = baseForce * distanceFactor * (0.7f + 0.3f * velocityDamping);
+    float force = baseForce * distanceFactor * (0.5f + 0.5f * velocityFactor);
     
     return force;
 }
