@@ -1,99 +1,88 @@
 # What We've Built — Project Status
 
-*Last updated: March 20, 2026*
+*Last updated: March 21, 2026*
 
 ---
 
-## Current State: FRESH START
+## Current State: IN DEVELOPMENT
 
-**Scripts and Unity assets were deleted for a clean slate. The team will add scripts directly in Unity.**
-
----
-
-## Completed: Documentation (Ready)
-
-| Category | Count | Files |
-|----------|-------|-------|
-| Game Design | 10 | allomancy-design, combat-system, game-design, progression-system, etc. |
-| Lore & Story | 5 | mistborn-era-one-lore, story-outline, character-vin, etc. |
-| Technical Docs | 8 | architecture, scene-setup, animation-spec, etc. |
-| Team Guides | 6 | onboarding, git-guide, github-guide, team-playbook, etc. |
-| **Total Docs** | **32** | Comprehensive Era 1 game design library |
+**The team has set up the foundation. Scene 1.unity is ready for playtesting.**
 
 ---
 
-## Completed: Project Foundation
+## Scripts Created
 
-- [x] Unity 2022 LTS project setup
-- [x] Unity .gitignore configured (Library/, Temp/, Obj/ excluded)
-- [x] Fixed duplicate package in manifest.json
-- [x] Era 2 references removed from docs (Era 1 only)
-- [x] README.md with full onboarding guide
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `PlayerMove.cs` | ✅ Done | WASD movement, third-person camera, collision handling |
+| `AnimationStateController.cs` | ✅ Done | Controls player walking/idle animations |
+| `PlayerCollisionHandler3D.cs` | ✅ Done | Health bar decreases on enemy collision |
+
+---
+
+## Assets Created
+
+| Asset | Status |
+|-------|--------|
+| `Scene 1.unity` | ✅ Done - Playable test scene |
+| `PlayerController.controller` | ✅ Done - Breathing Idle, Walking animations |
+| Mixamo X Bot models | ✅ Done - Character model |
+| `Ground(Temp).mat` | ✅ Done - Blue ground material |
+| `Player(Temp).mat` | ✅ Done - Red player material |
+| HUD (HUD.uss, HUD.uxml) | ✅ Done - Health & Metal progress bars |
+| Health Bar sprites (14) | ✅ Done |
+| Metal Progress Bar sprites (14) | ✅ Done |
+
+---
+
+## Documentation
+
+| Category | Count |
+|----------|-------|
+| Game Design | 10 docs |
+| Lore & Story | 5 docs |
+| Technical Docs | 8 docs |
+| Team Guides | 6 docs |
+| **Total Docs** | **32** |
+
+---
+
+## Project Foundation
+
+- [x] Unity project set up
+- [x] .gitignore configured
+- [x] README with onboarding guide
 - [x] Git workflow documented
 
 ---
 
-## Ready to Implement: Allomancy System (32 Scripts Planned)
+## Controls Working
 
-| Metal | Type | Status |
-|-------|------|--------|
-| Steel | Push | Planned |
-| Iron | Pull | Planned |
-| Pewter | Enhancement | Planned |
-| Tin | Enhancement | Planned |
-| Zinc | Emotion | Planned |
-| Brass | Emotion | Planned |
-| Copper | Stealth | Planned |
-| Bronze | Detection | Planned |
-| Atium | Future-sight | Planned |
-| Malatium | Future-sight | Planned |
-| Gold | Past-sight | Planned |
-| Electrum | Future-sight | Planned |
-| Aluminum | Purge | Planned |
-| Duralumin | Burst | Planned |
-| Bendalloy | Time bubble | Planned |
-| Cadmium | Time bubble | Planned |
+| Action | Key |
+|--------|-----|
+| Move | WASD |
+| Look | Mouse |
+| Camera | Follows player |
 
 ---
 
-## Ready to Implement: Player Systems (8 Scripts Planned)
+## What's Left
 
-- WASD Movement with sprint/jump
-- Third-person camera
-- Steel/Iron assisted movement
-- Health and damage system
-- Metal reserve HUD
+**In Unity:**
+1. Implement Steel/Iron push/pull mechanics
+2. Add metal objects to scene
+3. Create Enemy AI
+4. Add Allomantic Sight (blue lines)
 
----
-
-## Ready to Implement: Enemies (5 Types Planned)
-
-- Skaa Soldier
-- Noble Guard
-- Steel Inquisitor (boss)
-- Koloss
-- Kandra
-
----
-
-## What's Left to Build
-
-**In Unity (needs team):**
-1. Create scripts in Unity
-2. Set up TestArena scene
-3. Add metal object prefabs
-4. Hook up controls
-5. Test push/pull physics
-
-**Art/Assets (needs artists):**
-- 3D character model
+**Art/Assets:**
+- Real character model
 - Environment art
 - Particle effects
 - Audio
 
 ---
 
-## Key Docs for Team
+## Key Docs
 
 | Doc | Purpose |
 |-----|---------|
@@ -101,4 +90,3 @@
 | `allomancy-design.md` | How magic works |
 | `magic-qa-reference.md` | All 16 metals |
 | `mistborn-era-one-lore.md` | Lore reference |
-| `TODO.md` | Master checklist |
