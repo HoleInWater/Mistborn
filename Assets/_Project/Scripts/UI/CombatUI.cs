@@ -1,20 +1,3 @@
-// ============================================================
-// FILE: CombatUI.cs
-// SYSTEM: UI
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Handles combat HUD elements like damage numbers,
-//   enemy health bars, and combat indicators.
-//
-// TODO:
-//   - Hook up to actual damage system
-//   - Add visual effects for damage numbers
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -34,8 +17,8 @@ namespace Mistborn.UI
         
         [Header("Enemy Health Bar Settings")]
         public GameObject healthBarPrefab;
-        public float healthBarHeight = 1.5f; // Above enemy
-        
+        public float healthBarHeight = 1.5f;
+
         private void Start()
         {
             if (mainCamera == null)
@@ -47,133 +30,46 @@ namespace Mistborn.UI
         public void ShowDamageNumber(Vector3 worldPosition, float damage, bool isCritical = false)
         {
             if (damageNumberPrefab == null) return;
-            
-            // Convert world position to screen position
-            Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPosition);
-            
-            // Create damage number
-            GameObject damageNumber = Instantiate(damageNumberPrefab, combatCanvas.transform);
-            
-            // Position it
-            RectTransform rect = damageNumber.GetComponent<RectTransform>();
-            rect.position = screenPos;
-            rect.localPosition += Vector3.up * damageNumberOffset;
-            
-            // Set text
-            TextMeshProUGUI text = damageNumber.GetComponentInChildren<TextMeshProUGUI>();
+
+            Vector3 screenPos = WorldToScreen(worldPosition);
+            if (screenPos.z < 0) return;
+
+            GameObject damageNum = Instantiate(damageNumberPrefab, screenPos, Quaternion.identity, combatCanvas.transform);
+            TextMeshProUGUI text = damageNum.GetComponent<TextMeshProUGUI>();
             if (text != null)
             {
                 text.text = Mathf.RoundToInt(damage).ToString();
-                
-                if (isCritical)
-                {
-                    text.color = Color.yellow;
-                    text.fontSize = 24;
-                }
-                else
-                {
-                    text.color = Color.white;
-                    text.fontSize = 18;
-                }
+                text.color = isCritical ? Color.yellow : Color.white;
+                text.fontSize = isCritical ? 36 : 24;
             }
-            
-            // Animate
-            StartCoroutine(AnimateDamageNumber(damageNumber, screenPos));
-            
-            // Destroy after duration
-            Destroy(damageNumber, damageNumberDuration);
+
+            Destroy(damageNum, damageNumberDuration);
         }
-        
-        private System.Collections.IEnumerator AnimateDamageNumber(GameObject damageNumber, Vector3 startPos)
-        {
-            float elapsed = 0;
-            float duration = damageNumberDuration;
-            
-            RectTransform rect = damageNumber.GetComponent<RectTransform>();
-            Vector3 endPos = startPos + Vector3.up * 50f;
-            
-            while (elapsed < duration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / duration;
-                
-                // Move up
-                rect.localPosition = Vector3.Lerp(startPos + Vector3.up * damageNumberOffset, endPos, t);
-                
-                // Fade out
-                TextMeshProUGUI text = damageNumber.GetComponentInChildren<TextMeshProUGUI>();
-                if (text != null)
-                {
-                    Color c = text.color;
-                    c.a = 1f - t;
-                    text.color = c;
-                }
-                
-                yield return null;
-            }
-        }
-        
-        public void ShowEnemyHealthBar(EnemyBase enemy)
+
+        public void ShowEnemyHealthBar(Transform enemy, float healthPercent)
         {
             if (healthBarPrefab == null) return;
-            
-            // Create health bar above enemy
-            GameObject healthBar = Instantiate(healthBarPrefab, combatCanvas.transform);
-            
-            // Attach to enemy
-            EnemyHealthBar barComponent = healthBar.AddComponent<EnemyHealthBar>();
-            barComponent.Initialize(enemy, mainCamera, healthBarHeight);
+
+            Vector3 screenPos = WorldToScreen(enemy.position + Vector3.up * healthBarHeight);
+            if (screenPos.z < 0) return;
+
+            GameObject healthBar = Instantiate(healthBarPrefab, screenPos, Quaternion.identity, combatCanvas.transform);
+            Slider slider = healthBar.GetComponentInChildren<Slider>();
+            if (slider != null)
+            {
+                slider.value = healthPercent;
+            }
         }
-    }
-    
-    public class EnemyHealthBar : MonoBehaviour
-    {
-        public EnemyBase targetEnemy;
-        public Camera mainCamera;
-        public float heightOffset;
-        
-        private Image healthFill;
-        private Text healthText;
-        
-        public void Initialize(EnemyBase enemy, Camera camera, float height)
+
+        private Vector3 WorldToScreen(Vector3 worldPos)
         {
-            targetEnemy = enemy;
-            mainCamera = camera;
-            heightOffset = height;
+            if (mainCamera == null)
+                mainCamera = Camera.main;
             
-            healthFill = GetComponentInChildren<Image>();
-            healthText = GetComponentInChildren<Text>();
-        }
-        
-        private void Update()
-        {
-            if (targetEnemy == null)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            if (mainCamera != null)
+                return mainCamera.WorldToScreenPoint(worldPos);
             
-            // Position above enemy
-            Vector3 worldPos = targetEnemy.transform.position + Vector3.up * heightOffset;
-            Vector3 screenPos = mainCamera.WorldToScreenPoint(worldPos);
-            
-            RectTransform rect = GetComponent<RectTransform>();
-            rect.position = screenPos;
-            
-            // Face camera (billboard effect)
-            transform.LookAt(transform.position + mainCamera.transform.rotation * Vector3.forward,
-                           mainCamera.transform.rotation * Vector3.up);
-            
-            // Update health
-            if (healthFill != null)
-            {
-                healthFill.fillAmount = targetEnemy.health / targetEnemy.maxHealth;
-            }
-            
-            if (healthText != null)
-            {
-                healthText.text = $"{Mathf.RoundToInt(targetEnemy.health)}/{Mathf.RoundToInt(targetEnemy.maxHealth)}";
-            }
+            return Vector3.zero;
         }
     }
 }
