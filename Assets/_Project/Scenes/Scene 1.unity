@@ -203,6 +203,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -444,6 +448,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCollisionHandler3D
   uiDocument: {fileID: 551459339}
   progressBarName: Health
+  damagePerSecondWhileTouching: 10
+  timeNotTouchedEnemy: 10
+  regenDelayAfterTouch: 10
+  regenPerSecond: 5
 --- !u!114 &641062186
 MonoBehaviour:
   m_ObjectHideFlags: 0
