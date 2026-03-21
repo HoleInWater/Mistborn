@@ -2,11 +2,16 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
+    [Header("Movement")]
     public float moveSpeed = 5f;
     public float mouseSensitivity = 200f;
-    public Transform cameraTransform; // Drag your Main Camera here
-    public float minDistance = 1f;    // Closest the camera can get
-    
+
+    [Header("Camera Collision")]
+    public Transform cameraTransform;    // Your Main Camera
+    public LayerMask collisionLayers;    // Select "Default", "Ground", and "Wall" layers here
+    public float cameraRadius = 0.2f;    // Thickness of the camera "bubble"
+    public float minDistance = 0.5f;     // Closest zoom
+
     private float xRotation = 0f;
     private Vector3 cameraDirection;
     private float maxDistance;
@@ -14,7 +19,7 @@ public class PlayerMove : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        // Store the starting distance and direction of the camera
+        // Store the original offset
         cameraDirection = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
     }
@@ -32,36 +37,31 @@ public class PlayerMove : MonoBehaviour
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         transform.Rotate(Vector3.up * mouseX);
-
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        xRotation = Mathf.Clamp(xRotation, -85f, 85f); // Prevent vertical flipping
         
-        // Rotate the Pivot (which rotates the camera child)
         cameraTransform.parent.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // 3. Prevent Ground Clipping
-        CheckCameraCollision();
+        // 3. Smooth Camera Collision
+        UpdateCameraPosition();
     }
 
-    void CheckCameraCollision()
+    void UpdateCameraPosition()
     {
-        // Calculate where the camera *wants* to be
-        Vector3 desiredCameraPos = cameraTransform.parent.TransformPoint(cameraDirection * maxDistance);
+        Vector3 desiredPos = cameraTransform.parent.TransformPoint(cameraDirection * maxDistance);
         RaycastHit hit;
 
-        // Shoot a ray from the pivot to the desired camera position
-        if (Physics.Linecast(cameraTransform.parent.position, desiredCameraPos, out hit))
+        // SphereCast checks for volume, not just a single point
+        if (Physics.SphereCast(cameraTransform.parent.position, cameraRadius, (desiredPos - cameraTransform.parent.position).normalized, out hit, maxDistance, collisionLayers))
         {
-            // If we hit something tagged "Ground", move the camera to that hit point
-            if (hit.collider.CompareTag("Ground"))
-            {
-                float distance = Mathf.Clamp(hit.distance * 0.85f, minDistance, maxDistance);
-                cameraTransform.localPosition = cameraDirection * distance;
-                return;
-            }
+            // Move camera to hit point, slightly offset by radius to prevent clipping
+            float distance = Mathf.Clamp(hit.distance, minDistance, maxDistance);
+            cameraTransform.localPosition = cameraDirection * distance;
         }
-        
-        // If no ground is hit, stay at max distance
-        cameraTransform.localPosition = cameraDirection * maxDistance;
+        else
+        {
+            // No hit, go to full distance
+            cameraTransform.localPosition = cameraDirection * maxDistance;
+        }
     }
 }
