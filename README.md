@@ -14,24 +14,28 @@ Here's where to start:
 - `docs/onboarding.md` — How to set up your environment
 - `docs/allomancy-design.md` — How the magic system works
 - `docs/magic-qa-reference.md` — All 16 metals explained
+- `docs/mistborn-era-one-lore.md` — Comprehensive lore reference
+- `docs/game-design-reference.md` — Quick game design reference
 
 ### 2. See What's Done
 - `docs/CAN-DO.md` — All scripts and files we've created
 - `docs/TEAM-TASKS.md` — What still needs doing
-- `TODO.md` — The master checklist
+- `docs/TODO.md` — The master checklist
 
 ### 3. Ask Questions
-- `docs/PROJECT-REQUEST-SceneSetup-Kaderator.md` — What Kaderator is working on
 - Check the team chat before editing scenes (Unity scenes don't merge well)
+- Coordinate with team members on any Unity scene work
 
 ### 4. Jump In
-- Pick something from `TODO.md` or `docs/TEAM-TASKS.md`
+- Pick something from `docs/TODO.md` or `docs/TEAM-TASKS.md`
 - Create a branch: `git checkout -b feature/your-feature-name`
 - Make changes, commit, push, open a PR
 - See `docs/git-guide.md` for the full workflow
 
 ### Need Help?
 Ping the team. Don't sit on questions.
+
+---
 
 ## What We're Using
 
@@ -70,6 +74,8 @@ This restores it.
 
 For more on how Git works, see `docs/git-guide.md`.
 
+---
+
 ## How to Get Started
 
 ### Step 1: Clone the Repo
@@ -77,7 +83,6 @@ For more on how Git works, see `docs/git-guide.md`.
 First, make sure you have Git installed on your computer. If not, download it from https://git-scm.com/
 
 **Option A: Using Git Bash / Terminal**
-
 ```bash
 # Navigate to where you want the project folder
 cd ~/Documents/Projects
@@ -90,7 +95,6 @@ cd Mistborn
 ```
 
 **Option B: Using GitHub Desktop**
-
 1. Download GitHub Desktop from https://desktop.github.com/
 2. Sign in with your GitHub account
 3. Click "Clone a repository from the Internet"
@@ -99,7 +103,6 @@ cd Mistborn
 6. Click "Clone"
 
 **Option C: Using VS Code**
-
 1. Open VS Code
 2. Press Ctrl+Shift+P (or Cmd+Shift+P on Mac)
 3. Type "Git: Clone"
@@ -113,12 +116,12 @@ cd Mistborn
 
 1. Open Unity Hub
 2. Click "Add"
-3. Click "Add project from disk" - **Note that Unity will force you to download another LTS version to join the project in Unity**
+3. Click "Add project from disk"
 4. Navigate to where you saved the project
 5. Select the **Mistborn folder** (the root folder, NOT a scene file)
 6. Click "Open"
 7. Select Unity install "6000.4 LTS"
-8. Select "Set Default" (Might not be what it actaully says)
+8. Select "Set Default"
 
 Unity will import everything — this takes a few minutes the first time.
 
@@ -168,6 +171,8 @@ git push origin feature/your-feature-name
 
 Then open a Pull Request on GitHub.
 
+---
+
 ## Controls
 
 | Action | Key | What It Does |
@@ -187,14 +192,7 @@ Then open a Pull Request on GitHub.
 
 - **Allomantic Sight (Tab):** Toggle to see blue lines pointing to all metal within range. Thicker lines = heavier metal.
 
-### Future Controls
-
-| Action | Key | Status |
-|--------|-----|--------|
-| Pewter Enhancement | Q | Ready, needs hooking up |
-| Tin Enhancement | E | Ready, needs hooking up |
-| Steelpush Jump | Space + anchor below | Ready, needs hooking up |
-| Coin Throw | F | Sprint 2 |
+---
 
 ## Project Structure
 
@@ -202,43 +200,81 @@ Then open a Pull Request on GitHub.
 Mistborn/
 ├── Assets/_Project/
 │   ├── Scripts/
-│   │   ├── Allomancy/     # Steel, Iron, Pewter, Tin abilities
-│   │   ├── Player/        # Movement, camera, assisted jump
-│   │   ├── Combat/        # Enemy base, enemy coinshot
-│   │   ├── GUI/           # Metal reserve display
-│   │   ├── World/         # Arena setup tools
-│   │   ├── Utilities/     # Sound, save/load, constants
-│   │   └── Physics/       # Allomancy force calculations
-│   ├── Prefabs/           # Metal objects (coins, brackets)
-│   ├── Scenes/            # Unity scenes
-│   ├── Materials/         # Visual materials
-│   ├── Models/           # 3D models
-│   └── Animations/       # Character animations
-├── docs/                  # Design docs, lore, guides
-├── Packages/              # Unity packages
-└── ProjectSettings/      # Unity settings
+│   │   ├── Allomancy/       # All 16 metal abilities
+│   │   ├── Allies/          # Companion AI
+│   │   ├── Audio/           # Sound management
+│   │   ├── Combat/          # Player combat, stealth
+│   │   ├── Effects/          # VFX, screen effects
+│   │   ├── Enemy/           # 12 enemy types
+│   │   ├── Managers/        # Game state, events
+│   │   ├── Player/           # Movement, camera, skills
+│   │   ├── Quests/           # Quest system
+│   │   ├── UI/               # HUD, menus, dialogue
+│   │   ├── Utilities/        # Managers, helpers
+│   │   └── World/            # Spawners, interactions
+│   ├── Prefabs/             # Metal objects, enemies
+│   ├── Scenes/              # Unity scenes
+│   ├── Materials/            # Visual materials
+│   ├── Models/             # 3D models
+│   └── Animations/          # Character animations
+├── docs/                     # Design docs, guides, lore
+├── Packages/                # Unity packages
+└── ProjectSettings/         # Unity settings
 ```
 
-## Ready-to-Use Scripts
+---
 
-These are written and waiting to be hooked up:
+## Scripts Overview
 
-| Script | What It Does |
-|--------|--------------|
-| `AllomancerController` | Manages metal reserves |
-| `SteelPushAbility` | Push metal objects |
-| `IronPullAbility` | Pull metal objects |
-| `AllomanticTarget` | Marks objects as metal |
-| `AllomanticSight` | Shows blue lines |
-| `PlayerController` | WASD movement |
-| `PlayerCamera` | Third-person camera |
-| `MetalReserveUI` | Shows reserve bars |
-| `EnemyBase` | Basic enemy AI |
-| `EnemyCoinshot` | Enemy that uses push/pull |
-| `PewterEnhancement` | Strength/speed boost |
-| `TinEnhancement` | Enhanced senses |
-| `SaveLoadSystem` | Save/load game state |
-| `SoundManager` | Audio system |
+### Allomancy (16 Metals)
+| Metal | Key | Effect |
+|-------|-----|--------|
+| Steel | RMB | Push metals away |
+| Iron | LMB | Pull metals toward |
+| Pewter | Q | Strength, speed, healing |
+| Tin | E | Enhanced senses |
+| Zinc | Z | Riot emotions |
+| Brass | X | Soothe emotions |
+| Copper | C | Hide Allomantic pulses |
+| Bronze | V | Detect Allomantic pulses |
+| Atium | T | See enemy futures |
+| Malatium | Y | See future selves |
+| Gold | G | See past selves |
+| Electrum | 5 | See your futures |
+| Aluminum | F | Purge all metals |
+| Duralumin | R | Mega metal burst |
+| Bendalloy | 8 | Speed time bubble |
+| Cadmium | 9 | Slow time bubble |
+
+### Enemies (12 Types)
+- **Guard** - Basic patrol enemy
+- **Coinshot** - Enemy Allomancer (push)
+- **Seeker** - Detects player burning metals
+- **Koloss** - Charge attack, ground slam
+- **Steel Inquisitor** - Boss with 3 phases
+- **Kandra** - Shapeshifter, disguises
+- **Noble Guard** - Armored, shield block
+- **Mist Spirit** - Phasing ghost
+- **Pewter Armsmaster** - Combat arts
+- **Lurcher** - Pulls metals
+- **Thug** - Tactical fighter
+- **Mist Spirit** - Ghost enemy
+
+### Core Systems
+- Quest system with objectives
+- Save/Load system
+- Inventory system
+- Achievement system
+- Skill tree
+- Minimap with markers
+- Loading screen
+- Tutorial system
+- Dialogue manager
+- Stealth detection
+- Lock-on targeting
+- Combat combo system
+
+---
 
 ## Common Issues
 
@@ -248,15 +284,17 @@ These are written and waiting to be hooked up:
 
 **"Scene looks empty"**
 - The TestArena scene needs to be set up in Unity
-- Run: Mistborn → Setup Test Arena
+- Run: Mistborn → Setup Test Arena (menu item)
 
 **"Camera is weird"**
 - Press Escape to unlock the mouse cursor
 
+---
+
 ## The Team
 
 - Owner: HoleInWater
-- Collaborator: thenbuzzard100@gmail.com
+- Contributors: The Mistborn Game Team
 
 ## License
 

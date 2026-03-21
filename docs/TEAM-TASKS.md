@@ -7,7 +7,7 @@
 ## 🚨 PRIORITY: Scene Setup (Before Anything Else)
 
 **Can't do:** Unity .unity scene files
-**Need:** Kaderator or anyone with Unity
+**Need:** Anyone with Unity installed
 
 See: `PROJECT-REQUEST-SceneSetup-Kaderator.md`
 
@@ -26,7 +26,7 @@ See: `PROJECT-REQUEST-SceneSetup-Kaderator.md`
 - [ ] Ash skybox
 - [ ] Buildings with metal details
 - [ ] Ground textures
-- [ ] Atmospheric effects (ash particles?)
+- [ ] Atmospheric effects (ash particles)
 
 ### Metal Objects
 - [ ] Coin model (not just sphere)
@@ -113,4 +113,4 @@ High / Medium / Low
 
 ## Questions?
 
-Ping the team. These are just the things that need human hands — everything else I can write the code for.
+Ping the team. These are just the things that need human hands — everything else can be written in code.
