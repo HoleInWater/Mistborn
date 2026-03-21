@@ -101,7 +101,7 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     void ToggleSkillTree()
     {
-        var root = GetComponent<UI/SkillTree>().rootVisualElement;
+        var root = GetComponent<UI.SkillTree>().rootVisualElement;
     
         // Check current state: if it's 'Flex' (visible), change to 'None' (hidden)
         if (root.style.display == DisplayStyle.Flex)
