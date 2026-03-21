@@ -50,7 +50,7 @@ These are our focus for Sprint 1. They work on external metal objects and follow
 
 **3. Whatever you push, pushes back (Newton's 3rd Law)**
 - Light object (coin): Coin flies, you stay
-- Heavy/anchored object: You fly toward it
+- Heavy/anchored object: You fly away from it
 
 **4. Metal inside a body cannot be pushed**
 - Can't push metal weapons while enemy's holding them (though strong pushers can overcome this)
