@@ -6,63 +6,66 @@ public class PlayerMove : MonoBehaviour
     public float moveSpeed = 5f;
     public float mouseSensitivity = 200f;
 
-    [Header("Camera Settings")]
-    public Transform cameraTransform;    // The Main Camera
-    public Transform cameraPivot;        // The Empty Object the camera is inside
-    public LayerMask collisionLayers;    // MUST check "Default" or "Ground" in Inspector
-    public float cameraRadius = 0.2f;    // Thickness of the camera "bubble"
+    [Header("Camera & Smoothing")]
+    public Transform cameraTransform;
+    public Transform cameraPivot;
+    public LayerMask collisionLayers;
+    public float smoothSpeed = 10f;       // How fast the camera snaps to position
+    public float rotationSmoothing = 15f; // How "weighty" the mouse feel is
+    public float cameraRadius = 0.2f;
     public float minDistance = 0.5f;
-    
+
     private float xRotation = 0f;
+    private float currentXRotation = 0f;
     private float maxDistance;
     private Vector3 dollyDir;
+    private float currentDistance;
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        // Calculate original direction and distance
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
+        currentDistance = maxDistance;
     }
 
     void Update()
     {
-        // 1. Movement
+        // 1. WASD Movement
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         Vector3 move = transform.right * x + transform.forward * z;
         transform.position += move * moveSpeed * Time.deltaTime;
 
-        // 2. Mouse Rotation
+        // 2. Mouse Input
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
         transform.Rotate(Vector3.up * mouseX);
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -80f, 80f); // Stops camera from flipping
-        
-        cameraPivot.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-
-        // 3. Collision Logic
-        UpdateCameraCollision();
+        xRotation = Mathf.Clamp(xRotation, -80f, 80f);
     }
 
-    void UpdateCameraCollision()
+    // LateUpdate runs after Update, making camera follow much smoother
+    void LateUpdate()
     {
-        // Target position if there were no obstacles
-        Vector3 desiredCameraPos = cameraPivot.TransformPoint(dollyDir * maxDistance);
+        // Smoothly interpolate the rotation
+        currentXRotation = Mathf.Lerp(currentXRotation, xRotation, rotationSmoothing * Time.deltaTime);
+        cameraPivot.localRotation = Quaternion.Euler(currentXRotation, 0f, 0f);
+
+        // 3. Smooth Collision Logic
+        Vector3 desiredPos = cameraPivot.TransformPoint(dollyDir * maxDistance);
         RaycastHit hit;
 
-        // SphereCast acts like a thick beam to prevent corner clipping
-        if (Physics.SphereCast(cameraPivot.position, cameraRadius, (desiredCameraPos - cameraPivot.position).normalized, out hit, maxDistance, collisionLayers))
+        float targetDistance = maxDistance;
+
+        if (Physics.SphereCast(cameraPivot.position, cameraRadius, (desiredPos - cameraPivot.position).normalized, out hit, maxDistance, collisionLayers))
         {
-            // If we hit something, move camera to that point (clamped for safety)
-            cameraTransform.localPosition = dollyDir * Mathf.Clamp(hit.distance, minDistance, maxDistance);
+            targetDistance = Mathf.Clamp(hit.distance, minDistance, maxDistance);
         }
-        else
-        {
-            // No obstacles, stay at max distance
-            cameraTransform.localPosition = dollyDir * maxDistance;
-        }
+
+        // Lerp the distance so the camera "slides" in and out when hitting walls/floors
+        currentDistance = Mathf.Lerp(currentDistance, targetDistance, smoothSpeed * Time.deltaTime);
+        cameraTransform.localPosition = dollyDir * currentDistance;
     }
 }
