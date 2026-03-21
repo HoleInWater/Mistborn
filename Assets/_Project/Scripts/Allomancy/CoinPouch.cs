@@ -1,127 +1,102 @@
-// ============================================================
-// FILE: CoinPouch.cs
-// SYSTEM: Allomancy / Combat
-// STATUS: PLANNED — Sprint 2
-// AUTHOR: 
-//
-// PURPOSE:
-//   Manages the player's coin pouch for Steelpush combat.
-//   Allows shooting coins as projectiles.
-//
-// LORE:
-//   Coinshots are known for their coin-shooting ability.
-//   "A steel Misting is known as a Coinshot" — Coppermind
-//
-// TODO:
-//   - Implement coin spawning
-//   - Add throwing arc visualization
-//   - Connect to Steelpush for launch force
-//
-// TODO (Team):
-//   - Unlimited coins or limited ammo?
-//   - Cooldown between shots?
-//   - Coin respawn mechanic?
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.Allomancy
 {
+    /// <summary>
+    /// Manages the player's coin pouch for Steelpush combat.
+    /// Allows throwing coins as projectiles that can be pushed.
+    /// </summary>
     public class CoinPouch : MonoBehaviour
     {
-        [Header("Coin Settings")]
-        public GameObject coinPrefab;
-        public Transform spawnPoint;
-        public int maxCoins = 50;
-        public int currentCoins = 50;
+        [Header("Coins")]
+        [SerializeField] private GameObject m_coinPrefab;
+        [SerializeField] private Transform m_spawnPoint;
+        [SerializeField] private int m_maxCoins = 50;
+        [SerializeField] private int m_currentCoins = 50;
         
-        [Header("Throw Settings")]
-        public float throwForce = 100f;
-        public float throwArc = 0.1f; // How much arc in trajectory
-        public float cooldown = 0.1f;
+        [Header("Throw")]
+        [SerializeField] private float m_throwForce = 100f;
+        [Range(-1f, 1f)]
+        [SerializeField] private float m_throwArc = 0.1f;
+        [Range(0.01f, 2f)]
+        [SerializeField] private float m_cooldown = 0.1f;
         
         [Header("Auto-Collect")]
-        public bool autoCollect = true;
-        public float collectRadius = 5f;
-        public float collectDelay = 2f;
-        
-        private float lastThrowTime;
-        private SteelPushAbility steelPush;
-        
-        private void Start()
+        [SerializeField] private bool m_autoCollect = true;
+        [SerializeField] private float m_collectRadius = 5f;
+        [SerializeField] private float m_collectDelay = 2f;
+
+        private float m_lastThrowTime;
+        private SteelPushAbility m_steelPush;
+
+        public int currentCoins => m_currentCoins;
+        public int maxCoins => m_maxCoins;
+
+        private void Awake()
         {
-            steelPush = GetComponent<SteelPushAbility>();
-            if (spawnPoint == null)
+            m_steelPush = GetComponent<SteelPushAbility>();
+            if (m_spawnPoint == null)
             {
-                spawnPoint = transform;
+                m_spawnPoint = transform;
             }
         }
-        
-        public bool CanThrow()
-        {
-            return currentCoins > 0 && Time.time - lastThrowTime >= cooldown;
-        }
-        
+
+        public bool CanThrow() => m_currentCoins > 0 && Time.time - m_lastThrowTime >= m_cooldown;
+
+        /// <summary>Throws a coin in the specified direction.</summary>
         public void ThrowCoin(Vector3 direction)
         {
             if (!CanThrow()) return;
             
-            // Spawn coin
-            GameObject coin = Instantiate(coinPrefab, spawnPoint.position, Quaternion.identity);
-            Rigidbody coinRb = coin.GetComponent<Rigidbody>();
+            GameObject coin = Instantiate(m_coinPrefab, m_spawnPoint.position, Quaternion.identity);
+            Rigidbody rb = coin.GetComponent<Rigidbody>();
             
-            if (coinRb != null)
+            if (rb != null)
             {
-                // Add arc to throw
                 Vector3 throwDir = direction.normalized;
-                throwDir.y += throwArc;
+                throwDir.y += m_throwArc;
                 throwDir = throwDir.normalized;
-                
-                coinRb.AddForce(throwDir * throwForce, ForceMode.Impulse);
-                
-                // Let steel push add extra force
-                if (steelPush != null && steelPush.GetComponent<AllomancerController>().CanBurn(AllomanticMetal.Steel))
-                {
-                    // Coin will be affected by Steelpush automatically
-                }
+                rb.AddForce(throwDir * m_throwForce, ForceMode.Impulse);
             }
             
-            currentCoins--;
-            lastThrowTime = Time.time;
+            m_currentCoins--;
+            m_lastThrowTime = Time.time;
             
-            // Schedule coin return
-            if (autoCollect)
+            if (m_autoCollect)
             {
-                Invoke(nameof(TryCollectCoins), collectDelay);
+                Invoke(nameof(TryCollectCoins), m_collectDelay);
             }
         }
-        
+
+        /// <summary>Throws a coin at the target.</summary>
         public void ThrowCoinAtTarget(Transform target)
         {
             if (target == null) return;
-            Vector3 direction = (target.position - spawnPoint.position).normalized;
-            ThrowCoin(direction);
+            Vector3 dir = (target.position - m_spawnPoint.position).normalized;
+            ThrowCoin(dir);
         }
-        
+
         private void TryCollectCoins()
         {
-            // Find coins in radius and add back to pouch
-            Collider[] coins = Physics.OverlapSphere(transform.position, collectRadius);
-            foreach (Collider coin in coins)
+            Collider[] hits = Physics.OverlapSphere(transform.position, m_collectRadius);
+            foreach (Collider hit in hits)
             {
-                if (coin.CompareTag("Coin") && currentCoins < maxCoins)
+                if (hit.CompareTag("Coin") && m_currentCoins < m_maxCoins)
                 {
-                    currentCoins++;
-                    Destroy(coin.gameObject);
+                    m_currentCoins++;
+                    Destroy(hit.gameObject);
                 }
             }
         }
-        
+
         public void AddCoins(int amount)
         {
-            currentCoins = Mathf.Min(currentCoins + amount, maxCoins);
+            m_currentCoins = Mathf.Min(m_currentCoins + amount, m_maxCoins);
+        }
+
+        public void RefillCoins()
+        {
+            m_currentCoins = m_maxCoins;
         }
     }
 }

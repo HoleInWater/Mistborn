@@ -102,9 +102,9 @@ namespace Mistborn.Combat
         private bool IsPlayerBurningAnyMetal(AllomancerController allomancy)
         {
             // Check if any metal is currently burning
-            foreach (MetalReserve reserve in allomancy.reserves)
+            foreach (MetalReserve reserve in allomancy.Reserves)
             {
-                if (reserve.isBurning)
+                if (reserve.IsBurning)
                 {
                     return true;
                 }

@@ -1,48 +1,42 @@
-// ============================================================
-// FILE: AllomancyConstants.cs
-// SYSTEM: Utilities
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Static class containing game-wide constants for Allomancy.
-//   Centralized values for easy tuning and balance adjustments.
-//
-// DEPENDENCIES:
-//   - Referenced by all Allomancy scripts
-//
-// TODO:
-//   - Add constants for remaining metals
-//   - Document all constants
-//
-// TODO (Team):
-//   - Tune all values during playtesting
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 namespace Mistborn.Utilities
 {
     public static class AllomancyConstants
     {
-        // Burn Rates
-        public const float BASE_BURN_RATE = 1f;
-        public const float STEEL_BURN_RATE = 2f;
-        public const float IRON_BURN_RATE = 2f;
+        // Mass Values
+        public const float COIN_MASS = 0.01f;
+        public const float BRACKET_MASS = 50f;
+        public const float WALL_MASS = 500f;
+        public const float PLAYER_WEIGHT = 80f;
 
-        // Push/Pull Forces
-        public const float STEEL_PUSH_FORCE = 500f;
-        public const float IRON_PULL_FORCE = 500f;
+        // Ranges
+        public const float PUSH_RANGE = 30f;
+        public const float PULL_RANGE = 30f;
+        public const float SIGHT_RANGE = 50f;
 
-        // Detection
-        public const float ALLOMANTIC_SIGHT_RANGE = 50f;
-        public const float METAL_DETECTION_RANGE = 30f;
+        // Forces
+        public const float PUSH_FORCE = 500f;
+        public const float PULL_FORCE = 500f;
 
         // Thresholds
-        public const float ANCHOR_MASS_THRESHOLD = 10f;
-        public const float MAX_TARGETS = 5f;
+        public const float ANCHOR_THRESHOLD = 50f;
+        public const float RECOIL_DAMPING = 0.5f;
 
-        // Player
-        public const float PLAYER_RECOIL_MULTIPLIER = 0.5f;
+        // Pewter
+        public const float PEWTER_STRENGTH = 2f;
+        public const float PEWTER_SPEED = 1.5f;
+        public const float PEWTER_PAIN_RESIST = 0.5f;
+
+        // Tin
+        public const float TIN_SIGHT = 2f;
+        public const float TIN_HEARING = 2f;
+
+        // Clouds & Bubbles
+        public const float COPPER_RADIUS = 15f;
+        public const float BENDALLOY_RADIUS = 10f;
+
+        // Burn Rates (per second)
+        public const float BASE_BURN_RATE = 5f;
+        public const float STEEL_BURN_RATE = 8f;
+        public const float PEWTER_BURN_RATE = 10f;
     }
 }

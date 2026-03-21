@@ -1,139 +1,117 @@
-// ============================================================
-// FILE: PauseMenu.cs
-// SYSTEM: UI
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Handles the pause menu UI and functionality.
-//
-// TODO:
-//   - Add menu options
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Mistborn.UI
 {
+    /// <summary>
+    /// Handles pause menu UI and functionality.
+    /// </summary>
     public class PauseMenu : MonoBehaviour
     {
-        [Header("Menu Panels")]
-        public GameObject mainPausePanel;
-        public GameObject optionsPanel;
-        public GameObject controlsPanel;
+        [Header("Panels")]
+        [SerializeField] private GameObject m_mainPanel;
+        [SerializeField] private GameObject m_optionsPanel;
+        [SerializeField] private GameObject m_controlsPanel;
         
         [Header("Buttons")]
-        public Button resumeButton;
-        public Button optionsButton;
-        public Button controlsButton;
-        public Button mainMenuButton;
-        public Button quitButton;
+        [SerializeField] private Button m_resumeButton;
+        [SerializeField] private Button m_optionsButton;
+        [SerializeField] private Button m_controlsButton;
+        [SerializeField] private Button m_mainMenuButton;
+        [SerializeField] private Button m_quitButton;
         
-        [Header("Settings")]
-        public KeyCode pauseKey = KeyCode.Escape;
-        
-        private bool isPaused;
-        
+        [Header("Input")]
+        [SerializeField] private KeyCode m_pauseKey = KeyCode.Escape;
+
+        private bool m_isPaused;
+
+        public bool isPaused => m_isPaused;
+
         private void Start()
         {
-            // Set up button listeners
-            if (resumeButton != null)
-                resumeButton.onClick.AddListener(Resume);
+            SetupButtons();
             
-            if (optionsButton != null)
-                optionsButton.onClick.AddListener(ShowOptions);
-            
-            if (controlsButton != null)
-                controlsButton.onClick.AddListener(ShowControls);
-            
-            if (mainMenuButton != null)
-                mainMenuButton.onClick.AddListener(GoToMainMenu);
-            
-            if (quitButton != null)
-                quitButton.onClick.AddListener(QuitGame);
-            
-            // Start hidden
-            if (mainPausePanel != null)
-                mainPausePanel.SetActive(false);
+            if (m_mainPanel != null)
+                m_mainPanel.SetActive(false);
         }
-        
+
+        private void SetupButtons()
+        {
+            if (m_resumeButton != null) m_resumeButton.onClick.AddListener(Resume);
+            if (m_optionsButton != null) m_optionsButton.onClick.AddListener(ShowOptions);
+            if (m_controlsButton != null) m_controlsButton.onClick.AddListener(ShowControls);
+            if (m_mainMenuButton != null) m_mainMenuButton.onClick.AddListener(LoadMainMenu);
+            if (m_quitButton != null) m_quitButton.onClick.AddListener(QuitGame);
+        }
+
         private void Update()
         {
-            if (Input.GetKeyDown(pauseKey))
+            if (Input.GetKeyDown(m_pauseKey))
             {
                 TogglePause();
             }
         }
-        
+
         public void TogglePause()
         {
-            if (isPaused)
-            {
-                Resume();
-            }
-            else
-            {
-                Pause();
-            }
+            if (m_isPaused) Resume();
+            else Pause();
         }
-        
+
         public void Pause()
         {
-            isPaused = true;
+            m_isPaused = true;
             Time.timeScale = 0f;
+            ShowCursor(true);
             
-            if (mainPausePanel != null)
-                mainPausePanel.SetActive(true);
-            
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            if (m_mainPanel != null)
+                m_mainPanel.SetActive(true);
         }
-        
+
         public void Resume()
         {
-            isPaused = false;
+            m_isPaused = false;
             Time.timeScale = 1f;
-            
-            if (mainPausePanel != null)
-                mainPausePanel.SetActive(false);
-            
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            
-            // Hide sub-panels
-            if (optionsPanel != null) optionsPanel.SetActive(false);
-            if (controlsPanel != null) controlsPanel.SetActive(false);
+            ShowCursor(false);
+            HideAllPanels();
         }
-        
+
+        private void HideAllPanels()
+        {
+            if (m_mainPanel != null) m_mainPanel.SetActive(false);
+            if (m_optionsPanel != null) m_optionsPanel.SetActive(false);
+            if (m_controlsPanel != null) m_controlsPanel.SetActive(false);
+        }
+
         private void ShowOptions()
         {
-            if (optionsPanel != null)
-            {
-                optionsPanel.SetActive(true);
-            }
+            if (m_optionsPanel != null) m_optionsPanel.SetActive(true);
         }
-        
+
         private void ShowControls()
         {
-            if (controlsPanel != null)
-            {
-                controlsPanel.SetActive(true);
-            }
+            if (m_controlsPanel != null) m_controlsPanel.SetActive(true);
         }
-        
-        private void GoToMainMenu()
+
+        private void LoadMainMenu()
         {
             Time.timeScale = 1f;
             UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
-        
+
         private void QuitGame()
         {
-            Debug.Log("Quitting game...");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
+#endif
+        }
+
+        private void ShowCursor(bool show)
+        {
+            Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = show;
         }
     }
 }

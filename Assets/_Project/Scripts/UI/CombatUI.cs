@@ -167,12 +167,12 @@ namespace Mistborn.UI
             // Update health
             if (healthFill != null)
             {
-                healthFill.fillAmount = targetEnemy.currentHealth / targetEnemy.maxHealth;
+                healthFill.fillAmount = targetEnemy.health / targetEnemy.maxHealth;
             }
             
             if (healthText != null)
             {
-                healthText.text = $"{Mathf.RoundToInt(targetEnemy.currentHealth)}/{Mathf.RoundToInt(targetEnemy.maxHealth)}";
+                healthText.text = $"{Mathf.RoundToInt(targetEnemy.health)}/{Mathf.RoundToInt(targetEnemy.maxHealth)}";
             }
         }
     }

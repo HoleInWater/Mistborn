@@ -1,185 +1,200 @@
-// ============================================================
-// FILE: SaveLoadSystem.cs
-// SYSTEM: Utilities
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Handles saving and loading game state.
-//   Saves player position, metal reserves, and progress.
-//
-// TODO:
-//   - Add encryption for save data
-//   - Add auto-save functionality
-//   - Add multiple save slots
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Mistborn.Utilities
 {
-    [Serializable]
+    public static class SaveLoadSystem
+    {
+        private static readonly string SAVE_FOLDER = Application.persistentDataPath + "/Saves/";
+        private static readonly string EXTENSION = ".sav";
+
+        public static void Save(string saveName, object data)
+        {
+            if (!Directory.Exists(SAVE_FOLDER))
+            {
+                Directory.CreateDirectory(SAVE_FOLDER);
+            }
+
+            string path = GetPath(saveName);
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = File.Create(path);
+
+            try
+            {
+                formatter.Serialize(stream, data);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Save failed: {e.Message}");
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
+        public static object Load(string saveName)
+        {
+            string path = GetPath(saveName);
+
+            if (!File.Exists(path))
+            {
+                Debug.LogWarning($"Save file not found: {path}");
+                return null;
+            }
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = File.Open(path, FileMode.Open);
+
+            try
+            {
+                object data = formatter.Deserialize(stream);
+                return data;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Load failed: {e.Message}");
+                return null;
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
+        public static void SaveObject<T>(string saveName, T obj) where T : class
+        {
+            Save(saveName, obj);
+        }
+
+        public static T LoadObject<T>(string saveName) where T : class
+        {
+            object data = Load(saveName);
+            return data as T;
+        }
+
+        public static bool SaveExists(string saveName)
+        {
+            return File.Exists(GetPath(saveName));
+        }
+
+        public static void DeleteSave(string saveName)
+        {
+            string path = GetPath(saveName);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+
+        public static string[] GetAllSaveNames()
+        {
+            if (!Directory.Exists(SAVE_FOLDER))
+            {
+                return new string[0];
+            }
+
+            string[] files = Directory.GetFiles(SAVE_FOLDER, "*" + EXTENSION);
+            string[] names = new string[files.Length];
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                names[i] = Path.GetFileNameWithoutExtension(files[i]);
+            }
+
+            return names;
+        }
+
+        public static void DeleteAllSaves()
+        {
+            if (!Directory.Exists(SAVE_FOLDER)) return;
+
+            string[] files = Directory.GetFiles(SAVE_FOLDER, "*" + EXTENSION);
+            foreach (string file in files)
+            {
+                File.Delete(file);
+            }
+        }
+
+        private static string GetPath(string saveName)
+        {
+            return SAVE_FOLDER + saveName + EXTENSION;
+        }
+    }
+
+    public class Saveable : MonoBehaviour
+    {
+        [SerializeField] private string m_saveId;
+
+        public string SaveId => m_saveId;
+
+        public virtual object GetSaveData()
+        {
+            return null;
+        }
+
+        public virtual void LoadSaveData(object data)
+        {
+        }
+
+        public void Save()
+        {
+            SaveLoadSystem.Save(m_saveId, GetSaveData());
+        }
+
+        public void Load()
+        {
+            if (SaveLoadSystem.SaveExists(m_saveId))
+            {
+                object data = SaveLoadSystem.Load(m_saveId);
+                LoadSaveData(data);
+            }
+        }
+    }
+
     public class GameSaveData
     {
         public string saveName;
         public DateTime saveTime;
-        
-        // Player data
-        public float playerPositionX;
-        public float playerPositionY;
-        public float playerPositionZ;
-        public float playerRotationY;
-        
-        // Metal reserves
-        public float steelReserve;
-        public float ironReserve;
-        public float pewterReserve;
-        public float tinReserve;
-        
-        // Progress
-        public string currentScene;
-        public int storyProgress;
+        public string sceneName;
+        public Vector3 playerPosition;
+        public Quaternion playerRotation;
+        public float playTime;
+        public int playerHealth;
+        public int gold;
+        public SerializableDictionary<string, object> flags = new SerializableDictionary<string, object>();
+        public string[] unlockedAchievements;
     }
-    
-    public class SaveLoadSystem : MonoBehaviour
+
+    public class SerializableDictionary<TKey, TValue> : System.Collections.Generic.Dictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
-        public static SaveLoadSystem Instance { get; private set; }
-        
-        [Header("Save Settings")]
-        public string saveFileName = "mistborn_save.json";
-        public int maxSaveSlots = 3;
-        
-        private void Awake()
+        [SerializeField] private TKey[] m_keys;
+        [SerializeField] private TValue[] m_values;
+
+        public void OnBeforeSerialize()
         {
-            if (Instance == null)
+            m_keys = new TKey[Count];
+            m_values = new TValue[Count];
+
+            int i = 0;
+            foreach (var kvp in this)
             {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
+                m_keys[i] = kvp.Key;
+                m_values[i] = kvp.Value;
+                i++;
             }
         }
-        
-        public void SaveGame(int slot = 0)
+
+        public void OnAfterDeserialize()
         {
-            GameSaveData data = CollectSaveData();
-            data.saveName = $"Save Slot {slot}";
-            data.saveTime = DateTime.Now;
-            
-            string json = JsonUtility.ToJson(data, true);
-            string path = GetSavePath(slot);
-            
-            System.IO.File.WriteAllText(path, json);
-            Debug.Log($"Game saved to {path}");
-        }
-        
-        public bool LoadGame(int slot = 0)
-        {
-            string path = GetSavePath(slot);
-            
-            if (!System.IO.File.Exists(path))
+            Clear();
+            if (m_keys == null || m_values == null) return;
+
+            for (int i = 0; i < Mathf.Min(m_keys.Length, m_values.Length); i++)
             {
-                Debug.Log($"No save found at {path}");
-                return false;
-            }
-            
-            string json = System.IO.File.ReadAllText(path);
-            GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
-            
-            if (data == null)
-            {
-                Debug.LogError("Failed to parse save file");
-                return false;
-            }
-            
-            ApplySaveData(data);
-            Debug.Log($"Game loaded from {path}");
-            return true;
-        }
-        
-        public bool HasSave(int slot = 0)
-        {
-            return System.IO.File.Exists(GetSavePath(slot));
-        }
-        
-        public void DeleteSave(int slot = 0)
-        {
-            string path = GetSavePath(slot);
-            if (System.IO.File.Exists(path))
-            {
-                System.IO.File.Delete(path);
-                Debug.Log($"Save deleted: {path}");
-            }
-        }
-        
-        private string GetSavePath(int slot)
-        {
-            return Application.persistentDataPath + $"/{saveFileName.Replace(".json", "")}_{slot}.json";
-        }
-        
-        private GameSaveData CollectSaveData()
-        {
-            GameSaveData data = new GameSaveData();
-            
-            // Get player data
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                data.playerPositionX = player.transform.position.x;
-                data.playerPositionY = player.transform.position.y;
-                data.playerPositionZ = player.transform.position.z;
-                data.playerRotationY = player.transform.eulerAngles.y;
-            }
-            
-            // Get metal reserves
-            AllomancerController allomancer = player?.GetComponent<AllomancerController>();
-            if (allomancer != null)
-            {
-                data.steelReserve = allomancer.GetReserve(AllomanticMetal.Steel)?.currentAmount ?? 0;
-                data.ironReserve = allomancer.GetReserve(AllomanticMetal.Iron)?.currentAmount ?? 0;
-                data.pewterReserve = allomancer.GetReserve(AllomanticMetal.Pewter)?.currentAmount ?? 0;
-                data.tinReserve = allomancer.GetReserve(AllomanticMetal.Tin)?.currentAmount ?? 0;
-            }
-            
-            // Get current scene
-            data.currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            
-            return data;
-        }
-        
-        private void ApplySaveData(GameSaveData data)
-        {
-            // Restore player position
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                player.transform.position = new Vector3(
-                    data.playerPositionX,
-                    data.playerPositionY,
-                    data.playerPositionZ
-                );
-                player.transform.eulerAngles = new Vector3(0, data.playerRotationY, 0);
-            }
-            
-            // Restore metal reserves
-            AllomancerController allomancer = player?.GetComponent<AllomancerController>();
-            if (allomancer != null)
-            {
-                allomancer.GetReserve(AllomanticMetal.Steel).currentAmount = data.steelReserve;
-                allomancer.GetReserve(AllomanticMetal.Iron).currentAmount = data.ironReserve;
-                allomancer.GetReserve(AllomanticMetal.Pewter).currentAmount = data.pewterReserve;
-                allomancer.GetReserve(AllomanticMetal.Tin).currentAmount = data.tinReserve;
-            }
-            
-            // Load scene if different
-            if (!string.IsNullOrEmpty(data.currentScene))
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(data.currentScene);
+                Add(m_keys[i], m_values[i]);
             }
         }
     }

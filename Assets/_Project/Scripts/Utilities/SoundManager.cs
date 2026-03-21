@@ -1,70 +1,58 @@
-// ============================================================
-// FILE: SoundManager.cs
-// SYSTEM: Utilities
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Central audio manager for all game sounds.
-//   Handles SFX, music, and ambient audio.
-//
-// TODO:
-//   - Add actual audio files
-//   - Set up audio mixer
-//   - Add 3D spatial audio for some sounds
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace Mistborn.Utilities
 {
+    /// <summary>
+    /// Central audio manager for SFX, music, and ambient audio.
+    /// </summary>
     public class SoundManager : MonoBehaviour
     {
         public static SoundManager Instance { get; private set; }
-        
+
         [Header("Audio Sources")]
-        public AudioSource sfxSource;
-        public AudioSource musicSource;
-        public AudioSource ambientSource;
+        [SerializeField] private AudioSource m_sfxSource;
+        [SerializeField] private AudioSource m_musicSource;
+        [SerializeField] private AudioSource m_ambientSource;
         
-        [Header("Audio Clips - Allomancy")]
-        public AudioClip steelPushSound;
-        public AudioClip ironPullSound;
-        public AudioClip metalDepletedSound;
-        public AudioClip blueLineActivateSound;
+        [Header("Allomancy Sounds")]
+        [SerializeField] private AudioClip m_steelPushSound;
+        [SerializeField] private AudioClip m_ironPullSound;
+        [SerializeField] private AudioClip m_metalDepletedSound;
         
-        [Header("Audio Clips - Combat")]
-        public AudioClip playerHitSound;
-        public AudioClip enemyHitSound;
-        public AudioClip coinThrowSound;
-        public AudioClip metalClangSound;
+        [Header("Combat Sounds")]
+        [SerializeField] private AudioClip m_playerHitSound;
+        [SerializeField] private AudioClip m_enemyHitSound;
+        [SerializeField] private AudioClip m_coinThrowSound;
         
-        [Header("Audio Clips - UI")]
-        public AudioClip menuSelectSound;
-        public AudioClip menuConfirmSound;
-        public AudioClip saveLoadSound;
+        [Header("UI Sounds")]
+        [SerializeField] private AudioClip m_menuSelectSound;
+        [SerializeField] private AudioClip m_menuConfirmSound;
         
-        [Header("Audio Clips - Ambient")]
-        public AudioClip ashWindAmbient;
-        public AudioClip cityAmbient;
+        [Header("Ambient")]
+        [SerializeField] private AudioClip m_ashWindAmbient;
         
-        [Header("Settings")]
-        public float masterVolume = 1f;
-        public float sfxVolume = 1f;
-        public float musicVolume = 0.7f;
-        
-        private Dictionary<string, AudioClip> soundLibrary;
-        
+        [Header("Volume")]
+        [Range(0f, 1f)]
+        [SerializeField] private float m_masterVolume = 1f;
+        [Range(0f, 1f)]
+        [SerializeField] private float m_sfxVolume = 1f;
+        [Range(0f, 1f)]
+        [SerializeField] private float m_musicVolume = 0.7f;
+
+        private Dictionary<string, AudioClip> m_soundLibrary;
+
+        public float masterVolume => m_masterVolume;
+        public float sfxVolume => m_sfxVolume;
+        public float musicVolume => m_musicVolume;
+
         private void Awake()
         {
             if (Instance == null)
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
-                InitializeAudioSources();
+                SetupAudioSources();
                 BuildSoundLibrary();
             }
             else
@@ -72,153 +60,130 @@ namespace Mistborn.Utilities
                 Destroy(gameObject);
             }
         }
-        
-        private void InitializeAudioSources()
+
+        private void SetupAudioSources()
         {
-            if (sfxSource == null)
-            {
-                GameObject sfxObj = new GameObject("SFX Source");
-                sfxObj.transform.SetParent(transform);
-                sfxSource = sfxObj.AddComponent<AudioSource>();
-            }
-            
-            if (musicSource == null)
-            {
-                GameObject musicObj = new GameObject("Music Source");
-                musicObj.transform.SetParent(transform);
-                musicSource = musicObj.AddComponent<AudioSource>();
-                musicSource.loop = true;
-            }
-            
-            if (ambientSource == null)
-            {
-                GameObject ambientObj = new GameObject("Ambient Source");
-                ambientObj.transform.SetParent(transform);
-                ambientSource = ambientObj.AddComponent<AudioSource>();
-                ambientSource.loop = true;
-            }
+            m_sfxSource = CreateAudioSource("SFX Source", false);
+            m_musicSource = CreateAudioSource("Music Source", true);
+            m_ambientSource = CreateAudioSource("Ambient Source", true);
         }
-        
+
+        private AudioSource CreateAudioSource(string name, bool loop)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(transform);
+            AudioSource source = obj.AddComponent<AudioSource>();
+            source.loop = loop;
+            return source;
+        }
+
         private void BuildSoundLibrary()
         {
-            soundLibrary = new Dictionary<string, AudioClip>
+            m_soundLibrary = new Dictionary<string, AudioClip>
             {
-                { "steelPush", steelPushSound },
-                { "ironPull", ironPullSound },
-                { "metalDepleted", metalDepletedSound },
-                { "blueLineActivate", blueLineActivateSound },
-                { "playerHit", playerHitSound },
-                { "enemyHit", enemyHitSound },
-                { "coinThrow", coinThrowSound },
-                { "metalClang", metalClangSound },
-                { "menuSelect", menuSelectSound },
-                { "menuConfirm", menuConfirmSound },
-                { "saveLoad", saveLoadSound }
+                { "steelPush", m_steelPushSound },
+                { "ironPull", m_ironPullSound },
+                { "metalDepleted", m_metalDepletedSound },
+                { "playerHit", m_playerHitSound },
+                { "enemyHit", m_enemyHitSound },
+                { "coinThrow", m_coinThrowSound },
+                { "menuSelect", m_menuSelectSound },
+                { "menuConfirm", m_menuConfirmSound }
             };
         }
-        
+
         public void PlaySound(string soundName)
         {
-            if (soundLibrary.ContainsKey(soundName) && soundLibrary[soundName] != null)
+            if (m_soundLibrary.TryGetValue(soundName, out AudioClip clip) && clip != null)
             {
-                sfxSource.PlayOneShot(soundLibrary[soundName], sfxVolume * masterVolume);
+                m_sfxSource.PlayOneShot(clip, m_sfxVolume * m_masterVolume);
             }
         }
-        
+
         public void PlaySound(AudioClip clip)
         {
             if (clip != null)
             {
-                sfxSource.PlayOneShot(clip, sfxVolume * masterVolume);
+                m_sfxSource.PlayOneShot(clip, m_sfxVolume * m_masterVolume);
             }
         }
-        
+
         public void PlayMusic(AudioClip clip, float fadeIn = 0f)
         {
             if (clip == null) return;
             
-            musicSource.clip = clip;
-            musicSource.volume = 0;
-            musicSource.Play();
+            m_musicSource.clip = clip;
+            m_musicSource.volume = 0;
+            m_musicSource.Play();
             
             if (fadeIn > 0)
             {
-                StartCoroutine(FadeInMusic(fadeIn));
+                StartCoroutine(FadeInRoutine(m_musicSource, fadeIn, m_musicVolume * m_masterVolume));
             }
             else
             {
-                musicSource.volume = musicVolume * masterVolume;
+                m_musicSource.volume = m_musicVolume * m_masterVolume;
             }
         }
-        
-        public void PlayAmbient(AudioClip clip)
-        {
-            if (clip == null) return;
-            
-            ambientSource.clip = clip;
-            ambientSource.volume = masterVolume * 0.5f;
-            ambientSource.Play();
-        }
-        
+
         public void StopMusic(float fadeOut = 0f)
         {
             if (fadeOut > 0)
             {
-                StartCoroutine(FadeOutMusic(fadeOut));
+                StartCoroutine(FadeOutRoutine(m_musicSource, fadeOut));
             }
             else
             {
-                musicSource.Stop();
+                m_musicSource.Stop();
             }
         }
-        
-        private System.Collections.IEnumerator FadeInMusic(float duration)
+
+        private System.Collections.IEnumerator FadeInRoutine(AudioSource source, float duration, float targetVolume)
         {
-            float targetVolume = musicVolume * masterVolume;
-            float startVolume = 0;
-            float elapsed = 0;
-            
+            float elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                musicSource.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+                source.volume = Mathf.Lerp(0f, targetVolume, elapsed / duration);
                 yield return null;
             }
-            
-            musicSource.volume = targetVolume;
+            source.volume = targetVolume;
         }
-        
-        private System.Collections.IEnumerator FadeOutMusic(float duration)
+
+        private System.Collections.IEnumerator FadeOutRoutine(AudioSource source, float duration)
         {
-            float startVolume = musicSource.volume;
-            float elapsed = 0;
-            
+            float startVolume = source.volume;
+            float elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                musicSource.volume = Mathf.Lerp(startVolume, 0, elapsed / duration);
+                source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
                 yield return null;
             }
-            
-            musicSource.Stop();
+            source.Stop();
         }
-        
+
         public void SetMasterVolume(float volume)
         {
-            masterVolume = Mathf.Clamp01(volume);
-            musicSource.volume = musicVolume * masterVolume;
-            ambientSource.volume = masterVolume * 0.5f;
+            m_masterVolume = Mathf.Clamp01(volume);
+            UpdateVolumes();
         }
-        
+
         public void SetSFXVolume(float volume)
         {
-            sfxVolume = Mathf.Clamp01(volume);
+            m_sfxVolume = Mathf.Clamp01(volume);
         }
-        
+
         public void SetMusicVolume(float volume)
         {
-            musicVolume = Mathf.Clamp01(volume);
-            musicSource.volume = musicVolume * masterVolume;
+            m_musicVolume = Mathf.Clamp01(volume);
+            m_musicSource.volume = m_musicVolume * m_masterVolume;
+        }
+
+        private void UpdateVolumes()
+        {
+            m_musicSource.volume = m_musicVolume * m_masterVolume;
+            m_ambientSource.volume = m_masterVolume * 0.5f;
         }
     }
 }

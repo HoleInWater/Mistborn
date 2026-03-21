@@ -6,7 +6,7 @@ Right now the focus is on getting the Steel and Iron mechanics feeling right. Th
 
 ---
 
-## Welcome, ThenBuzzard 👋
+## Welcome, Kelsier's Crew 👋
 
 Here's where to start:
 

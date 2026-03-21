@@ -1,55 +1,38 @@
-// ============================================================
-// FILE: MetalReserve.cs
-// SYSTEM: Allomancy
-// STATUS: STUB — Not yet implemented
-// AUTHOR: 
-//
-// PURPOSE:
-//   Serializable data class representing a single metal's reserve.
-//   Tracks current amount, burn state, and consumption rate.
-//
-// DEPENDENCIES:
-//   - AllomanticMetal enum
-//   - Referenced by AllomancerController
-//
-// TODO:
-//   - Implement burn rate modifiers for different metals
-//   - Add flaring mechanic support
-//
-// TODO (Team):
-//   - Define base burn rates for each metal
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
-using System;
-
 namespace Mistborn.Allomancy
 {
     [System.Serializable]
     public class MetalReserve
     {
-        public AllomanticMetal metalType;
-        public float currentAmount;
-        public float maxAmount = 100f;
-        public bool isBurning;
-        public float burnRate = 1f;
+        [UnityEngine.SerializeField] private AllomanticMetal metalType;
+        [UnityEngine.SerializeField] private float maxAmount = 100f;
+        [UnityEngine.SerializeField] private float currentAmount = 100f;
+        [UnityEngine.SerializeField] private float burnRate = 5f;
+        [UnityEngine.SerializeField] private bool isBurning;
 
-        public MetalReserve(AllomanticMetal metal, float max = 100f, float burnRate = 1f)
+        public AllomanticMetal MetalType => metalType;
+        public float CurrentAmount => currentAmount;
+        public float MaxAmount => maxAmount;
+        public float BurnRate => burnRate;
+        
+        public bool IsBurning
         {
-            metalType = metal;
+            get => isBurning;
+            set => isBurning = value;
+        }
+
+        public MetalReserve(AllomanticMetal type, float max = 100f, float rate = 5f)
+        {
+            metalType = type;
             maxAmount = max;
-            currentAmount = maxAmount;
-            this.burnRate = burnRate;
+            currentAmount = max;
+            burnRate = rate;
             isBurning = false;
         }
 
         public void StartBurning()
         {
-            if (currentAmount > 0)
-            {
+            if (!IsEmpty)
                 isBurning = true;
-            }
         }
 
         public void StopBurning()
@@ -57,32 +40,36 @@ namespace Mistborn.Allomancy
             isBurning = false;
         }
 
-        public void Consume(float deltaTime)
-        {
-            if (isBurning && currentAmount > 0)
-            {
-                currentAmount -= burnRate * deltaTime;
-                if (currentAmount <= 0)
-                {
-                    currentAmount = 0;
-                    isBurning = false;
-                }
-            }
-        }
+        public bool IsEmpty => currentAmount <= 0;
+        public bool CanBurn => currentAmount > 0;
 
-        public bool IsEmpty()
+        public float GetPercentage()
         {
-            return currentAmount <= 0;
-        }
-
-        public bool CanBurn()
-        {
-            return currentAmount > 0;
+            return (currentAmount / maxAmount) * 100f;
         }
 
         public void Refill()
         {
             currentAmount = maxAmount;
+        }
+
+        public void SetAmount(float amount)
+        {
+            currentAmount = Mathf.Clamp(amount, 0f, maxAmount);
+        }
+
+        public void Consume(float deltaTime)
+        {
+            if (!isBurning || currentAmount <= 0)
+                return;
+
+            currentAmount -= burnRate * deltaTime;
+
+            if (currentAmount <= 0)
+            {
+                currentAmount = 0;
+                isBurning = false;
+            }
         }
     }
 }

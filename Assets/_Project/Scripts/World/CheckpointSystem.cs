@@ -1,159 +1,101 @@
-// ============================================================
-// FILE: CheckpointSystem.cs
-// SYSTEM: World
-// STATUS: READY TO USE
-// AUTHOR: 
-//
-// PURPOSE:
-//   Manages checkpoints throughout the game world.
-//   Players respawn at the last activated checkpoint.
-//
-// TODO:
-//   - Add checkpoint activation effects
-//   - Add sound effects
-//
-// LAST UPDATED: 2026-03-20
-// ============================================================
-
 using UnityEngine;
 
 namespace Mistborn.World
 {
+    /// <summary>
+    /// Manages checkpoints throughout the game world.
+    /// Players respawn at the last activated checkpoint.
+    /// </summary>
     public class CheckpointSystem : MonoBehaviour
     {
         [Header("Settings")]
-        public bool activateOnTouch = true;
-        public bool showActivationEffect = true;
+        [SerializeField] private bool m_activateOnTouch = true;
+        [SerializeField] private bool m_showActivationEffect = true;
         
         [Header("Effects")]
-        public GameObject activationParticles;
-        public AudioClip activationSound;
+        [SerializeField] private GameObject m_activationParticles;
+        [SerializeField] private AudioClip m_activationSound;
         
-        [Header("Respawn Settings")]
-        public float respawnDelay = 1f;
-        public bool resetEnemyStates = false;
-        
-        private bool isActivated;
-        private static CheckpointSystem currentCheckpoint;
-        
+        [Header("Respawn")]
+        [SerializeField] private float m_respawnDelay = 1f;
+
+        private bool m_isActivated;
+        private static CheckpointSystem m_currentCheckpoint;
+
+        public bool isActivated => m_isActivated;
+        public static CheckpointSystem current => m_currentCheckpoint;
+
         private void Start()
         {
-            // Check if this is the starting checkpoint (auto-activated)
             if (GetComponent<StartingCheckpoint>() != null)
             {
                 Activate();
             }
         }
-        
+
         private void OnTriggerEnter(Collider other)
         {
-            if (!activateOnTouch) return;
-            if (isActivated) return;
-            
-            // Check if player
+            if (!m_activateOnTouch || m_isActivated) return;
             if (other.CompareTag("Player"))
             {
                 Activate();
             }
         }
-        
+
+        /// <summary>Activates this checkpoint as the current respawn point.</summary>
         public void Activate()
         {
-            if (isActivated) return;
+            if (m_isActivated) return;
             
-            isActivated = true;
-            currentCheckpoint = this;
+            m_isActivated = true;
+            m_currentCheckpoint = this;
             
-            // Notify GameManager
-            if (GameManager.Instance != null)
+            GameManager.Instance?.SetCheckpoint(transform);
+            
+            if (m_showActivationEffect)
             {
-                GameManager.Instance.SetCheckpoint(transform);
+                PlayEffects();
             }
-            
-            // Play effects
-            if (showActivationEffect)
-            {
-                PlayActivationEffects();
-            }
-            
-            Debug.Log($"Checkpoint activated: {gameObject.name}");
         }
-        
-        private void PlayActivationEffects()
+
+        private void PlayEffects()
         {
-            // Particles
-            if (activationParticles != null)
+            if (m_activationParticles != null)
             {
-                Instantiate(activationParticles, transform.position, Quaternion.identity);
+                Instantiate(m_activationParticles, transform.position, Quaternion.identity);
             }
             
-            // Sound
-            if (activationSound != null && SoundManager.Instance != null)
+            if (m_activationSound != null)
             {
-                SoundManager.Instance.PlaySound(activationSound);
+                SoundManager.Instance?.PlaySound(m_activationSound);
             }
         }
-        
+
+        /// <summary>Respawns the player at this checkpoint.</summary>
         public void RespawnPlayer()
         {
             StartCoroutine(RespawnRoutine());
         }
-        
+
         private System.Collections.IEnumerator RespawnRoutine()
         {
-            // Delay before respawn
-            yield return new WaitForSeconds(respawnDelay);
+            yield return new WaitForSeconds(m_respawnDelay);
             
-            // Reset player state
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
-                // Move to checkpoint
                 player.transform.position = transform.position;
                 player.transform.rotation = Quaternion.identity;
-                
-                // Reset health
-                PlayerHealth health = player.GetComponent<PlayerHealth>();
-                if (health != null)
-                {
-                    health.Respawn();
-                }
-                
-                // Reset enemy states if enabled
-                if (resetEnemyStates)
-                {
-                    ResetEnemies();
-                }
+                player.GetComponent<PlayerHealth>()?.Respawn();
             }
         }
-        
-        private void ResetEnemies()
+
+        public static void RespawnAtCurrent()
         {
-            // Reset all enemies to their initial positions
-            EnemyBase[] enemies = FindObjectsOfType<EnemyBase>();
-            foreach (EnemyBase enemy in enemies)
-            {
-                enemy.gameObject.SetActive(true);
-                // TODO: Move back to start position
-            }
-        }
-        
-        public static CheckpointSystem GetCurrentCheckpoint()
-        {
-            return currentCheckpoint;
-        }
-        
-        public static void RespawnAtCheckpoint()
-        {
-            if (currentCheckpoint != null)
-            {
-                currentCheckpoint.RespawnPlayer();
-            }
+            m_currentCheckpoint?.RespawnPlayer();
         }
     }
-    
-    public class StartingCheckpoint : MonoBehaviour
-    {
-        // Marker component for starting checkpoint
-    }
+
+    /// <summary>Marker component for starting checkpoint.</summary>
+    public class StartingCheckpoint : MonoBehaviour { }
 }
