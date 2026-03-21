@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.UIElements.Cursor;
 
 public class AllomancySkillTreeController : MonoBehaviour
 {
@@ -100,7 +101,7 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     void ToggleSkillTree()
     {
-        var root = GetComponent<SkillTree>().rootVisualElement;
+        var root = GetComponent<UI/SkillTree>().rootVisualElement;
     
         // Check current state: if it's 'Flex' (visible), change to 'None' (hidden)
         if (root.style.display == DisplayStyle.Flex)
