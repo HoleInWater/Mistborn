@@ -37,7 +37,7 @@ public class AluminumPurge : MonoBehaviour
         {
             for (int i = 0; i < 16; i++)
             {
-                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel));
+                allomancer.DrainMetal(MetalType.Steel, allomancer.GetMetalReserve(MetalType.Steel));
             }
         }
         
