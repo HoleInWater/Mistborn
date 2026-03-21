@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/HUD.uss?fileID=7433441132597879392&amp;guid=10a28823af41bb24f89b59c1e8165c75&amp;type=3#HUD"/>
+    <ui:ProgressBar value="22" title="Health" name="Health" class="HUD Health unity-progress-bar-progress" style="font-size: 14px; width: 30%; background-image: url(&quot;project://database/Assets/_Project/Sprites/Health%20Bar/sprite_Health_Bar00.png?fileID=21300000&amp;guid=32155dc417cbaab49b8b337f2740eacf&amp;type=3#sprite_Health_Bar00&quot;);"/>
+    <ui:ProgressBar value="22" title="Metal" name="Metal" class="HUD Metal" style="width: 25%; background-image: url(&quot;project://database/Assets/_Project/Sprites/Metal%20Progress%20Bar/sprite_Metal_Progress_00.png?fileID=21300000&amp;guid=37427b55039678b45b37f5749e5e1d2d&amp;type=3#sprite_Metal_Progress_00&quot;); height: auto;"/>
+</ui:UXML>
