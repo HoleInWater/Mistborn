@@ -44,6 +44,25 @@ public class AllomancySkillTreeController : MonoBehaviour
         }
     }
 
+    void UpdateNodeVisuals(VisualElement node, MagicSkill skill)
+    {
+        // Find the button inside the template
+        var button = node.Q<Button>();
+    
+        // Remove all state classes first to reset
+        button.RemoveFromClassList("skill-node--unlocked");
+        button.RemoveFromClassList("skill-node--available");
+    
+        if (skill.isUnlocked)
+        {
+            button.AddToClassList("skill-node--unlocked");
+        }
+        else if (CheckIfPrerequisitesMet(skill))
+        {
+            button.AddToClassList("skill-node--available");
+        }
+    }
+
     void OnSkillClicked(AllomancySkill skill)
     {
         Debug.Log($"Attempting to unlock: {skill.skillName}");
