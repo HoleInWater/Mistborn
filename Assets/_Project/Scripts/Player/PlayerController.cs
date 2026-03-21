@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Mistborn.Player
 {
-    [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
     {
         [Header("Movement")]
@@ -11,12 +10,15 @@ namespace Mistborn.Player
         [SerializeField] private float m_jumpForce = 5f;
         [SerializeField] private float m_gravity = -20f;
 
+        [Header("Ground Check")]
+        [SerializeField] private Transform m_groundCheck;
+        [SerializeField] private float m_groundDistance = 0.2f;
+        [SerializeField] private LayerMask m_groundMask;
+
         private CharacterController m_controller;
         private Vector3 m_velocity;
-        private bool m_isSprinting;
-
-        public Vector3 velocity => m_velocity;
-        public bool isSprinting => m_isSprinting;
+        private bool m_isGrounded;
+        private float m_currentSpeed;
 
         private void Awake()
         {
@@ -25,70 +27,41 @@ namespace Mistborn.Player
 
         private void Update()
         {
-            if (!m_controller.enabled) return;
-            
-            HandleInput();
-            ApplyGravity();
+            GroundCheck();
             Move();
+            Jump();
         }
 
-        private void HandleInput()
+        private void GroundCheck()
         {
-            float horizontal = Input.GetAxisRaw("Horizontal");
-            float vertical = Input.GetAxisRaw("Vertical");
-            
-            Vector3 direction = (transform.right * horizontal + transform.forward * vertical).normalized;
-            
-            m_isSprinting = Input.GetKey(KeyCode.LeftShift);
-            float currentSpeed = m_isSprinting ? m_sprintSpeed : m_moveSpeed;
-            
-            m_velocity.x = direction.x * currentSpeed;
-            m_velocity.z = direction.z * currentSpeed;
-            
-            if (Input.GetButtonDown("Jump") && IsGrounded)
-            {
-                m_velocity.y = m_jumpForce;
-            }
-        }
-
-        private void ApplyGravity()
-        {
-            if (!IsGrounded)
-            {
-                m_velocity.y += m_gravity * Time.deltaTime;
-            }
+            if (m_groundCheck == null) return;
+            m_isGrounded = Physics.CheckSphere(m_groundCheck.position, m_groundDistance, m_groundMask);
         }
 
         private void Move()
         {
+            float x = Input.GetAxis("Horizontal");
+            float z = Input.GetAxis("Vertical");
+            Vector3 move = transform.right * x + transform.forward * z;
+
+            bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+            m_currentSpeed = isSprinting ? m_sprintSpeed : m_moveSpeed;
+
+            m_controller.Move(move * m_currentSpeed * Time.deltaTime);
+        }
+
+        private void Jump()
+        {
+            if (Input.GetButtonDown("Jump") && m_isGrounded)
+            {
+                m_velocity.y = Mathf.Sqrt(m_jumpForce * -2f * m_gravity);
+            }
+
+            m_velocity.y += m_gravity * Time.deltaTime;
             m_controller.Move(m_velocity * Time.deltaTime);
         }
 
-        public bool IsGrounded => m_controller.isGrounded;
-
-        /// <summary>
-        /// Applies a vertical boost from Steelpush-assisted jump.
-        /// </summary>
-        public void ApplySteelpushBoost(float force)
-        {
-            m_velocity.y = force;
-        }
-
-        /// <summary>
-        /// Freezes player movement (for cutscenes, etc.).
-        /// </summary>
-        public void FreezeMovement()
-        {
-            m_controller.enabled = false;
-            m_velocity = Vector3.zero;
-        }
-
-        /// <summary>
-        /// Unfreezes player movement.
-        /// </summary>
-        public void UnfreezeMovement()
-        {
-            m_controller.enabled = true;
-        }
+        public bool IsGrounded => m_isGrounded;
+        public float CurrentSpeed => m_currentSpeed;
     }
 }
