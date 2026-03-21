@@ -12,7 +12,7 @@ public class AllomancySkill : ScriptableObject
 
     [Header("Unlock Requirements")]
     public int skillPointCost;
-    public List<MagicSkill> prerequisites; // Other skills that must be unlocked first
+    public List<AllomancySkill> prerequisites; // Other skills that must be unlocked first
 
     [Header("Allomancy Stats")]
     public int manaCost;
