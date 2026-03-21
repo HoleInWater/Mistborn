@@ -322,6 +322,8 @@ Mistborn/
 | Bendalloy | 8 | Speed time bubble |
 | Cadmium | 9 | Slow time bubble |
 
+Instead of having all of these keybinds, just have like a scroll wheel and it slows time slightly to allow the change. We have to make this console friendly too
+
 ### Enemies (12 Types)
 - **Guard** - Basic patrol enemy
 - **Coinshot** - Enemy Allomancer (push)
