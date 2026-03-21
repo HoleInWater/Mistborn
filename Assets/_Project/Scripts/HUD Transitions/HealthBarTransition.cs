@@ -4,8 +4,8 @@ using UnityEngine.UIElements;
 public class PlayerCollisionHandler3D : MonoBehaviour
 {
     [Header("UI References")]
-    public UIDocument uiDocument;
-    public string progressBarName = "MyHealthBar";
+    public UIDocument uiDocument; // We will fix the drag-and-drop for this below
+    public string progressBarName = "Health"; // Matches your UXML name
 
     [Header("Sprites")]
     public Sprite healthySprite;
@@ -16,44 +16,42 @@ public class PlayerCollisionHandler3D : MonoBehaviour
 
     void OnEnable()
     {
-        // Setup UI references
+        if (uiDocument == null)
+        {
+            Debug.LogError("UIDocument is missing! Drag the object with the UIDocument component into the slot on the Player.");
+            return;
+        }
+
         var root = uiDocument.rootVisualElement;
         _progressBar = root.Q<ProgressBar>(progressBarName);
         
-        // Target the internal USS class to change the bar's appearance
-        _progressFill = _progressBar.Q(className: "unity-progress-bar__progress");
-    }
-
-    // This handles physical collisions in 3D
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("I hit something named: " + collision.gameObject.name); // Add this!
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (_progressBar != null)
         {
-            TriggerDamageTransition();
+            // This finds the inner "bar" using the USS class we discussed
+            _progressFill = _progressBar.Q(className: "unity-progress-bar__progress");
+            Debug.Log("Successfully found the Health bar!");
+        }
+        else
+        {
+            Debug.LogError($"Could not find a ProgressBar named '{progressBarName}' in the UXML.");
         }
     }
 
-    // This handles triggers (ghost-like collisions) in 3D
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.gameObject.CompareTag("Enemy"))
+        if (collision.gameObject.CompareTag("Enemy"))
         {
+            Debug.Log("Hit Enemy!");
             TriggerDamageTransition();
         }
     }
 
     void TriggerDamageTransition()
     {
-        // Reduce the health bar value
         _progressBar.value -= 10; 
-        
-        // Swap the sprite in UI Toolkit using StyleBackground
-        if (damagedSprite != null)
+        if (damagedSprite != null && _progressFill != null)
         {
             _progressFill.style.backgroundImage = new StyleBackground(damagedSprite);
         }
-        
-        Debug.Log("3D Hit Detected! Sprite switched.");
     }
 }
