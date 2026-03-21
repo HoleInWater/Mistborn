@@ -4,7 +4,7 @@ public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]
     public bool isBurningMetal = false;
-    public AllomancySkill.MetalType currentMetal = AllomancySkill.MetalType.Steel;
+    public MetalType currentMetal = MetalType.Steel;
     
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
@@ -17,7 +17,7 @@ public class Allomancer : MonoBehaviour
         }
     }
     
-    public void StartBurning(AllomancySkill.MetalType metal)
+    public void StartBurning(MetalType metal)
     {
         currentMetal = metal;
         isBurningMetal = true;
@@ -33,22 +33,22 @@ public class Allomancer : MonoBehaviour
         return isBurningMetal;
     }
     
-    public AllomancySkill.MetalType GetCurrentMetal()
+    public MetalType GetCurrentMetal()
     {
         return currentMetal;
     }
     
-    public float GetMetalReserve(AllomancySkill.MetalType metal)
+    public float GetMetalReserve(MetalType metal)
     {
         return metalReserves[(int)metal];
     }
     
-    public void DrainMetal(AllomancySkill.MetalType metal, float amount)
+    public void DrainMetal(MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
     }
     
-    public void RefillMetal(AllomancySkill.MetalType metal, float amount)
+    public void RefillMetal(MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Min(100f, metalReserves[(int)metal] + amount);
     }
