@@ -9,6 +9,7 @@ public class Checkpoint : MonoBehaviour
     public bool isActivated = false;
     
     [Header("Effects")]
+    // NOTE: Consider adding [Tooltip("Effect to instantiate when checkpoint is activated")] attribute
     public GameObject activationEffect;
     
     void Start()
