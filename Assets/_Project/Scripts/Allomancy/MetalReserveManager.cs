@@ -9,7 +9,7 @@ public class MetalReserveManager : MonoBehaviour
     public float passiveRecoveryRate = 0.5f;
     public float metalFlareRecovery = 25f;
     
-    public AllomancySkill.MetalType[] metalTypes = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
+    public MetalType[] metalTypes = (MetalType[])System.Enum.GetValues(typeof(MetalType));
     
     void Start()
     {
@@ -32,24 +32,24 @@ public class MetalReserveManager : MonoBehaviour
         }
     }
     
-    public float GetReserve(AllomancySkill.MetalType metal)
+    public float GetReserve(MetalType metal)
     {
         return reserves[(int)metal];
     }
     
-    public void Drain(AllomancySkill.MetalType metal, float amount)
+    public void Drain(MetalType metal, float amount)
     {
         reserves[(int)metal] = Mathf.Max(0, reserves[(int)metal] - amount);
     }
     
-    public void Refill(AllomancySkill.MetalType metal, float amount)
+    public void Refill(MetalType metal, float amount)
     {
         reserves[(int)metal] = Mathf.Min(100f, reserves[(int)metal] + amount);
     }
     
     public void MetalFlare()
     {
-        foreach (AllomancySkill.MetalType metal in metalTypes)
+        foreach (MetalType metal in metalTypes)
         {
             Refill(metal, metalFlareRecovery);
         }

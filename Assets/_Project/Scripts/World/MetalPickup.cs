@@ -3,7 +3,7 @@ using UnityEngine;
 public class MetalPickup : MonoBehaviour
 {
     [Header("Metal Type")]
-    public AllomancySkill.MetalType metalType;
+    public MetalType metalType;
     
     [Header("Pickup Settings")]
     public float metalAmount = 25f;

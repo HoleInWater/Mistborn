@@ -10,7 +10,7 @@ public class PewterBurn : MonoBehaviour
     public float jumpBoost = 2f;
     
     [Header("References")]
-    public PlayerMove playerController;
+    public MonoBehaviour playerController;
     
     private float metalReserve = 100f;
     private bool isBurning = false;
@@ -20,7 +20,7 @@ public class PewterBurn : MonoBehaviour
     void Start()
     {
         if (playerController == null)
-            playerController = GetComponent<PlayerMove>();
+            playerController = GetComponent<MonoBehaviour>();
     }
     
     void Update()

@@ -1,79 +1,109 @@
-using UnityEngine;
-
+/// <summary>
+/// Controls wall running and wall jumping mechanics.
+/// Usage: WallRun wallRun = GetComponent<WallRun>();
+/// </summary>
 public class WallRun : MonoBehaviour
 {
-    [Header("Wall Run Settings")]
-    public float wallRunSpeed = 10f;
-    public float wallStickDistance = 2f;
-    public float maxWallAngle = 60f;
-    public float gravityMultiplier = 0.5f;
-    public float jumpForce = 8f;
-    public LayerMask wallLayer;
+    // SETTINGS - Adjust in Inspector
+    public float wallRunSpeed = 8f;         // Speed while wall running
+    public float wallJumpForce = 10f;       // Force of wall jump
+    public float wallDetectionRange = 2f;    // How far to detect walls
+    public float maxWallRunTime = 3f;       // Max time on one wall
     
-    [Header("References")]
-    public Camera playerCamera;
-    public Rigidbody rb;
+    // INTERNAL STATE
+    private Rigidbody rb;                   // Rigidbody reference
+    private Stamina stamina;                // Reference to stamina system
+    private bool isWallRunning = false;      // Is wall running active
+    private bool isWallLeft = false;         // Wall detected on left
+    private bool isWallRight = false;        // Wall detected on right
+    private float wallRunTime = 0f;          // Current wall run duration
+    private Vector3 wallNormal;              // Direction away from wall
     
-    private bool isWallRunning = false;
-    private bool isNearWall = false;
-    private Vector3 wallNormal;
+    // EVENTS - Subscribe for callbacks
+    public System.Action OnWallRunStart;     // Fired when wall run begins
+    public System.Action OnWallRunEnd;       // Fired when wall run ends
+    
+    // PUBLIC API - Call from other scripts
+    public bool IsWallRunning => isWallRunning;
     
     void Start()
     {
-        if (rb == null)
-            rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+        stamina = GetComponent<Stamina>();
     }
     
     void Update()
     {
-        CheckForWall();
+        CheckForWalls();
         
-        if (isNearWall && Input.GetKey(KeyCode.W))
+        if (CanWallRun() && IsWallContact())
         {
             StartWallRun();
         }
-        
-        if (isWallRunning)
+        else if (isWallRunning)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                WallJump();
-            }
+            StopWallRun();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.Space) && isWallRunning)
+        {
+            WallJump();
         }
     }
     
-    void CheckForWall()
+    void CheckForWalls()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.right, out hit, wallStickDistance, wallLayer) ||
-            Physics.Raycast(transform.position, -transform.right, out hit, wallStickDistance, wallLayer))
-        {
-            isNearWall = true;
-            wallNormal = hit.normal;
-        }
-        else
-        {
-            isNearWall = false;
-        }
+        Vector3 origin = transform.position;
+        
+        isWallLeft = Physics.Raycast(origin, -transform.right, out RaycastHit leftHit, wallDetectionRange);
+        isWallRight = Physics.Raycast(origin, transform.right, out RaycastHit rightHit, wallDetectionRange);
+        
+        wallNormal = isWallLeft ? leftHit.normal : (isWallRight ? rightHit.normal : Vector3.zero);
     }
+    
+    bool CanWallRun()
+    {
+        if (stamina != null && stamina.currentStamina <= 0) return false;
+        if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.UpArrow)) return false;
+        return true;
+    }
+    
+    bool IsWallContact() => isWallLeft || isWallRight;
     
     void StartWallRun()
     {
-        if (isWallRunning) return;
+        if (!isWallRunning)
+        {
+            isWallRunning = true;
+            wallRunTime = 0f;
+            OnWallRunStart?.Invoke();
+        }
         
-        isWallRunning = true;
-        Debug.Log("Wall running!");
+        wallRunTime += Time.deltaTime;
         
-        Invoke("EndWallRun", 2f);
+        if (stamina != null && wallRunTime > 0)
+        {
+            stamina.UseStamina(stamina.wallRunStaminaCost * Time.deltaTime);
+        }
+        
+        if (wallRunTime >= maxWallRunTime)
+        {
+            StopWallRun();
+            return;
+        }
+        
+        rb.velocity = new Vector3(rb.velocity.x, -2f, wallRunSpeed);
     }
     
-    void EndWallRun()
+    void StopWallRun()
     {
         isWallRunning = false;
+        OnWallRunEnd?.Invoke();
     }
     
     void WallJump()
     {
+<<<<<<< HEAD
         isWallRunning = false;
         
         Vector3 jumpDir = wallNormal + Vector3.up;
@@ -87,5 +117,11 @@ public class WallRun : MonoBehaviour
         Gizmos.color = isNearWall ? Color.green : Color.red;
         Gizmos.DrawRay(transform.position, transform.right * wallStickDistance);
         Gizmos.DrawRay(transform.position, -transform.right * wallStickDistance);
+=======
+        Vector3 jumpDir = (transform.forward + Vector3.up).normalized + wallNormal;
+        rb.velocity = new Vector3(0, wallJumpForce, 0);
+        rb.AddForce(jumpDir * wallJumpForce, ForceMode.Impulse);
+        StopWallRun();
+>>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
     }
 }

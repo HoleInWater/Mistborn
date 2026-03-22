@@ -1,42 +1,50 @@
-using UnityEngine;
-
+/// <summary>
+/// Controls player dodge roll with invincibility frames.
+/// Usage: DodgeRoll dodge = GetComponent<DodgeRoll>();
+/// </summary>
 public class DodgeRoll : MonoBehaviour
 {
-    [Header("Dodge Settings")]
-    public float dodgeSpeed = 15f;
-    public float dodgeDuration = 0.3f;
-    public float dodgeCooldown = 0.8f;
-    public float invincibilityFrames = 0.2f;
-    public float metalCost = 5f;
+    // SETTINGS - Adjust in Inspector
+    public float rollSpeed = 8f;            // Speed while rolling
+    public float rollDuration = 0.4f;       // How long roll lasts
+    public float rollCooldown = 0.8f;       // Time between rolls
+    public float invincibleDuration = 0.3f; // Time with invincibility
     
-    [Header("References")]
-    public KeyCode dodgeKey = KeyCode.Space;
-    public Allomancer allomancer;
+    // INTERNAL STATE
+    private Stamina stamina;                // Reference to stamina system
+    private Rigidbody rb;                   // Rigidbody reference
+    private bool isRolling = false;         // Is roll currently active
+    private bool isInvincible = false;      // Is player invincible
+    private float lastRollTime = -999f;     // When last roll occurred
+    private Vector3 rollDirection;          // Direction of current roll
     
-    private float lastDodgeTime = -999f;
-    private bool isDodging = false;
-    private Vector3 dodgeDirection;
-    private bool isInvincible = false;
-    private Rigidbody rb;
+    // EVENTS - Subscribe for callbacks
+    public System.Action OnRollStart;       // Fired when roll begins
+    public System.Action OnRollEnd;         // Fired when roll ends
+    public System.Action OnRollDodge;       // Fired when invincibility ends (dodge window)
+    
+    // PUBLIC API - Call from other scripts
+    public bool IsRolling => isRolling;
+    public bool IsInvincible => isInvincible;
+    public bool CanRoll() => !isRolling && Time.time - lastRollTime >= rollCooldown;
     
     void Start()
     {
+        stamina = GetComponent<Stamina>();
         rb = GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = gameObject.AddComponent<Rigidbody>();
-        rb.freezeRotation = true;
     }
     
     void Update()
     {
-        if (Input.GetKeyDown(dodgeKey) && !isDodging)
+        if (Input.GetKeyDown(KeyCode.Space) && CanRoll())
         {
-            TryDodge();
+            StartRoll();
         }
     }
     
-    void FixedUpdate()
+    void StartRoll()
     {
+<<<<<<< HEAD
         if (isDodging)
         {
             rb.linearVelocity = dodgeDirection * dodgeSpeed;
@@ -70,11 +78,16 @@ public class DodgeRoll : MonoBehaviour
         
         isDodging = true;
         lastDodgeTime = Time.time;
+=======
+        lastRollTime = Time.time;
+        isRolling = true;
+>>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
         isInvincible = true;
         
-        Invoke("EndDodge", dodgeDuration);
-        Invoke("EndInvincibility", invincibilityFrames);
+        Vector3 inputDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        rollDirection = inputDir.magnitude > 0 ? inputDir.normalized : transform.forward;
         
+<<<<<<< HEAD
         if (allomancer != null)
         {
             allomancer.DrainMetal(AllomancySkill.MetalType.Pewter, metalCost);
@@ -90,15 +103,35 @@ public class DodgeRoll : MonoBehaviour
         {
             rb.linearVelocity = Vector3.zero;
         }
+=======
+        OnRollStart?.Invoke();
+        Invoke(nameof(EndInvincibility), invincibleDuration);
+        Invoke(nameof(EndRoll), rollDuration);
+>>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
     }
     
     void EndInvincibility()
     {
         isInvincible = false;
+        OnRollDodge?.Invoke();
     }
     
-    public bool IsInvincible()
+    void EndRoll()
     {
-        return isInvincible;
+        isRolling = false;
+        OnRollEnd?.Invoke();
+    }
+    
+    void FixedUpdate()
+    {
+        if (isRolling)
+        {
+            rb.velocity = rollDirection * rollSpeed;
+            rb.useGravity = false;
+        }
+        else
+        {
+            rb.useGravity = true;
+        }
     }
 }

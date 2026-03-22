@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,11 +9,11 @@ public class GameManager : MonoBehaviour
     public bool isPaused = false;
     public bool isGameOver = false;
     
-    [Header("References")]
+    [Header("UI References")]
     public GameObject pauseMenu;
     public GameObject gameOverScreen;
     
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -25,9 +26,9 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    void Update()
+    private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !isGameOver)
         {
             TogglePause();
         }
@@ -36,11 +37,16 @@ public class GameManager : MonoBehaviour
     public void TogglePause()
     {
         isPaused = !isPaused;
-        Time.timeScale = isPaused ? 0f : 1f;
         
-        if (pauseMenu != null)
+        if (isPaused)
         {
-            pauseMenu.SetActive(isPaused);
+            Time.timeScale = 0f;
+            if (pauseMenu != null) pauseMenu.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            if (pauseMenu != null) pauseMenu.SetActive(false);
         }
     }
     
@@ -48,21 +54,22 @@ public class GameManager : MonoBehaviour
     {
         isGameOver = true;
         Time.timeScale = 0f;
-        
-        if (gameOverScreen != null)
-        {
-            gameOverScreen.SetActive(true);
-        }
+        if (gameOverScreen != null) gameOverScreen.SetActive(true);
     }
     
-    public void RestartGame()
+    public void RestartLevel()
     {
         isGameOver = false;
-        isPaused = false;
         Time.timeScale = 1f;
-        
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-        );
+        if (gameOverScreen != null) gameOverScreen.SetActive(false);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void ReturnToMainMenu()
+    {
+        isPaused = false;
+        isGameOver = false;
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
