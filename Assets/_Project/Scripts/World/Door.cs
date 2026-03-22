@@ -1,21 +1,43 @@
-using UnityEngine;
-
+/// <summary>
+/// Interactive door that can be locked/unlocked.
+/// Usage: Door door = GetComponent<Door>();
+/// 
+/// METHODS:
+///   door.TryOpen(player);
+///   door.Lock();
+///   door.Unlock();
+///   door.IsLocked
+/// </summary>
 public class Door : MonoBehaviour
 {
-    [Header("Door Settings")]
-    public bool isLocked = false;
-    public int requiredKeyID = 0;
-    public float openAngle = 90f;
-    public float openSpeed = 3f;
+    // SETTINGS
+    public bool isLocked = false;              // Is door initially locked
+    public int requiredKeyID = 0;              // Key ID required to unlock
+    public float openAngle = 90f;              // How much door opens
+    public float openSpeed = 3f;               // Door open/close speed
     
-    [Header("Audio")]
-    public AudioClip openSound;
-    public AudioClip lockedSound;
+    // AUDIO
+    public AudioClip openSound;               // Sound when door opens
+    public AudioClip lockedSound;              // Sound when door is locked
+    public AudioClip unlockSound;              // Sound when door unlocks
     
+    // EFFECTS
+    public GameObject openEffect;              // VFX when door opens
+    
+    // INTERNAL STATE
     private Quaternion closedRotation;
     private Quaternion openRotation;
     private bool isOpen = false;
     private AudioSource audioSource;
+    
+    // EVENTS
+    public System.Action OnDoorOpened;
+    public System.Action OnDoorClosed;
+    public System.Action OnDoorLocked;
+    
+    // PUBLIC API
+    public bool IsLocked => isLocked;
+    public bool IsOpen => isOpen;
     
     void Start()
     {
@@ -31,47 +53,60 @@ public class Door : MonoBehaviour
     
     void Update()
     {
-        if (isOpen)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, openRotation, openSpeed * Time.deltaTime);
-        }
-        else
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, closedRotation, openSpeed * Time.deltaTime);
-        }
+        Quaternion target = isOpen ? openRotation : closedRotation;
+        transform.rotation = Quaternion.Slerp(transform.rotation, target, openSpeed * Time.deltaTime);
     }
     
-    public void TryOpen(GameObject player)
+    void OnTriggerInteract(Collider player)
+    {
+        TryOpen(player.gameObject);
+    }
+    
+    public bool TryOpen(GameObject player)
     {
         if (isLocked)
         {
             Inventory inventory = player.GetComponent<Inventory>();
+            
             if (inventory != null && inventory.HasKey(requiredKeyID))
             {
                 Unlock();
-                Open();
             }
             else
             {
                 PlaySound(lockedSound);
-                Debug.Log("Door is locked!");
+                Debug.Log($"Door is locked! Requires key ID: {requiredKeyID}");
+                OnDoorLocked?.Invoke();
+                return false;
             }
         }
-        else
-        {
-            Open();
-        }
+        
+        Open();
+        return true;
     }
     
     public void Open()
     {
+        if (isOpen) return;
+        
         isOpen = true;
         PlaySound(openSound);
+        
+        if (openEffect != null)
+        {
+            Instantiate(openEffect, transform.position, Quaternion.identity);
+        }
+        
+        OnDoorOpened?.Invoke();
     }
     
     public void Close()
     {
+        if (!isOpen) return;
+        
         isOpen = false;
+        PlaySound(openSound);
+        OnDoorClosed?.Invoke();
     }
     
     public void Lock()
@@ -82,6 +117,7 @@ public class Door : MonoBehaviour
     public void Unlock()
     {
         isLocked = false;
+        PlaySound(unlockSound);
     }
     
     void PlaySound(AudioClip clip)
