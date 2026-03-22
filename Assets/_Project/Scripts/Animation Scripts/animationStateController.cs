@@ -34,13 +34,13 @@ public class AnimationStateController : MonoBehaviour
             animator.SetBool("isWalking", false);
         }
 
-        //If player is hold left shift and w then run
+        //If player is holding left shift and w then run
         if (forwardPressed && runPressed)
         {
             animator.SetBool("isRunning", true);
         }
         
-        //If player is hold left shift and w then run
+        //If player is not holding left shift and w then don't run
         if (!forwardPressed && !runPressed)
         {
             animator.SetBool("isRunning", false);
