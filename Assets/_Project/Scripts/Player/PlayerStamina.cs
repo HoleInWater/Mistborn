@@ -36,6 +36,12 @@ public class PlayerStamina : MonoBehaviour
             currentStamina += regenRate * Time.deltaTime;
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
         }
+        
+        if (Input.GetKeyDown(KeyCode."p"))
+        {
+            DrainStamina(20f);
+            Debug.Log("Manual Drain: " + currentStamina);
+        }
     }
 
     // Function for the Sprint script to call
