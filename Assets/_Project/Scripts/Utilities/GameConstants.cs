@@ -4,38 +4,36 @@ namespace MistbornGame.Utilities
 {
     public class GameConstants : MonoBehaviour
     {
-        // ... (Keep your existing SerializedFields here)
-
-        // 1. Add this public property to bridge the gap
+        // CHANGE 'private' TO 'protected' FOR ALL OF THESE:
+        [Header("Game Version")]
+        [SerializeField] protected string version = "1.0.0";
+        
+        [Header("Time Settings")]
+        [SerializeField] protected float fixedDeltaTime = 0.02f;
+        [SerializeField] protected int targetFrameRate = 60;
+        
+        [Header("Physics")]
+        [SerializeField] protected float defaultGravity = -9.81f;
+        [SerializeField] protected float terminalVelocity = -50f;
+        
+        [Header("Audio")]
+        [SerializeField] protected float masterVolume = 0.8f;
+        [SerializeField] protected float musicVolume = 0.6f;
+        [SerializeField] protected float sfxVolume = 0.7f;
+        
+        [Header("Debug")]
+        [SerializeField] protected bool showDebugLogs = false;
+        [SerializeField] protected bool enableCheatCodes = false;
+        
+        // This is the property we added in the last step
         public static GameConstants Instance => _instance;
 
         public static string Version => Instance.version;
         public static float FixedDeltaTime => Instance.fixedDeltaTime;
-        public static int TargetFrameRate => Instance.targetFrameRate;
-        public static float DefaultGravity => Instance.defaultGravity;
-        public static float TerminalVelocity => Instance.terminalVelocity;
-        public static float MasterVolume => Instance.masterVolume;
-        public static float MusicVolume => Instance.musicVolume;
-        public static float SfxVolume => Instance.sfxVolume;
-        public static bool ShowDebugLogs => Instance.showDebugLogs;
-        public static bool EnableCheatCodes => Instance.enableCheatCodes;
+        // ... (the rest of your static lines)
 
         private static GameConstants _instance;
-
-        private void Awake()
-        {
-            if (_instance == null)
-            {
-                _instance = this;
-                DontDestroyOnLoad(gameObject);
-                InitializeSettings();
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
-
-        // ... (Keep InitializeSettings as is)
+        
+        // ... (Keep Awake and InitializeSettings as they were)
     }
 }
