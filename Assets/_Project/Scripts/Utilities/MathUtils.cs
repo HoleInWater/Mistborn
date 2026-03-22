@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class MathUtils : MonoBehaviour
+    public static class MathUtils
     {
         /// <summary>
         /// Clamps an angle between -180 and 180 degrees
