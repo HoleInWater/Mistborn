@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Base class for singleton MonoBehaviours.
 /// Usage: public class MyManager : Singleton<MyManager> {}

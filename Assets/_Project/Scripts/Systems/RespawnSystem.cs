@@ -1,7 +1,4 @@
 using UnityEngine;
-
-using UnityEngine;
-
 /// <summary>
 /// Handles player death, respawn, and game over logic.
 /// Usage: RespawnSystem respawn = GetComponent<RespawnSystem>();
@@ -10,8 +7,6 @@ using UnityEngine;
 ///   respawn.Respawn();           // Manually trigger respawn
 ///   respawn.SetSpawnPoint(pos);  // Set custom spawn point
 /// </summary>
-
-using UnityEngine;
 
 public class RespawnSystem : MonoBehaviour
 {

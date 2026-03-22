@@ -1,7 +1,5 @@
 using UnityEngine;
 
-
-using UnityEngine;
 /// <summary>
 /// Camera shake effect.
 /// Usage: CameraShake.Shake(0.5f, 1f); // Medium shake for 1 second

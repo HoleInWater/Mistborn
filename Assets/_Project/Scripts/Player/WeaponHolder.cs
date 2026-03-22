@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Weapon holder that points toward camera look direction.
 /// Usage: Attach to weapon attachment point.

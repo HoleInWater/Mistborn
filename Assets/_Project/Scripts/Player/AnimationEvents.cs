@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Simple animation events handler.
 /// Connect Unity animations to game logic.
