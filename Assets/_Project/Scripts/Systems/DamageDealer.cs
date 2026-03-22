@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Handles dealing damage to entities with Health component.
 /// Usage: DamageDealer damage = GetComponent<DamageDealer>();
