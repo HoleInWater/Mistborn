@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+namespace MistbornGame.UI
 {
-    public static GameManager Instance { get; private set; }
+    public static class GameManagerInstance { get; private set; }
     
     [Header("Game State")]
     public bool isPaused = false;
@@ -14,9 +14,9 @@ public class GameManager : MonoBehaviour
     
     void Awake()
     {
-        if (Instance == null)
+        if (GameManagerInstance == null)
         {
-            Instance = this;
+            GameManagerInstance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
