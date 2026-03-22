@@ -65,8 +65,12 @@ public class DashAbility : MonoBehaviour
     {
         if (isDashing)
         {
+<<<<<<< HEAD
             rb.linearVelocity = dashDirection * dashSpeed;
             rb.linearVelocity = Vector3.zero;
+=======
+            rb.velocity = dashDirection * dashSpeed;
+>>>>>>> parent of 930a607 (Stuff)
         }
     }
     
@@ -133,6 +137,12 @@ public class DashAbility : MonoBehaviour
     {
         isDashing = false;
         if (rb != null)
+<<<<<<< HEAD
         GetComponent<Rigidbody>().velocity = dashDirection * dashSpeed;
+=======
+        {
+            rb.velocity = Vector3.zero;
+        }
+>>>>>>> parent of 930a607 (Stuff)
     }
 }
