@@ -2,6 +2,8 @@
 /// Controls wall running and wall jumping mechanics.
 /// Usage: WallRun wallRun = GetComponent<WallRun>();
 /// </summary>
+using UnityEngine;
+
 public class WallRun : MonoBehaviour
 {
     // SETTINGS - Adjust in Inspector
