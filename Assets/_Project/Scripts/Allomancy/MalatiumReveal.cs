@@ -6,9 +6,11 @@ public class MalatiumReveal : MonoBehaviour
     public float metalCostPerSecond = 5f;
     public float revealRange = 20f;
     public Color malatiumColor = new Color(0.8f, 0.3f, 0.1f, 0.5f);
+    public float GetMetalReserve() => metalReserve;
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private Renderer myRenderer;
     
     void Update()
     {
@@ -76,5 +78,13 @@ public class MalatiumReveal : MonoBehaviour
         }
     }
     
-    public float GetMetalReserve() => metalReserve;
+    void Awake() {
+        // Get the reference once when the script starts
+        myRenderer = GetComponent<Renderer>(); 
+    }
+    
+    void Start() {
+        // Now use your cached variable
+        StartCoroutine(InvokeRestore(0.5f, myRenderer, originalMat));
+    }
 }
