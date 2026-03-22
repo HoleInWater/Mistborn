@@ -19,6 +19,7 @@ public class AnimationStateController : MonoBehaviour
         bool isWalking = animator.GetBool("isWalking");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         bool offGround = animator.GetBool("Offground");
+        bool jump = Input.GetKey.Space;
         
         // If player presses W, the animator starts isWalking
         if (!isWalking && forwardPressed)
@@ -33,13 +34,13 @@ public class AnimationStateController : MonoBehaviour
         }
 
         // If player is on ground
-        if (offGround)
+        if (offGround && jump)
         {
             animator.SetBool("offGround", true);
         }
 
         // If player is off ground
-        if (!offGround)
+        if (!offGround && jump)
         {
             animator.SetBool("offGround", false);
         }
