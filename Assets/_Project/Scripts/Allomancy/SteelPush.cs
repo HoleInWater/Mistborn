@@ -1,3 +1,34 @@
+/* SteelPush.cs
+ * 
+ * PURPOSE:
+ * Implements the Steel Allomancy ability (Coinshot) - push metal objects away from the player.
+ * Requires burning Steel metal to activate.
+ * 
+ * KEY FIELDS:
+ * - pushForce: Base force applied when pushing metal objects
+ * - maxRange: Maximum distance for pushing metal (units)
+ * - metalCostPerSecond: Metal reserve consumption rate while burning
+ * - allomancer: Reference to the Allomancer system for metal reserve checks
+ * - playerCamera: Camera for raycasting (determines push direction)
+ * 
+ * HOW IT WORKS:
+ * 1. Player holds Right Mouse Button to burn Steel
+ * 2. Raycasts from camera detect metal objects within range
+ * 3. Applies force away from player based on pushForce and object mass
+ * 4. Can push player away from anchored heavy objects (isAnchored=true)
+ * 5. Checks canBurnMetal before allowing push
+ * 
+ * IMPORTANT NOTES:
+ * - Requires Allomancer component to check metal reserves
+ * - Heavy/anchored objects push the player instead of moving
+ * - Force is proportional to player mass vs target mass
+ * - Disabled when metal reserve hits 0
+ * 
+ * LORE ACCURACY:
+ * Steel Push (Coinshot ability) - pushes metal away from center of self.
+ * Stronger push when closer (zenith point ~5m). Anchored objects push the allomancer.
+ */
+
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 

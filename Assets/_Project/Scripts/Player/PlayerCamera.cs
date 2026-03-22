@@ -1,7 +1,28 @@
-// PlayerCamera.cs
-// Third-person follow camera with collision detection.
-// This script handles camera rotation based on mouse input and smooth following.
-// Lore: Standard third-person camera for Mistborn game.
+/* PlayerCamera.cs
+ * 
+ * PURPOSE:
+ * Implements a third-person follow camera with smooth collision detection.
+ * Handles camera rotation based on mouse input and maintains proper distance from the player.
+ * 
+ * KEY FIELDS:
+ * - cameraTransform: Reference to the actual camera transform (child of pivot)
+ * - cameraPivot: Pivot point for camera rotation (usually at player's shoulders)
+ * - collisionLayers: Layers that block camera movement (geometry, walls, etc.)
+ * 
+ * HOW IT WORKS:
+ * 1. Mouse input rotates the camera pivot (horizontal and vertical)
+ * 2. LateUpdate adjusts camera position to avoid collisions with geometry
+ * 3. SphereCast detects obstacles and adjusts camera distance smoothly
+ * 
+ * IMPORTANT NOTES:
+ * - Attach to the same GameObject as the PlayerController
+ * - Assign cameraTransform and cameraPivot in Inspector
+ * - Set collisionLayers to include all obstructing geometry
+ * - Mouse sensitivity can be adjusted via SetMouseSensitivity()
+ * 
+ * LORE ACCURACY:
+ * Standard third-person camera for Mistborn game. Not allomancy-specific.
+ */
 
 using UnityEngine;
 
