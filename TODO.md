@@ -260,7 +260,7 @@
 ---
 
 ## 📚 REFERENCE MATERIALS
-- **Mega Prompt:** `mistborn_mega_prompt.md` - Complete 8-phase development roadmap
+
 - **Phase 0 Instructions:** `Phase0_Instructions.md` - Detailed manual steps for Foundation phase
 - **Lore Reference:** Coppermind Wiki, 17th Shard, Arcanum (WoB)
 
