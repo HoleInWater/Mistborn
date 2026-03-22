@@ -5,6 +5,7 @@ public class AnimationStateController : MonoBehaviour
 {
     public Transform groundCheck;
 
+    // NOTE: Consider adding [SerializeField] for animator field
     Animator animator;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
