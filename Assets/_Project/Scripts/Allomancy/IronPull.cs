@@ -1,3 +1,4 @@
+// NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class IronPull : MonoBehaviour
