@@ -9,7 +9,7 @@ public class BlockAbility : MonoBehaviour
     public float damageReduction = 0.5f;
     
     [Header("References")]
-    public PlayerMove playerController;
+    public BasicPlayerMove playerController;
     public Allomancer allomancer;
     
     private bool isBlocking = false;
