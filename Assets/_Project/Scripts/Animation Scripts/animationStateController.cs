@@ -50,14 +50,14 @@ public class AnimationStateController : MonoBehaviour
             animator.SetBool("isRunning", false);
         }
 
-        //If player is idle, then you can jump
-        if (!isJumping && (!forwardPressed && jumpPressed))
+        // Trigger Jump
+        if (!isJumping && jumpPressed && isGrounded)
         {
-            animator.SetBool("isJumping", true);
+                    animator.SetBool("isJumping", true);
         }
-
-        //If player is not idle, then you can't jump
-        if (isJumping && onGround && (forwardPressed && !jumpPressed))
+        
+        // Stop Jump animation as soon as we touch the ground again
+        if (isJumping && isGrounded && !jumpPressed)
         {
             animator.SetBool("isJumping", false);
         }
