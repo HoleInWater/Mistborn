@@ -117,5 +117,25 @@ namespace MistbornGame.Utilities
             }
             return source;
         }
+
+        /// <summary>
+        /// Plays a random clip from an array at a specific position
+        /// </summary>
+        public static void PlayRandomClipAtPosition(AudioClip[] clips, Vector3 position, float volume = 1f)
+        {
+            if (clips == null || clips.Length == 0) return;
+            AudioClip clip = clips[Random.Range(0, clips.Length)];
+            PlaySoundAtPosition(clip, position, volume);
+        }
+
+        /// <summary>
+        /// Plays a random clip from an array using an AudioSource
+        /// </summary>
+        public static void PlayRandomClip(AudioSource source, AudioClip[] clips, float volume = 1f)
+        {
+            if (source == null || clips == null || clips.Length == 0) return;
+            AudioClip clip = clips[Random.Range(0, clips.Length)];
+            PlaySound(source, clip, volume);
+        }
     }
 }
