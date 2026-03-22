@@ -19,9 +19,11 @@ public class AnimationStateController : MonoBehaviour
         bool isRunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");
         bool isJumping = animator.GetBool("isJumping");
+        bool onGround = animator.GetBool("onGround");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         bool runPressed = Input.GetKey("left shift");
         bool jumpPressed = Input.GetKey("space");
+        bool isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, LayerMask.GetMask("Default"));
         
         // If player presses W, the animator starts isWalking
         if (!isWalking && forwardPressed)
@@ -54,7 +56,7 @@ public class AnimationStateController : MonoBehaviour
         }
 
         //If player is not idle, then you can't jump
-        if (isJumping && (forwardPressed && !jumpPressed))
+        if (isJumping && onGround && (forwardPressed && !jumpPressed))
         {
             animator.SetBool("isJumping", false);
         }
