@@ -39,7 +39,7 @@ public class DodgeRoll : MonoBehaviour
     {
         if (isDodging)
         {
-            rb.velocity = dodgeDirection * dodgeSpeed;
+            rb.linearVelocity = dodgeDirection * dodgeSpeed;
         }
     }
     
@@ -88,7 +88,7 @@ public class DodgeRoll : MonoBehaviour
         isDodging = false;
         if (rb != null)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
         }
     }
     
