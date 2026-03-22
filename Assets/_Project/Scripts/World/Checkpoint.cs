@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Manages checkpoints throughout the game.
 /// Usage: Checkpoint checkpoint = GetComponent<Checkpoint>();

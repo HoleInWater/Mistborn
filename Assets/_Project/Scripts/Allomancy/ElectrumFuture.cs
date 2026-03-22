@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Electrum - See your own future.
 /// Usage: ElectrumFuture electrum = GetComponent<ElectrumFuture>();
@@ -11,6 +13,7 @@ public class ElectrumFuture : MonoBehaviour
     // STATE
     private bool isBurning = false;
     private GameObject futureSelf;
+    private Material originalMaterial;
     
     // EVENTS
     public System.Action OnBurnStart;
@@ -70,6 +73,7 @@ public class ElectrumFuture : MonoBehaviour
         
         // Make bright and transparent
         Renderer r = futureSelf.GetComponent<Renderer>();
+        originalMaterial = r.material;
         r.material.color = new Color(1f, 1f, 0f, 0.5f);
         
         Destroy(futureSelf.GetComponent<Collider>());
@@ -79,6 +83,11 @@ public class ElectrumFuture : MonoBehaviour
     {
         if (futureSelf != null)
         {
+            Renderer r = futureSelf.GetComponent<Renderer>();
+            if (r != null && originalMaterial != null)
+            {
+                Destroy(r.material);
+            }
             Destroy(futureSelf);
             futureSelf = null;
         }

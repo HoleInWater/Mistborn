@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Duralumin Burst - Massive temporary power boost.
 /// Usage: DuraluminBurst duralumin = GetComponent<DuraluminBurst>();
@@ -46,13 +48,6 @@ public class DuraluminBurst : MonoBehaviour
         isBursting = true;
         Debug.Log("Duralumin Burst!");
         OnBurstStart?.Invoke();
-        
-        // Boost all Allomantic forces
-        SteelPush steel = GetComponent<SteelPush>();
-        if (steel != null)
-        {
-            // Would need a public force multiplier
-        }
         
         Invoke(nameof(EndBurst), burstDuration);
     }

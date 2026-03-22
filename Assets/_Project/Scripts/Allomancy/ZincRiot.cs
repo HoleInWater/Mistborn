@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Zinc Riot - Enrage nearby enemies.
 /// Usage: ZincRiot zinc = GetComponent<ZincRiot>();
@@ -33,6 +35,7 @@ public class ZincRiot : MonoBehaviour
         
         if (isBurning)
         {
+            RiotAllEnemies();
             DrainMetal();
         }
     }

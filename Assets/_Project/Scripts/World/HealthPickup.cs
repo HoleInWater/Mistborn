@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Collectible health potion.
 /// Usage: Attach to pickup prefab.

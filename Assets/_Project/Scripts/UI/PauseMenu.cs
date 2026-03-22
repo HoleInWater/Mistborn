@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Pause menu controller.
 /// Usage: Attach to pause menu panel.

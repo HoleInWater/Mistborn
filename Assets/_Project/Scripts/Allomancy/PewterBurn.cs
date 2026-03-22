@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Pewter enhancement system for Allomancers.
 /// Grants increased strength, speed, and healing.
@@ -18,10 +20,7 @@ public class PewterBurn : MonoBehaviour
     
     // STATE
     private bool isBurning = false;
-    private float originalSpeed;
-    private float originalJump;
     private Health health;
-    private Rigidbody rb;
     
     // EVENTS
     public System.Action OnBurnStart;
@@ -33,7 +32,6 @@ public class PewterBurn : MonoBehaviour
     void Start()
     {
         health = GetComponent<Health>();
-        rb = GetComponent<Rigidbody>();
     }
     
     void Update()
@@ -64,7 +62,6 @@ public class PewterBurn : MonoBehaviour
     void StopBurning()
     {
         isBurning = false;
-        RestoreStats();
         Debug.Log("Stopped Pewter");
         OnBurnEnd?.Invoke();
     }
@@ -88,10 +85,5 @@ public class PewterBurn : MonoBehaviour
         {
             health.Heal(healingRate * Time.deltaTime);
         }
-    }
-    
-    void RestoreStats()
-    {
-        // Reset speed/multipliers when stopped
     }
 }

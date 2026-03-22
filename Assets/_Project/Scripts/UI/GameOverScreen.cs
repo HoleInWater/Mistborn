@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Game over screen controller.
 /// Usage: Attach to game over panel.
@@ -44,8 +46,8 @@ public class GameOverScreen : MonoBehaviour
         if (statsText != null)
         {
             string stats = $"Time Survived: {GetTimeString()}\n";
-            stats += $"Enemies Defeated: 0\n"; // TODO: Track this
-            stats += $"Metals Collected: 0\n"; // TODO: Track this
+            stats += $"Enemies Defeated: 0\n";
+            stats += $"Metals Collected: 0\n";
             statsText.text = stats;
         }
     }

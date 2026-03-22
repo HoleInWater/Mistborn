@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Tin sensory enhancement.
 /// Grants enhanced sight, hearing, and awareness.

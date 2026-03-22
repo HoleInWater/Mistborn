@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Atium - See enemy futures as ghosts.
 /// Usage: AtiumBurn atium = GetComponent<AtiumBurn>();
@@ -106,7 +108,15 @@ public class AtiumBurn : MonoBehaviour
         foreach (GameObject ghost in futureGhosts)
         {
             if (ghost != null)
+            {
+                Renderer[] renderers = ghost.GetComponentsInChildren<Renderer>();
+                foreach (Renderer r in renderers)
+                {
+                    if (r.material != null)
+                        Destroy(r.material);
+                }
                 Destroy(ghost);
+            }
         }
         futureGhosts.Clear();
     }

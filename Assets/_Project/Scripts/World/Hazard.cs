@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Kill player on trigger enter.
 /// Usage: Attach to hazard objects (spikes, lava, etc.)

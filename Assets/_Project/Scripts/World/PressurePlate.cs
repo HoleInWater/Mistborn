@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Pressure plate that activates linked objects.
 /// Usage: Attach to plate prefab.

@@ -42,6 +42,16 @@ public class MetalReserveManager : MonoBehaviour
         reserves[(int)metal] = Mathf.Max(0, reserves[(int)metal] - amount);
     }
     
+    public bool UseMetal(MetalType metal, float amount)
+    {
+        if (reserves[(int)metal] >= amount)
+        {
+            reserves[(int)metal] -= amount;
+            return true;
+        }
+        return false;
+    }
+    
     public void Refill(MetalType metal, float amount)
     {
         reserves[(int)metal] = Mathf.Min(100f, reserves[(int)metal] + amount);

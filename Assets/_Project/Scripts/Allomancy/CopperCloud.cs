@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Copper Cloud - Hide Allomantic pulses from Bronze detectors.
 /// Usage: CopperCloud cloud = GetComponent<CopperCloud>();

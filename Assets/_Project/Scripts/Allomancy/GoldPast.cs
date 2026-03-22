@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Gold - See your past self.
 /// Usage: GoldPast gold = GetComponent<GoldPast>();
@@ -11,6 +13,7 @@ public class GoldPast : MonoBehaviour
     // STATE
     private bool isBurning = false;
     private GameObject pastSelf;
+    private Material originalMaterial;
     
     // EVENTS
     public System.Action OnBurnStart;
@@ -64,6 +67,7 @@ public class GoldPast : MonoBehaviour
         
         // Make golden and transparent
         Renderer r = pastSelf.GetComponent<Renderer>();
+        originalMaterial = r.material;
         r.material.color = new Color(1f, 0.8f, 0.4f, 0.5f);
         
         Destroy(pastSelf.GetComponent<Collider>());
@@ -73,6 +77,11 @@ public class GoldPast : MonoBehaviour
     {
         if (pastSelf != null)
         {
+            Renderer r = pastSelf.GetComponent<Renderer>();
+            if (r != null && originalMaterial != null)
+            {
+                Destroy(r.material);
+            }
             Destroy(pastSelf);
             pastSelf = null;
         }

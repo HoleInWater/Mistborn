@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Interactive door that can be locked/unlocked.
 /// Usage: Door door = GetComponent<Door>();
