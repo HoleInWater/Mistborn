@@ -225,12 +225,6 @@ PrefabInstance:
       addedObject: {fileID: 641062188}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 641062190}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 641062191}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 641062192}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
@@ -342,7 +336,7 @@ GameObject:
   - component: {fileID: 551459340}
   - component: {fileID: 551459339}
   m_Layer: 5
-  m_Name: UIDocument
+  m_Name: UI_Health/Metal/Stanima
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -468,41 +462,6 @@ CapsuleCollider:
   m_Height: 1.7904792
   m_Direction: 1
   m_Center: {x: 0, y: 0.8936422, z: 0}
---- !u!114 &641062190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8439556374c06249831b7e7de7162e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  moveSpeed: 5
-  rotationSpeed: 10
-  mouseSensitivity: 200
-  cameraTransform: {fileID: 53509033}
-  cameraPivot: {fileID: 39780562}
-  collisionLayers:
-    serializedVersion: 2
-    m_Bits: 1
-  smoothSpeed: 10
-  cameraRadius: 0.2
-  minDistance: 0.5
---- !u!114 &641062191
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a6cc158cb8ba3846bb1bc9c093c8881, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationStateController
 --- !u!114 &641062192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -530,15 +489,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 641062182}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bf84a0e6c4a0134f8ed9a1ddb7ce749, type: 3}
+  m_Script: {fileID: 11500000, guid: 19b2cc3911759444688aed89c261dc4b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DashAbility
-  dashForce: 100
-  dashCooldown: 1
-  metalCost: 10
-  dashKey: 304
-  allomancer: {fileID: 0}
-  metalManager: {fileID: 641062194}
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
+  moveSpeed: 5
+  rotationSpeed: 10
+  mouseSensitivity: 200
+  cameraTransform: {fileID: 53509033}
+  cameraPivot: {fileID: 39780562}
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  smoothSpeed: 10
+  cameraRadius: 0.2
+  minDistance: 0.5
 --- !u!114 &641062194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -548,11 +512,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 641062182}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 694c05a617af4fd488b8dd399f571946, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d51c6fff1155ac4d91312e6249b9012, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MetalReserveManager
-  maxReserve: 100
-  passiveRecoveryRate: 0.5
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationStateController
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
