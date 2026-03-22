@@ -5,7 +5,9 @@ public class LootDrop : MonoBehaviour
 {
     [Header("Loot Settings")]
     public LootType lootType;
+    // NOTE: Consider adding [Range(1, 100)] attribute for minAmount
     public int minAmount = 1;
+    // NOTE: Consider adding [Range(1, 100)] attribute for maxAmount
     public int maxAmount = 5;
     
     [Header("References")]
