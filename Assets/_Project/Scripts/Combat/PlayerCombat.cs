@@ -4,8 +4,11 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Combat Settings")]
+    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for attackRange
     public float attackRange = 2f;
+    // NOTE: Consider adding [Range(0.1f, 5f)] attribute for attackCooldown
     public float attackCooldown = 0.5f;
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for baseDamage
     public float baseDamage = 10f;
     
     [Header("References")]
