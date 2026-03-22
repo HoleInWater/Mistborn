@@ -116,7 +116,6 @@ public class WallRun : MonoBehaviour
         Gizmos.color = isNearWall ? Color.green : Color.red;
         Gizmos.DrawRay(transform.position, transform.right * wallStickDistance);
         Gizmos.DrawRay(transform.position, -transform.right * wallStickDistance);
-=======
         Vector3 jumpDir = (transform.forward + Vector3.up).normalized + wallNormal;
         rb.velocity = new Vector3(0, wallJumpForce, 0);
         rb.AddForce(jumpDir * wallJumpForce, ForceMode.Impulse);
