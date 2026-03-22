@@ -232,6 +232,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 641062194}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062195}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062196}
   m_SourcePrefab: {fileID: 100100000, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
 --- !u!1 &53509032
 GameObject:
@@ -493,8 +499,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   moveSpeed: 5
+  sprintSpeed: 10
   rotationSpeed: 10
   mouseSensitivity: 200
+  jumpForce: 15
+  fallMultiplier: 5
+  lowJumpMultiplier: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  drainRate: 25
   cameraTransform: {fileID: 53509033}
   cameraPivot: {fileID: 39780562}
   collisionLayers:
@@ -515,6 +529,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d51c6fff1155ac4d91312e6249b9012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationStateController
+--- !u!114 &641062195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fab29aad1a7458d438f1a0e558268dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
+  maxStamina: 100
+  currentStamina: 0
+  regenRate: 15
+  uiDocument: {fileID: 551459339}
+--- !u!114 &641062196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a19db405274ab2488efa37a9628e1e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Sprint
+  walkSpeed: 5
+  sprintSpeed: 10
+  currentSpeed: 0
+  drainRate: 5
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
