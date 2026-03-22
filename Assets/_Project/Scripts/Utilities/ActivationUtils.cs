@@ -6,7 +6,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common game object activation/deactivation patterns
     /// </summary>
-    public class ActivationUtils : MonoBehaviour
+    public static class ActivationUtils
     {
         /// <summary>
         /// Safely sets a GameObject's active state
