@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Screen flash effect.
 /// Usage: ScreenFlash.Flash(Color.red, 0.3f);

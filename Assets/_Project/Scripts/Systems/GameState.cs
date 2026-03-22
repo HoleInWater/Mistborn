@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Simple game state machine.
 /// States: Menu, Playing, Paused, GameOver

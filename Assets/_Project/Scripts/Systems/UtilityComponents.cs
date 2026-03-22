@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Auto-destroy component after time.
 /// Usage: gameObject.AddComponent<AutoDestroy>().lifetime = 5f;

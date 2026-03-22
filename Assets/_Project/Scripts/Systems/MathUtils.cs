@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Common math utilities.
 /// Usage: MathUtils.Damp(1f, 0f, 0.5f, deltaTime);
