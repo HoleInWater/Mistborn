@@ -5,7 +5,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common encryption and encoding operations
     /// </summary>
-    public class CryptoUtils : MonoBehaviour
+    public static class CryptoUtils
     {
         /// <summary>
         /// Simple XOR encryption/decryption for strings
