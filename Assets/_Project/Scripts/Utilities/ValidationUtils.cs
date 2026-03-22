@@ -6,7 +6,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for common validation checks
     /// </summary>
-    public class ValidationUtils : MonoBehaviour
+    public static class ValidationUtils
     {
         /// <summary>
         /// Checks if a string is null, empty, or whitespace only
