@@ -43,9 +43,18 @@ public class IronPull : MonoBehaviour
     public Camera playerCamera;
     public LayerMask metalLayer;
     public Allomancer allomancer;
+    public Rigidbody playerRigidbody;
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    
+    void Start()
+    {
+        if (playerRigidbody == null)
+        {
+            playerRigidbody = GetComponentInParent<Rigidbody>();
+        }
+    }
     
     void Update()
     {
@@ -90,12 +99,40 @@ public class IronPull : MonoBehaviour
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit[] hits = Physics.RaycastAll(ray, maxRange, metalLayer);
         
+        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 1f;
+        
         foreach (RaycastHit hit in hits)
         {
             if (hit.rigidbody != null)
             {
+                // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
+                float targetMass = 1f;
+                AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
+                if (target != null)
+                {
+                    targetMass = target.GetEffectiveMass();
+                }
+                else
+                {
+                    targetMass = hit.rigidbody.mass;
+                }
+                
+                // Weight-proportional force: F = pullForce * (playerMass / targetMass)
+                float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
+                float force = pullForce * weightFactor;
+                
+                // Distance falloff: F = force * (1 / distance), capped at maxRange
+                float distance = hit.distance;
+                if (distance > 0.1f) // Avoid division by zero
+                {
+                    force *= (1f / distance);
+                }
+                
+                // Clamp force to reasonable values
+                force = Mathf.Clamp(force, 0f, pullForce * 10f);
+                
                 Vector3 pullDirection = (playerCamera.transform.position - hit.point).normalized;
-                hit.rigidbody.AddForce(pullDirection * pullForce * Time.deltaTime);
+                hit.rigidbody.AddForce(pullDirection * force * Time.deltaTime);
             }
         }
     }
