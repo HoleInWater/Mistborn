@@ -3,58 +3,45 @@ using UnityEngine.UIElements;
 
 public class PlayerStamina : MonoBehaviour
 {
-    [Header("Stamina Settings")]
     public float maxStamina = 100f;
     public float currentStamina;
-    public float drainRate = 20f;   // Amount lost per second while sprinting
-    public float regenRate = 15f;   // Amount gained per second while resting
+    public float regenRate = 15f;
 
-    [Header("UI References")]
     public UIDocument uiDocument;
     private ProgressBar staminaBar;
-
-    private bool isSprinting;
 
     void Start()
     {
         currentStamina = maxStamina;
-
-        // Find the progress bar named "Stanima" from your UI Toolkit document
         var root = uiDocument.rootVisualElement;
-        staminaBar = root.Q<ProgressBar>("Stanima");
+        staminaBar = root.Q<ProgressBar>("stanima");
 
         if (staminaBar != null)
         {
             staminaBar.highValue = maxStamina;
-            staminaBar.value = currentStamina;
         }
     }
 
     void Update()
     {
-        // Detect sprinting (using Shift key as an example)
-        isSprinting = Input.GetKey(KeyCode.LeftShift) && currentStamina > 0;
-
-        if (isSprinting)
-        {
-            // Drain stamina over time
-            currentStamina -= drainRate * Time.deltaTime;
-        }
-        else if (currentStamina < maxStamina)
-        {
-            // Regenerate stamina when not sprinting
-            currentStamina += regenRate * Time.deltaTime;
-        }
-
-        // Clamp value so it stays between 0 and Max
-        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-
-        // Update the UI Toolkit ProgressBar
+        // Smoothly update the UI bar every frame
         if (staminaBar != null)
         {
             staminaBar.value = currentStamina;
-            // Optional: Update title text to show percentage
-            staminaBar.title = $"Stamina: {(int)currentStamina}%";
         }
+
+        // Basic regeneration when not being drained
+        if (currentStamina < maxStamina)
+        {
+            currentStamina += regenRate * Time.deltaTime;
+            currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+        }
+    }
+
+    // Function for the Sprint script to call
+    public void DrainStamina(float amount)
+    {
+        currentStamina -= amount * Time.deltaTime;
+        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }
 }
