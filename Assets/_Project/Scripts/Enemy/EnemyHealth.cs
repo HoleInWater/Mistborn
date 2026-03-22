@@ -1,4 +1,5 @@
 // NOTE: Lines 22, 35, 47 contain Debug.Log which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(Collider))] attribute for trigger detection
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
