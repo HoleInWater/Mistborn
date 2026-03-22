@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mistborn Physics & Mathematics Handbook</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            font-size: 24pt;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            page-break-after: avoid;
+        }
+        h2 {
+            font-size: 16pt;
+            margin-top: 30px;
+            border-bottom: 1px solid #666;
+            page-break-after: avoid;
+        }
+        h3 {
+            font-size: 13pt;
+            margin-top: 20px;
+            page-break-after: avoid;
+        }
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-left: 4px solid #333;
+            overflow-x: auto;
+            page-break-inside: avoid;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #666;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        .graph {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            page-break-inside: avoid;
+        }
+        .toc {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+        @media print {
+            body {
+                font-size: 10pt;
+            }
+            h1 { font-size: 20pt; }
+            h2 { font-size: 14pt; }
+            h3 { font-size: 12pt; }
+            pre { font-size: 8pt; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>The Mistborn Physics & Mathematics Handbook</h1>
+<p style="text-align:center; font-style:italic;">A comprehensive analysis of the physics and mathematics of Brandon Sanderson's Mistborn universe</p>
+
+<div class="toc">
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#section1">Core Equations</a></li>
+<li><a href="#section2">Steel & Iron: Push/Pull Force Functions</a></li>
+<li><a href="#section3">Coin Velocity Functions</a></li>
+<li><a href="#section4">Feruchemy Storage Functions</a></li>
+<li><a href="#section5">Compounding Exponential Functions</a></li>
+<li><a href="#section6">Speed Compounding Functions</a></li>
+<li><a href="#section7">Iron Compounding Mass Functions</a></li>
+<li><a href="#section8">Pewter Strength Functions</a></li>
+<li><a href="#section9">Time Bubble Functions</a></li>
+<li><a href="#section10">Graphical Analysis</a></li>
+<li><a href="#section11">Diminishing Returns Functions</a></li>
+<li><a href="#section12">Practical Applications</a></li>
+</ol>
+</div>
+
+<hr>
+
+<h2 id="section1">1. Core Equations</h2>
+
+<h3>Newton's Second Law</h3>
+<pre>F = m × a
+
+Where:
+  F = Force (Newtons)
+  m = Mass (kg)
+  a = Acceleration (m/s²)</pre>
+
+<h3>Kinetic Energy</h3>
+<pre>KE = ½mv²
+
+Where:
+  KE = Kinetic Energy (Joules)
+  m = Mass (kg)
+  v = Velocity (m/s)</pre>
+
+<h3>Gravitational Force</h3>
+<pre>Fg = G × (m₁ × m₂) / r²
+
+Where:
+  G = Gravitational constant ≈ 6.674 × 10⁻¹¹ N⋅m²/kg²
+  m₁, m₂ = Masses of objects
+  r = Distance between centers</pre>
+
+<hr>
+
+<h2 id="section2">2. Steel & Iron: Push/Pull Force Functions</h2>
+
+<h3>Primary Force Equation</h3>
+<p>The allomantic force follows an inverse-square law:</p>
+<pre>         A × m₁ × m₂
+F(a) = ─────────────────
+              r²
+
+Where:
+  F(a) = Allomantic force (Newtons)
+  A     = Allomantic strength constant (varies by user/flaring)
+  m₁    = Mass of allomancer (kg)
+  m₂    = Mass of metal being pushed/pulled (kg)
+  r     = Distance between allomancer and metal (m)
+
+Domain:  r ∈ [0, max_range]
+Range:    F(a) ∈ [0, F_max]</pre>
+
+<h3>Allomantic Strength Constant (A)</h3>
+<p>Based on Vin's hover calculation:</p>
+<pre>Given:
+  Vin mass (m₁) = 40 kg
+  Coin mass (m₂) = 0.01 kg
+  Equilibrium distance (r) = 6 m
+  g = 9.81 m/s²
+
+At equilibrium: F(a) = m₁ × g
+
+Solving for A:
+  A = (m₁ × g × r²) / (m₁ × m₂)
+  A = (40 × 9.81 × 36) / (40 × 0.01)
+  A = 14,126.4 × 36 / 0.4
+  A = 35,316
+
+A_vin ≈ 35,316 (without flaring metals)</pre>
+
+<h3>Linear Force Model (Game Design)</h3>
+<p>For better game feel, a linear model was proposed:</p>
+<pre>              F_max × (r_max - r)
+F(a) = ─────────────────────────────
+                   r_max
+
+For: 0 ≤ r ≤ r_max
+
+Graph Shape: Linear decrease from F_max to 0</pre>
+
+<hr>
+
+<h2 id="section3">3. Coin Velocity Functions</h2>
+
+<h3>Maximum Velocity at Distance</h3>
+<pre>v(d) = √(2 × F(a) × d / m₂)
+
+Where:
+  v(d) = Velocity at distance d (m/s)
+  F(a) = Allomantic force (constant, calculated at initial distance)
+  d    = Distance traveled (m)
+  m₂   = Mass of coin (kg)</pre>
+
+<h3>Vin Maximum Coin Push Calculation</h3>
+<pre>Given:
+  A = 35,316
+  m₁ = 40 kg (Vin)
+  m₂ = 0.01 kg (coin)
+  r  = 5 m (push distance)
+  
+Step 1: Calculate Force
+  F(a) = A × m₁ × m₂ / r²
+  F(a) = 35,316 × 40 × 0.01 / 25
+  F(a) = 14,126.4 / 25
+  F(a) = 565 N
+
+Step 2: Calculate Acceleration
+  a = F(a) / m₂
+  a = 565 / 0.01
+  a = 56,500 m/s²
+
+Step 3: Calculate Velocity
+  v = √(2 × a × d)
+  v = √(2 × 56,500 × 5)
+  v ≈ 751.7 m/s
+
+Step 4: Top Speed (extended push)
+  v_max ≈ 2,377 m/s (MACH 6.9!)</pre>
+
+<hr>
+
+<h2 id="section4">4. Feruchemy Storage Functions</h2>
+
+<h3>Basic Storage Function</h3>
+<pre>S(t) = ∫[0 to t] r(τ) dτ
+
+Where:
+  S(t) = Total stored at time t
+  r(τ) = Storage rate as function of time τ
+  t     = Total storage time</pre>
+
+<h3>Constant Rate Storage</h3>
+<pre>S(t) = r₀ × t</pre>
+
+<h3>Metal Capacity Function</h3>
+<pre>C_max = K × V × ρ_metal
+
+Where:
+  C_max = Maximum capacity of metalmind
+  K     = Capacity constant (varies by metal)
+  V     = Volume of metal (m³)
+  ρ     = Density of metal (kg/m³)</pre>
+
+<hr>
+
+<h2 id="section5">5. Compounding Exponential Functions</h2>
+
+<h3>Basic Compounding Loop</h3>
+<pre>Cycle 0: Store 1 unit
+Cycle 1: Burn → Get 10 units
+Cycle 2: Store 10 → Burn → Get 100 units
+Cycle n: Get 10^n units
+
+P(n) = P₀ × 10^n
+
+Where:
+  P(n) = Power after n cycles
+  P₀   = Initial stored power
+  n    = Number of compounding cycles</pre>
+
+<h3>Compounding with Diminishing Returns</h3>
+<pre>P(n) = P₀ × 10^n × e^(-δn)
+
+Where:
+  δ = Diminishing returns constant (0 < δ < 1)</pre>
+
+<hr>
+
+<h2 id="section6">6. Speed Compounding Functions</h2>
+
+<h3>Compound Speed Function</h3>
+<pre>v_compound(n) = v_base × 10^n × e^(-εn)
+
+Where:
+  v_base = Base stored speed
+  n      = Number of compound cycles
+  ε      = Efficiency decay constant
+
+Maximum theoretical: ~50 km/s (0.0167% c)
+That's Mach 146!</pre>
+
+<h3>Heat Generation from Air Resistance</h3>
+<pre>P_heat = ½ × ρ × C_d × A × v³
+
+For a human at v = 50 km/s:
+  P_heat ≈ 3.0 × 10¹¹ W (300 gigawatts!)
+
+This would vaporize the runner instantly.</pre>
+
+<hr>
+
+<h2 id="section7">7. Iron Compounding Mass Functions</h2>
+
+<h3>Compound Mass Function</h3>
+<pre>m_compound(n) = m_base + m_stored × 10^n
+
+Where:
+  m_stored = Mass stored before compounding
+  n        = Number of compound cycles</pre>
+
+<h3>Schwarzschild Mass Limit</h3>
+<pre>r_s = (2 × G × m) / c²
+
+For m = 1 kg:  r_s ≈ 1.48 × 10⁻²⁷ m
+For m = 70 kg: r_s ≈ 1.04 × 10⁻²⁵ m
+
+Conclusion: Human cannot become black hole through Feruchemy alone</pre>
+
+<hr>
+
+<h2 id="section8">8. Pewter Strength Functions</h2>
+
+<h3>Strength Multiplier</h3>
+<pre>S_pewter = S_base × (1 + k × P)
+
+Where:
+  S_base = Base strength
+  k      = Pewter efficiency constant
+  P      = Pewter power level (0 to 1)</pre>
+
+<h3>Stacking Pewter + Iron</h3>
+<pre>Tapping Pewter:  +m_muscle → +weight
+Storing Iron:    -m_weight
+
+Net effect: +m_muscle - m_weight
+
+At equilibrium: These approximately cancel, preventing infinite power</pre>
+
+<hr>
+
+<h2 id="section9">9. Time Bubble Functions</h2>
+
+<h3>Cadmium (Slow) Bubble</h3>
+<pre>T_inside = T_outside × τ_slow
+
+Where:
+  τ_slow = Time dilation factor (0 < τ_slow < 1)
+  Typical: τ_slow ≈ 0.1 (10x slower)</pre>
+
+<h3>Bendalloy (Fast) Bubble</h3>
+<pre>T_inside = T_outside × τ_fast
+
+Where:
+  τ_fast = Time acceleration factor (τ_fast > 1)
+  Typical: τ_fast ≈ 10 (10x faster)</pre>
+
+<hr>
+
+<h2 id="section10">10. Graphical Analysis</h2>
+
+<h3>Graph 1: Allomantic Force vs Distance (Inverse Square)</h3>
+<div class="graph">F(a)
+  ^
+  |╲
+  | ╲
+  |  ╲
+  |   ╲
+  |    ╲
+  |     ╲
+  |______╲________> r
+  0     r_max
+
+Inverse Square Law: F(a) ∝ 1/r²</div>
+
+<h3>Graph 2: Linear Force Model</h3>
+<div class="graph">F(a)
+  ^
+  |╲
+  |  ╲
+  |    ╲
+  |      ╲
+  |        ╲
+  |          ╲
+  |____________╲________> r
+  0           r_max
+
+Linear Model: F(a) = F_max × (1 - r/r_max)
+Better for game feel (no infinite force at r=0)</div>
+
+<h3>Graph 3: Compounding Exponential Growth</h3>
+<div class="graph">Power
+  ^
+  |╲
+  | ╲
+  |  ╲
+  |   ╲
+  |    ╲
+  |     ╲
+  |      ╲_______10^n curve
+  |       ╲
+  |        ╲
+  |________╲___________> n (cycles)
+  0  1  2  3  4  5</div>
+
+<h3>Graph 4: Feruchemy Storage with Diminishing Returns</h3>
+<div class="graph">Stored
+  ^
+  |╲___________C_max (asymptote)
+  | ╲
+  |  ╲
+  |   ╲
+  |    ╲
+  |     ╲
+  |______╲________________> time
+  0      t</div>
+
+<h3>Graph 5: Speed Compounding with Efficiency Loss</h3>
+<div class="graph">Speed
+  ^
+  |    ╲
+  |     ╲_____
+  |      ╲   ╲
+  |       ╲    ╲___     10^n (no decay)
+  |        ╲      ╲
+  |         ╲       ╲__
+  |_________╲___________╲___> n
+  0         5          10
+
+With decay factor e^(-εn): curve bends downward</div>
+
+<hr>
+
+<h2 id="section11">11. Diminishing Returns Functions</h2>
+
+<h3>Exponential Decay Model</h3>
+<pre>Effectiveness(E) = E_max × (1 - e^(-λt))
+
+Where:
+  λ = Diminishing returns rate constant</pre>
+
+<h3>Power Law Model</h3>
+<pre>Effectiveness(E) = E_max / (1 + (t/τ)ᵏ)
+
+Where:
+  τ = Characteristic time constant
+  k = Exponent (typically 1-3)</pre>
+
+<hr>
+
+<h2 id="section12">12. Practical Applications</h2>
+
+<h3>Coin Highway Travel</h3>
+<pre>Distance per coin: d_coin ≈ 50-150 ft (15-45 m)
+Coins needed for 100 miles: N = 160,934 / d_coin
+N ≈ 1,000-10,000 coins
+
+Conclusion: Impractical without pre-placed anchors</pre>
+
+<h3>Sound Barrier Breaking</h3>
+<pre>v_sound ≈ 343 m/s at sea level
+
+Breaking sound barrier requires:
+  With A = 35,316, Vin can break sound barrier easily
+  v ≈ 751-2,377 m/s
+
+In-book: Force is deliberately limited for narrative</pre>
+
+<h3>Steel Compounder Speed Limit</h3>
+<pre>From WoB and book references:
+  v_max_steel_runner ≈ 200 km/h (base)
+  v_compounded ≈ 50 km/s (TLR maximum)
+
+Time to cross USA (4,000 km):
+  t ≈ 80 seconds at max compounded speed</pre>
+
+<hr>
+
+<h2>Appendix A: Reference Constants</h2>
+
+<table>
+<tr><th>Symbol</th><th>Value</th><th>Description</th></tr>
+<tr><td>g</td><td>9.81 m/s²</td><td>Scadrial gravity</td></tr>
+<tr><td>c</td><td>299,792,458 m/s</td><td>Speed of light</td></tr>
+<tr><td>A_vin_normal</td><td>35,316</td><td>Vin's base allomantic strength</td></tr>
+<tr><td>A_vin_flared</td><td>~353,160</td><td>Vin's flared strength (10x)</td></tr>
+<tr><td>max_range</td><td>75-150 m</td><td>Push/Pull maximum distance</td></tr>
+<tr><td>compound_multiplier</td><td>~10</td><td>Standard compounding gain</td></tr>
+<tr><td>m_human</td><td>~70 kg</td><td>Average human mass</td></tr>
+<tr><td>m_coin</td><td>~0.01 kg</td><td>Coin mass (quarter)</td></tr>
+</table>
+
+<hr>
+
+<h2>Appendix B: Key WoB Citations</h2>
+
+<ol>
+<li><strong>Force equation:</strong> Inverse square law, like gravity/EM</li>
+<li><strong>Range limit:</strong> ~100 paces base, 300 with upgrades</li>
+<li><strong>Compounding:</strong> ~10x multiplier, diminishing returns apply</li>
+<li><strong>Steel Feruchemy:</strong> Mental speed is separate from physical speed</li>
+<li><strong>Iron Compounding:</strong> Called "Deaders" - die from own weight</li>
+<li><strong>Speed bubbles:</strong> Investiture blocks blue/red shift</li>
+</ol>
+
+<hr>
+
+<p style="text-align:center; font-size:9pt; color:#666;">
+Document compiled from r/Mistborn and r/Cosmere community analysis<br>
+Cosmere Era: 1022-1025 FE<br>
+Version 1.0
+</p>
+
+</body>
+</html>

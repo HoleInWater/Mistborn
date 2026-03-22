@@ -374,6 +374,36 @@ Instead of having all of these keybinds, just have like a scroll wheel and it sl
 - Owner: HoleInWater
 - Contributors: The Mistborn Game Team
 
+## Documentation
+
+The project includes comprehensive documentation:
+
+- **Physics Math Book** (`docs/PHYSICS-MATH-BOOK.md`) - A detailed analysis of the physics and mathematics behind allomancy, compiled from community research and Brandon Sanderson's official Word of Brandon (WoB)
+
+### Physics Book Contents
+
+| Section | Topic |
+|---------|-------|
+| 1-9 | Core Equations, Force Functions, Compounding Math |
+| 10 | Graphical Analysis with ASCII diagrams |
+| 11-12 | Diminishing Returns, Practical Applications |
+| 13-18 | Advanced Physics (Anchor Quality, Mass Theory, Charge Theory) |
+| 19-22 | Atium Retcon, Hemalurgy, Enhancement Metals |
+| 23-26 | Time Bubble Physics, Game Implementation Guide |
+| A-F | WoB Reference, Quick Reference Card, Formulas |
+
 ## License
 
-This is a private collaborative project. All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for our security policy.
