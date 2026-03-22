@@ -4,16 +4,25 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
+    // NOTE: Consider adding [Range(1f, 20f)] attribute for moveSpeed
     public float moveSpeed = 5f; 
+    // NOTE: Consider adding [Range(5f, 30f)] attribute for sprintSpeed
     public float sprintSpeed = 10f; 
+    // NOTE: Consider adding [Range(1f, 50f)] attribute for rotationSpeed
     public float rotationSpeed = 10f; 
+    // NOTE: Consider adding [Range(10f, 1000f)] attribute for mouseSensitivity
     public float mouseSensitivity = 200f;
 
     [Header("Jumping & Gravity")]
+    // NOTE: Consider adding [Range(1f, 20f)] attribute for jumpVelocity
     public float jumpVelocity = 8f; // Use this instead of force
+    // NOTE: Consider adding [Range(1f, 10f)] attribute for fallMultiplier
     public float fallMultiplier = 3f; // Fast fall
+    // NOTE: Consider adding [Range(1f, 5f)] attribute for lowJumpMultiplier
     public float lowJumpMultiplier = 2f; 
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for jumpBufferTime
     public float jumpBufferTime = 0.2f; // Forgiveness window
+    // NOTE: Consider adding [Tooltip("Layer mask for ground detection")] attribute
     public LayerMask groundLayer;
     
     private Rigidbody rb;
@@ -21,14 +30,21 @@ public class BasicPlayerMove : MonoBehaviour
     private float jumpBufferCounter;
 
     [Header("Stamina Settings")]
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for drainRate
     public float drainRate = 25f;
 
     [Header("Camera & Smoothing")]
+    // NOTE: Consider adding [Tooltip("Transform of the main camera")] attribute
     public Transform cameraTransform;
+    // NOTE: Consider adding [Tooltip("Pivot point for camera rotation")] attribute
     public Transform cameraPivot;
+    // NOTE: Consider adding [Tooltip("Layers that block camera collision")] attribute
     public LayerMask collisionLayers;
+    // NOTE: Consider adding [Range(1f, 50f)] attribute for smoothSpeed
     public float smoothSpeed = 10f;
+    // NOTE: Consider adding [Range(0.01f, 1f)] attribute for cameraRadius
     public float cameraRadius = 0.2f;
+    // NOTE: Consider adding [Range(0.1f, 5f)] attribute for minDistance
     public float minDistance = 0.5f;
 
     private float xRotation = 0f;
