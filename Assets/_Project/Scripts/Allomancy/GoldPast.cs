@@ -1,3 +1,4 @@
+// NOTE: Lines 35 and 42 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class GoldPast : MonoBehaviour
