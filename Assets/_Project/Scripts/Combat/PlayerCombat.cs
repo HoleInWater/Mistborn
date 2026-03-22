@@ -1,4 +1,5 @@
 // NOTE: Line 33 contains Debug.Log which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(Rigidbody))] attribute for physics
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
