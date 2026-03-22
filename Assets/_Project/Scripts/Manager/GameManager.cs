@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.UI
 {
-    public static class GameManagerInstance { get; private set };
+    public static class GameManagerInstance { get private set };
     
     [Header("Game State")]
     public bool isPaused = false;
@@ -61,7 +61,9 @@ namespace MistbornGame.UI
         isPaused = false;
         Time.timeScale = 1f;
         
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
+        UnityEngine.SceneManagement.SceneManager.LoadScene
+        (
         UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+        )
     }
 }
