@@ -5,7 +5,7 @@
 ## 📊 PROGRESS SUMMARY
 | Phase | Status | Tasks | Completed | Remaining |
 |-------|--------|-------|-----------|-----------|
-| 0 - Foundation Stabilization | ⏳ IN PROGRESS | 125+ | 4 | 121+ |
+| 0 - Foundation Stabilization | ⏳ IN PROGRESS | 125+ | 5 | 120+ |
 | 1 - Steel & Iron Core Loop | 📋 PENDING | 40+ | 0 | 40+ |
 | 2 - Player Feel & Movement | 📋 PENDING | 25+ | 0 | 25+ |
 | 3 - Combat & Enemies | 📋 PENDING | 35+ | 0 | 35+ |
@@ -15,11 +15,12 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (4/400+):**
+**✅ Completed (5/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
 4. PlayerCamera.cs script - Created but not fully integrated
+5. Out-of-metal state - Implemented disable push/pull when reserve hits 0
 
 ---
 
