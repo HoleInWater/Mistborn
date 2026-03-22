@@ -176,5 +176,90 @@ namespace MistbornGame.Utilities
                 Debug.LogError($"[{behaviour.name}] {message}", behaviour);
             }
         }
+
+        /// <summary>
+        /// Starts a coroutine that returns a value
+        /// </summary>
+        public static Coroutine<T> StartCoroutine<T>(this MonoBehaviour behaviour, System.Collections.Generic.IEnumerator<T> coroutine)
+        {
+            if (behaviour == null) return null;
+            Coroutine<T> wrapper = new Coroutine<T>(behaviour.StartCoroutine(coroutine));
+            return wrapper;
+        }
+
+        /// <summary>
+        /// Starts a coroutine with a timeout
+        /// </summary>
+        public static Coroutine StartCoroutineWithTimeout(this MonoBehaviour behaviour, System.Collections.IEnumerator coroutine, float timeout, System.Action onTimeout = null)
+        {
+            if (behaviour == null) return null;
+            return behaviour.StartCoroutine(RunCoroutineWithTimeout(coroutine, timeout, onTimeout));
+        }
+
+        private static System.Collections.IEnumerator RunCoroutineWithTimeout(System.Collections.IEnumerator coroutine, float timeout, System.Action onTimeout)
+        {
+            float elapsed = 0f;
+            while (coroutine.MoveNext())
+            {
+                if (elapsed >= timeout)
+                {
+                    onTimeout?.Invoke();
+                    yield break;
+                }
+                elapsed += Time.deltaTime;
+                yield return coroutine.Current;
+            }
+        }
+
+        /// <summary>
+        /// Starts a coroutine that can be cancelled
+        /// </summary>
+        public static CancellableCoroutine StartCoroutineCancellable(this MonoBehaviour behaviour, System.Collections.IEnumerator coroutine)
+        {
+            if (behaviour == null) return null;
+            CancellableCoroutine cancellable = new CancellableCoroutine(behaviour.StartCoroutine(coroutine));
+            return cancellable;
+        }
+    }
+
+    /// <summary>
+    /// Wrapper for coroutines that return a value
+    /// </summary>
+    public class Coroutine<T>
+    {
+        private Coroutine coroutine;
+        private T value;
+        private bool isComplete;
+        
+        public Coroutine(Coroutine coroutine)
+        {
+            this.coroutine = coroutine;
+        }
+        
+        public T Value => value;
+        public bool IsComplete => isComplete;
+        public Coroutine Coroutine => coroutine;
+    }
+
+    /// <summary>
+    /// Wrapper for cancellable coroutines
+    /// </summary>
+    public class CancellableCoroutine
+    {
+        private Coroutine coroutine;
+        private bool isCancelled;
+        
+        public CancellableCoroutine(Coroutine coroutine)
+        {
+            this.coroutine = coroutine;
+        }
+        
+        public void Cancel()
+        {
+            isCancelled = true;
+        }
+        
+        public bool IsCancelled => isCancelled;
+        public Coroutine Coroutine => coroutine;
     }
 }
