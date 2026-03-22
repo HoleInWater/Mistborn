@@ -35,7 +35,7 @@ using UnityEngine;
 public class SteelPush : MonoBehaviour
 {
     [Header("Settings")]
-    public float pushForce = 500f;
+    public float pushForce = 800f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
     
