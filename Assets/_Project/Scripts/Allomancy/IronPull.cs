@@ -1,3 +1,34 @@
+/* IronPull.cs
+ * 
+ * PURPOSE:
+ * Implements the Iron Allomancy ability (Lurcher) - pull metal objects toward the player.
+ * Requires burning Iron metal to activate.
+ * 
+ * KEY FIELDS:
+ * - pullForce: Base force applied when pulling metal objects
+ * - maxRange: Maximum distance for pulling metal (units)
+ * - metalCostPerSecond: Metal reserve consumption rate while burning
+ * - allomancer: Reference to the Allomancer system for metal reserve checks
+ * - playerCamera: Camera for raycasting (determines pull direction)
+ * 
+ * HOW IT WORKS:
+ * 1. Player holds Left Mouse Button to burn Iron
+ * 2. Raycasts from camera detect metal objects within range
+ * 3. Applies force toward player based on pullForce and object mass
+ * 4. Can pull player toward anchored heavy objects (isAnchored=true)
+ * 5. Checks canBurnMetal before allowing pull
+ * 
+ * IMPORTANT NOTES:
+ * - Requires Allomancer component to check metal reserves
+ * - Heavy/anchored objects pull the player instead of moving
+ * - Force is proportional to player mass vs target mass
+ * - Disabled when metal reserve hits 0
+ * 
+ * LORE ACCURACY:
+ * Iron Pull (Lurcher ability) - pulls metal toward center of self.
+ * Same physics as Steel Push but opposite direction.
+ */
+
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 

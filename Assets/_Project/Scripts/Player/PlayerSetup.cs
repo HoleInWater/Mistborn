@@ -1,10 +1,33 @@
-// PlayerSetup.cs
-// Automatically adds missing components to the Player at runtime.
-// This ensures PlayerController, PlayerCamera, and AllomanticSight exist.
+/* PlayerSetup.cs
+ * 
+ * PURPOSE:
+ * This script automatically adds missing required components to the Player GameObject at runtime.
+ * It ensures the Player has a PlayerController (BasicPlayerMove), PlayerCamera, AllomanticSight,
+ * and other essential components for the game to function properly.
+ * 
+ * HOW IT WORKS:
+ * Uses the [RuntimeInitializeOnLoadMethod] attribute to run once after the scene loads.
+ * Finds the Player by tag, then checks for each required component and adds it if missing.
+ * It also copies camera references from the BasicPlayerMove script to the PlayerCamera script
+ * to ensure proper camera setup.
+ * 
+ * KEY FEATURES:
+ * - Automatically adds PlayerCamera and AllomanticSight components if missing
+ * - Copies camera transform/pivot references from existing PlayerController
+ * - Sets default values for AllomanticSight metal detection layer
+ * - Assigns the main camera to AllomanticSight if not already set
+ * 
+ * IMPORTANT NOTES:
+ * This script is designed to be a one-time setup. Once components are added, they remain.
+ * The Player must be tagged as "Player" in the Unity Editor for this script to find it.
+ * Some default values are set, but should be configured in the Inspector for best results.
+ */
+
 using UnityEngine;
 
 public class PlayerSetup : MonoBehaviour
 {
+    // This method runs automatically after the scene loads (due to the attribute above)
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Initialize()
     {
