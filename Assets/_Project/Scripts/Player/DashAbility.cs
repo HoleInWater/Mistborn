@@ -2,6 +2,9 @@
 /// Controls player dash ability.
 /// Usage: DashAbility dash = GetComponent<DashAbility>();
 /// </summary>
+
+using UnityEngine;
+
 public class DashAbility : MonoBehaviour
 {
     // SETTINGS - Adjust in Inspector
