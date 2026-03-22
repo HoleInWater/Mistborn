@@ -14,7 +14,7 @@ public class PlayerStamina : MonoBehaviour
     {
         currentStamina = maxStamina;
         var root = uiDocument.rootVisualElement;
-        staminaBar = root.Q<ProgressBar>("Stanima");
+        staminaBar = root.Q<ProgressBar>("stanima");
 
         if (staminaBar != null)
         {
