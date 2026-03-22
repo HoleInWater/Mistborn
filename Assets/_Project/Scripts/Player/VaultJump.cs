@@ -1,3 +1,4 @@
+// NOTE: Lines 47 and 57 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class VaultJump : MonoBehaviour
