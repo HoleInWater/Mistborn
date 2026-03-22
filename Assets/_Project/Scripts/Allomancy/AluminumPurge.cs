@@ -1,3 +1,4 @@
+// NOTE: Lines 19 and 50 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class AluminumPurge : MonoBehaviour
