@@ -13,12 +13,16 @@ public class AIController : MonoBehaviour
     }
     
     [Header("AI Settings")]
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for detectionRange
     public float detectionRange = 20f;
+    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for attackRange
     public float attackRange = 2f;
+    // NOTE: Consider adding [Range(0.1f, 20f)] attribute for moveSpeed
     public float moveSpeed = 3f;
     
     [Header("State")]
     public EmotionState currentEmotion = EmotionState.Neutral;
+    // NOTE: Consider adding [Range(0.1f, 5f)] attribute for aggressionMultiplier
     public float aggressionMultiplier = 1f;
     
     private Transform player;
