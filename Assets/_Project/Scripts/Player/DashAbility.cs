@@ -1,43 +1,69 @@
-using UnityEngine;
-
+/// <summary>
+/// Controls player dash ability.
+/// Usage: DashAbility dash = GetComponent<DashAbility>();
+/// </summary>
 public class DashAbility : MonoBehaviour
 {
-    [Header("Dash Settings")]
-    public float dashSpeed = 20f;
-    public float dashDuration = 0.2f;
-    public float dashCooldown = 1f;
-    public float metalCost = 10f;
+    // SETTINGS - Adjust in Inspector
+    public float dashSpeed = 20f;           // How fast player dashes
+    public float dashDuration = 0.2f;       // How long dash lasts
+    public float dashCooldown = 1f;         // Time between dashes
     
-    [Header("References")]
-    public KeyCode dashKey = KeyCode.LeftShift;
-    public Allomancer allomancer;
-    public MetalReserveManager metalManager;
+    // INTERNAL STATE
+    private Stamina stamina;               // Reference to stamina system
+    private bool isDashing = false;         // Is dash currently active
+    private float lastDashTime = -999f;     // When last dash occurred
+    private Vector3 dashDirection;          // Direction of current dash
     
-    private float lastDashTime = -999f;
-    private bool isDashing = false;
-    private Vector3 dashDirection;
-    private Rigidbody rb;
+    // EVENTS - Subscribe for callbacks
+    public System.Action OnDashStart;       // Fired when dash begins
+    public System.Action OnDashEnd;         // Fired when dash ends
+    
+    // PUBLIC API - Call from other scripts
+    public bool IsDashing => isDashing;
+    public bool CanDash() => !isDashing && Time.time - lastDashTime >= dashCooldown;
     
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = gameObject.AddComponent<Rigidbody>();
-        rb.freezeRotation = true;
+        stamina = GetComponent<Stamina>();
     }
     
     void Update()
     {
-        if (Input.GetKeyDown(dashKey))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && CanDash())
         {
-            TryDash();
+            StartDash();
         }
+    }
+    
+    void StartDash()
+    {
+        if (stamina != null)
+        {
+            stamina.UseStamina(stamina.dashStaminaCost);
+        }
+        
+        isDashing = true;
+        lastDashTime = Time.time;
+        
+        Vector3 inputDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+        dashDirection = inputDir.magnitude > 0 ? inputDir.normalized : transform.forward;
+        
+        OnDashStart?.Invoke();
+        Invoke(nameof(EndDash), dashDuration);
+    }
+    
+    void EndDash()
+    {
+        isDashing = false;
+        OnDashEnd?.Invoke();
     }
     
     void FixedUpdate()
     {
         if (isDashing)
         {
+<<<<<<< HEAD
             rb.linearVelocity = dashDirection * dashSpeed;
         }
     }
@@ -107,6 +133,9 @@ public class DashAbility : MonoBehaviour
         if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
+=======
+            GetComponent<Rigidbody>().velocity = dashDirection * dashSpeed;
+>>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
         }
     }
 }

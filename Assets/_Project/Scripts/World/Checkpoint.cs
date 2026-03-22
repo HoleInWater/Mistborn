@@ -1,20 +1,40 @@
-using UnityEngine;
-
+/// <summary>
+/// Manages checkpoints throughout the game.
+/// Usage: Checkpoint checkpoint = GetComponent<Checkpoint>();
+/// 
+/// EVENTS:
+///   checkpoint.OnActivate += () => { };
+/// 
+/// STATIC:
+///   Checkpoint.LastCheckpoint - Access the most recently activated checkpoint
+/// </summary>
 public class Checkpoint : MonoBehaviour
 {
-    public static Checkpoint lastCheckpoint { get; private set; }
+    // SETTINGS - Adjust in Inspector
+    public bool isActivated = false;          // Is this checkpoint active
+    public GameObject activationEffect;        // VFX when checkpoint activates
+    public AudioClip activationSound;          // Sound when checkpoint activates
     
-    [Header("Checkpoint Settings")]
-    public bool isActivated = false;
+    // EVENTS
+    public System.Action OnActivate;          // Fired when checkpoint is activated
     
-    [Header("Effects")]
-    public GameObject activationEffect;
+    // STATIC - Shared across all checkpoints
+    public static Checkpoint LastCheckpoint { get; private set; }
+    
+    // INTERNAL
+    private AudioSource audioSource;
     
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null && activationSound != null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        
         if (isActivated)
         {
-            lastCheckpoint = this;
+            LastCheckpoint = this;
         }
     }
     
@@ -26,21 +46,42 @@ public class Checkpoint : MonoBehaviour
         }
     }
     
-    void Activate()
+    public void Activate()
     {
-        if (lastCheckpoint != null)
+        if (isActivated) return;
+        
+        if (LastCheckpoint != null && LastCheckpoint != this)
         {
-            lastCheckpoint.isActivated = false;
+            LastCheckpoint.isActivated = false;
         }
         
         isActivated = true;
-        lastCheckpoint = this;
+        LastCheckpoint = this;
         
         if (activationEffect != null)
         {
             Instantiate(activationEffect, transform.position, Quaternion.identity);
         }
         
-        Debug.Log("Checkpoint activated!");
+        if (activationSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(activationSound);
+        }
+        
+        Debug.Log($"Checkpoint activated: {gameObject.name}");
+        OnActivate?.Invoke();
+    }
+    
+    public static void RespawnAtLastCheckpoint(Transform player)
+    {
+        if (LastCheckpoint != null)
+        {
+            player.position = LastCheckpoint.transform.position;
+            Debug.Log("Respawned at last checkpoint");
+        }
+        else
+        {
+            Debug.LogWarning("No checkpoint found!");
+        }
     }
 }

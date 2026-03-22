@@ -1,14 +1,18 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MalatiumReveal : MonoBehaviour
 {
     [Header("Settings")]
     public float metalCostPerSecond = 5f;
     public float revealRange = 20f;
+    public float revealDuration = 0.5f;
     public Color malatiumColor = new Color(0.8f, 0.3f, 0.1f, 0.5f);
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private Dictionary<Renderer, Material> originalMaterials = new Dictionary<Renderer, Material>();
+    private HashSet<Renderer> revealedRenderers = new HashSet<Renderer>();
     
     void Update()
     {
@@ -38,6 +42,7 @@ public class MalatiumReveal : MonoBehaviour
     void StopBurning()
     {
         isBurning = false;
+        RestoreAllMaterials();
         Debug.Log("Stopped burning Malatium");
     }
     
@@ -48,22 +53,29 @@ public class MalatiumReveal : MonoBehaviour
         foreach (Collider col in nearby)
         {
             Renderer renderer = col.GetComponent<Renderer>();
-            if (renderer != null && !renderer.material.name.Contains("Malatium"))
+            if (renderer != null && !revealedRenderers.Contains(renderer))
             {
-                Material originalMat = new Material(renderer.material);
+                if (!originalMaterials.ContainsKey(renderer))
+                {
+                    originalMaterials[renderer] = renderer.material;
+                }
+                revealedRenderers.Add(renderer);
                 renderer.material.color = malatiumColor;
-                
-                Invoke(() => RestoreMaterial(renderer, originalMat), 0.5f);
             }
         }
     }
     
-    void RestoreMaterial(Renderer renderer, Material originalMat)
+    void RestoreAllMaterials()
     {
-        if (renderer != null)
+        foreach (var kvp in originalMaterials)
         {
-            renderer.material = originalMat;
+            if (kvp.Key != null)
+            {
+                kvp.Key.material = kvp.Value;
+            }
         }
+        originalMaterials.Clear();
+        revealedRenderers.Clear();
     }
     
     void DrainMetal()

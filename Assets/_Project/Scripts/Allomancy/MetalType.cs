@@ -1,0 +1,23 @@
+public enum MetalType
+{
+    Steel,
+    Iron,
+    Tin,
+    Pewter,
+    Zinc,
+    Brass,
+    Copper,
+    Bronze,
+    Chromium,
+    Nicrosil,
+    Aluminum,
+    Duralumin,
+    Cadmium,
+    Bendalloy,
+    Gold,
+    Electrum,
+    Atium,
+    Malatium,
+    Lerasium,
+    Harmonium
+}

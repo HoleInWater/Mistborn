@@ -11,23 +11,22 @@ public class TimeBubble : MonoBehaviour
     private bool isInsideBubble = false;
     private float originalTimeScale = 1f;
     
+    public enum BubbleType { SpeedUp, SlowDown }
+    
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Keypad8) || Input.GetKeyDown(KeyCode.Alpha8))
         {
-            CreateBubble(BendalloyType.SpeedUp);
+            CreateBubble(BubbleType.SpeedUp);
         }
         
         if (Input.GetKeyDown(KeyCode.Keypad9) || Input.GetKeyDown(KeyCode.Alpha9))
         {
-            CreateBubble(CadmumType.SlowDown);
+            CreateBubble(BubbleType.SlowDown);
         }
     }
     
-    public enum BendalloyType { SpeedUp }
-    public enum CadmumType { SlowDown }
-    
-    void CreateBubble(object bubbleType)
+    void CreateBubble(BubbleType bubbleType)
     {
         if (bubbleEffect != null) Destroy(bubbleEffect);
         
@@ -36,7 +35,7 @@ public class TimeBubble : MonoBehaviour
         bubbleEffect.name = "TimeBubble";
         
         Renderer r = bubbleEffect.GetComponent<Renderer>();
-        if (bubbleType is BendalloyType)
+        if (bubbleType == BubbleType.SpeedUp)
         {
             r.material.color = new Color(1f, 0.8f, 0.2f, 0.2f);
         }
