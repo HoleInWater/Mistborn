@@ -92,6 +92,12 @@ public class PlayerCollisionHandler3D : MonoBehaviour
         }
     }
     
+    public float health 
+    {
+        get { return _progressBar != null ? _progressBar.value : 100f; }
+        set { if (_progressBar != null) _progressBar.value = value; }
+    }
+    
     // Add this so the Combat script can damage the health bar
     public void TakeDamage(float damage)
     {
