@@ -1,71 +1,66 @@
-using UnityEngine;
-
+/// <summary>
+/// Duralumin Burst - Massive temporary power boost.
+/// Usage: DuraluminBurst duralumin = GetComponent<DuraluminBurst>();
+/// </summary>
 public class DuraluminBurst : MonoBehaviour
 {
-    [Header("Settings")]
-    public float burstCost = 50f;
-    public float burstMultiplier = 5f;
-    public float burstDuration = 2f;
+    // SETTINGS
+    public float burstCost = 50f;            // Large metal cost
+    public float burstMultiplier = 5f;       // Power multiplier
+    public float burstDuration = 2f;         // How long burst lasts
     
-    private float metalReserve = 100f;
+    // STATE
     private bool isBursting = false;
     
-    public void TryBurst()
-    {
-        if (metalReserve >= burstCost && !isBursting)
-        {
-            PerformBurst();
-        }
-    }
+    // EVENTS
+    public System.Action OnBurstStart;
+    public System.Action OnBurstEnd;
+    
+    // PUBLIC API
+    public bool IsBursting => isBursting;
     
     void Update()
     {
+        // Press R to burst
         if (Input.GetKeyDown(KeyCode.R))
         {
             TryBurst();
         }
     }
     
+    public void TryBurst()
+    {
+        if (isBursting) return;
+        
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        
+        if (metals != null && metals.GetReserve(MetalType.Duralumin) >= burstCost)
+        {
+            metals.UseMetal(MetalType.Duralumin, burstCost);
+            PerformBurst();
+        }
+    }
+    
     void PerformBurst()
     {
-        metalReserve -= burstCost;
         isBursting = true;
+        Debug.Log("Duralumin Burst!");
+        OnBurstStart?.Invoke();
         
+        // Boost all Allomantic forces
         SteelPush steel = GetComponent<SteelPush>();
         if (steel != null)
         {
-            steel.pushForce *= burstMultiplier;
-            Invoke("EndBurst", burstDuration);
+            // Would need a public force multiplier
         }
         
-        IronPull iron = GetComponent<IronPull>();
-        if (iron != null)
-        {
-            iron.pullForce *= burstMultiplier;
-            Invoke("EndBurst", burstDuration);
-        }
-        
-        Debug.Log("Duralumin Burst - Allomancy enhanced!");
+        Invoke(nameof(EndBurst), burstDuration);
     }
     
     void EndBurst()
     {
         isBursting = false;
-        
-        SteelPush steel = GetComponent<SteelPush>();
-        if (steel != null)
-        {
-            steel.pushForce /= burstMultiplier;
-        }
-        
-        IronPull iron = GetComponent<IronPull>();
-        if (iron != null)
-        {
-            iron.pullForce /= burstMultiplier;
-        }
-        
         Debug.Log("Burst ended");
+        OnBurstEnd?.Invoke();
     }
-    
-    public float GetMetalReserve() => metalReserve;
 }

@@ -1,53 +1,58 @@
-using UnityEngine;
-using System.Collections.Generic;
-
+/// <summary>
+/// Zinc Riot - Enrage nearby enemies.
+/// Usage: ZincRiot zinc = GetComponent<ZincRiot>();
+/// </summary>
 public class ZincRiot : MonoBehaviour
 {
-    [Header("Settings")]
-    public float emotionRange = 30f;
-    public float riotStrength = 2f;
-    public float metalCostPerSecond = 3f;
-    public LayerMask enemyLayer;
+    // SETTINGS
+    public float emotionRange = 30f;          // Range to affect
+    public float riotStrength = 2f;          // How much to enrage
+    public float metalCostPerSecond = 3f;    // Drain rate
+    public LayerMask enemyLayer;             // What to affect
     
-    [Header("References")]
-    public Camera playerCamera;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
-    private List<GameObject> affectedEnemies = new List<GameObject>();
+    
+    // EVENTS
+    public System.Action OnRiotStart;
+    public System.Action OnRiotEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
     
     void Update()
     {
+        // Press Z to riot
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            StartBurning();
+            if (isBurning)
+                StopRiot();
+            else
+                StartRiot();
         }
         
-        if (Input.GetKey(KeyCode.Z) && isBurning)
+        if (isBurning)
         {
-            RiotEmotions();
             DrainMetal();
         }
-        
-        if (Input.GetKeyUp(KeyCode.Z))
-        {
-            StopBurning();
-        }
     }
     
-    void StartBurning()
+    void StartRiot()
     {
         isBurning = true;
-        Debug.Log("Burning Zinc - Rioting emotions!");
+        Debug.Log("Burning Zinc - Rioting!");
+        OnRiotStart?.Invoke();
     }
     
-    void StopBurning()
+    void StopRiot()
     {
         isBurning = false;
-        Debug.Log("Stopped burning Zinc");
+        CalmAllEnemies();
+        Debug.Log("Stopped Zinc");
+        OnRiotEnd?.Invoke();
     }
     
-    void RiotEmotions()
+    void RiotAllEnemies()
     {
         Collider[] enemies = Physics.OverlapSphere(transform.position, emotionRange, enemyLayer);
         
@@ -62,16 +67,26 @@ public class ZincRiot : MonoBehaviour
         }
     }
     
-    void DrainMetal()
+    void CalmAllEnemies()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        AIController[] allAI = FindObjectsOfType<AIController>();
+        
+        foreach (AIController ai in allAI)
         {
-            metalReserve = 0;
-            StopBurning();
+            ai.SetEmotionState(AIController.EmotionState.Neutral);
+            ai.SetAggressionMultiplier(1f);
         }
     }
     
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
+    void DrainMetal()
+    {
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
+        {
+            if (!metals.UseMetal(MetalType.Zinc, metalCostPerSecond * Time.deltaTime))
+            {
+                StopRiot();
+            }
+        }
+    }
 }

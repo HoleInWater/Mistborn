@@ -1,55 +1,33 @@
-using UnityEngine;
-
+/// <summary>
+/// Aluminum Purge - Empty all metal reserves instantly.
+/// Usage: AluminumPurge aluminum = GetComponent<AluminumPurge>();
+/// </summary>
 public class AluminumPurge : MonoBehaviour
 {
-    [Header("Settings")]
-    public float purgeCost = 20f;
-    public bool purgeOnActivation = true;
+    // SETTINGS
+    public float purgeCost = 25f;           // Metal cost (instant)
     
-    private float metalReserve = 100f;
-    
-    public void TryPurge()
-    {
-        if (metalReserve >= purgeCost)
-        {
-            PerformPurge();
-        }
-        else
-        {
-            Debug.Log("Not enough Aluminum to purge!");
-        }
-    }
+    // EVENTS
+    public System.Action OnPurged;
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        // Press O to purge
+        if (Input.GetKeyDown(KeyCode.O))
         {
-            TryPurge();
+            Purge();
         }
     }
     
-    void PerformPurge()
+    public void Purge()
     {
-        metalReserve -= purgeCost;
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
         
-        Allomancer allomancer = GetComponent<Allomancer>();
-        if (allomancer != null)
+        if (metals != null)
         {
-            for (int i = 0; i < 16; i++)
-            {
-                allomancer.DrainMetal(MetalType.Steel, allomancer.GetMetalReserve(MetalType.Steel));
-            }
+            metals.PurgeAll();
+            Debug.Log("Aluminum Purge - All metals emptied!");
+            OnPurged?.Invoke();
         }
-        
-        MetalReserveManager manager = GetComponent<MetalReserveManager>();
-        if (manager != null)
-        {
-            manager.PurgeAll();
-        }
-        
-        Debug.Log("Aluminum Purged - All metal reserves emptied!");
     }
-    
-    public float GetMetalReserve() => metalReserve;
-    public void Refill(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }

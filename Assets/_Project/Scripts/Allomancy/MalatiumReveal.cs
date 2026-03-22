@@ -1,35 +1,47 @@
-using UnityEngine;
-using System.Collections.Generic;
-
+/// <summary>
+/// Malatium - Reveal true nature of things.
+/// Usage: MalatiumReveal malatium = GetComponent<MalatiumReveal>();
+/// </summary>
 public class MalatiumReveal : MonoBehaviour
 {
-    [Header("Settings")]
-    public float metalCostPerSecond = 5f;
-    public float revealRange = 20f;
-    public float revealDuration = 0.5f;
+    // SETTINGS
+    public float revealRange = 20f;         // Range to affect
+    public float metalCostPerSecond = 5f;    // Cost
+    
+    // VISUALS
     public Color malatiumColor = new Color(0.8f, 0.3f, 0.1f, 0.5f);
     
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
-    private Dictionary<Renderer, Material> originalMaterials = new Dictionary<Renderer, Material>();
-    private HashSet<Renderer> revealedRenderers = new HashSet<Renderer>();
+    private System.Collections.Generic.Dictionary<UnityEngine.Renderer, UnityEngine.Material> originalMaterials;
+    
+    // EVENTS
+    public System.Action OnBurnStart;
+    public System.Action OnBurnEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
+    
+    void Start()
+    {
+        originalMaterials = new System.Collections.Generic.Dictionary<UnityEngine.Renderer, UnityEngine.Material>();
+    }
     
     void Update()
     {
+        // Press Y to reveal
         if (Input.GetKeyDown(KeyCode.Y))
         {
-            StartBurning();
+            if (isBurning)
+                StopBurning();
+            else
+                StartBurning();
         }
         
-        if (Input.GetKey(KeyCode.Y) && isBurning)
+        if (isBurning)
         {
-            RevealTrueNature();
             DrainMetal();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.Y))
-        {
-            StopBurning();
+            RevealTrueNature();
         }
     }
     
@@ -37,30 +49,34 @@ public class MalatiumReveal : MonoBehaviour
     {
         isBurning = true;
         Debug.Log("Burning Malatium - Revealing true nature!");
+        OnBurnStart?.Invoke();
     }
     
     void StopBurning()
     {
         isBurning = false;
         RestoreAllMaterials();
-        Debug.Log("Stopped burning Malatium");
+        Debug.Log("Stopped Malatium");
+        OnBurnEnd?.Invoke();
     }
     
     void RevealTrueNature()
     {
-        Collider[] nearby = Physics.OverlapSphere(transform.position, revealRange);
+        // Find all renderers in range
+        Collider[] hits = Physics.OverlapSphere(transform.position, revealRange);
         
-        foreach (Collider col in nearby)
+        foreach (Collider hit in hits)
         {
-            Renderer renderer = col.GetComponent<Renderer>();
-            if (renderer != null && !revealedRenderers.Contains(renderer))
+            UnityEngine.Renderer renderer = hit.GetComponent<UnityEngine.Renderer>();
+            if (renderer != null && !originalMaterials.ContainsKey(renderer))
             {
-                if (!originalMaterials.ContainsKey(renderer))
-                {
-                    originalMaterials[renderer] = renderer.material;
-                }
-                revealedRenderers.Add(renderer);
-                renderer.material.color = malatiumColor;
+                // Save original material
+                originalMaterials[renderer] = renderer.material;
+                
+                // Apply malatium color
+                Material malatiumMat = new Material(renderer.material);
+                malatiumMat.color = malatiumColor;
+                renderer.material = malatiumMat;
             }
         }
     }
@@ -75,18 +91,22 @@ public class MalatiumReveal : MonoBehaviour
             }
         }
         originalMaterials.Clear();
-        revealedRenderers.Clear();
     }
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Malatium, metalCostPerSecond * Time.deltaTime))
+            {
+                StopBurning();
+            }
         }
     }
     
-    public float GetMetalReserve() => metalReserve;
+    void OnDestroy()
+    {
+        RestoreAllMaterials();
+    }
 }
