@@ -34,7 +34,7 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Checks if a GameObject is in a specific layer
+        /// Checks if a GameObject is in a specific layer index
         /// </summary>
         public static bool IsInLayer(GameObject go, int layer)
         {
@@ -43,9 +43,9 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Checks if a GameObject is in any of the specified layers
+        /// Checks if a GameObject is in any of the specified layers (Bitmask)
         /// </summary>
-        public static bool IsInLayer(GameObject go, int layerMask)
+        public static bool IsInLayerMask(GameObject go, int layerMask)
         {
             if (go == null) return false;
             return ((1 << go.layer) & layerMask) != 0;
