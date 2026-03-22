@@ -1,112 +1,46 @@
 using UnityEngine;
 
-public class DashAbility : MonoBehaviour
+public class Sprint : MonoBehaviour
 {
-    [Header("Dash Settings")]
-    public float dashSpeed = 20f;
-    public float dashDuration = 0.2f;
-    public float dashCooldown = 1f;
-    public float metalCost = 10f;
+    [Header("Speed Settings")]
+    public float walkSpeed = 5f;
+    public float sprintSpeed = 10f;
+    public float currentSpeed;
+
+    [Header("Stamina Costs")]
+    public float drainRate = 25f;
     
-    [Header("References")]
-    public KeyCode dashKey = KeyCode.LeftShift;
-    public Allomancer allomancer;
-    public MetalReserveManager metalManager;
-    
-    private float lastDashTime = -999f;
-    private bool isDashing = false;
-    private Vector3 dashDirection;
-    private Rigidbody rb;
-    
+    private PlayerStamina staminaSystem;
+    private CharacterController controller; // Or Rigidbody
+
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        if (rb == null)
-            rb = gameObject.AddComponent<Rigidbody>();
-        rb.freezeRotation = true;
+        staminaSystem = GetComponent<PlayerStamina>();
+        controller = GetComponent<CharacterController>();
+        currentSpeed = walkSpeed;
     }
-    
+
     void Update()
     {
-        if (Input.GetKeyDown(dashKey))
+        // Determine if player wants to sprint and has stamina left
+        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift);
+        bool hasStamina = staminaSystem.currentStamina > 0.1f;
+
+        if (isTryingToSprint && hasStamina)
         {
-            TryDash();
+            currentSpeed = sprintSpeed;
+            staminaSystem.DrainStamina(drainRate);
         }
-    }
-    
-    void FixedUpdate()
-    {
-        if (isDashing)
+        else
         {
-            rb.linearVelocity = dashDirection * dashSpeed;
+            currentSpeed = walkSpeed;
         }
-    }
-    
-    void TryDash()
-    {
-        if (Time.time - lastDashTime < dashCooldown)
-        {
-            Debug.Log("Dash on cooldown!");
-            return;
-        }
+
+        // Apply movement (Example using CharacterController)
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
         
-        if (!CanAffordDash())
-        {
-            Debug.Log("Not enough metal for dash!");
-            return;
-        }
-        
-        PerformDash();
-    }
-    
-    bool CanAffordDash()
-    {
-        if (allomancer != null)
-        {
-            return allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter) >= metalCost;
-        }
-        else if (metalManager != null)
-        {
-            return metalManager.GetReserve(AllomancySkill.MetalType.Pewter) >= metalCost;
-        }
-        return true;
-    }
-    
-    void PerformDash()
-    {
-        dashDirection = transform.forward;
-        if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0)
-        {
-            Vector3 forward = Camera.main.transform.forward;
-            Vector3 right = Camera.main.transform.right;
-            forward.y = 0;
-            right.y = 0;
-            dashDirection = (forward * Input.GetAxis("Vertical") + right * Input.GetAxis("Horizontal")).normalized;
-        }
-        
-        isDashing = true;
-        lastDashTime = Time.time;
-        
-        if (allomancer != null)
-        {
-            allomancer.DrainMetal(AllomancySkill.MetalType.Pewter, metalCost);
-        }
-        else if (metalManager != null)
-        {
-            metalManager.Drain(AllomancySkill.MetalType.Pewter, metalCost);
-        }
-        
-        Debug.Log("Dashed!");
-        
-        Invoke("EndDash", dashDuration);
-    }
-    
-    void EndDash()
-    {
-        isDashing = false;
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-        }
+        controller.Move(move * currentSpeed * Time.deltaTime);
     }
 }
