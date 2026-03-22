@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class TransformUtils : MonoBehaviour
+    public static class TransformUtils
     {
         /// <summary>
         /// Safely gets or adds a component to a GameObject
