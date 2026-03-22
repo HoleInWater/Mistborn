@@ -1,3 +1,4 @@
+// NOTE: Line 25 contains Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UIElements;
 
