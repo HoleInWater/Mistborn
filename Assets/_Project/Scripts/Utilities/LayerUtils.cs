@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class LayerUtils : MonoBehaviour
+    public static class LayerUtils
     {
         /// <summary>
         /// Gets a layer index by name
