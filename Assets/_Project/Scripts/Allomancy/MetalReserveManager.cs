@@ -1,67 +1,60 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MetalReserveManager : MonoBehaviour
 {
-    [Header("Metal Reserves")]
-    public float[] reserves = new float[16];
-    
-    [Header("Recovery Settings")]
+    [Header("Settings")]
+    public float maxReserve = 100f;
     public float passiveRecoveryRate = 0.5f;
-    public float metalFlareRecovery = 25f;
-    
-    public AllomancySkill.MetalType[] metalTypes = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
-    
-    void Start()
+
+    // We use a Dictionary so we can look up "Pewter" directly instead of guessing the ID number
+    private Dictionary<AllomancySkill.MetalType, float> metalReserves = new Dictionary<AllomancySkill.MetalType, float>();
+
+    void Awake()
     {
-        for (int i = 0; i < reserves.Length; i++)
+        // Initialize every metal type in the enum to be full (100)
+        foreach (AllomancySkill.MetalType type in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
         {
-            reserves[i] = 100f;
+            if (!metalReserves.ContainsKey(type))
+                metalReserves.Add(type, maxReserve);
         }
     }
-    
+
     void Update()
     {
         PassiveRecovery();
     }
-    
+
     void PassiveRecovery()
     {
-        for (int i = 0; i < reserves.Length; i++)
+        // Create a list of keys to avoid "collection modified" errors
+        List<AllomancySkill.MetalType> keys = new List<AllomancySkill.MetalType>(metalReserves.Keys);
+        foreach (var type in keys)
         {
-            reserves[i] = Mathf.Min(100f, reserves[i] + passiveRecoveryRate * Time.deltaTime);
+            metalReserves[type] = Mathf.Min(maxReserve, metalReserves[type] + passiveRecoveryRate * Time.deltaTime);
         }
     }
-    
+
     public float GetReserve(AllomancySkill.MetalType metal)
     {
-        return reserves[(int)metal];
+        if (metalReserves.ContainsKey(metal))
+            return metalReserves[metal];
+        
+        return 0f;
     }
-    
+
     public void Drain(AllomancySkill.MetalType metal, float amount)
     {
-        reserves[(int)metal] = Mathf.Max(0, reserves[(int)metal] - amount);
+        if (metalReserves.ContainsKey(metal))
+        {
+            metalReserves[metal] = Mathf.Max(0, metalReserves[metal] - amount);
+            Debug.Log($"{metal} remaining: {metalReserves[metal]}");
+        }
     }
-    
+
     public void Refill(AllomancySkill.MetalType metal, float amount)
     {
-        reserves[(int)metal] = Mathf.Min(100f, reserves[(int)metal] + amount);
-    }
-    
-    public void MetalFlare()
-    {
-        foreach (AllomancySkill.MetalType metal in metalTypes)
-        {
-            Refill(metal, metalFlareRecovery);
-        }
-        Debug.Log("Metal Flare! All reserves partially restored.");
-    }
-    
-    public void PurgeAll()
-    {
-        for (int i = 0; i < reserves.Length; i++)
-        {
-            reserves[i] = 0f;
-        }
-        Debug.Log("All metal reserves purged!");
+        if (metalReserves.ContainsKey(metal))
+            metalReserves[metal] = Mathf.Min(maxReserve, metalReserves[metal] + amount);
     }
 }
