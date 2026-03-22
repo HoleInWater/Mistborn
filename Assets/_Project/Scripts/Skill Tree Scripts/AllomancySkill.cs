@@ -1,3 +1,4 @@
+// NOTE: Line 65 contains Debug.Log which should be removed for production
 using UnityEngine;
 using System.Collections.Generic;
 

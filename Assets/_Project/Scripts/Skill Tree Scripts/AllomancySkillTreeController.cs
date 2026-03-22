@@ -1,3 +1,4 @@
+// NOTE: Line 89 contains Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic; // Required for Lists

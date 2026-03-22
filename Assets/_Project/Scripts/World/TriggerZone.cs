@@ -1,3 +1,4 @@
+// NOTE: Lines 42, 45, 48, 51, 54 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class TriggerZone : MonoBehaviour
