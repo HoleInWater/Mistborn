@@ -7,7 +7,9 @@ public class MetalPickup : MonoBehaviour
     public AllomancySkill.MetalType metalType;
     
     [Header("Pickup Settings")]
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for metalAmount
     public float metalAmount = 25f;
+    // NOTE: Consider adding [Range(1f, 300f)] attribute for respawnTime
     public float respawnTime = 30f;
     
     private bool isCollected = false;
