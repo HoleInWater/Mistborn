@@ -77,7 +77,6 @@ public class DodgeRoll : MonoBehaviour
         
         isDodging = true;
         lastDodgeTime = Time.time;
-=======
         lastRollTime = Time.time;
         isRolling = true;
         isInvincible = true;
