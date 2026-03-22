@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Extension methods for common operations.
 /// Usage: vector.Normalize2D() or transform.GetOrAddComponent<T>()

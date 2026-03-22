@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Simple object pool for reusing GameObjects.
 /// Usage: ObjectPool.Instance.Get("coin", position);

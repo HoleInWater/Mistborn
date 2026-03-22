@@ -1,3 +1,7 @@
+using UnityEngine;
+
+
+using UnityEngine;
 /// <summary>
 /// Smooth follow camera with orbit controls.
 /// Usage: Attach to camera, set target to player.
