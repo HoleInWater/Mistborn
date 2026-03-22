@@ -24,12 +24,10 @@ public class SaveSystem : MonoBehaviour
     {
         SaveData data = new SaveData();
         
-        // Swapped "Health" for "HealthBarTransitions"
         HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
         if (playerHealth != null)
         {
-            // Assuming your HealthBarTransitions uses a variable like 'health' or 'currentHealth'
-            // If the variable name is different in that file, change '.health' below to match it
+            // This now looks at the 'health' property we added in Step 1
             data.playerHealth = playerHealth.health; 
         }
         
@@ -56,11 +54,8 @@ public class SaveSystem : MonoBehaviour
             HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
             if (playerHealth != null)
             {
-                // We set the health value
+                // This updates the Progress Bar value directly
                 playerHealth.health = data.playerHealth;
-                
-                // IMPORTANT: If HealthBarTransitions has a function like 'UpdateUI()' or 'SetHealth()', 
-                // you should call it here so the red bar actually moves when you load.
             }
             
             Allomancer allomancer = FindObjectOfType<Allomancer>();
@@ -71,16 +66,6 @@ public class SaveSystem : MonoBehaviour
             
             Debug.Log("Game loaded!");
         }
-        else
-        {
-            Debug.Log("No save file found!");
-        }
-    }
-    
-    public void DeleteSave()
-    {
-        PlayerPrefs.DeleteKey(saveFileName);
-        Debug.Log("Save deleted!");
     }
 }
 
