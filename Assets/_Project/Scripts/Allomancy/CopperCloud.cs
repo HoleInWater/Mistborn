@@ -1,82 +1,82 @@
-using UnityEngine;
-
+/// <summary>
+/// Copper Cloud - Hide Allomantic pulses from Bronze detectors.
+/// Usage: CopperCloud cloud = GetComponent<CopperCloud>();
+/// </summary>
 public class CopperCloud : MonoBehaviour
 {
-    [Header("Settings")]
-    public float cloudRadius = 15f;
-    public float metalCostPerSecond = 4f;
-    public float visualRadius = 5f;
+    // SETTINGS
+    public float cloudRadius = 15f;           // Size of cloud
+    public float metalCostPerSecond = 4f;    // Drain rate
     
-    [Header("References")]
-    public Transform playerTransform;
+    // VISUALS
+    public Color cloudColor = new Color(0.3f, 0.2f, 0.5f, 0.2f);
     
-    private float metalReserve = 100f;
-    private bool isBurning = false;
-    private bool cloudActive = false;
+    // STATE
+    private bool isActive = false;
     private GameObject cloudEffect;
     
-    void Start()
-    {
-        if (playerTransform == null)
-            playerTransform = transform;
-    }
+    // EVENTS
+    public System.Action OnCloudStart;
+    public System.Action OnCloudEnd;
+    
+    // PUBLIC API
+    public bool IsActive => isActive;
     
     void Update()
     {
+        // Press C to toggle
         if (Input.GetKeyDown(KeyCode.C))
         {
-            StartBurning();
+            if (isActive)
+                StopCloud();
+            else
+                StartCloud();
         }
         
-        if (Input.GetKey(KeyCode.C) && isBurning)
+        if (isActive)
         {
-            MaintainCloud();
             DrainMetal();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.C))
-        {
-            StopBurning();
+            MaintainCloud();
         }
     }
     
-    void StartBurning()
+    void StartCloud()
     {
-        isBurning = true;
+        isActive = true;
         CreateCloud();
-        Debug.Log("Burning Copper - Hiding Allomantic pulses!");
+        Debug.Log("Copper Cloud Active!");
+        OnCloudStart?.Invoke();
     }
     
-    void StopBurning()
+    void StopCloud()
     {
-        isBurning = false;
+        isActive = false;
         DestroyCloud();
-        Debug.Log("Stopped burning Copper");
+        Debug.Log("Copper Cloud Ended");
+        OnCloudEnd?.Invoke();
     }
     
     void CreateCloud()
     {
-        if (cloudEffect != null) Destroy(cloudEffect);
+        if (cloudEffect != null)
+            Destroy(cloudEffect);
         
         cloudEffect = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        cloudEffect.transform.position = playerTransform.position;
-        cloudEffect.transform.localScale = Vector3.one * cloudRadius * 2;
         cloudEffect.name = "CopperCloud";
+        cloudEffect.transform.localScale = Vector3.one * cloudRadius * 2;
+        cloudEffect.transform.parent = transform;
         
         Renderer renderer = cloudEffect.GetComponent<Renderer>();
-        renderer.material = new Material(Shader.Find("Standard"));
-        renderer.material.color = new Color(0.3f, 0.2f, 0.5f, 0.2f);
-        renderer.material.SetFloat("_Mode", 3);
+        renderer.material.color = cloudColor;
         
         Destroy(cloudEffect.GetComponent<Collider>());
-        cloudActive = true;
     }
     
     void MaintainCloud()
     {
         if (cloudEffect != null)
         {
-            cloudEffect.transform.position = playerTransform.position;
+            cloudEffect.transform.position = transform.position;
         }
     }
     
@@ -87,19 +87,22 @@ public class CopperCloud : MonoBehaviour
             Destroy(cloudEffect);
             cloudEffect = null;
         }
-        cloudActive = false;
     }
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Copper, metalCostPerSecond * Time.deltaTime))
+            {
+                StopCloud();
+            }
         }
     }
     
-    public float GetMetalReserve() => metalReserve;
-    public bool IsCloudActive() => cloudActive;
+    void OnDestroy()
+    {
+        DestroyCloud();
+    }
 }

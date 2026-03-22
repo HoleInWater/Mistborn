@@ -1,84 +1,98 @@
-using UnityEngine;
-using System.Collections.Generic;
-
+/// <summary>
+/// Bronze Detect - Detect burning Allomancers nearby.
+/// Usage: BronzeDetect bronze = GetComponent<BronzeDetect>();
+/// </summary>
 public class BronzeDetect : MonoBehaviour
 {
-    [Header("Settings")]
-    public float detectionRange = 50f;
-    public float metalCostPerSecond = 2f;
-    public float pulseInterval = 0.5f;
+    // SETTINGS
+    public float detectionRange = 50f;        // How far to detect
+    public float metalCostPerSecond = 2f;    // Drain rate
+    public float pulseInterval = 0.5f;       // How often to check
     
-    [Header("References")]
-    public Camera playerCamera;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
-    private float lastPulseTime = 0f;
-    private List<GameObject> detectedAllomancers = new List<GameObject>();
+    private float lastPulseTime;
+    private System.Collections.Generic.List<GameObject> detectedAllomancers;
+    
+    // EVENTS
+    public System.Action OnAllomancerDetected;
+    public System.Action OnBurnStart;
+    public System.Action OnBurnEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
+    public System.Collections.Generic.List<GameObject> DetectedAllomancers => detectedAllomancers;
+    
+    void Start()
+    {
+        detectedAllomancers = new System.Collections.Generic.List<GameObject>();
+    }
     
     void Update()
     {
+        // Press V to burn bronze
         if (Input.GetKeyDown(KeyCode.V))
         {
-            StartBurning();
+            if (isBurning)
+                StopBurning();
+            else
+                StartBurning();
         }
         
-        if (Input.GetKey(KeyCode.V) && isBurning)
+        if (isBurning)
         {
-            DetectPulses();
             DrainMetal();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.V))
-        {
-            StopBurning();
+            DetectPulses();
         }
     }
     
     void StartBurning()
     {
         isBurning = true;
-        Debug.Log("Burning Bronze - Detecting Allomancers!");
+        Debug.Log("Burning Bronze!");
+        OnBurnStart?.Invoke();
     }
     
     void StopBurning()
     {
         isBurning = false;
         detectedAllomancers.Clear();
-        Debug.Log("Stopped burning Bronze");
+        Debug.Log("Stopped Bronze");
+        OnBurnEnd?.Invoke();
     }
     
     void DetectPulses()
     {
         if (Time.time - lastPulseTime < pulseInterval)
             return;
-            
+        
         lastPulseTime = Time.time;
         detectedAllomancers.Clear();
         
-        Collider[] nearby = Physics.OverlapSphere(transform.position, detectionRange);
+        // Find all Allomancer components in range
+        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
         
-        foreach (Collider col in nearby)
+        foreach (Collider hit in hits)
         {
-            Allomancer allomancer = col.GetComponent<Allomancer>();
+            Allomancer allomancer = hit.GetComponent<Allomancer>();
             if (allomancer != null && allomancer.IsBurning())
             {
-                detectedAllomancers.Add(col.gameObject);
-                Debug.Log($"Detected Allomancer: {col.gameObject.name} burning {allomancer.GetCurrentMetal()}");
+                detectedAllomancers.Add(hit.gameObject);
+                Debug.Log($"Detected Allomancer: {hit.name} burning {allomancer.GetCurrentMetal()}");
+                OnAllomancerDetected?.Invoke();
             }
         }
     }
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Bronze, metalCostPerSecond * Time.deltaTime))
+            {
+                StopBurning();
+            }
         }
     }
-    
-    public List<GameObject> GetDetectedAllomancers() => detectedAllomancers;
-    public float GetMetalReserve() => metalReserve;
 }

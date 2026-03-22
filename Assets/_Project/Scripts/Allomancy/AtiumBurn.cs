@@ -1,36 +1,45 @@
-using UnityEngine;
-using System.Collections.Generic;
-
+/// <summary>
+/// Atium - See enemy futures as ghosts.
+/// Usage: AtiumBurn atium = GetComponent<AtiumBurn>();
+/// </summary>
 public class AtiumBurn : MonoBehaviour
 {
-    [Header("Settings")]
-    public float visionRange = 50f;
-    public float metalCostPerSecond = 10f;
-    public float ghostAlpha = 0.3f;
+    // SETTINGS
+    public float visionRange = 50f;           // How far to see
+    public float metalCostPerSecond = 10f;   // High cost - rare metal
+    public float ghostAlpha = 0.3f;          // Transparency of ghosts
     
-    [Header("References")]
-    public Camera playerCamera;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
-    private List<GameObject> futureGhosts = new List<GameObject>();
+    private System.Collections.Generic.List<GameObject> futureGhosts;
+    
+    // EVENTS
+    public System.Action OnBurnStart;
+    public System.Action OnBurnEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
+    
+    void Start()
+    {
+        futureGhosts = new System.Collections.Generic.List<GameObject>();
+    }
     
     void Update()
     {
+        // Press T to burn atium
         if (Input.GetKeyDown(KeyCode.T))
         {
-            StartBurning();
+            if (isBurning)
+                StopBurning();
+            else
+                StartBurning();
         }
         
-        if (Input.GetKey(KeyCode.T) && isBurning)
+        if (isBurning)
         {
-            SeeFutures();
             DrainMetal();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.T))
-        {
-            StopBurning();
+            SeeFutures();
         }
     }
     
@@ -38,19 +47,22 @@ public class AtiumBurn : MonoBehaviour
     {
         isBurning = true;
         Debug.Log("Burning Atium - Seeing the future!");
+        OnBurnStart?.Invoke();
     }
     
     void StopBurning()
     {
         isBurning = false;
         ClearFutures();
-        Debug.Log("Stopped burning Atium");
+        Debug.Log("Stopped Atium");
+        OnBurnEnd?.Invoke();
     }
     
     void SeeFutures()
     {
         ClearFutures();
         
+        // Find enemies and create ghost copies showing their predicted positions
         AIController[] enemies = FindObjectsOfType<AIController>();
         
         foreach (AIController enemy in enemies)
@@ -65,19 +77,25 @@ public class AtiumBurn : MonoBehaviour
     
     GameObject CreateFutureGhost(AIController enemy)
     {
+        // Clone the enemy as a ghost
         GameObject ghost = Instantiate(enemy.gameObject, enemy.transform.position, enemy.transform.rotation);
         ghost.name = $"FutureGhost_{enemy.name}";
         
+        // Make transparent
         Renderer[] renderers = ghost.GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renderers)
         {
-            r.material = new Material(r.material);
-            Color c = r.material.color;
-            r.material.color = new Color(c.r, c.g, c.b, ghostAlpha);
+            Material ghostMat = new Material(r.material);
+            Color c = ghostMat.color;
+            ghostMat.color = new Color(c.r, c.g, c.b, ghostAlpha);
+            r.material = ghostMat;
         }
         
+        // Disable AI and colliders on ghost
         ghost.GetComponent<AIController>().enabled = false;
-        foreach (Collider c in ghost.GetComponentsInChildren<Collider>())
+        
+        Collider[] cols = ghost.GetComponentsInChildren<Collider>();
+        foreach (Collider c in cols)
             c.enabled = false;
         
         return ghost;
@@ -95,15 +113,15 @@ public class AtiumBurn : MonoBehaviour
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Atium, metalCostPerSecond * Time.deltaTime))
+            {
+                StopBurning();
+            }
         }
     }
-    
-    public float GetMetalReserve() => metalReserve;
     
     void OnDestroy()
     {

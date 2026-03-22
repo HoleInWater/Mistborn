@@ -1,52 +1,57 @@
-using UnityEngine;
-using System.Collections.Generic;
-
+/// <summary>
+/// Brass Soothe - Calm nearby enemies.
+/// Usage: BrassSoothe brass = GetComponent<BrassSoothe>();
+/// </summary>
 public class BrassSoothe : MonoBehaviour
 {
-    [Header("Settings")]
-    public float emotionRange = 30f;
-    public float sootheStrength = 2f;
-    public float metalCostPerSecond = 3f;
-    public LayerMask enemyLayer;
+    // SETTINGS
+    public float emotionRange = 30f;          // Range to affect
+    public float sootheStrength = 0.5f;     // How much to calm (lower = calmer)
+    public float metalCostPerSecond = 3f;    // Drain rate
+    public LayerMask enemyLayer;             // What to affect
     
-    [Header("References")]
-    public Camera playerCamera;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
+    
+    // EVENTS
+    public System.Action OnSootheStart;
+    public System.Action OnSootheEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
     
     void Update()
     {
+        // Press X to soothe
         if (Input.GetKeyDown(KeyCode.X))
         {
-            StartBurning();
+            if (isBurning)
+                StopSoothe();
+            else
+                StartSoothe();
         }
         
-        if (Input.GetKey(KeyCode.X) && isBurning)
+        if (isBurning)
         {
-            SootheEmotions();
             DrainMetal();
         }
-        
-        if (Input.GetKeyUp(KeyCode.X))
-        {
-            StopBurning();
-        }
     }
     
-    void StartBurning()
+    void StartSoothe()
     {
         isBurning = true;
-        Debug.Log("Burning Brass - Soothing emotions!");
+        Debug.Log("Burning Brass - Soothing!");
+        OnSootheStart?.Invoke();
     }
     
-    void StopBurning()
+    void StopSoothe()
     {
         isBurning = false;
-        Debug.Log("Stopped burning Brass");
+        Debug.Log("Stopped Brass");
+        OnSootheEnd?.Invoke();
     }
     
-    void SootheEmotions()
+    void SootheAllEnemies()
     {
         Collider[] enemies = Physics.OverlapSphere(transform.position, emotionRange, enemyLayer);
         
@@ -56,21 +61,20 @@ public class BrassSoothe : MonoBehaviour
             if (ai != null)
             {
                 ai.SetEmotionState(AIController.EmotionState.Calm);
-                ai.SetAggressionMultiplier(1f / sootheStrength);
+                ai.SetAggressionMultiplier(sootheStrength);
             }
         }
     }
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Brass, metalCostPerSecond * Time.deltaTime))
+            {
+                StopSoothe();
+            }
         }
     }
-    
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }
