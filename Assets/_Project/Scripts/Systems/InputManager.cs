@@ -1,7 +1,4 @@
 using UnityEngine;
-
-using UnityEngine;
-
 /// <summary>
 /// Centralized input manager for all game controls.
 /// Usage: InputManager.Instance.GetKeyDown(InputManager.Action.Dash)
