@@ -57,4 +57,16 @@ public class MetalReserveManager : MonoBehaviour
         if (metalReserves.ContainsKey(metal))
             metalReserves[metal] = Mathf.Min(maxReserve, metalReserves[metal] + amount);
     }
+        public void PurgeAll()
+    {
+        // Create a temporary list of keys to iterate through safely
+        List<AllomancySkill.MetalType> keys = new List<AllomancySkill.MetalType>(metalReserves.Keys);
+        
+        foreach (var metal in keys)
+        {
+            metalReserves[metal] = 0f;
+        }
+        
+        Debug.Log("MetalReserveManager: All reserves purged to 0.");
+    }
 }
