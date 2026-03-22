@@ -4,103 +4,118 @@ using System.Collections;
 namespace MistbornGame.Utilities
 {
     /// <summary>
-    /// Utility class for handling common coroutine operations
+    /// Utility class for managing coroutines
     /// </summary>
-    public class CoroutineUtils : MonoBehaviour
+    public static class CoroutineUtils
     {
         /// <summary>
-        /// Runs an action after a delay in seconds
+        /// Starts a coroutine on a MonoBehaviour
         /// </summary>
-        public static Coroutine DelayedAction(MonoBehaviour monoBehaviour, float delay, System.Action action)
+        public static Coroutine StartRoutine(MonoBehaviour behaviour, IEnumerator routine)
         {
-            if (monoBehaviour == null || action == null) return null;
-            return monoBehaviour.StartCoroutine(DelayedActionCoroutine(delay, action));
-        }
-
-        /// <summary>
-        /// Runs an action repeatedly at intervals
-        /// </summary>
-        public static Coroutine RepeatedAction(MonoBehaviour monoBehaviour, float interval, System.Action action, int repetitions = -1)
-        {
-            if (monoBehaviour == null || action == null) return null;
-            return monoBehaviour.StartCoroutine(RepeatedActionCoroutine(interval, action, repetitions));
-        }
-
-        /// <summary>
-        /// Waits until a condition becomes true, then executes an action
-        /// </summary>
-        public static Coroutine WaitForCondition(MonoBehaviour monoBehaviour, System.Func<bool> condition, System.Action action, float checkInterval = 0.1f)
-        {
-            if (monoBehaviour == null || condition == null || action == null) return null;
-            return monoBehaviour.StartCoroutine(WaitForConditionCoroutine(condition, action, checkInterval));
-        }
-
-        /// <summary>
-        /// Executes an action for a specified duration
-        /// </summary>
-        public static Coroutine TimedAction(MonoBehaviour monoBehaviour, float duration, System.Action action)
-        {
-            if (monoBehaviour == null || action == null) return null;
-            return monoBehaviour.StartCoroutine(TimedActionCoroutine(duration, action));
-        }
-
-        /// <summary>
-        /// Fades a value from start to end over time
-        /// </summary>
-        public static Coroutine FloatLerp(MonoBehaviour monoBehaviour, float start, float end, float duration, System.Action<float> onUpdate)
-        {
-            if (monoBehaviour == null || onUpdate == null) return null;
-            return monoBehaviour.StartCoroutine(FloatLerpCoroutine(start, end, duration, onUpdate));
-        }
-
-        private static IEnumerator DelayedActionCoroutine(float delay, System.Action action)
-        {
-            yield return new WaitForSeconds(delay);
-            action?.Invoke();
-        }
-
-        private static IEnumerator RepeatedActionCoroutine(float interval, System.Action action, int repetitions)
-        {
-            int count = 0;
-            while (repetitions == -1 || count < repetitions)
+            if (behaviour == null || routine == null)
             {
-                yield return new WaitForSeconds(interval);
-                action?.Invoke();
-                count++;
+                Debug.LogError("CoroutineUtils: Behaviour or routine is null");
+                return null;
+            }
+            return behaviour.StartCoroutine(routine);
+        }
+
+        /// <summary>
+        /// Stops a coroutine safely
+        /// </summary>
+        public static void StopRoutine(MonoBehaviour behaviour, Coroutine routine)
+        {
+            if (behaviour != null && routine != null)
+            {
+                behaviour.StopCoroutine(routine);
             }
         }
 
-        private static IEnumerator WaitForConditionCoroutine(System.Func<bool> condition, System.Action action, float checkInterval)
+        /// <summary>
+        /// Stops all coroutines on a MonoBehaviour
+        /// </summary>
+        public static void StopAllRoutines(MonoBehaviour behaviour)
         {
-            while (!condition())
+            if (behaviour != null)
             {
-                yield return new WaitForSeconds(checkInterval);
+                behaviour.StopAllCoroutines();
             }
-            action?.Invoke();
         }
 
-        private static IEnumerator TimedActionCoroutine(float duration, System.Action action)
+        /// <summary>
+        /// Creates a coroutine that waits for a condition
+        /// </summary>
+        public static IEnumerator WaitForCondition(System.Func<bool> condition, float timeout = float.MaxValue)
         {
             float elapsed = 0f;
-            while (elapsed < duration)
+            while (!condition() && elapsed < timeout)
             {
                 elapsed += Time.deltaTime;
-                action?.Invoke();
                 yield return null;
             }
         }
 
-        private static IEnumerator FloatLerpCoroutine(float start, float end, float duration, System.Action<float> onUpdate)
+        /// <summary>
+        /// Creates a coroutine that invokes an action after a delay
+        /// </summary>
+        public static IEnumerator InvokeAfterDelay(float delay, System.Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            if (action != null)
+            {
+                action.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Creates a coroutine that fades a CanvasGroup over time
+        /// </summary>
+        public static IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration)
         {
             float elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
-                float value = Mathf.Lerp(start, end, t);
-                onUpdate?.Invoke(value);
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
                 yield return null;
             }
+            canvasGroup.alpha = endAlpha;
+        }
+
+        /// <summary>
+        /// Creates a coroutine that moves a Transform to a target position
+        /// </summary>
+        public static IEnumerator MoveToPosition(Transform transform, Vector3 targetPosition, float duration)
+        {
+            Vector3 startPosition = transform.position;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+                yield return null;
+            }
+            transform.position = targetPosition;
+        }
+
+        /// <summary>
+        /// Creates a coroutine that rotates a Transform to a target rotation
+        /// </summary>
+        public static IEnumerator RotateToRotation(Transform transform, Quaternion targetRotation, float duration)
+        {
+            Quaternion startRotation = transform.rotation;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+                yield return null;
+            }
+            transform.rotation = targetRotation;
         }
     }
 }
