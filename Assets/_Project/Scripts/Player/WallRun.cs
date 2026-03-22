@@ -1,4 +1,3 @@
-using UnityEngine;
 /// <summary>
 /// Controls wall running and wall jumping mechanics.
 /// Usage: WallRun wallRun = GetComponent<WallRun>();
