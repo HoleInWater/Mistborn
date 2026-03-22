@@ -52,7 +52,6 @@ public class MalatiumReveal : MonoBehaviour
             {
                 Material originalMat = new Material(renderer.material);
                 renderer.material.color = malatiumColor;
-                
                 Invoke(() => RestoreMaterial(renderer, originalMat), 0.5f);
             }
         }
