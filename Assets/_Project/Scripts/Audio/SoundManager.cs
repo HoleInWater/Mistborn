@@ -15,8 +15,11 @@ public class SoundManager : MonoBehaviour
     public AudioClip[] skillUnlockSound;
     
     [Header("Settings")]
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for masterVolume
     public float masterVolume = 1f;
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for sfxVolume
     public float sfxVolume = 1f;
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for musicVolume
     public float musicVolume = 0.5f;
     
     public static SoundManager Instance { get; private set; }
