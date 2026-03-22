@@ -1,21 +1,40 @@
-using UnityEngine;
-
+/// <summary>
+/// Steel Push - Push metals away from the Allomancer.
+/// Usage: SteelPush steel = GetComponent<SteelPush>();
+/// 
+/// METHODS:
+///   steel.Push()   // Push all nearby metals
+/// </summary>
 public class SteelPush : MonoBehaviour
 {
-    [Header("Settings")]
-    public float pushForce = 500f;
-    public float maxRange = 50f;
-    public float metalCostPerSecond = 2f;
+    // SETTINGS
+    public float pushForce = 500f;            // Force applied
+    public float maxRange = 50f;              // Maximum range
+    public float metalCostPerSecond = 2f;     // Drain rate
+    public LayerMask metalLayer;              // What can be pushed
     
-    [Header("References")]
-    public Camera playerCamera;
-    public LayerMask metalLayer;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
+    private Camera playerCamera;
+    
+    // EVENTS
+    public System.Action OnPush;
+    public System.Action OnBurnStart;
+    public System.Action OnBurnEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
+    
+    void Start()
+    {
+        playerCamera = GetComponentInChildren<Camera>();
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+    }
     
     void Update()
     {
+        // Right mouse button to push
         if (Input.GetMouseButtonDown(1))
         {
             StartBurning();
@@ -36,40 +55,50 @@ public class SteelPush : MonoBehaviour
     void StartBurning()
     {
         isBurning = true;
-        Debug.Log("Burning Steel - Push ready");
+        Debug.Log("Burning Steel!");
+        OnBurnStart?.Invoke();
     }
     
     void StopBurning()
     {
         isBurning = false;
-        Debug.Log("Stopped burning Steel");
+        Debug.Log("Stopped Steel");
+        OnBurnEnd?.Invoke();
     }
     
     void PushMetals()
     {
+        if (playerCamera == null) return;
+        
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit[] hits = Physics.RaycastAll(ray, maxRange, metalLayer);
         
         foreach (RaycastHit hit in hits)
         {
-            if (hit.rigidbody != null)
+            Rigidbody rb = hit.collider.GetComponent<Rigidbody>();
+            if (rb != null)
             {
-                Vector3 pushDirection = (hit.point - playerCamera.transform.position).normalized;
-                hit.rigidbody.AddForce(pushDirection * pushForce * Time.deltaTime);
+                // Direction from player to target
+                Vector3 pushDir = (hit.point - transform.position).normalized;
+                rb.AddForce(pushDir * pushForce * Time.deltaTime, ForceMode.Impulse);
             }
+        }
+        
+        if (hits.Length > 0)
+        {
+            OnPush?.Invoke();
         }
     }
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            metalReserve = 0;
-            StopBurning();
+            if (!metals.UseMetal(MetalType.Steel, metalCostPerSecond * Time.deltaTime))
+            {
+                StopBurning();
+            }
         }
     }
-    
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }
