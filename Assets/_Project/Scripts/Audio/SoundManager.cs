@@ -1,3 +1,4 @@
+// NOTE: Consider adding [DisallowMultipleComponent] attribute to prevent duplicate sound managers
 using UnityEngine;
 
 public class SoundManager : MonoBehaviour
