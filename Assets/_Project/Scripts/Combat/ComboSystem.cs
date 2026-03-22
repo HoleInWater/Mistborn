@@ -4,11 +4,15 @@ using UnityEngine;
 public class ComboSystem : MonoBehaviour
 {
     [Header("Combo Settings")]
+    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for comboWindow
     public float comboWindow = 2f;
+    // NOTE: Consider adding [Range(1, 100)] attribute for maxComboCount
     public int maxComboCount = 10;
     
     [Header("Combo Rewards")]
+    // NOTE: Consider adding [Range(0.01f, 1f)] attribute for damageMultiplierPerHit
     public float damageMultiplierPerHit = 0.1f;
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for metalCostReduction
     public float metalCostReduction = 0.05f;
     
     private int currentCombo = 0;
