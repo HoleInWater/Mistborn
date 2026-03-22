@@ -4,7 +4,9 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     [Header("Inventory Settings")]
+    // NOTE: Consider adding [Range(1, 100)] attribute for maxSlots
     public int maxSlots = 20;
+    // NOTE: currentSlotCount could be a property that returns ownedKeys.Length
     public int currentSlotCount = 0;
     
     [Header("Keys")]
