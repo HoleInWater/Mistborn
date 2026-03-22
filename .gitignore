@@ -38,3 +38,7 @@ Thumbs.db
 # Documents
 *.pdf
 *.docx
+Assets/_Project/Scripts/UI/SettingsManager.cs.meta
+Assets/_Project/Scripts/UI/SettingsManager.cs.meta
+*.meta
+*.meta
