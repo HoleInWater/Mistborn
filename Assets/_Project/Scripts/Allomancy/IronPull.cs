@@ -11,12 +11,20 @@ public class IronPull : MonoBehaviour
     [Header("References")]
     public Camera playerCamera;
     public LayerMask metalLayer;
+    public Allomancer allomancer;
     
     private float metalReserve = 100f;
     private bool isBurning = false;
     
     void Update()
     {
+        // Check if Allomancer says we can't burn metal (out of metal)
+        if (allomancer != null && !allomancer.canBurnMetal)
+        {
+            if (isBurning) StopBurning();
+            return;
+        }
+        
         if (Input.GetMouseButtonDown(0))
         {
             StartBurning();
