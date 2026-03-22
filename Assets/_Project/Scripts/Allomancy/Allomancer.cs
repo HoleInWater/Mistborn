@@ -1,6 +1,34 @@
-using UnityEngine;
+/* Allomancer.cs
+ * 
+ * PURPOSE:
+ * Core Allomancy system that manages metal reserves, burning state, and coordination
+ * with other Allomancy abilities (SteelPush, IronPull, etc.).
+ * 
+ * KEY FIELDS:
+ * - metalReserves: Array of 16 floats representing metal reserves (one per metal type)
+ * - currentMetal: Currently selected metal type for burning
+ * - isBurningMetal: Whether the player is actively burning metal
+ * - canBurnMetal: Whether the player can burn the current metal (false when reserve hits 0)
+ * - metalHUD: Reference to UI display for metal reserves
+ * 
+ * HOW IT WORKS:
+ * - StartBurning/StopBurning: Control metal burning state
+ * - DrainMetal/RefillMetal: Adjust metal reserves (called by abilities)
+ * - Updates metal HUD when reserves change
+ * - Automatically disables burning when metal reserve hits 0
+ * 
+ * IMPORTANT NOTES:
+ * - Metal reserves start at 100% and deplete when burning
+ * - canBurnMetal becomes false when current metal reserve <= 0
+ * - Triggers UI warning when metal runs out
+ * - Must be attached to the Player GameObject
+ * 
+ * LORE ACCURACY:
+ * Allomancers burn metals to gain powers. Each metal type has different abilities.
+ * Running out of metal disables allomancy until metal is replenished.
+ */
 
-public class Allomancer : MonoBehaviour
+using UnityEngine;
 {
     [Header("Metal State")]
     public bool isBurningMetal = false;
