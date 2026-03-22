@@ -1,4 +1,5 @@
 // NOTE: Line 31 contains Debug.Log which should be removed for production
+// NOTE: Consider adding [System.Serializable] attribute for the inventory system
 using UnityEngine;
 
 public class Inventory : MonoBehaviour
