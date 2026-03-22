@@ -16,12 +16,12 @@ public class AnimationStateController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool isrunning = animator.GetBool("isRunning");
+        bool isRunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");
+        bool isJumping = animator.GetBool("isJumping");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         bool runPressed = Input.GetKey("left shift");
-        bool offGround = animator.GetBool("Offground");
-        bool jump = Input.GetKey(KeyCode.Space);
+        bool jumpPressed = Input.GetKey("space");
         
         // If player presses W, the animator starts isWalking
         if (!isWalking && forwardPressed)
@@ -36,27 +36,27 @@ public class AnimationStateController : MonoBehaviour
         }
 
         //If player is holding left shift and w then run
-        if (!isrunning && (forwardPressed && runPressed))
+        if (!isRunning && (forwardPressed && runPressed))
         {
             animator.SetBool("isRunning", true);
         }
         
         //If player is not holding left shift and w then don't run
-        if (isrunning && (!forwardPressed ||!runPressed))
+        if (isRunning && (!forwardPressed ||!runPressed))
         {
             animator.SetBool("isRunning", false);
         }
 
-        // If player is on ground
-        if (offGround && jump)
+        //If player is idle, then you can jump
+        if (!forwardPressed && jumpPressed)
         {
-            animator.SetBool("offGround", true);
+            animator.SetBool("isJumping", true);
         }
 
-        // If player is off ground
-        if (!offGround && jump)
+        //If player is not idle, then you can't jump
+        if (forwardPressed && !jumpPressed)
         {
-            animator.SetBool("offGround", false);
+            animator.SetBool("isJumping", false);
         }
     }
 }
