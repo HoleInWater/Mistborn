@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class RandomUtils : MonoBehaviour
+    public static class RandomUtils
     {
         /// <summary>
         /// Returns a random element from an array
