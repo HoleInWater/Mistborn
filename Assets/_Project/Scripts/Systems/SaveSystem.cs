@@ -5,13 +5,13 @@ using System;
 [Serializable]
 public class SaveData
 {
-    public float playerHealth;
-    public float playerMaxHealth;
-    public float[] metalReserves;
-    public Vector3 playerPosition;
-    public Quaternion playerRotation;
-    public string sceneName;
-    public int currentCheckpoint;
+    public float playerHealth;       // Corresponds to Health.currentHealth
+    public float playerMaxHealth;    // Corresponds to Health.maxHealth
+    public float[] metalReserves;    // Corresponds to MetalReserveManager.reserves
+    public Vector3 playerPosition;  // Player transform position
+    public Quaternion playerRotation; // Player transform rotation
+    public string sceneName;         // Current scene name
+    public int currentCheckpoint;    // Last checkpoint ID
 }
 
 public class SaveSystem : MonoBehaviour

@@ -2,26 +2,42 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [Header("Health Settings")]
     public float maxHealth = 100f;
     public float currentHealth = 100f;
     public float healthRegenRate = 0f;
+    public float regenDelay = 3f;
+    public float regenTickRate = 0.5f;
     
-    [Header("Death Settings")]
     public bool destroyOnDeath = false;
     public float deathDelay = 0f;
     
     public System.Action<float, float> OnHealthChanged;
     public System.Action OnDeath;
+    public System.Action OnRevive;
+    
+    private float timeSinceDamage = 0f;
+    private float lastRegenTick = 0f;
     
     public float NormalizedHealth => currentHealth / maxHealth;
     public bool IsDead => currentHealth <= 0;
     
     void Update()
     {
-        if (healthRegenRate > 0 && currentHealth < maxHealth)
+        if (IsDead) return;
+        
+        if (currentHealth < maxHealth)
         {
-            currentHealth = Mathf.Min(maxHealth, currentHealth + healthRegenRate * Time.deltaTime);
+            timeSinceDamage += Time.deltaTime;
+            
+            if (timeSinceDamage >= regenDelay && healthRegenRate > 0)
+            {
+                if (Time.time - lastRegenTick >= regenTickRate)
+                {
+                    lastRegenTick = Time.time;
+                    currentHealth = Mathf.Min(maxHealth, currentHealth + healthRegenRate * regenTickRate);
+                    OnHealthChanged?.Invoke(currentHealth, maxHealth);
+                }
+            }
         }
     }
     
@@ -30,6 +46,7 @@ public class Health : MonoBehaviour
         if (IsDead) return;
         
         currentHealth = Mathf.Max(0, currentHealth - amount);
+        timeSinceDamage = 0f;
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         
         if (currentHealth <= 0)
@@ -65,14 +82,16 @@ public class Health : MonoBehaviour
         
         if (destroyOnDeath)
         {
-            if (deathDelay > 0)
-            {
-                Destroy(gameObject, deathDelay);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject, deathDelay);
         }
+    }
+    
+    public void Revive(float healthAmount)
+    {
+        if (!IsDead) return;
+        
+        currentHealth = healthAmount;
+        OnRevive?.Invoke();
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 }
