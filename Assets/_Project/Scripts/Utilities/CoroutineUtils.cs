@@ -117,5 +117,23 @@ namespace MistbornGame.Utilities
             }
             transform.rotation = targetRotation;
         }
+
+        /// <summary>
+        /// Creates a coroutine that fades an AudioSource's volume over time
+        /// </summary>
+        public static IEnumerator FadeAudioSource(AudioSource source, float targetVolume, float duration)
+        {
+            if (source == null) yield break;
+            float startVolume = source.volume;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                source.volume = Mathf.Lerp(startVolume, targetVolume, t);
+                yield return null;
+            }
+            source.volume = targetVolume;
+        }
     }
 }
