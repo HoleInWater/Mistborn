@@ -27,10 +27,17 @@ public class DashAbility : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(dashKey) && Time.time - lastDashTime >= dashCooldown)
+        // Check for key press and cooldown
+        if (Input.GetKeyDown(dashKey) && Time.time - lastDashTime >= dashCooldown && !isDashing)
         {
-            if (CanAffordDash()) StartCoroutine(SmoothDash());
-            else Debug.Log("Not enough metal!");
+            if (CanAffordDash()) 
+            {
+                StartCoroutine(SmoothDash());
+            }
+            else 
+            {
+                Debug.Log("Not enough metal for dash!");
+            }
         }
     }
 
@@ -38,25 +45,30 @@ public class DashAbility : MonoBehaviour
     {
         isDashing = true;
         lastDashTime = Time.time;
+        
         DrainMetal();
 
-        // Determine Direction
+        // Get direction based on WASD/Joystick input
         Vector3 dashDir = GetDashDirection();
         float startTime = Time.time;
 
+        // Smoothly move over the duration
         while (Time.time < startTime + dashDuration)
         {
-            float t = (Time.time - startTime) / dashDuration;
-            // Use Lerp to ease out the speed toward the end of the duration
-            float currentSpeed = Mathf.Lerp(dashSpeed, dashSpeed * 0.5f, t);
+            float elapsed = Time.time - startTime;
+            float percentComplete = elapsed / dashDuration;
+
+            // This creates a "Ease Out" effect so you don't stop instantly
+            float currentSpeed = Mathf.Lerp(dashSpeed, dashSpeed * 0.4f, percentComplete);
             
             rb.linearVelocity = dashDir * currentSpeed;
             yield return new WaitForFixedUpdate();
         }
 
-        // Soft stop
+        // Clean up at the end
         rb.linearVelocity = Vector3.zero;
         isDashing = false;
+        Debug.Log("Dash Finished");
     }
 
     Vector3 GetDashDirection()
@@ -64,13 +76,36 @@ public class DashAbility : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         
-        Vector3 dir = (Camera.main.transform.forward * v + Camera.main.transform.right * h);
-        dir.y = 0; // Keep dash horizontal
+        // Calculate relative to camera
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
+        forward.y = 0;
+        right.y = 0;
 
+        Vector3 dir = (forward * v + right * h).normalized;
+
+        // If not pressing any keys, dash forward
         if (dir.sqrMagnitude < 0.1f) dir = transform.forward;
-        return dir.normalized;
+        
+        return dir;
     }
 
-    bool CanAffordDash() { /* Keep existing logic */ return true; }
-    void DrainMetal() { /* Keep existing logic */ }
+    // Re-added your original logic so it actually functions
+    bool CanAffordDash()
+    {
+        if (allomancer != null)
+            return allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter) >= metalCost;
+        if (metalManager != null)
+            return metalManager.GetReserve(AllomancySkill.MetalType.Pewter) >= metalCost;
+        
+        return true; // Dashing is free if no manager is found
+    }
+
+    void DrainMetal()
+    {
+        if (allomancer != null)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Pewter, metalCost);
+        else if (metalManager != null)
+            metalManager.Drain(AllomancySkill.MetalType.Pewter, metalCost);
+    }
 }
