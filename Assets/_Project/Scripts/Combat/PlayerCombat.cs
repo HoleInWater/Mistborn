@@ -1,3 +1,4 @@
+// NOTE: Line 33 contains Debug.Log which should be removed for production
 using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
