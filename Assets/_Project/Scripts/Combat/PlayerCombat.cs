@@ -10,6 +10,7 @@ public class PlayerCombat : MonoBehaviour
     
     [Header("References")]
     public ComboSystem comboSystem;
+    // NOTE: Consider adding [Tooltip("Layer mask for enemies")] attribute for better inspector documentation
     public LayerMask enemyLayer;
     
     private float lastAttackTime = 0f;
