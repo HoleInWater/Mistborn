@@ -5,7 +5,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common serialization operations
     /// </summary>
-    public class SerializationUtils : MonoBehaviour
+    public static class SerializationUtils
     {
         /// <summary>
         /// Serializes an object to JSON string
