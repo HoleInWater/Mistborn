@@ -91,4 +91,10 @@ public class PlayerCollisionHandler3D : MonoBehaviour
             IncreaseHealth(regenPerSecond * Time.deltaTime);
         }
     }
+    
+    // Add this so the Combat script can damage the health bar
+    public void TakeDamage(float damage)
+    {
+        DecreaseHealth(damage);
+    }
 }
