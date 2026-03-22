@@ -3,10 +3,16 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f; // Kept this name so your other scripts don't break
+    public float moveSpeed = 5f; 
     public float sprintSpeed = 10f; 
     public float rotationSpeed = 10f; 
     public float mouseSensitivity = 200f;
+
+    [Header("Jumping")]
+    public float jumpForce = 5f;
+    public LayerMask groundLayer; // Set this to your 'Ground' layer in the Inspector
+    private Rigidbody rb;
+    private bool isGrounded;
 
     [Header("Stamina Settings")]
     public float drainRate = 25f;
@@ -30,6 +36,11 @@ public class BasicPlayerMove : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        rb = GetComponent<Rigidbody>(); // Get the Rigidbody
+        
+        // Prevents the capsule from falling over when moving
+        rb.freezeRotation = true; 
+
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
         currentDistance = maxDistance;
@@ -38,18 +49,21 @@ public class BasicPlayerMove : MonoBehaviour
     
         if (staminaSystem == null)
         {
-            Debug.LogError("PlayerMove cannot find PlayerStamina! Make sure BOTH scripts are on the same Player object.");
+            Debug.LogError("PlayerMove cannot find PlayerStamina!");
         }
     }
 
     void Update()
     {
+        // --- GROUND CHECK ---
+        // Shoots a tiny ray down to see if we are touching the ground
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
+
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
         // --- SPRINT LOGIC ---
-        float currentActiveSpeed = moveSpeed; // Starts at your base moveSpeed
-        
+        float currentActiveSpeed = moveSpeed;
         bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
         bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
@@ -59,8 +73,8 @@ public class BasicPlayerMove : MonoBehaviour
             currentActiveSpeed = sprintSpeed;
             staminaSystem.DrainStamina(drainRate);
         }
-        // ---------------------
 
+        // --- MOVEMENT ---
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0; 
@@ -72,13 +86,21 @@ public class BasicPlayerMove : MonoBehaviour
 
         if (moveDirection.magnitude >= 0.1f)
         {
-            // Use the calculated speed here
+            // Moving via transform.position is okay for simple setups, 
+            // but Rigidbody.MovePosition is usually smoother with physics.
             transform.position += moveDirection * currentActiveSpeed * Time.deltaTime;
 
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
+        // --- JUMP LOGIC ---
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
+        // --- CAMERA ROTATION ---
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
