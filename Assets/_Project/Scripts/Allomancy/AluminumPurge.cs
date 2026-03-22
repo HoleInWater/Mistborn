@@ -6,7 +6,7 @@ public class AluminumPurge : MonoBehaviour
     public float purgeCost = 20f;
     public bool purgeOnActivation = true;
     
-    private float metalReserve = 100f;
+    private float metalReserve = 100f; // Note: This is singular
     
     public void TryPurge()
     {
@@ -30,11 +30,12 @@ public class AluminumPurge : MonoBehaviour
     
     void PerformPurge()
     {
-        metalReserve -= purgeCost;
+        metalReserve -= purgeCost; // Line 41: Subtracting cost from local aluminum
         
         Allomancer allomancer = GetComponent<Allomancer>();
         if (allomancer != null)
         {
+            // Drain existing allomancy skills
             for (int i = 0; i < 16; i++)
             {
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel, allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel));
@@ -44,23 +45,11 @@ public class AluminumPurge : MonoBehaviour
         MetalReserveManager manager = GetComponent<MetalReserveManager>();
         if (manager != null)
         {
-            manager.PurgeAll();
+            // This calls the new function we added to MetalReserveManager
+            manager.PurgeAll(); 
         }
         
         Debug.Log("Aluminum Purged - All metal reserves emptied!");
-    }
-
-        public void PurgeAll()
-    {
-        // If you use an array or list to store reserves, loop through and zero them out
-        // Example (replace 'reserves' with your actual variable name):
-        for (int i = 0; i < reserves.Length; i++)
-        {
-            reserves[i] = 0f;
-        }
-        
-        // If you use a Dictionary or individual variables, reset them here
-        Debug.Log("All metals have been purged from the manager.");
     }
     
     public float GetMetalReserve() => metalReserve;
