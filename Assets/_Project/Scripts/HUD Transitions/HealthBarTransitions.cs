@@ -10,6 +10,11 @@ public class HealthBarTransitions : MonoBehaviour
     public float timeNotTouchedEnemy = 0f; // Timer to track how long since last touched enemy
     public float regenDelayAfterTouch = 10f; // seconds to wait before starting regen
     public float regenPerSecond = 5f;
+    public float health
+    {
+        get { return _progressBar != null ? _progressBar.value : 100f; }
+        set { if (_progressBar != null) _progressBar.value = value; }
+    }
     private bool isTouchingEnemy = false;
 
 
