@@ -12,18 +12,8 @@ namespace MistbornGame.Utilities
         /// </summary>
         public static bool HasInternetConnection()
         {
-            try
-            {
-                using (var client = new System.Net.WebClient())
-                using (var stream = client.OpenRead("http://www.google.com"))
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-                return false;
-            }
+            // Use Unity's built-in internet reachability check
+            return Application.internetReachability != NetworkReachability.NotReachable;
         }
 
         /// <summary>
