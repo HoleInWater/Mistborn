@@ -1,69 +1,73 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MistbornGame.UI
 {
-    public static class GameManagerInstance { get private set };
-    
-    [Header("Game State")]
-    public bool isPaused = false;
-    public bool isGameOver = false;
-    
-    [Header("References")]
-    public GameObject pauseMenu;
-    public GameObject gameOverScreen;
-    
-    void Awake()
+    public class GameManager : MonoBehaviour
     {
-        if (GameManagerInstance == null)
+        // Static instance for the Singleton pattern
+        public static GameManager Instance { get; private set; }
+
+        [Header("Game State")]
+        public bool isPaused = false;
+        public bool isGameOver = false;
+
+        [Header("References")]
+        public GameObject pauseMenu;
+        public GameObject gameOverScreen;
+
+        void Awake()
         {
-            GameManagerInstance = this;
-            DontDestroyOnLoad(gameObject);
+            // Standard Singleton logic
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
-        else
+
+        void Update()
         {
-            Destroy(gameObject);
+            if (Input.GetKeyDown(KeyCode.Escape) && !isGameOver)
+            {
+                TogglePause();
+            }
         }
-    }
-    
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
+
+        public void TogglePause()
         {
-            TogglePause();
+            isPaused = !isPaused;
+            Time.timeScale = isPaused ? 0f : 1f;
+
+            if (pauseMenu != null)
+            {
+                pauseMenu.SetActive(isPaused);
+            }
         }
-    }
-    
-    public void TogglePause()
-    {
-        isPaused = !isPaused;
-        Time.timeScale = isPaused ? 0f : 1f;
-        
-        if (pauseMenu != null)
+
+        public void GameOver()
         {
-            pauseMenu.SetActive(isPaused);
+            isGameOver = true;
+            Time.timeScale = 0f;
+
+            if (gameOverScreen != null)
+            {
+                gameOverScreen.SetActive(true);
+            }
         }
-    }
-    
-    public void GameOver()
-    {
-        isGameOver = true;
-        Time.timeScale = 0f;
-        
-        if (gameOverScreen != null)
+
+        public void RestartGame()
         {
-            gameOverScreen.SetActive(true);
+            isGameOver = false;
+            isPaused = false;
+            Time.timeScale = 1f;
+
+            // Fixed the parenthesis and semicolon syntax here
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-    }
-    
-    public void RestartGame()
-    {
-        isGameOver = false;
-        isPaused = false;
-        Time.timeScale = 1f;
-        
-        UnityEngine.SceneManagement.SceneManager.LoadScene
-        (
-        UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
-        )
     }
 }
