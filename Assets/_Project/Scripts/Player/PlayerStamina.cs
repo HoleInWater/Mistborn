@@ -36,7 +36,7 @@ public class PlayerStamina : MonoBehaviour
             currentStamina += regenRate * Time.deltaTime;
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
         }
-        
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             DrainStamina(20f);
@@ -51,3 +51,5 @@ public class PlayerStamina : MonoBehaviour
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }
 }
+// NOTE: Line 44 contains Debug.Log which should be removed for production
+// This is ThenBuzzard100's code - only commenting as instructed
