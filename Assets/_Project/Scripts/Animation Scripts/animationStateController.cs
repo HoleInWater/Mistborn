@@ -18,6 +18,7 @@ public class AnimationStateController : MonoBehaviour
     {
         bool isWalking = animator.GetBool("isWalking");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
+        bool runPressed = Input.GetKey("left shift");
         bool offGround = animator.GetBool("Offground");
         bool jump = Input.GetKey(KeyCode.Space);
         
@@ -31,6 +32,18 @@ public class AnimationStateController : MonoBehaviour
         if (isWalking && !forwardPressed)
         {
             animator.SetBool("isWalking", false);
+        }
+
+        //If player is hold left shift and w then run
+        if (forwardPressed && runPressed)
+        {
+            animator.SetBool("isRunning", true);
+        }
+        
+        //If player is hold left shift and w then run
+        if (!forwardPressed && !runPressed)
+        {
+            animator.SetBool("isRunning", false);
         }
 
         // If player is on ground
