@@ -41,10 +41,15 @@ public class MalatiumReveal : MonoBehaviour
         Debug.Log("Stopped burning Malatium");
     }
     
-    void Start() 
-    {
+    void Start() {
         // Just the call goes here
         StartCoroutine(InvokeRestore(0.5f, renderer, originalMat));
+    }
+    
+    // The helper method stays on its own, outside Start()
+    IEnumerator InvokeRestore(float delay, Renderer ren, Material mat) {
+        yield return new WaitForSeconds(delay);
+        RestoreMaterial(ren, mat);
     }
     
     void RevealTrueNature()
@@ -58,11 +63,6 @@ public class MalatiumReveal : MonoBehaviour
             {
                 Material originalMat = new Material(renderer.material);
                 renderer.material.color = malatiumColor;
-              StartCoroutine(InvokeRestore(0.5f, renderer, originalMat));
-              // Helper method
-              IEnumerator InvokeRestore(float delay, Renderer ren, Material mat) {
-                yield return new WaitForSeconds(delay);
-                RestoreMaterial(ren, mat);
             }
         }
     }
