@@ -8,9 +8,12 @@ public class BasicPlayerMove : MonoBehaviour
     public float rotationSpeed = 10f; 
     public float mouseSensitivity = 200f;
 
-    [Header("Jumping")]
-    public float jumpForce = 5f;
-    public LayerMask groundLayer; // Set this to your 'Ground' layer in the Inspector
+    [Header("Jumping & Gravity")]
+    public float jumpForce = 7f;
+    public float fallMultiplier = 2.5f; // Pulls down harder when falling
+    public float lowJumpMultiplier = 2f; // Used for short hops
+    public LayerMask groundLayer;
+    
     private Rigidbody rb;
     private bool isGrounded;
 
@@ -36,9 +39,7 @@ public class BasicPlayerMove : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        rb = GetComponent<Rigidbody>(); // Get the Rigidbody
-        
-        // Prevents the capsule from falling over when moving
+        rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; 
 
         dollyDir = cameraTransform.localPosition.normalized;
@@ -46,23 +47,38 @@ public class BasicPlayerMove : MonoBehaviour
         currentDistance = maxDistance;
 
         staminaSystem = GetComponent<PlayerStamina>();
-    
-        if (staminaSystem == null)
-        {
-            Debug.LogError("PlayerMove cannot find PlayerStamina!");
-        }
     }
 
     void Update()
     {
-        // --- GROUND CHECK ---
-        // Shoots a tiny ray down to see if we are touching the ground
+        // Ground Check
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
 
+        HandleMovement();
+        HandleJumpInput();
+        HandleCamera();
+    }
+
+    void FixedUpdate()
+    {
+        // Better Gravity Logic: Makes falling feel snappy and "weighty"
+        if (rb.velocity.y < 0)
+        {
+            // Apply extra gravity when falling
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        {
+            // Apply extra gravity if spacebar is released early (Low Jump)
+            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
+    }
+
+    void HandleMovement()
+    {
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        // --- SPRINT LOGIC ---
         float currentActiveSpeed = moveSpeed;
         bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
         bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
@@ -74,33 +90,33 @@ public class BasicPlayerMove : MonoBehaviour
             staminaSystem.DrainStamina(drainRate);
         }
 
-        // --- MOVEMENT ---
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
-        forward.y = 0; 
-        right.y = 0;
-        forward.Normalize();
-        right.Normalize();
+        forward.y = 0; right.y = 0;
+        forward.Normalize(); right.Normalize();
 
         Vector3 moveDirection = (forward * z + right * x).normalized;
 
         if (moveDirection.magnitude >= 0.1f)
         {
-            // Moving via transform.position is okay for simple setups, 
-            // but Rigidbody.MovePosition is usually smoother with physics.
             transform.position += moveDirection * currentActiveSpeed * Time.deltaTime;
-
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
+    }
 
-        // --- JUMP LOGIC ---
+    void HandleJumpInput()
+    {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
+            // Reset Y velocity before jumping for consistent height
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+    }
 
-        // --- CAMERA ROTATION ---
+    void HandleCamera()
+    {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
