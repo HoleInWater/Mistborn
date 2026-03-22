@@ -1,26 +1,43 @@
-using UnityEngine;
-
+/// <summary>
+/// Core stamina system for player abilities.
+/// Usage: Stamina stamina = GetComponent<Stamina>();
+/// 
+/// EVENTS:
+///   stamina.OnStaminaChanged += (current, max) => { };
+///   stamina.OnStaminaDepleted += () => { };
+///   stamina.OnStaminaFull += () => { };
+/// 
+/// METHODS:
+///   stamina.UseStamina(25f);     // Returns true if successful
+///   stamina.HasStamina(25f);      // Check if can afford cost
+///   stamina.RefillStamina(50f);
+///   stamina.RestoreFullStamina();
+/// </summary>
 public class Stamina : MonoBehaviour
 {
-    public float maxStamina = 100f;
-    public float currentStamina = 100f;
-    public float staminaRegenRate = 15f;
-    public float staminaDrainRate = 20f;
-    public float regenDelay = 1f;
-    public float regenTickRate = 0.1f;
+    // SETTINGS - Adjust in Inspector
+    public float maxStamina = 100f;           // Maximum stamina points
+    public float currentStamina = 100f;       // Current stamina points
+    public float staminaRegenRate = 15f;       // Stamina per tick when regenerating
+    public float regenDelay = 1f;             // Seconds before regen starts
+    public float regenTickRate = 0.1f;        // How often regen ticks
     
-    public float dashStaminaCost = 25f;
-    public float wallRunStaminaCost = 5f;
-    public float sprintStaminaCost = 3f;
+    // ABILITY COSTS - Adjust in Inspector
+    public float dashStaminaCost = 25f;       // Cost for dash ability
+    public float wallRunStaminaCost = 5f;    // Cost per second for wall run
+    public float sprintStaminaCost = 3f;     // Cost per second for sprint
     
-    public System.Action<float, float> OnStaminaChanged;
-    public System.Action OnStaminaDepleted;
-    public System.Action OnStaminaFull;
+    // EVENTS - Subscribe for callbacks
+    public System.Action<float, float> OnStaminaChanged; // (current, max)
+    public System.Action OnStaminaDepleted;  // Fired when stamina reaches 0
+    public System.Action OnStaminaFull;      // Fired when stamina fully restored
     
-    private float timeSinceUse = 0f;
-    private float lastRegenTick = 0f;
-    private bool wasExhausted = false;
+    // INTERNAL STATE
+    private float timeSinceUse = 0f;         // Time since last stamina use
+    private float lastRegenTick = 0f;        // When last regen occurred
+    private bool wasExhausted = false;     // Was stamina depleted
     
+    // PUBLIC API
     public float NormalizedStamina => currentStamina / maxStamina;
     public bool HasStamina(float cost) => currentStamina >= cost;
     

@@ -1,23 +1,41 @@
-using UnityEngine;
-
+/// <summary>
+/// Core health system for player and enemies.
+/// Usage: Health health = GetComponent<Health>();
+/// 
+/// EVENTS:
+///   health.OnHealthChanged += (current, max) => { };
+///   health.OnDeath += () => { };
+///   health.OnRevive += () => { };
+/// 
+/// METHODS:
+///   health.TakeDamage(10f);
+///   health.Heal(25f);
+///   health.SetHealth(50f);
+///   health.SetMaxHealth(150f);
+///   health.Revive(50f);
+/// </summary>
 public class Health : MonoBehaviour
 {
-    public float maxHealth = 100f;
-    public float currentHealth = 100f;
-    public float healthRegenRate = 0f;
-    public float regenDelay = 3f;
-    public float regenTickRate = 0.5f;
+    // SETTINGS - Adjust in Inspector
+    public float maxHealth = 100f;             // Maximum health points
+    public float currentHealth = 100f;         // Current health points
+    public float healthRegenRate = 0f;         // Health per tick when regenerating
+    public float regenDelay = 3f;              // Seconds before regen starts
+    public float regenTickRate = 0.5f;        // How often regen ticks
     
-    public bool destroyOnDeath = false;
-    public float deathDelay = 0f;
+    public bool destroyOnDeath = false;        // Destroy gameobject on death
+    public float deathDelay = 0f;              // Delay before destruction
     
-    public System.Action<float, float> OnHealthChanged;
-    public System.Action OnDeath;
-    public System.Action OnRevive;
+    // EVENTS - Subscribe for callbacks
+    public System.Action<float, float> OnHealthChanged; // (current, max)
+    public System.Action OnDeath;             // Fired when health reaches 0
+    public System.Action OnRevive;            // Fired when revived
     
-    private float timeSinceDamage = 0f;
-    private float lastRegenTick = 0f;
+    // INTERNAL STATE
+    private float timeSinceDamage = 0f;       // Time since last damage
+    private float lastRegenTick = 0f;          // When last regen occurred
     
+    // PUBLIC API
     public float NormalizedHealth => currentHealth / maxHealth;
     public bool IsDead => currentHealth <= 0;
     
