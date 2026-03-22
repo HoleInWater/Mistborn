@@ -74,8 +74,12 @@ public class DashAbility : MonoBehaviour
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             rb.linearVelocity = dashDirection * dashSpeed;
             rb.linearVelocity = Vector3.zero;
+=======
+            rb.velocity = dashDirection * dashSpeed;
+>>>>>>> parent of 930a607 (Stuff)
 =======
             rb.velocity = dashDirection * dashSpeed;
 >>>>>>> parent of 930a607 (Stuff)
