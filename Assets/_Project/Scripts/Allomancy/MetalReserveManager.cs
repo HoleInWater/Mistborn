@@ -1,3 +1,4 @@
+// NOTE: Lines 56 and 65 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class MetalReserveManager : MonoBehaviour

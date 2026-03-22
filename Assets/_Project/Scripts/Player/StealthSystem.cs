@@ -1,3 +1,4 @@
+// NOTE: Lines 69 and 85 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class StealthSystem : MonoBehaviour

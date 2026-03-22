@@ -1,3 +1,4 @@
+// NOTE: Lines 22, 35, 47 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
