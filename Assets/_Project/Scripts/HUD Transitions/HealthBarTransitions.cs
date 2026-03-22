@@ -96,4 +96,9 @@ public class HealthBarTransitions : MonoBehaviour
             IncreaseHealth(regenPerSecond * Time.deltaTime);
         }
     }
+    
+    public void TakeDamage(float damage)
+    {
+        DecreaseHealth(damage);
+    }
 }
