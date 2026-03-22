@@ -5,7 +5,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common string operations specific to game development
     /// </summary>
-    public class GameStringUtils : MonoBehaviour
+    public static class GameStringUtils
     {
         /// <summary>
         /// Formats a number with ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
