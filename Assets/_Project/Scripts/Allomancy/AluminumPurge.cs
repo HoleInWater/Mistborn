@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Aluminum Purge - Empty all metal reserves instantly.
 /// Usage: AluminumPurge aluminum = GetComponent<AluminumPurge>();

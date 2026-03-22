@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Teleporter to another location or scene.
 /// Usage: Attach to teleporter pad.

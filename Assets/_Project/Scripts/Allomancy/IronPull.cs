@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Iron Pull - Pull metals toward the Allomancer.
 /// Usage: IronPull iron = GetComponent<IronPull>();

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Bronze Detect - Detect burning Allomancers nearby.
 /// Usage: BronzeDetect bronze = GetComponent<BronzeDetect>();

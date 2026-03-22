@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Controls HUD display for Health, Stamina, and Metal reserves.
 /// Usage: HUDController hud = FindObjectOfType<HUDController>();

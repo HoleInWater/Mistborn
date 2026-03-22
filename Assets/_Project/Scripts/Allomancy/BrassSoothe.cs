@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Brass Soothe - Calm nearby enemies.
 /// Usage: BrassSoothe brass = GetComponent<BrassSoothe>();
@@ -33,6 +35,7 @@ public class BrassSoothe : MonoBehaviour
         
         if (isBurning)
         {
+            SootheAllEnemies();
             DrainMetal();
         }
     }

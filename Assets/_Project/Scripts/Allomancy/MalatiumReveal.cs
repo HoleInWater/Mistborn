@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Malatium - Reveal true nature of things.
 /// Usage: MalatiumReveal malatium = GetComponent<MalatiumReveal>();
@@ -14,6 +16,7 @@ public class MalatiumReveal : MonoBehaviour
     // STATE
     private bool isBurning = false;
     private System.Collections.Generic.Dictionary<UnityEngine.Renderer, UnityEngine.Material> originalMaterials;
+    private System.Collections.Generic.List<UnityEngine.Material> createdMaterials;
     
     // EVENTS
     public System.Action OnBurnStart;
@@ -25,6 +28,7 @@ public class MalatiumReveal : MonoBehaviour
     void Start()
     {
         originalMaterials = new System.Collections.Generic.Dictionary<UnityEngine.Renderer, UnityEngine.Material>();
+        createdMaterials = new System.Collections.Generic.List<UnityEngine.Material>();
     }
     
     void Update()
@@ -77,6 +81,7 @@ public class MalatiumReveal : MonoBehaviour
                 Material malatiumMat = new Material(renderer.material);
                 malatiumMat.color = malatiumColor;
                 renderer.material = malatiumMat;
+                createdMaterials.Add(malatiumMat);
             }
         }
     }
@@ -91,6 +96,13 @@ public class MalatiumReveal : MonoBehaviour
             }
         }
         originalMaterials.Clear();
+        
+        foreach (Material mat in createdMaterials)
+        {
+            if (mat != null)
+                Destroy(mat);
+        }
+        createdMaterials.Clear();
     }
     
     void DrainMetal()

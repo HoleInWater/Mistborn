@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Projectile launched by Allomantic push/pull.
 /// Usage: Attach to coin or metal projectile prefab.
