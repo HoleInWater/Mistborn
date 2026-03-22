@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Simple particle effect spawner.
 /// Usage: EffectSpawner.Spawn("metal_pickup", position);
