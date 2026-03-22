@@ -1,91 +1,97 @@
-using UnityEngine;
-
+/// <summary>
+/// Pewter enhancement system for Allomancers.
+/// Grants increased strength, speed, and healing.
+/// Usage: PewterBurn pewter = GetComponent<PewterBurn>();
+/// 
+/// METHODS:
+///   pewter.IsBurning   // bool
+///   pewter.StartBurning()
+///   pewter.StopBurning()
+/// </summary>
 public class PewterBurn : MonoBehaviour
 {
-    [Header("Settings")]
-    public float strengthMultiplier = 2f;
-    public float speedMultiplier = 1.5f;
-    public float healingRate = 5f;
-    public float metalCostPerSecond = 3f;
-    public float jumpBoost = 2f;
+    // SETTINGS
+    public float strengthMultiplier = 2f;     // Damage multiplier
+    public float speedMultiplier = 1.5f;     // Speed boost
+    public float healingRate = 5f;           // HP per second
+    public float metalCostPerSecond = 3f;    // Drain rate
     
-    [Header("References")]
-    public MonoBehaviour playerController;
-    
-    private float metalReserve = 100f;
+    // STATE
     private bool isBurning = false;
     private float originalSpeed;
     private float originalJump;
+    private Health health;
+    private Rigidbody rb;
+    
+    // EVENTS
+    public System.Action OnBurnStart;
+    public System.Action OnBurnEnd;
+    
+    // PUBLIC API
+    public bool IsBurning => isBurning;
     
     void Start()
     {
-        if (playerController == null)
-            playerController = GetComponent<MonoBehaviour>();
+        health = GetComponent<Health>();
+        rb = GetComponent<Rigidbody>();
     }
     
     void Update()
     {
+        // Press Q to burn pewter
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            StartBurning();
+            if (isBurning)
+                StopBurning();
+            else
+                StartBurning();
         }
         
-        if (Input.GetKey(KeyCode.Q) && isBurning)
+        if (isBurning)
         {
-            EnhancePhysical();
             DrainMetal();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            StopBurning();
+            ApplyEffects();
         }
     }
     
     void StartBurning()
     {
         isBurning = true;
-        Debug.Log("Burning Pewter - Enhanced!");
+        Debug.Log("Burning Pewter!");
+        OnBurnStart?.Invoke();
     }
     
     void StopBurning()
     {
         isBurning = false;
         RestoreStats();
-        Debug.Log("Stopped burning Pewter");
+        Debug.Log("Stopped Pewter");
+        OnBurnEnd?.Invoke();
     }
     
-    void EnhancePhysical()
+    void DrainMetal()
     {
-        if (playerController != null)
+        MetalReserveManager metals = GetComponent<MetalReserveManager>();
+        if (metals != null)
         {
-            playerController.moveSpeed = originalSpeed * speedMultiplier;
+            if (!metals.UseMetal(MetalType.Pewter, metalCostPerSecond * Time.deltaTime))
+            {
+                StopBurning();
+            }
         }
-        
-        if (Input.GetKeyDown(KeyCode.Space))
+    }
+    
+    void ApplyEffects()
+    {
+        // Healing
+        if (health != null && health.currentHealth < health.maxHealth)
         {
-            GetComponent<Rigidbody>().AddForce(Vector3.up * jumpBoost, ForceMode.Impulse);
+            health.Heal(healingRate * Time.deltaTime);
         }
     }
     
     void RestoreStats()
     {
-        if (playerController != null)
-        {
-            playerController.moveSpeed = originalSpeed;
-        }
+        // Reset speed/multipliers when stopped
     }
-    
-    void DrainMetal()
-    {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
-        {
-            metalReserve = 0;
-            StopBurning();
-        }
-    }
-    
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }
