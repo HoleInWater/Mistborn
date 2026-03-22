@@ -49,6 +49,19 @@ public class AluminumPurge : MonoBehaviour
         
         Debug.Log("Aluminum Purged - All metal reserves emptied!");
     }
+
+        public void PurgeAll()
+    {
+        // If you use an array or list to store reserves, loop through and zero them out
+        // Example (replace 'reserves' with your actual variable name):
+        for (int i = 0; i < reserves.Length; i++)
+        {
+            reserves[i] = 0f;
+        }
+        
+        // If you use a Dictionary or individual variables, reset them here
+        Debug.Log("All metals have been purged from the manager.");
+    }
     
     public float GetMetalReserve() => metalReserve;
     public void Refill(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
