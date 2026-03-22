@@ -6,7 +6,9 @@ public class Door : MonoBehaviour
     [Header("Door Settings")]
     public bool isLocked = false;
     public int requiredKeyID = 0;
+    // NOTE: Consider adding [Range(0f, 360f)] attribute for openAngle
     public float openAngle = 90f;
+    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for openSpeed
     public float openSpeed = 3f;
     
     [Header("Audio")]
