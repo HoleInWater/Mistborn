@@ -5,7 +5,7 @@ public class PlayerCombat : MonoBehaviour
     [Header("Combat Settings")]
     public float attackRange = 2f;
     public float attackCooldown = 0.5f;
-    public int baseDamage = 10;
+    public float baseDamage = 10f; // Changed to float to match health type
     
     [Header("References")]
     public ComboSystem comboSystem;
@@ -16,7 +16,7 @@ public class PlayerCombat : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !isAttacking)
+        if (Input.GetMouseButtonDown(0))
         {
             Attack();
         }
@@ -41,7 +41,8 @@ public class PlayerCombat : MonoBehaviour
         
         foreach (Collider enemy in enemies)
         {
-            Health health = enemy.GetComponent<Health>();
+            // Swapped 'Health' for 'HealthBarTransitions'
+            HealthBarTransitions health = enemy.GetComponent<HealthBarTransitions>();
             if (health != null)
             {
                 health.TakeDamage(damage);
