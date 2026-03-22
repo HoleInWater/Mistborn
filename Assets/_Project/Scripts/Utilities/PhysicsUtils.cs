@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class PhysicsUtils : MonoBehaviour
+    public static class PhysicsUtils
     {
         /// <summary>
         /// Applies an explosion force to all rigidbodies in a radius
