@@ -44,7 +44,6 @@ public class DodgeRoll : MonoBehaviour
     
     void StartRoll()
     {
-<<<<<<< HEAD
         if (isDodging)
         {
             rb.linearVelocity = dodgeDirection * dodgeSpeed;
@@ -81,13 +80,11 @@ public class DodgeRoll : MonoBehaviour
 =======
         lastRollTime = Time.time;
         isRolling = true;
->>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
         isInvincible = true;
         
         Vector3 inputDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
         rollDirection = inputDir.magnitude > 0 ? inputDir.normalized : transform.forward;
         
-<<<<<<< HEAD
         if (allomancer != null)
         {
             allomancer.DrainMetal(AllomancySkill.MetalType.Pewter, metalCost);
@@ -107,7 +104,6 @@ public class DodgeRoll : MonoBehaviour
         OnRollStart?.Invoke();
         Invoke(nameof(EndInvincibility), invincibleDuration);
         Invoke(nameof(EndRoll), rollDuration);
->>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
     }
     
     void EndInvincibility()
