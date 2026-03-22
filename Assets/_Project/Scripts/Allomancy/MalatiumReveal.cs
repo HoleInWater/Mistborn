@@ -41,6 +41,12 @@ public class MalatiumReveal : MonoBehaviour
         Debug.Log("Stopped burning Malatium");
     }
     
+    void Start() 
+    {
+        // Just the call goes here
+        StartCoroutine(InvokeRestore(0.5f, renderer, originalMat));
+    }
+    
     void RevealTrueNature()
     {
         Collider[] nearby = Physics.OverlapSphere(transform.position, revealRange);
