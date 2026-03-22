@@ -70,3 +70,4 @@ namespace MistbornGame.UI
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
+}
