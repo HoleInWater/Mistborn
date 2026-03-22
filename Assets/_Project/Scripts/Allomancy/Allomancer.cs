@@ -29,6 +29,8 @@
  */
 
 using UnityEngine;
+
+public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]
     bool isBurningMetal = false;
