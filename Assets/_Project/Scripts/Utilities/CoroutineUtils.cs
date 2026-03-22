@@ -57,6 +57,21 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
+        /// Starts a coroutine that waits for a condition and then invokes an action
+        /// </summary>
+        public static Coroutine WaitForConditionThenInvoke(MonoBehaviour behaviour, System.Func<bool> condition, System.Action onComplete, float timeout = float.MaxValue)
+        {
+            if (behaviour == null || condition == null) return null;
+            return behaviour.StartCoroutine(WaitForConditionCoroutine(condition, onComplete, timeout));
+        }
+
+        private static IEnumerator WaitForConditionCoroutine(System.Func<bool> condition, System.Action onComplete, float timeout)
+        {
+            yield return WaitForCondition(condition, timeout);
+            onComplete?.Invoke();
+        }
+
+        /// <summary>
         /// Creates a coroutine that invokes an action after a delay
         /// </summary>
         public static IEnumerator InvokeAfterDelay(float delay, System.Action action)
