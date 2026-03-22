@@ -37,7 +37,7 @@ public class PlayerStamina : MonoBehaviour
             currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
         }
         
-        if (Input.GetKeyDown(KeyCode."p"))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             DrainStamina(20f);
             Debug.Log("Manual Drain: " + currentStamina);
