@@ -47,7 +47,7 @@ public class DodgeRoll : MonoBehaviour
     {
         if (isDodging)
         {
-            rb.linearVelocity = dodgeDirection * dodgeSpeed;
+            rb.velocity = dodgeDirection * dodgeSpeed;
         }
     }
     
@@ -98,7 +98,7 @@ public class DodgeRoll : MonoBehaviour
         isDodging = false;
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero;
+            rb.velocity = Vector3.zero;
         }
         OnRollStart?.Invoke();
         Invoke(nameof(EndInvincibility), invincibleDuration);
