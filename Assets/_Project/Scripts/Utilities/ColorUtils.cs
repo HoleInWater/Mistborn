@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class ColorUtils : MonoBehaviour
+    public static class ColorUtils
     {
         /// <summary>
         /// Creates a color with specified alpha while keeping RGB values
