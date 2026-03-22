@@ -131,9 +131,8 @@ public class DashAbility : MonoBehaviour
     {
         isDashing = false;
         if (rb != null)
-        {
+    }
 =======
-            GetComponent<Rigidbody>().velocity = dashDirection * dashSpeed;
-        }
+        GetComponent<Rigidbody>().velocity = dashDirection * dashSpeed;
     }
 }
