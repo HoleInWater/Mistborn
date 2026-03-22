@@ -1,4 +1,5 @@
 // NOTE: Line 41 contains Debug.LogError which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(Rigidbody))] attribute for physics
 using UnityEngine;
 
 public class BasicPlayerMove : MonoBehaviour
