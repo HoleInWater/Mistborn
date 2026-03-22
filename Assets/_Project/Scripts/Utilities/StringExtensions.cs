@@ -193,5 +193,79 @@ namespace MistbornGame.Utilities
         {
             return str.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         }
+
+        /// <summary>
+        /// Converts a string to snake_case
+        /// </summary>
+        public static string ToSnakeCase(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return System.Text.RegularExpressions.Regex.Replace(str, @"([a-z0-9])([A-Z])", "$1_$2").ToLower();
+        }
+
+        /// <summary>
+        /// Converts a string to camelCase
+        /// </summary>
+        public static string ToCamelCase(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            if (char.IsUpper(str[0])) str = char.ToLower(str[0]) + str.Substring(1);
+            return str;
+        }
+
+        /// <summary>
+        /// Converts a string to PascalCase
+        /// </summary>
+        public static string ToPascalCase(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            if (char.IsLower(str[0])) str = char.ToUpper(str[0]) + str.Substring(1);
+            return str;
+        }
+
+        /// <summary>
+        /// Converts a string to kebab-case
+        /// </summary>
+        public static string ToKebabCase(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return System.Text.RegularExpressions.Regex.Replace(str, @"([a-z0-9])([A-Z])", "$1-$2").ToLower();
+        }
+
+        /// <summary>
+        /// Removes all whitespace from a string
+        /// </summary>
+        public static string RemoveWhitespace(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "");
+        }
+
+        /// <summary>
+        /// Returns a string with only alphanumeric characters
+        /// </summary>
+        public static string OnlyAlphanumeric(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return System.Text.RegularExpressions.Regex.Replace(str, @"[^a-zA-Z0-9]", "");
+        }
+
+        /// <summary>
+        /// Capitalizes the first letter of a string
+        /// </summary>
+        public static string CapitalizeFirst(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return char.ToUpper(str[0]) + str.Substring(1);
+        }
+
+        /// <summary>
+        /// Lowercases the first letter of a string
+        /// </summary>
+        public static string LowercaseFirst(this string str)
+        {
+            if (string.IsNullOrEmpty(str)) return str;
+            return char.ToLower(str[0]) + str.Substring(1);
+        }
     }
 }
