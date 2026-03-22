@@ -38,7 +38,7 @@ public class DashAbility : MonoBehaviour
     {
         if (isDashing)
         {
-            rb.velocity = dashDirection * dashSpeed;
+            rb.linearVelocity = dashDirection * dashSpeed;
         }
     }
     
@@ -106,7 +106,7 @@ public class DashAbility : MonoBehaviour
         isDashing = false;
         if (rb != null)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
         }
     }
 }

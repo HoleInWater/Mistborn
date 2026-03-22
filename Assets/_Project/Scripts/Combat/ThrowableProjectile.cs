@@ -16,7 +16,7 @@ public class ThrowableProjectile : MonoBehaviour
         if (rb == null)
             rb = GetComponent<Rigidbody>();
         
-        rb.velocity = transform.forward * speed;
+        rb.linearVelocity = transform.forward * speed;
         Destroy(gameObject, lifetime);
     }
     
