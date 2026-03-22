@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// 1. Ensure the filename in Unity is "GameManager.cs" 
-// (or rename this class to match your filename)
+// Ensure the file name in your Unity folder is exactly "GameManager.cs"
 public class GameManager : MonoBehaviour
 {
-    // 2. This name MUST match what your other scripts use. 
-    // If they call "GameManagerInstance.isPaused", this is correct.
+    // This MUST be named GameManagerInstance for your other scripts to find it
     public static GameManager GameManagerInstance { get; private set; }
 
     [Header("Game State")]
