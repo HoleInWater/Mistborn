@@ -1,3 +1,4 @@
+// NOTE: Consider adding [RequireComponent(typeof(PlayerStamina))] attribute for dependency
 using UnityEngine;
 
 public class Sprint : MonoBehaviour
