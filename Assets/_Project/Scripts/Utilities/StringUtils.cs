@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MistbornGame.Utilities
 {
-    public class StringUtils : MonoBehaviour
+    public static class StringUtils
     {
         /// <summary>
         /// Checks if a string is null, empty, or whitespace only
