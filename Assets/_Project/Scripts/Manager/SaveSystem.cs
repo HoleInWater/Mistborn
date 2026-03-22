@@ -24,10 +24,13 @@ public class SaveSystem : MonoBehaviour
     {
         SaveData data = new SaveData();
         
-        Health playerHealth = FindObjectOfType<Health>();
+        // Swapped "Health" for "HealthBarTransitions"
+        HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
         if (playerHealth != null)
         {
-            data.playerHealth = playerHealth.currentHealth;
+            // Assuming your HealthBarTransitions uses a variable like 'health' or 'currentHealth'
+            // If the variable name is different in that file, change '.health' below to match it
+            data.playerHealth = playerHealth.health; 
         }
         
         Allomancer allomancer = FindObjectOfType<Allomancer>();
@@ -50,10 +53,14 @@ public class SaveSystem : MonoBehaviour
             string json = PlayerPrefs.GetString(saveFileName);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
             
-            Health playerHealth = FindObjectOfType<Health>();
+            HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
             if (playerHealth != null)
             {
-                playerHealth.currentHealth = data.playerHealth;
+                // We set the health value
+                playerHealth.health = data.playerHealth;
+                
+                // IMPORTANT: If HealthBarTransitions has a function like 'UpdateUI()' or 'SetHealth()', 
+                // you should call it here so the red bar actually moves when you load.
             }
             
             Allomancer allomancer = FindObjectOfType<Allomancer>();
