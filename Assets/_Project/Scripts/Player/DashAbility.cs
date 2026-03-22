@@ -57,10 +57,11 @@ public class DashAbility : MonoBehaviour
         {
             float elapsed = Time.time - startTime;
             float percentComplete = elapsed / dashDuration;
-
-            // This creates a "Ease Out" effect so you don't stop instantly
             float currentSpeed = Mathf.Lerp(dashSpeed, dashSpeed * 0.4f, percentComplete);
             
+            // Add this line to see the direction in the Scene view
+            Debug.DrawRay(transform.position, dashDir * 5f, Color.red, 1f);
+        
             rb.linearVelocity = dashDir * currentSpeed;
             yield return new WaitForFixedUpdate();
         }
