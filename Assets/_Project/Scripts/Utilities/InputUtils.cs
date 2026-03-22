@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class InputUtils : MonoBehaviour
+    public static class InputUtils
     {
         /// <summary>
         /// Returns true if the key was pressed this frame (ignoring if held down)
