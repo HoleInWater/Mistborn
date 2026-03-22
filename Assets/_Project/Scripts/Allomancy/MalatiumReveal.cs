@@ -10,6 +10,7 @@ public class MalatiumReveal : MonoBehaviour
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private Renderer myRenderer;
     
     void Update()
     {
@@ -42,9 +43,14 @@ public class MalatiumReveal : MonoBehaviour
         Debug.Log("Stopped burning Malatium");
     }
     
+    void Awake() {
+        // Get the reference once when the script starts
+        myRenderer = GetComponent<Renderer>(); 
+    }
+    
     void Start() {
-        // Just the call goes here
-        StartCoroutine(InvokeRestore(0.5f, renderer, originalMat));
+        // Now use your cached variable
+        StartCoroutine(InvokeRestore(0.5f, myRenderer, originalMat));
     }
     
     // The helper method stays on its own, outside Start()
