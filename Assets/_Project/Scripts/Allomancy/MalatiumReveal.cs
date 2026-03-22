@@ -10,6 +10,7 @@ public class MalatiumReveal : MonoBehaviour
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private Material originalMat; 
     private Renderer myRenderer;
     
     void Update()
@@ -44,12 +45,13 @@ public class MalatiumReveal : MonoBehaviour
     }
     
     void Awake() {
-        // Get the reference once when the script starts
-        myRenderer = GetComponent<Renderer>(); 
+        myRenderer = GetComponent<Renderer>();
+        // Save the very first material the object has
+        originalMat = myRenderer.material; 
     }
-    
-    void Start() {
-        // Now use your cached variable
+
+    void SomeFunction() {
+        // Now 'originalMat' exists in this context!
         StartCoroutine(InvokeRestore(0.5f, myRenderer, originalMat));
     }
     
