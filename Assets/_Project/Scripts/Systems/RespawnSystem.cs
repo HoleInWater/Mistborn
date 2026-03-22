@@ -1,7 +1,4 @@
 using UnityEngine;
-
-using UnityEngine;
-
 /// <summary>
 /// Handles player death, respawn, and game over logic.
 /// Usage: RespawnSystem respawn = GetComponent<RespawnSystem>();
