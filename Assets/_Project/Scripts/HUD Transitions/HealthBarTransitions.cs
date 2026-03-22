@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PlayerCollisionHandler3D : MonoBehaviour
+public class HealthBarTransitions : MonoBehaviour
 {
     public UIDocument uiDocument;
     public string progressBarName = "Health";
