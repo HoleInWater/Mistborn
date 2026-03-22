@@ -1,4 +1,5 @@
 // NOTE: Line 42 contains Debug.Log which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(PlayerCombat))] attribute for dependency
 using UnityEngine;
 
 public class ComboSystem : MonoBehaviour
