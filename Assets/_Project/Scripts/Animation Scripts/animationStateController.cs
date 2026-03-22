@@ -16,6 +16,7 @@ public class AnimationStateController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bool isrunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         bool runPressed = Input.GetKey("left shift");
@@ -35,13 +36,13 @@ public class AnimationStateController : MonoBehaviour
         }
 
         //If player is holding left shift and w then run
-        if (forwardPressed && runPressed)
+        if (!isrunning && (forwardPressed && runPressed))
         {
             animator.SetBool("isRunning", true);
         }
         
         //If player is not holding left shift and w then don't run
-        if (!forwardPressed && !runPressed)
+        if (isrunning && (!forwardPressed ||!runPressed))
         {
             animator.SetBool("isRunning", false);
         }
