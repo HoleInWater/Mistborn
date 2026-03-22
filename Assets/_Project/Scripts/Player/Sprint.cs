@@ -3,13 +3,16 @@ using UnityEngine;
 public class Sprint : MonoBehaviour
 {
     [Header("Speed Settings")]
+    // NOTE: Consider adding [Range(1f, 20f)] attribute for walkSpeed
     public float walkSpeed = 5f;
+    // NOTE: Consider adding [Range(5f, 30f)] attribute for sprintSpeed
     public float sprintSpeed = 10f;
     
     [HideInInspector] 
     public float currentSpeed; // Your movement script will read this
 
     [Header("Stamina Costs")]
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for drainRate
     public float drainRate = 25f;
     
     private PlayerStamina staminaSystem;
