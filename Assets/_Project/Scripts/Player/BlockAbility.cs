@@ -1,4 +1,5 @@
 // NOTE: Lines 53 and 65 contain Debug.Log which should be removed for production
+// NOTE: Consider adding [DisallowMultipleComponent] attribute to prevent duplicate components
 using UnityEngine;
 
 public class BlockAbility : MonoBehaviour
