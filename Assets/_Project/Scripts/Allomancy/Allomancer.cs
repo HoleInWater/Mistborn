@@ -31,7 +31,7 @@
 using UnityEngine;
 {
     [Header("Metal State")]
-    public bool isBurningMetal = false;
+    bool isBurningMetal = false;
     public AllomancySkill.MetalType currentMetal = AllomancySkill.MetalType.Steel;
     
     [Header("Metal Reserves")]
