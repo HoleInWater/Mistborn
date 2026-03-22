@@ -50,6 +50,9 @@ public class AnimationStateController : MonoBehaviour
             animator.SetBool("isRunning", false);
         }
 
+        // Update the animator's ground status
+        animator.SetBool("onGround", isGrounded);
+
         // Trigger Jump
         if (!isJumping && jumpPressed && isGrounded)
         {
