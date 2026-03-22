@@ -33,13 +33,13 @@ public class AnimationStateController : MonoBehaviour
         }
 
         // If player is on ground
-        if (!offGround)
+        if (offGround)
         {
             animator.SetBool("offGround", true);
         }
 
         // If player is off ground
-        if (offGround)
+        if (!offGround)
         {
             animator.SetBool("offGround", false);
         }
