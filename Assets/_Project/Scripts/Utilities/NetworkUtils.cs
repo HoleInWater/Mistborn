@@ -5,7 +5,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common networking operations
     /// </summary>
-    public class NetworkUtils : MonoBehaviour
+    public static class NetworkUtils
     {
         /// <summary>
         /// Checks if the device has internet connectivity
