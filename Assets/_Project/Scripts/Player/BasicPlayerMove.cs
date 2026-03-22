@@ -36,9 +36,10 @@ public class BasicPlayerMove : MonoBehaviour
 
         staminaSystem = GetComponent<PlayerStamina>();
     
-    if (staminaSystem == null) {
-        Debug.LogError("PlayerMove cannot find PlayerStamina! Make sure BOTH scripts are on the same Player object.");
-    }
+        if (staminaSystem == null)
+        {
+            Debug.LogError("PlayerMove cannot find PlayerStamina! Make sure BOTH scripts are on the same Player object.");
+        }
     }
 
     void Update()
