@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Controls player dash ability.
 /// Usage: DashAbility dash = GetComponent<DashAbility>();
