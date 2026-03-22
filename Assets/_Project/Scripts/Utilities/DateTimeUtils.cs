@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace MistbornGame.Utilities
 {
-    public class DateTimeUtils : MonoBehaviour
+    public static class DateTimeUtils
     {
         /// <summary>
         /// Gets the current date as a formatted string
