@@ -1,3 +1,33 @@
+/* MetalHUD.cs
+ * 
+ * PURPOSE:
+ * Heads-Up Display for Allomancy metal reserves and metal information.
+ * Shows current metal type, reserve levels, and warnings.
+ * 
+ * KEY FIELDS:
+ * - currentMetalText: UI Text showing current metal name
+ * - metalIcon: UI Image for metal icon
+ * - metalReserveSlider: UI Slider showing reserve percentage (0-100%)
+ * - metalIndicators: Array of GameObjects for metal type indicators
+ * - warningText: UI Text for out-of-metal warnings
+ * 
+ * HOW IT WORKS:
+ * - Updates UI when metal reserves change
+ * - Displays "Out of Metal!" warning when reserves hit 0
+ * - Shows current metal type and icon
+ * - Can toggle metal type indicators on/off
+ * 
+ * IMPORTANT NOTES:
+ * - Attach to a UI Canvas
+ * - Assign UI references in Inspector
+ * - Call UpdateReserve() when metal reserves change
+ * - Call SetCurrentMetal() when player switches metals
+ * - Warning automatically appears for 2 seconds when metal runs out
+ * 
+ * LORE ACCURACY:
+ * HUD shows metal reserves as percentages. In books, Mistborn know their metal reserves intuitively.
+ */
+
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;

@@ -1,6 +1,25 @@
-// AllomanticTarget.cs
-// Component attached to metal objects that can be pushed/pulled.
-// This marks the object as metal and provides metadata for Allomancy abilities.
+/* AllomanticTarget.cs
+ * 
+ * PURPOSE:
+ * This component is attached to any metal object that can be pushed or pulled using Allomancy.
+ * It marks the object as metal and provides metadata about the metal type, whether it's anchored,
+ * and its mass for physics calculations.
+ * 
+ * KEY FIELDS:
+ * - metalType: The type of metal (Steel, Iron, etc.) - used for Allomancy targeting
+ * - isAnchored: If true, the object is fixed in place and will pull/push the player instead
+ * - mass: Mass for push/pull calculations (if 0, uses Rigidbody mass)
+ * 
+ * HOW IT WORKS:
+ * Allomantic abilities (SteelPush, IronPull) look for this component to determine
+ * if an object can be pushed/pulled and how it should behave.
+ * 
+ * IMPORTANT NOTES:
+ * - Requires a Rigidbody component for physics interactions
+ * - Set isAnchored=true for wall brackets or fixed objects
+ * - mass should be set for accurate push/pull force calculations
+ */
+
 using UnityEngine;
 
 public class AllomanticTarget : MonoBehaviour
