@@ -216,12 +216,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 641062186}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 641062185}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 641062184}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
@@ -231,7 +225,19 @@ PrefabInstance:
       addedObject: {fileID: 641062188}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 641062189}
+      addedObject: {fileID: 641062190}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062191}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062192}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062193}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062194}
   m_SourcePrefab: {fileID: 100100000, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
 --- !u!1 &53509032
 GameObject:
@@ -416,7 +422,7 @@ Rigidbody:
   m_GameObject: {fileID: 641062182}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -434,47 +440,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &641062185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1415e6ae0b12dab4e95c0131d08a6521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCollisionHandler3D
-  uiDocument: {fileID: 551459339}
-  progressBarName: Health
-  damagePerSecondWhileTouching: 10
-  timeNotTouchedEnemy: 10
-  regenDelayAfterTouch: 10
-  regenPerSecond: 5
---- !u!114 &641062186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19b2cc3911759444688aed89c261dc4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  moveSpeed: 5
-  rotationSpeed: 10
-  mouseSensitivity: 200
-  cameraTransform: {fileID: 53509033}
-  cameraPivot: {fileID: 39780562}
-  collisionLayers:
-    serializedVersion: 2
-    m_Bits: 1
-  smoothSpeed: 10
-  cameraRadius: 0.2
-  minDistance: 0.5
 --- !u!4 &641062187 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
@@ -503,7 +468,7 @@ CapsuleCollider:
   m_Height: 1.7904792
   m_Direction: 1
   m_Center: {x: 0, y: 0.8936422, z: 0}
---- !u!114 &641062189
+--- !u!114 &641062190
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -512,9 +477,82 @@ MonoBehaviour:
   m_GameObject: {fileID: 641062182}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d51c6fff1155ac4d91312e6249b9012, type: 3}
+  m_Script: {fileID: 11500000, guid: b8439556374c06249831b7e7de7162e6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
+  moveSpeed: 5
+  rotationSpeed: 10
+  mouseSensitivity: 200
+  cameraTransform: {fileID: 53509033}
+  cameraPivot: {fileID: 39780562}
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  smoothSpeed: 10
+  cameraRadius: 0.2
+  minDistance: 0.5
+--- !u!114 &641062191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a6cc158cb8ba3846bb1bc9c093c8881, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationStateController
+--- !u!114 &641062192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1e2f4fb49e42ea49adab44790f2a28e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBarTransitions
+  uiDocument: {fileID: 551459339}
+  progressBarName: Health
+  damagePerSecondWhileTouching: 10
+  timeNotTouchedEnemy: 0
+  regenDelayAfterTouch: 10
+  regenPerSecond: 5
+--- !u!114 &641062193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bf84a0e6c4a0134f8ed9a1ddb7ce749, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DashAbility
+  dashForce: 100
+  dashCooldown: 1
+  metalCost: 10
+  dashKey: 304
+  allomancer: {fileID: 0}
+  metalManager: {fileID: 641062194}
+--- !u!114 &641062194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 694c05a617af4fd488b8dd399f571946, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MetalReserveManager
+  maxReserve: 100
+  passiveRecoveryRate: 0.5
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
