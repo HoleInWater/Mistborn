@@ -31,6 +31,7 @@
 - [x] Create AllomanticTarget.cs script for metal objects
 - [x] Update Allomancer.cs to wire MetalHUD references
 - [x] Create PlayerCamera.cs script (not yet integrated)
+- [x] Implement out-of-metal state (disable push/pull when reserve hits 0)
 
 ### 🔧 Scene & Project Cleanup
 - [ ] Open Scene 1.unity in Unity Editor
@@ -126,9 +127,9 @@
 - [ ] Assign MetalHUD reference to Allomancer.metalHUD field
 
 ### 🔧 Out of Metal State
-- [ ] Add `public bool canBurnMetal = true;` to Allomancer.cs
-- [ ] Modify DrainMetal to set canBurnMetal false when reserve ≤ 0
-- [ ] Add check in SteelPush/IronPull to disable when canBurnMetal false
+- [x] Add `public bool canBurnMetal = true;` to Allomancer.cs
+- [x] Modify DrainMetal to set canBurnMetal false when reserve ≤ 0
+- [x] Add check in SteelPush/IronPull to disable when canBurnMetal false
 - [ ] Add UI feedback for out-of-metal state
 
 ### 🔧 Testing
