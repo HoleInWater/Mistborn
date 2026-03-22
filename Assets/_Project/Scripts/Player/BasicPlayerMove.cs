@@ -1,3 +1,4 @@
+// NOTE: Line 41 contains Debug.LogError which should be removed for production
 using UnityEngine;
 
 public class BasicPlayerMove : MonoBehaviour
