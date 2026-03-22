@@ -9,13 +9,15 @@ public class BasicPlayerMove : MonoBehaviour
     public float mouseSensitivity = 200f;
 
     [Header("Jumping & Gravity")]
-    public float jumpForce = 7f;
-    public float fallMultiplier = 2.5f; // Pulls down harder when falling
-    public float lowJumpMultiplier = 2f; // Used for short hops
+    public float jumpVelocity = 8f; // Use this instead of force
+    public float fallMultiplier = 3f; // Fast fall
+    public float lowJumpMultiplier = 2f; 
+    public float jumpBufferTime = 0.2f; // Forgiveness window
     public LayerMask groundLayer;
     
     private Rigidbody rb;
     private bool isGrounded;
+    private float jumpBufferCounter;
 
     [Header("Stamina Settings")]
     public float drainRate = 25f;
@@ -41,6 +43,7 @@ public class BasicPlayerMove : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; 
+        rb.interpolation = RigidbodyInterpolation.Interpolate; // CRITICAL for smoothness
 
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
@@ -54,23 +57,42 @@ public class BasicPlayerMove : MonoBehaviour
         // Ground Check
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
 
+        // Jump Buffering Logic
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
         HandleMovement();
-        HandleJumpInput();
+        HandleJump();
         HandleCamera();
     }
 
     void FixedUpdate()
     {
-        // Better Gravity Logic: Makes falling feel snappy and "weighty"
+        // Smooth Gravity scaling
         if (rb.velocity.y < 0)
         {
-            // Apply extra gravity when falling
             rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
         }
         else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
         {
-            // Apply extra gravity if spacebar is released early (Low Jump)
             rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
+    }
+
+    void HandleJump()
+    {
+        // Jump only if the buffer is active and we are on the ground
+        if (jumpBufferCounter > 0f && isGrounded)
+        {
+            // Reset vertical velocity for a consistent, "soft" launch
+            rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
+            jumpBufferCounter = 0; // Clear the buffer
         }
     }
 
@@ -99,19 +121,11 @@ public class BasicPlayerMove : MonoBehaviour
 
         if (moveDirection.magnitude >= 0.1f)
         {
+            // Direct position move can feel snappy; consider adding 
+            // a Lerp here if you want "weighty" acceleration later.
             transform.position += moveDirection * currentActiveSpeed * Time.deltaTime;
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-    }
-
-    void HandleJumpInput()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            // Reset Y velocity before jumping for consistent height
-            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
