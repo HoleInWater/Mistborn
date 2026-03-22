@@ -1,3 +1,4 @@
+// NOTE: Lines 53 and 65 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class BlockAbility : MonoBehaviour
