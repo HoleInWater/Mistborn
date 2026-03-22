@@ -9,7 +9,7 @@ public class StealthSystem : MonoBehaviour
     public float normalHeight = 2f;
     
     [Header("References")]
-    public PlayerMove playerController;
+    public BasicPlayerMove playerController;
     public CapsuleCollider playerCollider;
     public Camera playerCamera;
     
