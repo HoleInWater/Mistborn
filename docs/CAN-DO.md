@@ -6,19 +6,33 @@
 
 ## Current State: IN DEVELOPMENT
 
-**The team has implemented Allomancy mechanics, combat, movement abilities, and UI systems.**
+**The team has implemented Allomancy mechanics, core game systems, movement abilities, and UI systems.**
 
 ---
 
-## Scripts Created
+## Scripts Created (By Folder)
 
-### Allomancy (16 Metals)
+### Systems/ - Core Game Logic
 | Script | Status | What It Does |
 |--------|--------|--------------|
-| `SteelPush.cs` | ✅ Done | Push metals away from player |
-| `IronPull.cs` | ✅ Done | Pull metals toward player |
+| `Health.cs` | ✅ Done | Health with regeneration, damage, death, revive |
+| `Stamina.cs` | ✅ Done | Stamina with regen, costs for abilities |
+| `SaveSystem.cs` | ✅ Done | Save/load game data |
+| `Inventory.cs` | ✅ Done | Player inventory with keys, items |
+| `Checkpoint.cs` | ✅ Done | Save progress points |
+| `RespawnSystem.cs` | ✅ Done | Handle death and respawn |
+| `DamageDealer.cs` | ✅ Done | Deal damage to entities |
+| `InputManager.cs` | ✅ Done | Centralized input handling |
+| `AIController.cs` | ✅ Done | Basic enemy AI |
+| `MetalReserveManager.cs` | ✅ Done | Manage allomantic metal reserves |
+
+### Allomancy/ - 16 Metal Powers
+| Script | Status | What It Does |
+|--------|--------|--------------|
+| `SteelPush.cs` | ✅ Done | Push metals away |
+| `IronPull.cs` | ✅ Done | Pull metals toward |
 | `PewterBurn.cs` | ✅ Done | Enhanced strength, speed, healing |
-| `TinEnhance.cs` | ✅ Done | Enhanced senses, zoom vision |
+| `TinEnhance.cs` | ✅ Done | Enhanced senses, sight |
 | `ZincRiot.cs` | ✅ Done | Enrage enemies |
 | `BrassSoothe.cs` | ✅ Done | Calm enemies |
 | `CopperCloud.cs` | ✅ Done | Hide Allomantic pulses |
@@ -32,127 +46,72 @@
 | `TimeBubble.cs` | ✅ Done | Speed/slow time bubbles |
 | `Allomancer.cs` | ✅ Done | Base Allomancer component |
 | `AllomanticSight.cs` | ✅ Done | Blue lines to metals |
-| `MetalReserveManager.cs` | ✅ Done | Manage all metal reserves |
+| `MetalType.cs` | ✅ Done | Enum for all 20 metals |
 
-### Player Systems
+### Player/ - Movement Abilities
 | Script | Status | What It Does |
 |--------|--------|--------------|
-| `PlayerMove.cs` | ✅ Done | WASD movement, third-person camera |
-| `AnimationStateController.cs` | ✅ Done | Player animations |
-| `PlayerCombat.cs` | ✅ Done | Basic attack system |
-| `Health.cs` | ✅ Done | Player health |
-| `PlayerStamina.cs` | ✅ Done | Sprint stamina |
-| `BlockAbility.cs` | ✅ Done | Block with pewter |
-| `DashAbility.cs` | ✅ Done | Pewter dash |
-| `DodgeRoll.cs` | ✅ Done | Invincible dodge roll |
+| `DashAbility.cs` | ✅ Done | Pewter dash with stamina |
 | `WallRun.cs` | ✅ Done | Wall running |
-| `MetalMagnet.cs` | ✅ Done | Attract nearby metals |
-| `StealthSystem.cs` | ✅ Done | Crouch for stealth |
-| `VaultJump.cs` | ✅ Done | Vault over obstacles |
+| `DodgeRoll.cs` | ✅ Done | Invincible dodge roll |
 
-### Combat
+### UI/ - User Interface
 | Script | Status | What It Does |
 |--------|--------|--------------|
-| `ComboSystem.cs` | ✅ Done | Combo attacks with multipliers |
-| `EnemyHealth.cs` | ✅ Done | Enemy health system |
-| `AIController.cs` | ✅ Done | Enemy AI |
+| `MainMenu.cs` | ✅ Done | Main menu with play/settings/quit |
+| `GameManager.cs` | ✅ Done | Pause, game over, scene transitions |
+| `SettingsManager.cs` | ✅ Done | Volume, graphics settings |
+| `HUDController.cs` | ✅ Done | Health/stamina bar updates |
 
-### UI/HUD
+### World/ - Environment Objects
 | Script | Status | What It Does |
 |--------|--------|--------------|
-| `MetalHUD.cs` | ✅ Done | Display metal reserves |
-| `StaminaHUD.cs` | ✅ Done | Stamina bar |
+| `Door.cs` | ✅ Done | Lockable doors with keys |
+| `MetalPickup.cs` | ✅ Done | Pickup metal for reserves |
+| `Checkpoint.cs` | ✅ Done | Save progress |
+| `MovingPlatform.cs` | ✅ Done | Moving platforms |
+| `TriggerZone.cs` | ✅ Done | Trigger events |
+| `LootDrop.cs` | ✅ Done | Drop loot on death |
 
-### Effects & Audio
+### Effects/ - Visual Effects
 | Script | Status | What It Does |
 |--------|--------|--------------|
 | `ParticleEffect.cs` | ✅ Done | VFX for abilities |
 | `SoundManager.cs` | ✅ Done | Audio management |
 
-### World
-| Script | Status | What It Does |
-|--------|--------|--------------|
-| `MetalPickup.cs` | ✅ Done | Pickup metal for reserves |
+---
 
-### Skill Tree
-| Script | Status | What It Does |
-|--------|--------|--------------|
-| `AllomancySkill.cs` | ✅ Done | Skill definition |
-| `AllomancySkillTreeController.cs` | ✅ Done | Skill tree UI |
-| `AllomancySkillUI.cs` | ✅ Done | Skill UI logic |
+## Total Scripts: 38+
 
 ---
 
-## Total Scripts: 32
+## Documentation
 
----
-
-## Assets Created
-
-| Asset | Status |
-|-------|--------|
-| `Scene 1.unity` | ✅ Done - Playable test scene |
-| `PlayerController.controller` | ✅ Done - Animations |
-| Mixamo X Bot models | ✅ Done |
-| `Ground(Temp).mat` | ✅ Done |
-| `Player(Temp).mat` | ✅ Done |
-| HUD (HUD.uss, HUD.uxml) | ✅ Done |
-| Health Bar sprites (14) | ✅ Done |
-| Metal Progress Bar sprites (14) | ✅ Done |
-| Skill Tree UI (AllomancySkillVisualTree.uss/uxml) | ✅ Done |
-| Allomancy sprites | ✅ Done |
-
----
-
-## Controls Implemented
-
-| Action | Key |
-|--------|-----|
-| Move | WASD |
-| Look | Mouse |
-| Sprint | Left Shift |
-| Dodge Roll | Space |
-| Steel Push | Right Mouse |
-| Iron Pull | Left Mouse |
-| Pewter Enhancement | Q |
-| Tin Senses | E |
-| Zinc Riot | Z |
-| Brass Soothe | X |
-| Copper Cloud | C |
-| Bronze Detect | V |
-| Atium Future | T |
-| Gold Past | G |
-| Electrum Future | 5 |
-| Aluminum Purge | F |
-| Duralumin Burst | R |
-| Bendalloy Bubble | 8 |
-| Cadmium Bubble | 9 |
-| Skill Tree | Tab |
+| Doc | Purpose |
+|-----|---------|
+| `allomancy-physics-analysis.md` | Steel/Iron force calculations |
+| `allomancy-coin-physics.md` | Coin flight physics |
+| `allomancy-desmos-functions.md` | Math for graphs |
 
 ---
 
 ## What's Left
 
-**In Unity:**
-- Tune metal physics
-- Add particle effects
+**Gameplay:**
+- Tune Allomancy physics
 - Balance damage numbers
 - Create enemy prefabs
+- Add particle effects
 - Add audio clips
+
+**UI:**
+- Main Menu polish
+- Pause menu
+- Skill tree (ThenBuzzard100)
+- Inventory UI
 
 **Art/Assets:**
 - Real character model
 - Environment art
 - Weapon models
 - More VFX
-
----
-
-## Key Docs
-
-| Doc | Purpose |
-|-----|---------|
-| `onboarding.md` | Setup guide |
-| `allomancy-design.md` | How Allomancy works |
-| `magic-qa-reference.md` | All 16 metals |
-| `mistborn-era-one-lore.md` | Lore reference |
