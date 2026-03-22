@@ -42,19 +42,19 @@ public class AnimationStateController : MonoBehaviour
         }
         
         //If player is not holding left shift and w then don't run
-        if (isRunning && (!forwardPressed ||!runPressed))
+        if (isRunning && (!forwardPressed || !runPressed))
         {
             animator.SetBool("isRunning", false);
         }
 
         //If player is idle, then you can jump
-        if (!forwardPressed && jumpPressed)
+        if (!isjumping && (!forwardPressed && jumpPressed))
         {
             animator.SetBool("isJumping", true);
         }
 
         //If player is not idle, then you can't jump
-        if (forwardPressed && !jumpPressed)
+        if (isjumping && (forwardPressed && !jumpPressed))
         {
             animator.SetBool("isJumping", false);
         }
