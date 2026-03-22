@@ -4,8 +4,11 @@ using UnityEngine.UIElements;
 
 public class PlayerStamina : MonoBehaviour
 {
+    // NOTE: Consider adding [Range(1f, 500f)] attribute for maxStamina
     public float maxStamina = 100f;
+    // NOTE: Consider adding [SerializeField] for currentStamina (private field)
     public float currentStamina;
+    // NOTE: Consider adding [Range(1f, 100f)] attribute for regenRate
     public float regenRate = 15f;
 
     public UIDocument uiDocument;
