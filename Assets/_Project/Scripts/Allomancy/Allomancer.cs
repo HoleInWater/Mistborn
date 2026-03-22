@@ -8,6 +8,8 @@ public class Allomancer : MonoBehaviour
     
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
+    [Header("HUD")]
+    public MetalHUD metalHUD;
     
     void Start()
     {
@@ -46,10 +48,24 @@ public class Allomancer : MonoBehaviour
     public void DrainMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
+        UpdateHUD(metal);
     }
     
     public void RefillMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Min(100f, metalReserves[(int)metal] + amount);
+        UpdateHUD(metal);
+    }
+
+    private void UpdateHUD(AllomancySkill.MetalType metal)
+    {
+        if (metalHUD != null)
+        {
+            metalHUD.UpdateReserve(metalReserves[(int)metal]);
+            if (metal == currentMetal)
+            {
+                metalHUD.SetCurrentMetal(metal);
+            }
+        }
     }
 }

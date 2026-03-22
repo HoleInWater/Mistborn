@@ -20,14 +20,14 @@ Here's where to start:
 ### 2. See What's Done
 - `docs/CAN-DO.md` — All scripts and files we've created
 - `docs/TEAM-TASKS.md` — What still needs doing
-- `docs/TODO.md` — The master checklist
+- `TODO.md` — The master checklist
 
 ### 3. Ask Questions
 - Check the team chat before editing scenes (Unity scenes don't merge well)
 - Coordinate with team members on any Unity scene work
 
 ### 4. Jump In
-- Pick something from `docs/TODO.md` or `docs/TEAM-TASKS.md`
+- Pick something from `TODO.md`
 - Create a branch: `git checkout -b feature/your-feature-name`
 - Make changes, commit, push, open a PR
 - See `docs/git-guide.md` for the full workflow
