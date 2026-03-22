@@ -5,8 +5,11 @@ public class BlockAbility : MonoBehaviour
 {
     [Header("Block Settings")]
     public KeyCode blockKey = KeyCode.Mouse1;
+    // NOTE: Consider adding [Range(0.1f, 1f)] attribute for blockSpeedReduction
     public float blockSpeedReduction = 0.5f;
+    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for metalCostPerSecond
     public float metalCostPerSecond = 2f;
+    // NOTE: Consider adding [Range(0f, 1f)] attribute for damageReduction
     public float damageReduction = 0.5f;
     
     [Header("References")]
