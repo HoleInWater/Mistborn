@@ -108,7 +108,7 @@ public class WallRun : MonoBehaviour
         isWallRunning = false;
         
         Vector3 jumpDir = wallNormal + Vector3.up;
-        rb.linearVelocity = jumpDir * jumpForce;
+        rb.velocity = jumpDir * jumpForce;
         
         Debug.Log("Wall jump!");
     }
