@@ -181,5 +181,64 @@ namespace MistbornGame.Utilities
                 rb.AddForce(forceDirection * forceAmount, ForceMode.Force);
             }
         }
+
+        /// <summary>
+        /// Adds a force in a specified direction
+        /// </summary>
+        public static void AddForceInDirection(this Rigidbody rb, Vector3 direction, float force, ForceMode mode = ForceMode.Force)
+        {
+            if (rb == null) return;
+            rb.AddForce(direction.normalized * force, mode);
+        }
+
+        /// <summary>
+        /// Sets the velocity in a specified direction
+        /// </summary>
+        public static void SetVelocityInDirection(this Rigidbody rb, Vector3 direction, float speed)
+        {
+            if (rb == null) return;
+            rb.velocity = direction.normalized * speed;
+        }
+
+        /// <summary>
+        /// Adds an impulse force at a position (torque)
+        /// </summary>
+        public static void AddTorqueAtPosition(this Rigidbody rb, Vector3 force, Vector3 position)
+        {
+            if (rb == null) return;
+            rb.AddForceAtPosition(force, position, ForceMode.Impulse);
+        }
+
+        /// <summary>
+        /// Checks if a Rigidbody is grounded (simple check using raycast)
+        /// </summary>
+        public static bool IsGrounded(this Rigidbody rb, float checkDistance = 0.1f, LayerMask? groundLayer = null)
+        {
+            if (rb == null) return false;
+            float radius = rb.GetComponent<Collider>().bounds.extents.y;
+            Vector3 origin = rb.position + Vector3.up * radius;
+            float distance = radius + checkDistance;
+            LayerMask mask = groundLayer ?? Physics.DefaultRaycastLayers;
+            return Physics.Raycast(origin, Vector3.down, distance, mask);
+        }
+
+        /// <summary>
+        /// Gets the current momentum of a Rigidbody
+        /// </summary>
+        public static Vector3 GetMomentum(this Rigidbody rb)
+        {
+            if (rb == null) return Vector3.zero;
+            return rb.velocity * rb.mass;
+        }
+
+        /// <summary>
+        /// Applies a force to achieve a target velocity
+        /// </summary>
+        public static void AddForceToReachVelocity(this Rigidbody rb, Vector3 targetVelocity, float forceStrength)
+        {
+            if (rb == null) return;
+            Vector3 velocityDiff = targetVelocity - rb.velocity;
+            rb.AddForce(velocityDiff * forceStrength, ForceMode.Force);
+        }
     }
 }
