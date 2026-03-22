@@ -56,6 +56,10 @@ public class Allomancer : MonoBehaviour
         if (metal == currentMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;
+            if (!canBurnMetal && metalHUD != null)
+            {
+                metalHUD.ShowOutOfMetalWarning();
+            }
         }
     }
     

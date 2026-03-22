@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class MetalHUD : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class MetalHUD : MonoBehaviour
     public Slider metalReserveSlider;
     // NOTE: Consider adding [Tooltip("Array of GameObjects for metal type indicators")] attribute
     public GameObject[] metalIndicators;
+    
+    [Header("Warning")]
+    [Tooltip("Text component to show out-of-metal warning")]
+    public Text warningText;
     
     private AllomancySkill.MetalType currentMetal = AllomancySkill.MetalType.Steel;
     
@@ -53,6 +58,21 @@ public class MetalHUD : MonoBehaviour
         if (index < metalIndicators.Length && metalIndicators[index] != null)
         {
             metalIndicators[index].SetActive(show);
+        }
+    }
+    
+    public void ShowOutOfMetalWarning()
+    {
+        StartCoroutine(OutOfMetalWarningRoutine());
+    }
+    
+    private IEnumerator OutOfMetalWarningRoutine()
+    {
+        if (warningText != null)
+        {
+            warningText.text = "Out of Metal!";
+            yield return new WaitForSeconds(2f);
+            warningText.text = "";
         }
     }
 }
