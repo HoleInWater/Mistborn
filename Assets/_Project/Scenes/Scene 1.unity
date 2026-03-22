@@ -502,9 +502,10 @@ MonoBehaviour:
   sprintSpeed: 10
   rotationSpeed: 10
   mouseSensitivity: 200
-  jumpForce: 15
+  jumpVelocity: 15
   fallMultiplier: 5
   lowJumpMultiplier: 2
+  jumpBufferTime: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
