@@ -1,4 +1,5 @@
 // NOTE: Line 65 contains Debug.Log which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))] attribute for pathfinding
 using UnityEngine;
 
 public class AIController : MonoBehaviour
