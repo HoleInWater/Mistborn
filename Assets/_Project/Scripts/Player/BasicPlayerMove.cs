@@ -3,13 +3,13 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed = 5f;
-    public float sprintSpeed = 10f; // New: Sprint speed setting
+    public float moveSpeed = 5f; // Kept this name so your other scripts don't break
+    public float sprintSpeed = 10f; 
     public float rotationSpeed = 10f; 
     public float mouseSensitivity = 200f;
 
     [Header("Stamina Settings")]
-    public float drainRate = 25f;   // How fast stamina drops while sprinting
+    public float drainRate = 25f;
 
     [Header("Camera & Smoothing")]
     public Transform cameraTransform;
@@ -25,7 +25,6 @@ public class BasicPlayerMove : MonoBehaviour
     private Vector3 dollyDir;
     private float currentDistance;
 
-    // References to other components
     private PlayerStamina staminaSystem;
 
     void Start()
@@ -35,32 +34,28 @@ public class BasicPlayerMove : MonoBehaviour
         maxDistance = cameraTransform.localPosition.magnitude;
         currentDistance = maxDistance;
 
-        // Automatically find the stamina script on this object
         staminaSystem = GetComponent<PlayerStamina>();
     }
 
     void Update()
     {
-        // 1. Get Input
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        // --- NEW SPRINT LOGIC ---
-        float currentMoveSpeed = walkSpeed;
+        // --- SPRINT LOGIC ---
+        float currentActiveSpeed = moveSpeed; // Starts at your base moveSpeed
         
-        // Only allow sprinting if we are moving forward (z > 0) and have stamina
         bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
         bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
 
         if (isTryingToSprint && hasStamina)
         {
-            currentMoveSpeed = sprintSpeed;
-            staminaSystem.DrainStamina(drainRate); // Drain stamina while running
+            currentActiveSpeed = sprintSpeed;
+            staminaSystem.DrainStamina(drainRate);
         }
-        // -------------------------
+        // ---------------------
 
-        // 2. Camera-Relative Movement
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0; 
@@ -72,15 +67,13 @@ public class BasicPlayerMove : MonoBehaviour
 
         if (moveDirection.magnitude >= 0.1f)
         {
-            // Move the player using the calculated speed (walk or sprint)
-            transform.position += moveDirection * currentMoveSpeed * Time.deltaTime;
+            // Use the calculated speed here
+            transform.position += moveDirection * currentActiveSpeed * Time.deltaTime;
 
-            // Rotate player to face the direction they are walking
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        // 3. Camera Input
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
@@ -93,7 +86,6 @@ public class BasicPlayerMove : MonoBehaviour
 
     void LateUpdate()
     {
-        // 4. Smooth Collision Logic (Stayed the same)
         Vector3 desiredPos = cameraPivot.TransformPoint(dollyDir * maxDistance);
         RaycastHit hit;
         float targetDistance = maxDistance;
