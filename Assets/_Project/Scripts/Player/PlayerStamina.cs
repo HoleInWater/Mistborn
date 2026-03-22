@@ -19,9 +19,9 @@ public class PlayerStamina : MonoBehaviour
     {
         currentStamina = maxStamina;
 
-        // Find the progress bar named "stanima" from your UI Toolkit document
+        // Find the progress bar named "Stanima" from your UI Toolkit document
         var root = uiDocument.rootVisualElement;
-        staminaBar = root.Q<ProgressBar>("stanima");
+        staminaBar = root.Q<ProgressBar>("Stanima");
 
         if (staminaBar != null)
         {
