@@ -7,7 +7,7 @@ public class MetalReserveManager : MonoBehaviour
     public float maxReserve = 100f;
     public float passiveRecoveryRate = 0.5f;
 
-    // We use a Dictionary so we can look up "Pewter" directly instead of guessing the ID number
+    // The dictionary that stores our metal levels
     private Dictionary<AllomancySkill.MetalType, float> metalReserves = new Dictionary<AllomancySkill.MetalType, float>();
 
     void Awake()
@@ -27,12 +27,22 @@ public class MetalReserveManager : MonoBehaviour
 
     void PassiveRecovery()
     {
-        // Create a list of keys to avoid "collection modified" errors
         List<AllomancySkill.MetalType> keys = new List<AllomancySkill.MetalType>(metalReserves.Keys);
         foreach (var type in keys)
         {
             metalReserves[type] = Mathf.Min(maxReserve, metalReserves[type] + passiveRecoveryRate * Time.deltaTime);
         }
+    }
+
+    // NEW: This fixes the CS1061 and CS0103 errors
+    public void PurgeAll()
+    {
+        List<AllomancySkill.MetalType> keys = new List<AllomancySkill.MetalType>(metalReserves.Keys);
+        foreach (var metal in keys)
+        {
+            metalReserves[metal] = 0f;
+        }
+        Debug.Log("MetalReserveManager: All reserves purged to 0!");
     }
 
     public float GetReserve(AllomancySkill.MetalType metal)
@@ -56,17 +66,5 @@ public class MetalReserveManager : MonoBehaviour
     {
         if (metalReserves.ContainsKey(metal))
             metalReserves[metal] = Mathf.Min(maxReserve, metalReserves[metal] + amount);
-    }
-        public void PurgeAll()
-    {
-        // Create a temporary list of keys to iterate through safely
-        List<AllomancySkill.MetalType> keys = new List<AllomancySkill.MetalType>(metalReserves.Keys);
-        
-        foreach (var metal in keys)
-        {
-            metalReserves[metal] = 0f;
-        }
-        
-        Debug.Log("MetalReserveManager: All reserves purged to 0.");
     }
 }
