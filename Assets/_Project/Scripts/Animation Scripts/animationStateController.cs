@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
+    public Transform groundCheck;
 
     Animator animator;
     
