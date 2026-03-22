@@ -1,3 +1,4 @@
+using System.Collections; // Fixes CS0246 (IEnumerator)
 using UnityEngine;
 
 public class MalatiumReveal : MonoBehaviour
@@ -6,11 +7,12 @@ public class MalatiumReveal : MonoBehaviour
     public float metalCostPerSecond = 5f;
     public float revealRange = 20f;
     public Color malatiumColor = new Color(0.8f, 0.3f, 0.1f, 0.5f);
-    public float GetMetalReserve() => metalReserve;
     
     private float metalReserve = 100f;
     private bool isBurning = false;
-    private Renderer myRenderer;
+
+    // Public getter for your UI or other scripts
+    public float GetMetalReserve() => metalReserve;
     
     void Update()
     {
@@ -49,19 +51,29 @@ public class MalatiumReveal : MonoBehaviour
         
         foreach (Collider col in nearby)
         {
-            Renderer renderer = col.GetComponent<Renderer>();
-            if (renderer != null && !renderer.material.name.Contains("Malatium"))
+            // Fixes CS0619: Uses GetComponent instead of obsolete .renderer
+            Renderer targetRenderer = col.GetComponent<Renderer>();
+
+            // Ensure it has a renderer and hasn't already been changed
+            if (targetRenderer != null && !targetRenderer.material.name.Contains("Malatium"))
             {
-                Material originalMat = new Material(renderer.material);
-                renderer.material.color = malatiumColor;
+                // Save the original material before we change it
+                Material originalMat = targetRenderer.material;
                 
-                Invoke(() => RestoreMaterial(renderer, originalMat), 0.5f);
+                // Apply the new visual
+                targetRenderer.material.color = malatiumColor;
+                targetRenderer.material.name += " (Malatium)"; 
+                
+                // Fixes CS1660: Start a Coroutine instead of using Invoke with a lambda
+                StartCoroutine(RestoreMaterialAfterDelay(0.5f, targetRenderer, originalMat));
             }
         }
     }
-    
-    void RestoreMaterial(Renderer renderer, Material originalMat)
+
+    // The Coroutine that handles the waiting and restoring
+    IEnumerator RestoreMaterialAfterDelay(float delay, Renderer renderer, Material originalMat)
     {
+        yield return new WaitForSeconds(delay);
         if (renderer != null)
         {
             renderer.material = originalMat;
@@ -76,15 +88,5 @@ public class MalatiumReveal : MonoBehaviour
             metalReserve = 0;
             StopBurning();
         }
-    }
-    
-    void Awake() {
-        // Get the reference once when the script starts
-        myRenderer = GetComponent<Renderer>(); 
-    }
-    
-    void Start() {
-        // Now use your cached variable
-        StartCoroutine(InvokeRestore(0.5f, myRenderer, originalMat));
     }
 }
