@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Slow motion effect controller.
 /// Usage: TimeManager.SlowMotion(0.5f, 3f); // 50% speed for 3 seconds
