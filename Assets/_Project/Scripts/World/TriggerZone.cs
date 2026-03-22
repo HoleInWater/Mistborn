@@ -9,6 +9,7 @@ public class TriggerZone : MonoBehaviour
     public bool isActivated = false;
     
     [Header("Effects")]
+    // NOTE: Consider adding [Tooltip("Effect to instantiate when trigger is activated")] attribute
     public GameObject triggerEffect;
     
     public enum TriggerType
