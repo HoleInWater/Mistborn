@@ -2,4 +2,5 @@
     <Style src="project://database/Assets/UI%20Toolkit/HUD.uss?fileID=7433441132597879392&amp;guid=10a28823af41bb24f89b59c1e8165c75&amp;type=3#HUD"/>
     <ui:ProgressBar value="22" title="Health" name="Health" class="HUD Health unity-progress-bar-progress" style="font-size: 14px; width: 30%; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
     <ui:ProgressBar value="22" title="Metal" name="Metal" class="HUD Metal" style="width: 25%; height: auto; color: rgb(255, 255, 255);"/>
+    <ui:ProgressBar value="22" title="Stanima" name="Stanima" class="HUD Metal" style="width: 25%; height: auto; color: rgb(255, 255, 255);"/>
 </ui:UXML>
