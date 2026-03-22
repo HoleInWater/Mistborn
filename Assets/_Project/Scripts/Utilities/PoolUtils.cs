@@ -6,7 +6,7 @@ namespace MistbornGame.Utilities
     /// <summary>
     /// Utility class for handling common object pooling operations
     /// </summary>
-    public class PoolUtils : MonoBehaviour
+    public static class PoolUtils
     {
         /// <summary>
         /// Creates a simple pool for prefabs
