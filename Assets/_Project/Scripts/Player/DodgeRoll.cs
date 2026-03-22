@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Controls player dodge roll with invincibility frames.
 /// Usage: DodgeRoll dodge = GetComponent<DodgeRoll>();

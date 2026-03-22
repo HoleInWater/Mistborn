@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Simple state machine for AI or game logic.
 /// Usage: StateMachine machine = new StateMachine();

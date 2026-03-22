@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Floating damage/healing numbers.
 /// Usage: FloatingText.Show(worldPosition, "10", Color.red);

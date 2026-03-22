@@ -1,7 +1,4 @@
 using UnityEngine;
-
-
-using UnityEngine;
 /// <summary>
 /// Color flash on materials (for hit effects, etc.)
 /// Usage: MaterialFlash.Flash(renderer, Color.red, 0.2f);
