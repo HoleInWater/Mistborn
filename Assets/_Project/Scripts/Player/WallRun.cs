@@ -103,7 +103,6 @@ public class WallRun : MonoBehaviour
     
     void WallJump()
     {
-<<<<<<< HEAD
         isWallRunning = false;
         
         Vector3 jumpDir = wallNormal + Vector3.up;
@@ -122,6 +121,5 @@ public class WallRun : MonoBehaviour
         rb.velocity = new Vector3(0, wallJumpForce, 0);
         rb.AddForce(jumpDir * wallJumpForce, ForceMode.Impulse);
         StopWallRun();
->>>>>>> 7675fe0d8d5d9a15a05f10d5ccb6d54374440501
     }
 }
