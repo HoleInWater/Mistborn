@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace MistbornGame.Utilities
 {
-    public class TimeUtils : MonoBehaviour
+    public static class TimeUtils
     {
         /// <summary>
         /// Converts seconds to minutes:seconds format
