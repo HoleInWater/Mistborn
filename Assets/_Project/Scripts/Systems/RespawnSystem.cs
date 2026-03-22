@@ -8,8 +8,6 @@ using UnityEngine;
 ///   respawn.SetSpawnPoint(pos);  // Set custom spawn point
 /// </summary>
 
-using UnityEngine;
-
 public class RespawnSystem : MonoBehaviour
 {
     // SETTINGS - Adjust in Inspector
