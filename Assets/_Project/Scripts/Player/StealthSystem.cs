@@ -1,4 +1,5 @@
 // NOTE: Lines 69 and 85 contain Debug.Log which should be removed for production
+// NOTE: Consider adding [RequireComponent(typeof(CapsuleCollider))] attribute for crouching
 using UnityEngine;
 
 public class StealthSystem : MonoBehaviour
