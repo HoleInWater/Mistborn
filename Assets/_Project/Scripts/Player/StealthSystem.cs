@@ -4,9 +4,13 @@ using UnityEngine;
 public class StealthSystem : MonoBehaviour
 {
     [Header("Stealth Settings")]
+    // NOTE: Consider adding [Range(0.5f, 5f)] attribute for crouchSpeed
     public float crouchSpeed = 2f;
+    // NOTE: Consider adding [Range(1f, 15f)] attribute for normalSpeed
     public float normalSpeed = 5f;
+    // NOTE: Consider adding [Range(0.5f, 2f)] attribute for crouchHeight
     public float crouchHeight = 1f;
+    // NOTE: Consider adding [Range(1f, 3f)] attribute for normalHeight
     public float normalHeight = 2f;
     
     [Header("References")]
