@@ -1,3 +1,4 @@
+// NOTE: Lines 28, 31, 34, 37 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class LootDrop : MonoBehaviour
