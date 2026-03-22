@@ -20,11 +20,9 @@ public class AnimationStateController : MonoBehaviour
         bool isRunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");
         bool isJumping = animator.GetBool("isJumping");
-        bool onGround = animator.GetBool("onGround");
         bool forwardPressed = Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d");
         bool runPressed = Input.GetKey("left shift");
         bool jumpPressed = Input.GetKey("space");
-        bool isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, LayerMask.GetMask("Default"));
         
         // If player presses W, the animator starts isWalking
         if (!isWalking && forwardPressed)
@@ -50,14 +48,14 @@ public class AnimationStateController : MonoBehaviour
             animator.SetBool("isRunning", false);
         }
 
-        // Trigger Jump
-        if (!isJumping && jumpPressed && isGrounded)
+        //If player is idle, then you can jump
+        if (!isJumping && (!forwardPressed && jumpPressed))
         {
-                    animator.SetBool("isJumping", true);
+            animator.SetBool("isJumping", true);
         }
-        
-        // Stop Jump animation as soon as we touch the ground again
-        if (isJumping && isGrounded && !jumpPressed)
+
+        //If player is not idle, then you can't jump
+        if (isJumping && (forwardPressed && !jumpPressed))
         {
             animator.SetBool("isJumping", false);
         }
