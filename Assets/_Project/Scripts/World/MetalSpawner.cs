@@ -55,6 +55,6 @@ public class MetalSpawner : MonoBehaviour
             rb.drag = 0.1f;
         }
         
-        Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos}");
+            Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos} with AllomanticTarget");
     }
 }
