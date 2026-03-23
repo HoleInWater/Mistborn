@@ -517,23 +517,19 @@ public class SteelPush : MonoBehaviour
             Debug.Log($"[PUSH] FLARING: strength {allomanticStrength * weightFactor * masteryBonus:F0f} -> {strength:F0f} (x{maxFlareMultiplier})");
         }
         
+        // Linear distance falloff: force = strength × (1 - distance/maxRange)
+        // This matches lore: "thinner lines at distance" = weaker force
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
         {
-            float effectiveDistance = Mathf.Max(distance, minDistance);
-            distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
+            distanceFactor = 1f - (distance / maxRange);
         }
-        
-        Vector3 targetVelocity = targetRigidbody.velocity;
-        float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
-        float velocityDampingFactor = 1f;
-        if (velocityAwayFromPlayer > 0)
+        else if (distance > maxRange)
         {
-            float velocityRatio = Mathf.Clamp01(velocityAwayFromPlayer / maxCoinVelocity);
-            velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
+            distanceFactor = 0f;
         }
         
-        float force = strength * distanceFactor * velocityDampingFactor;
+        float force = strength * distanceFactor;
         
         if (isAnchored)
         {
