@@ -85,7 +85,7 @@ public class AllomanticSight : MonoBehaviour
     LineRenderer CreateLineRenderer()
     {
         GameObject lineObj = new GameObject("MetalLine_Pooled");
-        lineObj.SetActive(false; // Start inactive
+        lineObj.SetActive(false); // Start inactive
         LineRenderer line = lineObj.AddComponent<LineRenderer>();
         
         // Set up line renderer properties
