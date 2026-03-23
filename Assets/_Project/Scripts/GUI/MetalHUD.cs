@@ -35,24 +35,78 @@ using System.Collections;
 public class MetalHUD : MonoBehaviour
 {
     [Header("Metal Display")]
-    // NOTE: Consider adding [Tooltip("Text component to display current metal name")] attribute
     public Text currentMetalText;
-    // NOTE: Consider adding [Tooltip("Image component for metal icon")] attribute
     public Image metalIcon;
-    // NOTE: Consider adding [Tooltip("Slider showing metal reserve amount")] attribute
     public Slider metalReserveSlider;
-    // NOTE: Consider adding [Tooltip("Array of GameObjects for metal type indicators")] attribute
     public GameObject[] metalIndicators;
     
     [Header("Warning")]
     [Tooltip("Text component to show out-of-metal warning")]
     public Text warningText;
     
+    [Header("Flare Display")]
+    [Tooltip("Text to show flare status")]
+    public Text flareStatusText;
+    [Tooltip("Image for Iron flare indicator")]
+    public Image ironFlareIndicator;
+    [Tooltip("Image for Steel flare indicator")]
+    public Image steelFlareIndicator;
+    [Tooltip("Color when flared")]
+    public Color flaredColor = Color.red;
+    [Tooltip("Color when not flared")]
+    public Color unflaredColor = Color.gray;
+    
     private AllomancySkill.MetalType currentMetal = AllomancySkill.MetalType.Steel;
     
     void Start()
     {
         UpdateMetalDisplay();
+        SubscribeToFlareEvents();
+    }
+    
+    void SubscribeToFlareEvents()
+    {
+        if (FlareManager.Instance != null)
+        {
+            FlareManager.Instance.OnIronFlareChanged += OnIronFlareChanged;
+            FlareManager.Instance.OnSteelFlareChanged += OnSteelFlareChanged;
+        }
+    }
+    
+    void OnIronFlareChanged(bool isFlaring)
+    {
+        UpdateFlareDisplay();
+    }
+    
+    void OnSteelFlareChanged(bool isFlaring)
+    {
+        UpdateFlareDisplay();
+    }
+    
+    void UpdateFlareDisplay()
+    {
+        if (FlareManager.Instance == null) return;
+        
+        bool ironFlaring = FlareManager.Instance.IsIronFlaring;
+        bool steelFlaring = FlareManager.Instance.IsSteelFlaring;
+        
+        if (ironFlareIndicator != null)
+        {
+            ironFlareIndicator.color = ironFlaring ? flaredColor : unflaredColor;
+        }
+        
+        if (steelFlareIndicator != null)
+        {
+            steelFlareIndicator.color = steelFlaring ? flaredColor : unflaredColor;
+        }
+        
+        if (flareStatusText != null)
+        {
+            string status = "";
+            if (ironFlaring) status += "IRON ";
+            if (steelFlaring) status += "STEEL ";
+            flareStatusText.text = status.Length > 0 ? "FLARING: " + status : "";
+        }
     }
     
     public void SetCurrentMetal(AllomancySkill.MetalType metal)
