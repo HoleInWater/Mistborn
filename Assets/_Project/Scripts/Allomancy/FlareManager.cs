@@ -73,8 +73,9 @@ public class FlareManager : MonoBehaviour
     public bool IsIronFlaring  => IsBurning;
     public bool IsSteelFlaring => IsBurning;
 
-    /// <summary>Backward-compat alias.</summary>
+    /// <summary>Backward-compat aliases.</summary>
     public int FlareIntensity => Intensity;
+    public int flareIntensity => Intensity;
 
     /// <summary>
     /// Force multiplier: 1.0 at intensity 1, maxFlareMultiplier at intensity 10.
