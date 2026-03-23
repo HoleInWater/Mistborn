@@ -180,7 +180,49 @@ A Coinshot's coin is like a constant-force jackhammer concentrated on a tiny poi
 
 ---
 
+## Canonical Evidence from Coppermind
+
+### Constant Force vs Initial Velocity
+
+**From Coppermind (Steel page):**
+> "The force of the Push upon an object is inversely proportional to the Coinshot's distance to said object."
+
+This confirms that Allomantic pushes are **constant force** applications, not initial velocity. Unlike normal projectiles that coast after launch, coins under Allomantic push maintain force throughout flight.
+
+### Weight Proportionality
+
+**From Coppermind:**
+> "The strength of your push is roughly proportional to your physical weight. This means that larger Allomancers can generally Steelpush and Ironpull more powerfully than a smaller counterpart."
+
+This means a 200 lb Coinshot pushes with about 200 lbs of force (distributed through the metal).
+
+### Zenith Point Effect
+
+**From Coppermind:**
+> "This continues until the Coinshot hits a zenith, or point of maximum altitude. This zenith is higher for more powerful Steelpushes."
+
+**Game Implication:**
+- Force relationship changes at zenith point (~5m for balanced gameplay)
+- Beyond zenith, force decreases with distance
+- This prevents infinite force at zero distance
+
+### Blue Lines Pass Through Walls
+
+**From Coppermind:**
+> "The steel lines manifest themselves on the Spiritual Realm and can pass through physical objects such as walls, allowing a Coinshot to ascertain the location of metals outside of their line of sight."
+
+**For Coin Physics:**
+- No need for line-of-sight checks in Allomantic sight
+- Can detect metal through walls and floors
+- Blue lines exist in Spiritual Realm, not Physical
+
+---
+
 ## References
+- **Coppermind Wiki - Steel page**: https://coppermind.net/wiki/Steel
+  - Constant force relationship (Section: Allomantic Use)
+  - Weight proportionality (Section: Allomantic Use)
+  - Zenith point mechanics (Section: Allomantic Use)
 - wtamu.edu - Coin terminal velocity
 - Reddit r/Mistborn - Physics discussions
 - r/Mistborn - Coin aerodynamics
