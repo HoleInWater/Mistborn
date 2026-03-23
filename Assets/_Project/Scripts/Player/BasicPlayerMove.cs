@@ -137,7 +137,7 @@ public class BasicPlayerMove : MonoBehaviour
     
         if (moveDirection.magnitude >= 0.1f)
         {
-            // Check for Sprinting
+            // 1. Determine Speed
             float currentActiveSpeed = moveSpeed;
             bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
     
@@ -147,13 +147,19 @@ public class BasicPlayerMove : MonoBehaviour
                 staminaSystem.DrainStamina(drainRate);
             }
     
-            // Apply Movement (Ignoring Y so jump works)
-            Vector3 moveDelta = moveDirection * currentActiveSpeed * Time.deltaTime;
-            rb.MovePosition(new Vector3(transform.position.x + moveDelta.x, transform.position.y, transform.position.z + moveDelta.z));
+            // 2. Apply Horizontal Velocity
+            // We set X and Z, but we KEEP rb.velocity.y so jumping/gravity works!
+            Vector3 horizontalVelocity = moveDirection * currentActiveSpeed;
+            rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
     
-            // Rotate
+            // 3. Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            // Stop moving horizontally when no keys are pressed, but let gravity work
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
         }
     }
     
