@@ -127,12 +127,20 @@ public class MetalSelector : MonoBehaviour
     
     void UpdateActiveMetal()
     {
-        // Notify the allomancer of the newly active metal via the public setter
+        if (allomancer == null) return;
+
+        // Notify the allomancer of the newly active metal
         AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         allomancer.SetCurrentMetal(activeMetal);
         
+        // Update selection highlights in the HUD
         if (metalReserve != null)
-            metalReserve.SetCurrentMetal(metalReserve.maxMetal);
+        {
+            metalReserve.HighlightSelection(primaryMetal, secondaryMetal, isPrimaryActive);
+            
+            // Also trigger a full HUD update to ensure values are refreshed
+            allomancer.DrainMetal(activeMetal, 0); 
+        }
     }
     
     // Public methods for other scripts to query selected metals

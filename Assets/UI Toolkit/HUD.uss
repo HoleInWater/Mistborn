@@ -20,14 +20,62 @@
     font-size: 20px;
 }
 
-#Metal .unity-progress-bar__progress {
-    -unity-background-image-tint-color: rgb(255, 255, 255);
-    background-color: rgb(135, 135, 135);
+/* Metal Container Styles */
+.MetalContainer {
+    margin-bottom: 20px;
 }
 
-#Metal .unity-progress-bar__background {
-    background-color: rgb(0, 0, 0);
+.MetalBar {
+    width: 6.25%; /* 100/16 */
+    height: 30px;
+    margin: 0;
+    padding: 0;
 }
+
+.MetalBar .unity-progress-bar__container {
+    height: 100%;
+}
+
+.MetalBar .unity-progress-bar__background {
+    background-color: rgb(30, 30, 30);
+    border-width: 1px;
+    border-color: rgb(50, 50, 50);
+}
+
+.MetalBar .unity-progress-bar__title {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Selection Highlights */
+.MetalBar.active-metal .unity-progress-bar__background {
+    border-color: rgb(255, 255, 255);
+    border-width: 2px;
+}
+
+.MetalBar.secondary-metal .unity-progress-bar__background {
+    border-color: rgb(150, 150, 150);
+    border-width: 1.5px;
+    border-style: dotted;
+}
+
+/* Specific Metal Colors */
+#Metal_Steel .unity-progress-bar__progress { background-color: rgb(192, 192, 192); }
+#Metal_Iron .unity-progress-bar__progress { background-color: rgb(128, 128, 128); }
+#Metal_Pewter .unity-progress-bar__progress { background-color: rgb(169, 169, 169); }
+#Metal_Tin .unity-progress-bar__progress { background-color: rgb(211, 211, 211); }
+#Metal_Zinc .unity-progress-bar__progress { background-color: rgb(245, 245, 220); }
+#Metal_Brass .unity-progress-bar__progress { background-color: rgb(181, 166, 66); }
+#Metal_Copper .unity-progress-bar__progress { background-color: rgb(184, 115, 51); }
+#Metal_Bronze .unity-progress-bar__progress { background-color: rgb(205, 127, 50); }
+#Metal_Atium .unity-progress-bar__progress { background-color: rgb(0, 0, 0); }
+#Metal_Malatium .unity-progress-bar__progress { background-color: rgb(50, 50, 50); }
+#Metal_Gold .unity-progress-bar__progress { background-color: rgb(255, 215, 0); }
+#Metal_Electrum .unity-progress-bar__progress { background-color: rgb(255, 250, 205); }
+#Metal_Aluminum .unity-progress-bar__progress { background-color: rgb(220, 220, 220); }
+#Metal_Duralumin .unity-progress-bar__progress { background-color: rgb(105, 105, 105); }
+#Metal_Bendalloy .unity-progress-bar__progress { background-color: rgb(255, 127, 80); }
+#Metal_Cadmium .unity-progress-bar__progress { background-color: rgb(135, 206, 235); }
 
 #Stamina .unity-progress-bar__progress {
     background-color: rgb(27, 255, 0);

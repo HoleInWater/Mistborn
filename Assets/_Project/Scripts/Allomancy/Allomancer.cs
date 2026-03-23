@@ -108,6 +108,27 @@ public class Allomancer : MonoBehaviour
         
         if (GetComponent<Atium>() == null)
             gameObject.AddComponent<Atium>();
+            
+        if (GetComponent<Malatium>() == null)
+            gameObject.AddComponent<Malatium>();
+            
+        if (GetComponent<Gold>() == null)
+            gameObject.AddComponent<Gold>();
+            
+        if (GetComponent<Electrum>() == null)
+            gameObject.AddComponent<Electrum>();
+            
+        if (GetComponent<Aluminum>() == null)
+            gameObject.AddComponent<Aluminum>();
+            
+        if (GetComponent<Duralumin>() == null)
+            gameObject.AddComponent<Duralumin>();
+            
+        if (GetComponent<Bendalloy>() == null)
+            gameObject.AddComponent<Bendalloy>();
+            
+        if (GetComponent<Cadmium>() == null)
+            gameObject.AddComponent<Cadmium>();
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)
@@ -182,11 +203,17 @@ public class Allomancer : MonoBehaviour
     {
         if (metalReserve != null)
         {
-            // Only update the HUD if the metal being changed is the one we are currently looking at
-            if (metal == GetCurrentMetal())
+            // Update all bars in the HUD
+            metalReserve.UpdateAllBars(metalReserves);
+            
+            // Also ensure we update selection highlights in case they haven't been set
+            if (metalSelector != null)
             {
-                // Set the bar to the ACTUAL remaining amount in the array
-                metalReserve.currentMetal = metalReserves[(int)metal];
+                metalReserve.HighlightSelection(
+                    metalSelector.GetPrimaryMetal(), 
+                    metalSelector.GetSecondaryMetal(), 
+                    metalSelector.IsPrimaryActive()
+                );
             }
         }
     }

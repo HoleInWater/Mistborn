@@ -140,7 +140,16 @@ public class IronPull : MonoBehaviour
     public bool debugPullOperations = false;
     public bool debugFlareState = false;
     
-    private bool isBurning = false;
+    private bool _isBurning = false;
+    private bool isBurning 
+    {
+        get 
+        {
+            bool globalBurn = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Iron;
+            return _isBurning || globalBurn;
+        }
+        set { _isBurning = value; }
+    }
     private bool pullAppliedThisPress = false;
     private bool qKeyWasPressed = false;
     
