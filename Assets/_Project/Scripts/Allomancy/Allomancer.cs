@@ -42,6 +42,11 @@ public class Allomancer : MonoBehaviour
     
     [Header("HUD")]
     public MetalReserve metalReserve;
+
+    [Header("Intensity Settings")]
+    [Range(1, 10)]
+    public int flareIntensity = 1; // 1 = Weak, 10 = Max Flare
+    public float baseBurnRate = 1f;
     
     // Reference to metal selector for getting current metal
     private MetalSelector metalSelector;
@@ -167,28 +172,28 @@ public class Allomancer : MonoBehaviour
     
     void Update()
     {
-        // TOGGLE BURN WITH 'B' KEY
+        // 1. SCROLL WHEEL TO CHANGE INTENSITY
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll > 0f) flareIntensity = Mathf.Min(10, flareIntensity + 1);
+        else if (scroll < 0f) flareIntensity = Mathf.Max(1, flareIntensity - 1);
+    
+        // 2. TOGGLE BURN/FLARE WITH 'B'
         if (Input.GetKeyDown(KeyCode.B)) 
         {
             if (isBurningMetal) StopBurning();
             else StartBurning(GetCurrentMetal());
         }
     
-        // Check if we are currently using any metal
-        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
-        bool isUsingMetal = isBurningMetal || isFlaring;
-    
-        if (isUsingMetal && canBurnMetal)
+        // 3. DRAIN LOGIC
+        if (isBurningMetal && canBurnMetal)
         {
-            // Calculate total drain: 1 (base) + flare cost if active
-            float currentBurnRate = 1f;
-            if (isFlaring) currentBurnRate += FlareManager.Instance.flareBurnRate;
-    
-            DrainMetal(GetCurrentMetal(), currentBurnRate * Time.deltaTime);
+            // Drain increases as you scroll up: 1x, 2x, ... up to 10x speed
+            float totalDrain = baseBurnRate * flareIntensity;
+            DrainMetal(GetCurrentMetal(), totalDrain * Time.deltaTime);
         }
-        else if (!isUsingMetal)
+        else
         {
-            // Regenerate only when neither burning nor flaring
+            // Regenerate only when not burning
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
     
