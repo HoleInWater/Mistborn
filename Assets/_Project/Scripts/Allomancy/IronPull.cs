@@ -1,3 +1,69 @@
+/* IronPull.cs
+ * 
+ * PURPOSE:
+ * Implements the Iron Allomancy ability (Lurcher) - pull metal objects toward the player.
+ * Requires burning Iron metal to activate.
+ * 
+ * CONTROLS:
+ * ==========
+ * This script implements a PER-METAL FLARE SYSTEM where each metal has independent
+ * flare state. This allows the player to flare only Iron while Steel remains unflared.
+ * 
+ * CONTROL SCHEME:
+ * ---------------
+ * 1. Press Q once (first press)  → Start burning Iron metal
+ *    - Iron starts burning, isFlaring = false (not flared yet)
+ *    - Blue visual lines appear on metal targets
+ * 
+ * 2. Press Q again (second press) → Toggle Iron flare ON/OFF
+ *    - isFlaring flips from false→true or true→false
+ *    - While isFlaring = true, pull force is multiplied by 2x
+ *    - Visual vignette effect plays when flaring activates
+ *    - Can press Q a third time to pull, or press Q again to toggle flare off
+ * 
+ * 3. Press Q while isFlaring=true (third press) → Execute PULL
+ *    - PullMetals() is called
+ *    - Metal cost drained at flaring rate (3x normal)
+ *    - Single impulse applied per press
+ * 
+ * 4. Release Q key              → Stop burning Iron
+ *    - isBurning = false
+ *    - isFlaring state is PRESERVED (remembers if it was flared)
+ *    - Ready for next sequence
+ * 
+ * ALTERNATIVE FLARE CONTROL:
+ * --------------------------
+ * - Press Ctrl at ANY time → Toggle Iron flare (independent of Q key)
+ *   This allows flaring without triggering a pull.
+ * 
+ * FLARE STATE MACHINE:
+ * --------------------
+ * State transitions:
+ *   [Idle] ──Q press──> [Burning, not flared] ──Q press──> [Burning, flared] ──Q press──> [Pull executed]
+ *       ^                                                                      │              │
+ *       └────────────────────────── Release Q ─────────────────────────────────┘              │
+ *                                                                                                │
+ *       [Not Burning] <────────── Release Q ────────────────────────────────────────────────────┘
+ * 
+ * FLARE VS NO-FLARE COMPARISON:
+ * -----------------------------
+ * | State       | Force Multiplier | Metal Cost | Use Case                |
+ * |-------------|------------------|------------|--------------------------|
+ * | Not Flared  | 1x               | 1x         | Normal precision pulls   |
+ * | Flared      | 2x               | 3x         | Heavy objects, emergency |
+ * 
+ * LORE ACCURACY:
+ * - Push/Pull originates from the allomancer's chest (center mass)
+ * - Blue lines (blue haze) appear on metal targets within range
+ * - Flaring intensifies the effect and consumes more metal
+ * - Lurchers can feel metal in the world (weight/distance sense)
+ * 
+ * METAL DETECTION:
+ * - Raycasts from camera center to detect metal objects on "Metal" layer
+ * - Objects must have Rigidbody component to be pulled
+ * - AllomanticTarget component provides additional control (canBePulled, isAnchored)
+ */
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -80,8 +146,11 @@ public class IronPull : MonoBehaviour
     public bool debugPullOperations = true;
     
     private bool isBurning = false;
-    private bool isFlaring = false;
     private bool pullAppliedThisPress = false;
+    private bool qKeyWasPressed = false;
+    
+    // Flare state from centralized FlareManager
+    private bool IsFlaring => FlareManager.Instance != null ? FlareManager.Instance.IsIronFlaring : false;
     
     // Targeted metal detection
     private RaycastHit currentTargetHit;
@@ -113,6 +182,11 @@ public class IronPull : MonoBehaviour
         if (allomancer == null)
         {
             allomancer = GetComponentInParent<Allomancer>();
+        }
+        
+        if (metalLayer.value == 0)
+        {
+            metalLayer = LayerMask.GetMask("Metal");
         }
         
         if (chestTransform == null)
@@ -158,47 +232,74 @@ public class IronPull : MonoBehaviour
     
     void Update()
     {
-        // Check if Allomancer says we can't burn metal (out of metal)
+        // EARLY EXIT: Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
             if (isBurning) StopBurning();
             return;
         }
         
-        // Update cooldown timer
+        // TIMER: Update cooldown timer to prevent rapid re-activation
         if (cooldownTimer > 0f)
         {
             cooldownTimer -= Time.deltaTime;
         }
         
-        // Flaring: Ctrl toggles flaring mode (works anytime)
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            isFlaring = !isFlaring;
-            if (debugPullOperations) Debug.Log($"[IRON] Flaring: {(isFlaring ? "ON" : "OFF")}");
-        }
-        
-        // Update targeted metal detection
+        // DETECTION: Update targeted metal detection (raycast from camera)
         UpdateTargetedMetal();
         
-        // Pull: Left Mouse (requires flaring)
-        if (Input.GetKeyDown(KeyCode.Q) && isFlaring && cooldownTimer <= 0f)
+        // =========================================================================
+        // Q KEY HANDLING - Per-Metal Flare System
+        // =========================================================================
+        // This implements the sequence: [Start Burn] → [Toggle Flare] → [Execute Pull]
+        // qKeyWasPressed prevents GetKeyDown from firing multiple times per press
+        // Flare state is managed by FlareManager (centralized)
+        
+        bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
+        bool qKeyUp = Input.GetKeyUp(KeyCode.Q);
+        
+        // FIRST FRAME OF Q PRESS: Handle the key press sequence
+        if (qKeyDown && !qKeyWasPressed)
         {
-            if (!isBurning) StartBurning();
-            if (!pullAppliedThisPress)
+            qKeyWasPressed = true; // Mark as pressed to prevent re-triggering
+            
+            // PHASE 1: Start burning (if not already burning and cooldown expired)
+            if (cooldownTimer <= 0f)
             {
-                PullMetals();
-                DrainMetal(flaringMetalCostMultiplier);
-                pullAppliedThisPress = true;
+                if (!isBurning) StartBurning();
+                pullAppliedThisPress = false; // Reset for new sequence
+            }
+            
+            // PHASE 2: Q pressed while burning - decide action based on flare state
+            if (isBurning)
+            {
+                // If already flared AND haven't pulled yet this press → EXECUTE PULL
+                if (IsFlaring && !pullAppliedThisPress)
+                {
+                    PullMetals();
+                    DrainMetal(flaringMetalCostMultiplier); // 3x metal cost when flared
+                    pullAppliedThisPress = true;
+                }
+                // Otherwise → TOGGLE IRON FLARE STATE via FlareManager
+                else
+                {
+                    if (FlareManager.Instance != null)
+                        FlareManager.Instance.ToggleIronFlare();
+                }
             }
         }
         
-        if (Input.GetKeyUp(KeyCode.Q))
+        // Q KEY RELEASED: Stop burning Iron (reset state machine)
+        if (qKeyUp)
         {
-            StopBurning();
+            qKeyWasPressed = false; // Reset press tracking
+            StopBurning();          // Stop burning, PRESERVE flare state
         }
         
-        // Update pull prediction
+        // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
+        // Press Ctrl to toggle BOTH Iron and Steel flares at once
+        
+        // PREDICTION: Update pull trajectory prediction line
         UpdatePrediction();
     }
     
@@ -231,14 +332,21 @@ public class IronPull : MonoBehaviour
         
         if (playerCamera == null) return;
         
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
+        Vector3 rayOrigin = playerCamera.transform.position;
+        Vector3 rayDirection = playerCamera.transform.forward;
+        Ray ray = new Ray(rayOrigin, rayDirection);
+        
+        if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
-            currentTargetRigidbody = currentTargetHit.rigidbody;
-            if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+            int hitLayer = hit.collider.gameObject.layer;
+            if ((metalLayer.value & (1 << hitLayer)) != 0)
             {
-                currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
-                hasCurrentTarget = true;
+                currentTargetRigidbody = hit.rigidbody;
+                if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+                {
+                    currentTarget = hit.collider.GetComponent<AllomanticTarget>();
+                    hasCurrentTarget = true;
+                }
             }
         }
     }

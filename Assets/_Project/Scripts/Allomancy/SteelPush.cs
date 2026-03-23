@@ -4,32 +4,76 @@
  * Implements the Steel Allomancy ability (Coinshot) - push metal objects away from the player.
  * Requires burning Steel metal to activate.
  * 
- * KEY FIELDS:
- * - pushForce: Base force applied when pushing metal objects
- * - maxRange: Maximum distance for pushing metal (units)
- * - metalCostPerSecond: Metal reserve consumption rate while burning
- * - allomancer: Reference to the Allomancer system for metal reserve checks
- * - playerCamera: Camera for raycasting (determines push direction)
+ * CONTROLS:
+ * ==========
+ * This script implements a PER-METAL FLARE SYSTEM where each metal has independent
+ * flare state. This allows the player to flare only Steel while Iron remains unflared.
  * 
- * HOW IT WORKS:
- * 1. Player holds Right Mouse Button to burn Steel
- * 2. Raycasts from camera detect metal objects within range
- * 3. Applies force away from player based on pushForce and object mass
- * 4. Can push player away from anchored heavy objects (isAnchored=true)
- * 5. Checks canBurnMetal before allowing push
+ * CONTROL SCHEME:
+ * ---------------
+ * 1. Press E once (first press)  → Start burning Steel metal
+ *    - Steel starts burning, isFlaring = false (not flared yet)
+ *    - Yellow visual lines appear on metal targets
  * 
- * IMPORTANT NOTES:
- * - Requires Allomancer component to check metal reserves
- * - Heavy/anchored objects push the player instead of moving
- * - Force is proportional to player mass vs target mass
- * - Disabled when metal reserve hits 0
+ * 2. Press E again (second press) → Toggle Steel flare ON/OFF
+ *    - isFlaring flips from false→true or true→false
+ *    - While isFlaring = true, push force is multiplied by 2x
+ *    - Visual vignette effect plays when flaring activates
+ *    - Can press E a third time to push, or press E again to toggle flare off
+ * 
+ * 3. Press E while isFlaring=true (third press) → Execute PUSH
+ *    - PushMetals() is called
+ *    - Metal cost drained at flaring rate (3x normal)
+ *    - Single impulse applied per press
+ * 
+ * 4. Release E key              → Stop burning Steel
+ *    - isBurning = false
+ *    - isFlaring state is PRESERVED (remembers if it was flared)
+ *    - Ready for next sequence
+ * 
+ * ALTERNATIVE FLARE CONTROL:
+ * --------------------------
+ * - Press Ctrl at ANY time → Toggle Steel flare (independent of E key)
+ *   This allows flaring without triggering a push.
+ * 
+ * STEEL BUBBLE (F KEY):
+ * ---------------------
+ * - Press F while flared → Creates a gentle pushing field around player
+ * - Radius: ~2.5m (like Waxillium's bubble)
+ * - Force: ~50N (gentle breeze, not overwhelming)
+ * - Cooldown: 0.5s between uses
+ * - Metal cost: 1.5x normal
+ * 
+ * FLARE STATE MACHINE:
+ * --------------------
+ * State transitions:
+ *   [Idle] ──E press──> [Burning, not flared] ──E press──> [Burning, flared] ──E press──> [Push executed]
+ *       ^                                                                      │              │
+ *       └────────────────────────── Release E ─────────────────────────────────┘              │
+ *                                                                                                │
+ *       [Not Burning] <────────── Release E ─────────────────────────────────────────────────┘
+ * 
+ * FLARE VS NO-FLARE COMPARISON:
+ * -----------------------------
+ * | State       | Force Multiplier | Metal Cost | Use Case                |
+ * |-------------|------------------|------------|--------------------------|
+ * | Not Flared  | 1x               | 1x         | Normal precision pushes   |
+ * | Flared      | 2x               | 3x         | Heavy objects, emergency |
  * 
  * LORE ACCURACY:
- * Steel Push (Coinshot ability) - pushes metal away from center of self.
- * Stronger push when closer (zenith point ~5m). Anchored objects push the allomancer.
+ * - Push/Pull originates from the allomancer's chest (center mass)
+ * - Blue lines (blue haze) appear on metal targets within range
+ * - Flaring intensifies the effect and consumes more metal
+ * - Coinshots can feel metal in the world (weight/distance sense)
+ * - Steel bubble provides a gentle push like a breeze
+ * 
+ * METAL DETECTION:
+ * - Raycasts from camera center to detect metal objects on "Metal" layer
+ * - Objects must have Rigidbody component to be pushed
+ * - AllomanticTarget component provides additional control (canBePushed, isAnchored)
+ * - Heavy/anchored objects push the player instead of moving
  */
 
-// NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
@@ -179,9 +223,12 @@ public class SteelPush : MonoBehaviour
     public bool debugPushOperations = true;
     
     private bool isBurning = false;
-    private bool isFlaring = false;
     private bool pushAppliedThisPress = false;
     private bool bubbleAppliedThisPress = false;
+    private bool eKeyWasPressed = false;
+    
+    // Flare state from centralized FlareManager
+    private bool IsFlaring => FlareManager.Instance != null ? FlareManager.Instance.IsSteelFlaring : false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
@@ -274,21 +321,57 @@ public class SteelPush : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // Start burning: E key (one per press)
-        if (Input.GetKeyDown(KeyCode.E) && cooldownTimer <= 0f)
+        // =========================================================================
+        // E KEY HANDLING - Per-Metal Flare System
+        // =========================================================================
+        // This implements the sequence: [Start Burn] → [Toggle Flare] → [Execute Push]
+        // eKeyWasPressed prevents GetKeyDown from firing multiple times per press
+        // Flare state is managed by FlareManager (centralized)
+        
+        bool eKeyDown = Input.GetKeyDown(KeyCode.E);
+        bool eKeyUp = Input.GetKeyUp(KeyCode.E);
+        
+        if (eKeyDown && !eKeyWasPressed)
         {
-            StartBurning();
-            pushAppliedThisPress = false;
-            bubbleAppliedThisPress = false;
+            eKeyWasPressed = true;
+            
+            // PHASE 1: Start burning (if not already burning and cooldown expired)
+            if (cooldownTimer <= 0f)
+            {
+                StartBurning();
+                pushAppliedThisPress = false;
+                bubbleAppliedThisPress = false;
+            }
+            
+            // PHASE 2: E pressed while burning - decide action based on flare state
+            if (isBurning)
+            {
+                // If already flared AND haven't pushed yet this press → EXECUTE PUSH
+                if (IsFlaring && !pushAppliedThisPress)
+                {
+                    PushMetals();
+                    DrainMetal(flaringMetalCostMultiplier);
+                    pushAppliedThisPress = true;
+                }
+                // Otherwise → TOGGLE STEEL FLARE STATE via FlareManager
+                else
+                {
+                    if (FlareManager.Instance != null)
+                        FlareManager.Instance.ToggleSteelFlare();
+                    if (IsFlaring) StartFlaringVignette();
+                }
+            }
         }
         
-        // Flaring: Ctrl toggles flaring mode (works anytime)
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        // E KEY RELEASED: Stop burning Steel (reset state machine)
+        if (eKeyUp)
         {
-            isFlaring = !isFlaring;
-            if (debugPushOperations) Debug.Log($"[STEEL] Flaring: {(isFlaring ? "ON" : "OFF")}");
-            if (isFlaring && isBurning) StartFlaringVignette();
+            eKeyWasPressed = false;
+            StopBurning();
         }
+        
+        // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
+        // Press Ctrl to toggle BOTH Iron and Steel flares at once
         
         // Update targeted metal detection
         UpdateTargetedMetal();
@@ -307,24 +390,6 @@ public class SteelPush : MonoBehaviour
                     bubbleAppliedThisPress = true;
                 }
             }
-        }
-        
-        // Normal push: E key (requires flaring)
-        if (Input.GetKeyDown(KeyCode.E) && isFlaring && !pushAppliedThisPress)
-        {
-            if (!isBurning) StartBurning();
-            Debug.Log($"[PUSH] E pressed - flaring={isFlaring}");
-            StartFlaringVignette();
-            PushMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            pushAppliedThisPress = true;
-        }
-        
-        // Stop burning when releasing E or F key
-        bool pushKeyUp = Input.GetKeyUp(KeyCode.E) || Input.GetKeyUp(steelBubbleKey);
-        if (pushKeyUp)
-        {
-            StopBurning();
         }
         
         // Update push prediction
@@ -370,7 +435,7 @@ public class SteelPush : MonoBehaviour
             {
                 currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
-                if (debugPushOperations) Debug.Log($"[PUSH] Detected: {currentTargetRigidbody.name}");
+                // Debug removed - was firing every frame
             }
         }
     }
