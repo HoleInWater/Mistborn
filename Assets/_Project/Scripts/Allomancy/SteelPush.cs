@@ -179,7 +179,7 @@ public class SteelPush : MonoBehaviour
     public bool debugPushOperations = true;
     
     private bool isBurning = false;
-    private bool isFlaring = false;
+    private bool IsFlaring => FlareManager.Instance != null ? FlareManager.Instance.IsSteelFlaring : false;
     private bool pushAppliedThisPress = false;
     private bool bubbleAppliedThisPress = false;
     private Coroutine vignetteCoroutine;
@@ -269,6 +269,62 @@ public class SteelPush : MonoBehaviour
             if (isBurning) StopBurning();
             return;
         }
+        
+        // Update cooldown timers
+        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
+        if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
+        
+        // Update targeted metal detection
+        UpdateTargetedMetal();
+        
+        // E KEY HANDLING - Push mechanics (requires flaring)
+        bool eKeyDown = Input.GetKeyDown(KeyCode.E);
+        bool eKeyUp = Input.GetKeyUp(KeyCode.E);
+        
+        if (eKeyDown && !eKeyWasPressed && cooldownTimer <= 0f)
+        {
+            if (IsFlaring)
+            {
+                eKeyWasPressed = true;
+                if (!isBurning) StartBurning();
+                PushMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+                StartFlaringVignette();
+            }
+        }
+        
+        // E KEY RELEASED: Stop burning Steel
+        if (eKeyUp)
+        {
+            eKeyWasPressed = false;
+            StopBurning();
+        }
+        
+        // Continuous metal drain while burning
+        if (isBurning)
+        {
+            DrainMetal(1f);
+        }
+        
+        // Steel Bubble: F key (one per press, requires flaring)
+        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
+        {
+            if (IsFlaring && steelBubbleCooldownTimer <= 0f)
+            {
+                if (!isBurning) StartBurning();
+                if (!bubbleAppliedThisPress)
+                {
+                    PushMetalsInBubble();
+                    DrainMetal(steelBubbleMetalCostMultiplier);
+                    steelBubbleCooldownTimer = steelBubbleCooldown;
+                    bubbleAppliedThisPress = true;
+                }
+            }
+        }
+        
+        // Update push prediction
+        UpdatePrediction();
+    }
         
         // Update cooldown timers
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
