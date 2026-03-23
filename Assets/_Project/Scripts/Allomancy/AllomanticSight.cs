@@ -24,8 +24,24 @@ public class AllomanticSight : MonoBehaviour
     [Tooltip("Color for heavy metal objects (Koloss weapons, large structures)")]
     public Color heavyMetalColor = Color.blue; // Darker blue for heavier objects
     
+    [Tooltip("Color for metals that cannot be pushed (aluminum, etc.)")]
+    public Color nonPushableColor = Color.gray; // Gray for aluminum and other non-pushable metals
+    
+    [Tooltip("Color for anchored/fixed metal objects")]
+    public Color anchoredColor = Color.red; // Red for anchored objects
+    
     [Tooltip("Layer mask for metal objects (set in Unity Editor)")]
     public LayerMask metalLayer;
+    
+    [Header("Line Animation")]
+    [Tooltip("Should the blue lines pulse/shimmer as described in the books?")]
+    public bool enableLinePulse = true;
+    [Tooltip("Speed of line pulsing effect")]
+    public float pulseSpeed = 2f;
+    [Tooltip("How much the line width varies during pulse")]
+    public float pulseAmplitude = 0.02f;
+    [Tooltip("Reference to player's chest transform (if null, uses camera)")]
+    public Transform chestTransform;
     
     // ===== REFERENCES =====
     [Header("References")]
@@ -34,9 +50,12 @@ public class AllomanticSight : MonoBehaviour
     
     // ===== PRIVATE STATE =====
     private bool isActive = false; // Whether the sight is currently active
-    private List<LineRenderer> activeLines = new List<LineRenderer>(); // Pool of active line renderers
+    private List<LineRenderer> activeLines = new List<LineRenderer>(); // Currently active line renderers
+    private List<LineRenderer> linePool = new List<LineRenderer>(); // Pool of inactive line renderers for reuse
     private float metalReserve = 100f; // Current metal reserve for burning Tin
     private float metalCostPerSecond = 1f; // How fast metal drains while sight is active
+    [Tooltip("Maximum number of blue lines to pool (prevents infinite growth)")]
+    public int maxLines = 100;
     
     void Start()
     {
@@ -49,6 +68,82 @@ public class AllomanticSight : MonoBehaviour
                 Debug.LogError("AllomanticSight: No main camera found! Please assign playerCamera in Inspector.");
             }
         }
+        
+        // Initialize line pool
+        InitializeLinePool();
+    }
+    
+    void InitializeLinePool()
+    {
+        // Pre-create line renderers and add to pool
+        for (int i = 0; i < maxLines; i++)
+        {
+            CreateLineRenderer();
+        }
+    }
+    
+    LineRenderer CreateLineRenderer()
+    {
+        GameObject lineObj = new GameObject("MetalLine_Pooled");
+        lineObj.SetActive(false; // Start inactive
+        LineRenderer line = lineObj.AddComponent<LineRenderer>();
+        
+        // Set up line renderer properties
+        Shader shader = Shader.Find("Sprites/Default");
+        if (shader != null)
+        {
+            line.material = new Material(shader);
+        }
+        else
+        {
+            line.material = new Material(Shader.Find("Unlit/Color"));
+        }
+        
+        line.positionCount = 2;
+        line.useWorldSpace = true;
+        
+        // Add to pool
+        linePool.Add(line);
+        return line;
+    }
+    
+    LineRenderer GetLineFromPool()
+    {
+        // If pool is empty, create a new one (unless we've hit max)
+        if (linePool.Count == 0)
+        {
+            if (activeLines.Count + linePool.Count < maxLines)
+            {
+                return CreateLineRenderer();
+            }
+            else
+            {
+                // Reuse the oldest active line
+                if (activeLines.Count > 0)
+                {
+                    LineRenderer oldest = activeLines[0];
+                    activeLines.RemoveAt(0);
+                    return oldest;
+                }
+                return null; // Shouldn't happen, but just in case
+            }
+        }
+        
+        // Get last line from pool
+        LineRenderer line = linePool[linePool.Count - 1];
+        linePool.RemoveAt(linePool.Count - 1);
+        
+        // Activate and return
+        line.gameObject.SetActive(true);
+        return line;
+    }
+    
+    void ReturnLineToPool(LineRenderer line)
+    {
+        if (line == null) return;
+        
+        line.gameObject.SetActive(false);
+        linePool.Add(line);
     }
     
     // Update is called once per frame
@@ -101,8 +196,8 @@ public class AllomanticSight : MonoBehaviour
     // Draws lines from the player to all metal objects within range
     void VisualizeMetals()
     {
-        // First, clear any existing lines from previous frame
-        ClearLines();
+        // First, return all active lines to pool
+        ReturnAllActiveLinesToPool();
         
         // Check if playerCamera is assigned
         if (playerCamera == null)
@@ -111,6 +206,9 @@ public class AllomanticSight : MonoBehaviour
             return;
         }
         
+        // Determine origin point: chest if available, otherwise camera
+        Vector3 originPoint = chestTransform != null ? chestTransform.position : playerCamera.transform.position;
+        
         // Find all metal objects within range using Physics.OverlapSphere
         // This checks all colliders on the metalLayer within metalRange of this object
         Collider[] metals = Physics.OverlapSphere(transform.position, metalRange, metalLayer);
@@ -118,58 +216,94 @@ public class AllomanticSight : MonoBehaviour
         // Loop through each metal object found
         foreach (Collider metal in metals)
         {
-            // Calculate direction and distance for potential future use (e.g., distance-based line thickness)
-            Vector3 direction = (metal.transform.position - playerCamera.transform.position).normalized;
-            float distance = Vector3.Distance(playerCamera.transform.position, metal.transform.position);
+            // Calculate direction and distance for line properties
+            Vector3 direction = (metal.transform.position - originPoint).normalized;
+            float distance = Vector3.Distance(originPoint, metal.transform.position);
             
-            // Create a new GameObject to hold the LineRenderer
-            // PERFORMANCE NOTE: Creating new GameObjects every frame is inefficient
-            // TODO: Implement object pooling for LineRenderers to improve performance
-            GameObject lineObj = new GameObject("MetalLine");
-            LineRenderer line = lineObj.AddComponent<LineRenderer>();
+            // Get a line renderer from pool
+            LineRenderer line = GetLineFromPool();
             
             // Set line start and end positions
-            // Start: slightly in front of camera (to avoid clipping with camera model)
+            // Start: origin point (chest or camera)
             // End: at the metal object's position
-            line.SetPosition(0, playerCamera.transform.position + playerCamera.transform.forward * 0.5f);
+            line.SetPosition(0, originPoint);
             line.SetPosition(1, metal.transform.position);
             
-            // Set line width
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            // Get AllomanticTarget component for additional info
+            AllomanticTarget target = metal.GetComponent<AllomanticTarget>();
             
-            // Determine color based on mass: heavier objects get darker blue lines
-            float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
-            
-            // Safely create material - use default sprite material
-            Shader shader = Shader.Find("Sprites/Default");
-            if (shader != null)
+            // Determine color based on metal properties
+            Color baseColor;
+            if (target != null)
             {
-                line.material = new Material(shader);
+                if (!target.canBePushed)
+                {
+                    // Non-pushable metals (aluminum, etc.)
+                    baseColor = nonPushableColor;
+                }
+                else if (target.isAnchored || (metal.attachedRigidbody != null && metal.attachedRigidbody.isKinematic))
+                {
+                    // Anchored/fixed metals
+                    baseColor = anchoredColor;
+                }
+                else
+                {
+                    // Normal pushable metals
+                    float mass = target.GetEffectiveMass();
+                    baseColor = mass > 10f ? heavyMetalColor : metalColor;
+                }
             }
             else
             {
-                // Fallback to default material
-                line.material = new Material(Shader.Find("Unlit/Color"));
+                // No AllomanticTarget component - use mass-based color
+                float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+                baseColor = mass > 10f ? heavyMetalColor : metalColor;
             }
             
-            line.startColor = mass > 10f ? heavyMetalColor : metalColor;
-            line.endColor = line.startColor;
+            // Add pulsing alpha for shimmer effect
+            if (enableLinePulse)
+            {
+                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
+                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
+            }
             
-            // Add line to our tracking list for cleanup
+            // Also make width based on distance (closer = thicker)
+            float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
+            currentLineWidth *= (0.5f + distanceFactor * 0.5f);
+            
+            line.startWidth = currentLineWidth;
+            line.endWidth = currentLineWidth * 0.8f; // Slightly thinner at the end
+            
+            // Color with pulsing alpha for shimmer effect
+            Color baseColor = mass > 10f ? heavyMetalColor : metalColor;
+            if (enableLinePulse)
+            {
+                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
+                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
+            }
+            
+            line.startColor = baseColor;
+            line.endColor = baseColor;
+            
+            // Add line to active list
             activeLines.Add(line);
         }
     }
     
-    // Destroys all active line renderers and clears the list
-    void ClearLines()
+    // Returns all active lines to the pool and clears the active list
+    void ReturnAllActiveLinesToPool()
     {
         foreach (LineRenderer line in activeLines)
         {
-            if (line != null)
-                Destroy(line.gameObject);
+            ReturnLineToPool(line);
         }
         activeLines.Clear();
+    }
+    
+    // Legacy method for compatibility
+    void ClearLines()
+    {
+        ReturnAllActiveLinesToPool();
     }
     
     // Drains metal reserve while sight is active
@@ -186,7 +320,20 @@ public class AllomanticSight : MonoBehaviour
     // Cleanup when object is destroyed
     void OnDestroy()
     {
-        ClearLines();
+        // Destroy all pooled and active line GameObjects
+        foreach (LineRenderer line in linePool)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        foreach (LineRenderer line in activeLines)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        
+        linePool.Clear();
+        activeLines.Clear();
     }
     
     // Public getter for metal reserve (for UI display)
