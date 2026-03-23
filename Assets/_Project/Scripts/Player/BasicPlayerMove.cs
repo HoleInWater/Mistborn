@@ -5,52 +5,36 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
-    // NOTE: Consider adding [Range(1f, 20f)] attribute for moveSpeed
     public float moveSpeed = 5f; 
-    // NOTE: Consider adding [Range(5f, 30f)] attribute for sprintSpeed
     public float sprintSpeed = 10f; 
-    // NOTE: Consider adding [Range(1f, 50f)] attribute for rotationSpeed
     public float rotationSpeed = 10f; 
-    // NOTE: Consider adding [Range(10f, 1000f)] attribute for mouseSensitivity
     public float mouseSensitivity = 200f;
 
     [Header("Jumping & Gravity")]
-    // NOTE: Consider adding [Range(1f, 20f)] attribute for jumpVelocity
-    public float jumpVelocity = 8f; // Use this instead of force
-    // NOTE: Consider adding [Range(1f, 10f)] attribute for fallMultiplier
-    public float fallMultiplier = 3f; // Fast fall
-    // NOTE: Consider adding [Range(1f, 5f)] attribute for lowJumpMultiplier
-    public float lowJumpMultiplier = 2f; 
-    // NOTE: Consider adding [Range(0f, 1f)] attribute for jumpBufferTime
-    public float jumpBufferTime = 0.2f; // Forgiveness window
-    // NOTE: Consider adding [Tooltip("Layer mask for ground detection")] attribute
+    public float jumpVelocity = 8f;
+    public float fallMultiplier = 3f;
+    public float lowJumpMultiplier = 2f;
+    public float jumpBufferTime = 0.2f;
     public LayerMask groundLayer;
     
-    private Rigidbody rb;
-    private bool isGrounded;
-    private float jumpBufferCounter;
-
     [Header("Stamina Settings")]
-    // NOTE: Consider adding [Range(1f, 100f)] attribute for drainRate
     public float drainRate = 25f;
 
     [Header("Camera & Smoothing")]
-    // NOTE: Consider adding [Tooltip("Transform of the main camera")] attribute
     public Transform cameraTransform;
-    // NOTE: Consider adding [Tooltip("Pivot point for camera rotation")] attribute
     public Transform cameraPivot;
-    // NOTE: Consider adding [Tooltip("Layers that block camera collision")] attribute
     public LayerMask collisionLayers;
-    // NOTE: Consider adding [Range(1f, 50f)] attribute for smoothSpeed
     public float smoothSpeed = 10f;
-    // NOTE: Consider adding [Range(0.01f, 1f)] attribute for cameraRadius
     public float cameraRadius = 0.2f;
-    // NOTE: Consider adding [Range(0.1f, 5f)] attribute for minDistance
     public float minDistance = 0.5f;
     
     [Header("Smoothness Settings")]
-    public float acceleration = 10f; // High value for snappy-but-smooth response
+    public float acceleration = 10f;
 
+    private Rigidbody rb;
+    private bool isGrounded;
+    private float jumpBufferCounter;
+    private bool jumpRequested = false;
 
     private float xRotation = 0f;
     private float yRotation = 0f;
@@ -60,116 +44,124 @@ public class BasicPlayerMove : MonoBehaviour
 
     private PlayerStamina staminaSystem;
 
+    // Cached input for use in FixedUpdate
+    private float inputX;
+    private float inputZ;
+    private bool sprintHeld;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true; 
-        rb.interpolation = RigidbodyInterpolation.Interpolate; // CRITICAL for smoothness
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
         currentDistance = maxDistance;
 
         staminaSystem = GetComponent<PlayerStamina>();
-
-        rb.sleepThreshold = 0.0f; // Prevents the physics engine from "pausing" the player
+        rb.sleepThreshold = 0.0f;
     }
 
     void Update()
     {
-        // Ground Check
+        // Ground check runs in Update for responsiveness
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
 
-        // Jump Buffering Logic
+        // Cache inputs here so FixedUpdate can use them safely
+        inputX = Input.GetAxisRaw("Horizontal");
+        inputZ = Input.GetAxisRaw("Vertical");
+        sprintHeld = Input.GetKey(KeyCode.LeftShift);
+
+        // Jump buffer
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             jumpBufferCounter = jumpBufferTime;
-        }
         else
-        {
             jumpBufferCounter -= Time.deltaTime;
+
+        // Flag a jump request — FixedUpdate will execute it
+        if (jumpBufferCounter > 0f && isGrounded)
+        {
+            float jumpCost = 15f;
+            if (staminaSystem == null || staminaSystem.currentStamina >= jumpCost)
+            {
+                jumpRequested = true;
+                jumpBufferCounter = 0f;
+
+                if (staminaSystem != null)
+                    staminaSystem.UseStamina(jumpCost);
+            }
         }
 
-        HandleMovement();
-        HandleJump();
         HandleCamera();
     }
 
     void FixedUpdate()
     {
-        // Smooth Gravity scaling
-        if (rb.velocity.y < 0)
-        {
-            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
-        }
-        else if (rb.velocity.y > 0 && !Input.GetKey(KeyCode.Space))
-        {
-            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
-        }
+        HandleMovement();
+        HandleJump();
+        HandleGravity();
     }
 
     void HandleJump()
     {
-        // Check if grounded, buffer is active, AND we have enough stamina
-        if (jumpBufferCounter > 0f && isGrounded)
+        if (!jumpRequested) return;
+
+        // Preserve horizontal momentum completely, only set Y
+        rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
+        jumpRequested = false;
+    }
+
+    void HandleGravity()
+    {
+        if (rb.velocity.y < 0)
         {
-            float jumpCost = 15f; // Match this to your preference
-    
-            if (staminaSystem != null && staminaSystem.currentStamina >= jumpCost)
-            {
-                // Perform the jump
-                rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
-                
-                // Drain the stamina instantly
-                staminaSystem.UseStamina(jumpCost);
-                
-                jumpBufferCounter = 0; 
-            }
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        else if (rb.velocity.y > 0 && !sprintHeld) // reuses cached input
+        {
+            // NOTE: If you want low-jump to only trigger on Space release,
+            // cache Input.GetKey(KeyCode.Space) in Update instead of reusing sprintHeld
+            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
         }
     }
 
     void HandleMovement()
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical");
-    
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
         right.Normalize();
-    
-        Vector3 moveDirection = (forward * z + right * x).normalized;
-    
-        // Calculate Target Speed
+
+        // Use cached inputs from Update
+        Vector3 moveDirection = (forward * inputZ + right * inputX).normalized;
+
         float targetSpeed = 0f;
         if (moveDirection.magnitude > 0.1f)
         {
             bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-            targetSpeed = (Input.GetKey(KeyCode.LeftShift) && hasStamina) ? sprintSpeed : moveSpeed;
-    
-            if (targetSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate * Time.fixedDeltaTime);
-    
-            // Rotation
+            targetSpeed = (sprintHeld && hasStamina) ? sprintSpeed : moveSpeed;
+
+            if (targetSpeed == sprintSpeed)
+                staminaSystem.DrainStamina(drainRate * Time.fixedDeltaTime);
+
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
-    
-        // Only care about horizontal velocity so Y (gravity/jumping) is never touched
+
         Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0, rb.velocity.z);
         Vector3 targetHorizontalVel = moveDirection * targetSpeed;
-    
-        // MoveTowards gives consistent acceleration regardless of frame rate
         Vector3 smoothedVel = Vector3.MoveTowards(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
-    
-        // Preserve rb.velocity.y so jumps and gravity are unaffected
+
+        // Y is always preserved — jumping and gravity are never overwritten
         rb.velocity = new Vector3(smoothedVel.x, rb.velocity.y, smoothedVel.z);
-    
+
         if (moveDirection.magnitude > 0.1f && rb.IsSleeping()) rb.WakeUp();
     }
-    
+
     void HandleCamera()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
