@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (22/400+):**
+**✅ Completed (25/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -38,6 +38,9 @@
 20. Changed detection to OverlapSphere for metal-through-walls (lore accurate)
 21. Added tooltips to force settings for calibration clarity
 22. Added optional visual effect when pushing metal
+23. Added flight mechanics: extra upward boost when pushing off anchored objects below
+24. Added impulse mode for light objects (coins) to achieve realistic velocities
+25. Added camera shake and placeholder audio system for push feedback
 
 ---
 
