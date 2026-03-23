@@ -274,7 +274,7 @@ public class IronPull : MonoBehaviour
         // --- Visual feedback ---
         if (force > shakeForceThreshold)
         {
-            ShakeCamera(shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
+            CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
             TriggerPullTint(force);
         }
 
@@ -355,25 +355,6 @@ public class IronPull : MonoBehaviour
 
     // ── Visual Helpers ────────────────────────────────────────────────────────
 
-    void ShakeCamera(float magnitude)
-    {
-        if (playerCamera == null || magnitude <= 0f) return;
-        StartCoroutine(ShakeCoroutine(magnitude));
-    }
-
-    IEnumerator ShakeCoroutine(float magnitude)
-    {
-        Vector3 originalPos = playerCamera.transform.localPosition;
-        float   elapsed     = 0f;
-        while (elapsed < shakeDuration)
-        {
-            playerCamera.transform.localPosition = originalPos
-                + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f) * magnitude;
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        playerCamera.transform.localPosition = originalPos;
-    }
 
     void TriggerPullTint(float force)
     {
