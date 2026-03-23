@@ -223,7 +223,7 @@ public class SteelPush : MonoBehaviour
     private bool IsFlaring => FlareManager.Instance != null ? FlareManager.Instance.IsSteelFlaring : false;
     private bool pushAppliedThisPress = false;
     private bool bubbleAppliedThisPress = false;
-    private bool eKeyWasPressed = false;  // FIX: was missing, caused CS0103
+    private bool eKeyWasPressed = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
@@ -347,24 +347,31 @@ public class SteelPush : MonoBehaviour
         }
 
         // Steel Bubble: F key (one per press, requires flaring)
-        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
+        if (enableSteelBubble)
         {
-            if (IsFlaring && steelBubbleCooldownTimer <= 0f)
+            if (Input.GetKeyDown(steelBubbleKey))
             {
-                if (!isBurning) StartBurning();
-                if (!bubbleAppliedThisPress)
+                if (IsFlaring && steelBubbleCooldownTimer <= 0f && !bubbleAppliedThisPress)
                 {
+                    if (!isBurning) StartBurning();
+                    isSteelBubbleActive = true;
                     PushMetalsInBubble();
                     DrainMetal(steelBubbleMetalCostMultiplier);
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
                 }
             }
+
+            if (Input.GetKeyUp(steelBubbleKey))
+            {
+                bubbleAppliedThisPress = false;
+                isSteelBubbleActive = false;
+            }
         }
 
         // Update push prediction
         UpdatePrediction();
-    }  // FIX: this brace was misplaced in the original, ending Update() too early
+    }
 
     void StartBurning()
     {
@@ -451,7 +458,6 @@ public class SteelPush : MonoBehaviour
             force = 0f;
         }
 
-        // FIX: was using lowercase 'isFlaring' (undefined), corrected to 'IsFlaring' property
         if (IsFlaring) force *= 2f;
 
         Vector3 initialVelocity;
@@ -531,7 +537,6 @@ public class SteelPush : MonoBehaviour
         float weightFactor = playerMass / referenceMass;
         float strength = allomanticStrength * weightFactor * masteryBonus;
 
-        // FIX: was using lowercase 'isFlaring' (undefined), corrected to 'IsFlaring' property
         if (IsFlaring)
         {
             strength *= maxFlareMultiplier;
