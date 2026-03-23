@@ -282,12 +282,12 @@ public class SteelPush : MonoBehaviour
             bubbleAppliedThisPress = false;
         }
         
-        // Flaring: Ctrl toggles flaring mode
-        if (Input.GetKeyDown(KeyCode.LeftControl) && isBurning)
+        // Flaring: Ctrl toggles flaring mode (works anytime)
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             isFlaring = !isFlaring;
-            if (debugPushOperations) Debug.Log($"Flaring: {(isFlaring ? "ON" : "OFF")}");
-            if (isFlaring) StartFlaringVignette();
+            if (debugPushOperations) Debug.Log($"[STEEL] Flaring: {(isFlaring ? "ON" : "OFF")}");
+            if (isFlaring && isBurning) StartFlaringVignette();
         }
         
         // Update targeted metal detection
@@ -296,7 +296,6 @@ public class SteelPush : MonoBehaviour
         // Steel Bubble: F key (one per press, requires flaring)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            Debug.Log($"[BUBBLE] Key pressed: enable={enableSteelBubble}, flaring={isFlaring}, cooldown={steelBubbleCooldownTimer:F2}");
             if (isFlaring && steelBubbleCooldownTimer <= 0f)
             {
                 if (!isBurning) StartBurning();
@@ -483,25 +482,19 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        Debug.Log($"[PUSH] Started - burning={isBurning}, flaring={isFlaring}");
-        
         if (playerRigidbody == null)
         {
             Debug.LogError("[PUSH] ERROR: playerRigidbody is null!");
             return;
         }
         
-        // Normal push: only push the targeted metal (not all metals)
-        // Steel bubble pushes all metals, this pushes only what you're aiming at
         if (!hasCurrentTarget || currentTargetRigidbody == null)
         {
-            Debug.Log("[PUSH] No targeted metal - use steel bubble (F) to push all metals");
+            if (debugPushOperations) Debug.Log("[PUSH] No target - aim at metal");
             return;
         }
         
-        // Push from rigidbody position
         Vector3 pushOrigin = playerRigidbody.position;
-        
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
         
@@ -511,132 +504,83 @@ public class SteelPush : MonoBehaviour
         float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
         float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
         Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
-        
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
-        Debug.Log($"[PUSH] Target: {targetRigidbody.name}, mass={targetMass:F2}kg, dist={distance:F1}m, anchored={isAnchored}");
-        
         float playerMass = playerRigidbody.mass;
-            
-            // LORE-ACCURATE PHYSICS MODEL:
-            // 1. Base allomantic strength (determines max force AND max velocity)
-            // 2. Distance falloff (1/r or 1/r²)
-            // 3. Velocity damping (force decreases as target moves away faster)
-            // 4. Anchor quality (stationary objects = full force, moving = reduced)
-            
-            // Weight-proportional factor (lore: larger allomancers push harder)
-            float weightFactor = playerMass / referenceMass;
-            
-            // Calculate allomantic strength with flaring
-            float strength = allomanticStrength * weightFactor * masteryBonus;
-            if (isFlaring) strength *= maxFlareMultiplier;
-            
-            // Distance falloff (lore: harder to push at range)
-            float distanceFactor = 1f;
-            if (distance > 0.01f && distance <= maxRange)
+        float weightFactor = playerMass / referenceMass;
+        float strength = allomanticStrength * weightFactor * masteryBonus;
+        if (isFlaring) strength *= maxFlareMultiplier;
+        
+        float distanceFactor = 1f;
+        if (distance > 0.01f && distance <= maxRange)
+        {
+            float effectiveDistance = Mathf.Max(distance, minDistance);
+            distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
+        }
+        
+        Vector3 targetVelocity = targetRigidbody.velocity;
+        float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
+        float velocityDampingFactor = 1f;
+        if (velocityAwayFromPlayer > 0)
+        {
+            float velocityRatio = Mathf.Clamp01(velocityAwayFromPlayer / maxCoinVelocity);
+            velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
+        }
+        
+        float force = strength * distanceFactor * velocityDampingFactor;
+        
+        if (isAnchored)
+        {
+            playerRigidbody.AddForce(-directionToTarget.normalized * force);
+            if (debugPushOperations) Debug.Log($"[PUSH] Pushed player: {force:F0f}N");
+        }
+        else if (force > 1f)
+        {
+            float currentVelocity = targetVelocity.magnitude;
+            if (currentVelocity < maxCoinVelocity)
             {
-                float effectiveDistance = Mathf.Max(distance, minDistance);
-                distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
+                targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
+                if (debugPushOperations) Debug.Log($"[PUSH] Pushed {targetRigidbody.name}: {force:F0f}N");
             }
-            else if (distance > maxRange)
-            {
-                distanceFactor = 0f;
-            }
-            
-            // Velocity damping (lore: force decreases as target moves away faster)
-            // When target is stationary: full force
-            // When target is at max velocity: minimal force
-            Vector3 targetVelocity = targetRigidbody.velocity;
-            float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
-            float velocityDampingFactor = 1f;
-            if (velocityAwayFromPlayer > 0)
-            {
-                // Target is moving away - reduce force based on velocity
-                float velocityRatio = Mathf.Clamp01(velocityAwayFromPlayer / maxCoinVelocity);
-                velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
-            }
-            
-            // Calculate final force
-            float force = strength * distanceFactor * velocityDampingFactor;
-            
-            Debug.Log($"[PUSH] Strength={strength:F0f}, distFactor={distanceFactor:F2}, velDamp={velocityDampingFactor:F2}, force={force:F0f}N");
-            
-            // Anchor handling (lore: if target is anchored, push player instead)
-            if (isAnchored)
-            {
-                // Full force on player when pushing against anchored objects
-                Vector3 pushForceVector = -directionToTarget.normalized * force;
-                playerRigidbody.AddForce(pushForceVector);
-                Debug.Log($"[PUSH] Pushed PLAYER with {force:F0f}N (anchored target)");
-            }
-            else if (force > 1f)
-            {
-                // Push the target with terminal velocity cap (lore: coins have max speed)
-                float currentVelocity = targetVelocity.magnitude;
-                if (currentVelocity < maxCoinVelocity)
-                {
-                    targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
-                    Debug.Log($"[PUSH] Pushed {targetRigidbody.name} with {force:F0f}N");
-                }
-                else
-                {
-                    Debug.Log($"[PUSH] {targetRigidbody.name} at terminal velocity ({currentVelocity:F0f} m/s), no force applied");
-                }
-            }
-            else
-            {
-                Debug.Log($"[PUSH] {targetRigidbody.name} - force too low ({force:F1}N)");
-            }
-            
-            // Visual feedback
-            if (force > shakeForceThreshold)
-            {
-                ShakeCamera(shakeMagnitude);
-                TriggerPushTint(force);
-            }
+        }
+        
+        if (force > shakeForceThreshold)
+        {
+            ShakeCamera(shakeMagnitude);
+            TriggerPushTint(force);
+        }
     }
     
     void PushMetalsInBubble()
     {
         if (playerRigidbody == null) return;
         
-        // Detect all metal objects within steel bubble radius
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
-        
-        Debug.Log($"[BUBBLE] Found {colliders.Length} metals in range ({steelBubbleRadius}m)");
+        if (debugPushOperations) Debug.Log($"[BUBBLE] {colliders.Length} metals in {steelBubbleRadius}m range");
         
         foreach (Collider collider in colliders)
         {
             Rigidbody targetRigidbody = collider.attachedRigidbody;
-            if (targetRigidbody == null) continue;
-            if (targetRigidbody == playerRigidbody) continue;
+            if (targetRigidbody == null || targetRigidbody == playerRigidbody) continue;
             
-            // Get target mass and check if pushable
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
             if (target != null && !target.canBePushed) continue;
             
-            // Bubble pushes all objects with constant force (not distance-based)
             float force = steelBubbleForce;
-            
-            // Direction: radial from player center
             Vector3 direction = (targetRigidbody.position - playerRigidbody.position).normalized;
-            
-            // Anchor detection for bubble
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            
             if (isAnchored)
             {
-                // Push player away from anchored object
                 playerRigidbody.AddForce(-direction * force * Time.deltaTime);
-                Debug.Log($"[BUBBLE] Pushed player away from {collider.name}");
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed player from {collider.name}");
             }
             else
             {
-                // Push object away from player with impulse
                 targetRigidbody.AddForce(direction * force, ForceMode.Impulse);
-                Debug.Log($"[BUBBLE] Pushed {collider.name} with {force:F0f}N");
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed {collider.name}: {force:F0f}N");
             }
             
-            // Trigger screen tint for bubble pushes
             TriggerPushTint(force);
         }
     }
