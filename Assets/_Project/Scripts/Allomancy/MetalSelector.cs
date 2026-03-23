@@ -3,6 +3,7 @@ using System.Collections;
 
 /// <summary>
 /// Handles metal selection via scroll wheel for Allomancy system
+/// Supports two-metal selection for quick switching (primary and secondary)
 /// </summary>
 public class MetalSelector : MonoBehaviour
 {
@@ -10,9 +11,17 @@ public class MetalSelector : MonoBehaviour
     public float scrollCooldown = 0.2f;
     private float scrollTimer = 0f;
     
+    [Header("Two-Metal Selection")]
+    public KeyCode swapMetalsKey = KeyCode.Tab; // Key to swap between primary and secondary
+    
     [Header("References")]
     public Allomancer allomancer;
     public MetalHUD metalHUD;
+    
+    // Track both selected metals
+    private AllomancySkill.MetalType primaryMetal;
+    private AllomancySkill.MetalType secondaryMetal;
+    private bool isPrimaryActive = true; // Which metal is currently active for E/Q
     
     void Start()
     {
@@ -21,6 +30,14 @@ public class MetalSelector : MonoBehaviour
         
         if (metalHUD == null)
             metalHUD = FindObjectOfType<MetalHUD>();
+        
+        // Initialize with default metals (Steel primary, Iron secondary)
+        primaryMetal = AllomancySkill.MetalType.Steel;
+        secondaryMetal = AllomancySkill.MetalType.Iron;
+        isPrimaryActive = true;
+        
+        // Set the active metal
+        UpdateActiveMetal();
     }
     
     void Update()
@@ -35,6 +52,7 @@ public class MetalSelector : MonoBehaviour
         if (scroll != 0f && scrollTimer <= 0f)
         {
             // Scroll up = next metal, scroll down = previous metal
+            // Apply to currently active metal (primary or secondary)
             if (scroll > 0f)
                 SelectNextMetal();
             else if (scroll < 0f)
@@ -42,35 +60,84 @@ public class MetalSelector : MonoBehaviour
             
             scrollTimer = scrollCooldown;
         }
+        
+        // Handle metal swap
+        if (Input.GetKeyDown(swapMetalsKey))
+        {
+            SwapMetals();
+        }
     }
     
     void SelectNextMetal()
     {
         if (allomancer == null) return;
         
-        int currentIndex = (int)allomancer.currentMetal;
-        int nextIndex = (currentIndex + 1) % System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
-        AllomancySkill.MetalType nextMetal = (AllomancySkill.MetalType)nextIndex;
+        AllomancySkill.MetalType[] allMetals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
+        AllomancySkill.MetalType currentMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         
-        allomancer.currentMetal = nextMetal;
-        if (metalHUD != null)
-            metalHUD.SetCurrentMetal(nextMetal);
+        int currentIndex = System.Array.IndexOf(allMetals, currentMetal);
+        int nextIndex = (currentIndex + 1) % allMetals.Length;
+        AllomancySkill.MetalType nextMetal = allMetals[nextIndex];
         
-        Debug.Log($"[MetalSelector] Selected metal: {nextMetal}");
+        if (isPrimaryActive)
+        {
+            primaryMetal = nextMetal;
+        }
+        else
+        {
+            secondaryMetal = nextMetal;
+        }
+        
+        UpdateActiveMetal();
+        
+        Debug.Log($"[MetalSelector] Selected {(isPrimaryActive ? "PRIMARY" : "SECONDARY")} metal: {nextMetal}");
     }
     
     void SelectPreviousMetal()
     {
         if (allomancer == null) return;
         
-        int currentIndex = (int)allomancer.currentMetal;
-        int prevIndex = (currentIndex - 1 + System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length) % System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
-        AllomancySkill.MetalType prevMetal = (AllomancySkill.MetalType)prevIndex;
+        AllomancySkill.MetalType[] allMetals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
+        AllomancySkill.MetalType currentMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         
-        allomancer.currentMetal = prevMetal;
-        if (metalHUD != null)
-            metalHUD.SetCurrentMetal(prevMetal);
+        int currentIndex = System.Array.IndexOf(allMetals, currentMetal);
+        int prevIndex = (currentIndex - 1 + allMetals.Length) % allMetals.Length;
+        AllomancySkill.MetalType prevMetal = allMetals[prevIndex];
         
-        Debug.Log($"[MetalSelector] Selected metal: {prevMetal}");
+        if (isPrimaryActive)
+        {
+            primaryMetal = prevMetal;
+        }
+        else
+        {
+            secondaryMetal = prevMetal;
+        }
+        
+        UpdateActiveMetal();
+        
+        Debug.Log($"[MetalSelector] Selected {(isPrimaryActive ? "PRIMARY" : "SECONDARY")} metal: {prevMetal}");
     }
+    
+    void SwapMetals()
+    {
+        isPrimaryActive = !isPrimaryActive;
+        UpdateActiveMetal();
+        Debug.Log($"[MetalSelector] Swapped metals. Active is now: {(isPrimaryActive ? "PRIMARY" : "SECONDARY")}");
+    }
+    
+    void UpdateActiveMetal()
+    {
+        // Set the allomancer's current metal to whichever is active
+        AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
+        allomancer.currentMetal = activeMetal;
+        
+        if (metalHUD != null)
+            metalHUD.SetCurrentMetal(activeMetal);
+    }
+    
+    // Public methods for other scripts to query selected metals
+    public AllomancySkill.MetalType GetPrimaryMetal() => primaryMetal;
+    public AllomancySkill.MetalType GetSecondaryMetal() => secondaryMetal;
+    public AllomancySkill.MetalType GetActiveMetal() => isPrimaryActive ? primaryMetal : secondaryMetal;
+    public bool IsPrimaryActive() => isPrimaryActive;
 }

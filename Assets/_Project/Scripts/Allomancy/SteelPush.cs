@@ -325,66 +325,6 @@ public class SteelPush : MonoBehaviour
         // Update push prediction
         UpdatePrediction();
     }
-        
-        // Update cooldown timers
-        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
-        if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
-        
-        // Start burning: E key (one per press)
-        if (Input.GetKeyDown(KeyCode.E) && cooldownTimer <= 0f)
-        {
-            StartBurning();
-            pushAppliedThisPress = false;
-            bubbleAppliedThisPress = false;
-        }
-        
-        // Flaring: Ctrl toggles flaring mode (works anytime)
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            isFlaring = !isFlaring;
-            if (debugPushOperations) Debug.Log($"[STEEL] Flaring: {(isFlaring ? "ON" : "OFF")}");
-            if (isFlaring && isBurning) StartFlaringVignette();
-        }
-        
-        // Update targeted metal detection
-        UpdateTargetedMetal();
-        
-        // Steel Bubble: F key (one per press, requires flaring)
-        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
-        {
-            if (isFlaring && steelBubbleCooldownTimer <= 0f)
-            {
-                if (!isBurning) StartBurning();
-                if (!bubbleAppliedThisPress)
-                {
-                    PushMetalsInBubble();
-                    DrainMetal(steelBubbleMetalCostMultiplier);
-                    steelBubbleCooldownTimer = steelBubbleCooldown;
-                    bubbleAppliedThisPress = true;
-                }
-            }
-        }
-        
-        // Normal push: E key (requires flaring)
-        if (Input.GetKeyDown(KeyCode.E) && isFlaring && !pushAppliedThisPress)
-        {
-            if (!isBurning) StartBurning();
-            Debug.Log($"[PUSH] E pressed - flaring={isFlaring}");
-            StartFlaringVignette();
-            PushMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            pushAppliedThisPress = true;
-        }
-        
-        // Stop burning when releasing E or F key
-        bool pushKeyUp = Input.GetKeyUp(KeyCode.E) || Input.GetKeyUp(steelBubbleKey);
-        if (pushKeyUp)
-        {
-            StopBurning();
-        }
-        
-        // Update push prediction
-        UpdatePrediction();
     }
     
     void StartBurning()
