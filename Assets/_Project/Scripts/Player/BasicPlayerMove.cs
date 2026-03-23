@@ -72,6 +72,8 @@ public class BasicPlayerMove : MonoBehaviour
         currentDistance = maxDistance;
 
         staminaSystem = GetComponent<PlayerStamina>();
+
+        rb.sleepThreshold = 0.0f; // Prevents the physics engine from "pausing" the player
     }
 
     void Update()
@@ -139,30 +141,20 @@ public class BasicPlayerMove : MonoBehaviour
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
     
-        // 1. Determine Target Speed
-        float targetSpeed = 0f;
         if (moveDirection.magnitude > 0.1f)
         {
-            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-            bool isSprinting = Input.GetKey(KeyCode.LeftShift) && hasStamina;
-            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+            float currentSpeed = (Input.GetKey(KeyCode.LeftShift) && staminaSystem.currentStamina > 1) ? sprintSpeed : moveSpeed;
+            if (currentSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate);
     
-            if (isSprinting) staminaSystem.DrainStamina(drainRate);
-    
-            // Smooth Rotation
+            // ROTATION
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    
+            // POSITION MOVE (Bypasses velocity issues while keeping jump height)
+            // We move the character manually, but leave the Y-axis alone for physics
+            Vector3 moveDelta = moveDirection * currentSpeed * Time.deltaTime;
+            transform.position += moveDelta;
         }
-    
-        // 2. The Fix: Calculate the new horizontal velocity
-        Vector3 targetVelocity = moveDirection * targetSpeed;
-        
-        // We blend current horizontal velocity toward target velocity
-        float newX = Mathf.Lerp(rb.velocity.x, targetVelocity.x, acceleration * Time.deltaTime);
-        float newZ = Mathf.Lerp(rb.velocity.z, targetVelocity.z, acceleration * Time.deltaTime);
-    
-        // 3. Apply ONLY to X and Z so jumping (Y) isn't affected
-        rb.velocity = new Vector3(newX, rb.velocity.y, newZ);
     }
     
     void HandleCamera()
