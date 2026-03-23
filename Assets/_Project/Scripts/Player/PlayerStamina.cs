@@ -12,6 +12,7 @@ public class PlayerStamina : MonoBehaviour
     public float regenRate = 15f;
 
     public UIDocument uiDocument;
+    public float jumpCost = 15f; // How much a jump costs
     private ProgressBar staminaBar;
 
     void Start()
@@ -52,6 +53,20 @@ public class PlayerStamina : MonoBehaviour
     public void DrainStamina(float amount)
     {
         currentStamina -= amount * Time.deltaTime;
+        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+    }
+    
+    // Keep your existing DrainStamina for sprinting (per second)
+    public void DrainStamina(float amount)
+    {
+        currentStamina -= amount * Time.deltaTime;
+        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+    }
+    
+    // Add this for instant costs (like jumping)
+    public void UseStamina(float amount)
+    {
+        currentStamina -= amount;
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }
 }
