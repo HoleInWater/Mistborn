@@ -43,78 +43,56 @@
  */
 
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class MetalReserve : MonoBehaviour
+public class FlareManager : MonoBehaviour
 {
-    [Header("UI Settings")]
-    public UIDocument uiDocument;
-    public string metalProgressBarName = "Metal";
+    [Header("Dependencies")]
+    public MetalReserve metalReserve; // Drag your MetalReserve object here!
 
-    [Header("Metal Settings")]
-    public float currentMetal = 100f;
-    public float maxMetal = 100f;
-    
-    [Header("Recovery Settings")]
-    public float passiveRecoveryRate = 0.5f;
-
-    private ProgressBar _metalBar;
-    private float _lastDisplayedMetal = -1f;
-
-    void Start()
-    {
-        SetupUI();
-    }
-
-    private void SetupUI()
-    {
-        if (uiDocument != null)
-        {
-            var root = uiDocument.rootVisualElement;
-            _metalBar = root.Q<ProgressBar>(metalProgressBarName);
-
-            if (_metalBar != null)
-            {
-                _metalBar.lowValue = 0;
-                _metalBar.highValue = maxMetal;
-            }
-        }
-    }
+    [Header("Flare Settings")]
+    public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
+    public bool IsFlaring { get; private set; }
 
     void Update()
     {
-        // Passive recovery
-        if (currentMetal < maxMetal)
+        // Example logic: Toggle flare with the 'F' key
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            currentMetal = Mathf.MoveTowards(currentMetal, maxMetal, passiveRecoveryRate * Time.deltaTime);
+            ToggleFlare();
         }
-        
-        UpdateHUD();
-    }
 
-    private void UpdateHUD()
-    {
-        if (_metalBar == null) SetupUI();
-
-        if (_metalBar != null)
+        // DRAIN LOGIC
+        if (IsFlaring && metalReserve != null)
         {
-            if (!Mathf.Approximately(_lastDisplayedMetal, currentMetal))
+            // Drain the reserve over time
+            metalReserve.Drain(flareBurnRate * Time.deltaTime);
+
+            // Auto-stop flaring if we run out of metal
+            if (metalReserve.currentMetal <= 0)
             {
-                _metalBar.value = currentMetal;
-                _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
-                _lastDisplayedMetal = currentMetal;
+                StopFlaring();
             }
         }
     }
 
-    // THESE ARE THE METHODS THE ERROR SAYS ARE MISSING
-    public void Drain(float amount)
+    public void ToggleFlare()
     {
-        currentMetal = Mathf.Max(0, currentMetal - amount);
+        if (IsFlaring) StopFlaring();
+        else StartFlaring();
     }
 
-    public void Refill(float amount)
+    private void StartFlaring()
     {
-        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
+        if (metalReserve != null && metalReserve.currentMetal > 0)
+        {
+            IsFlaring = true;
+            Debug.Log("Metal Flare Started!");
+        }
+    }
+
+    private void StopFlaring()
+    {
+        IsFlaring = false;
+        Debug.Log("Metal Flare Stopped.");
     }
 }
