@@ -269,18 +269,10 @@ public class AllomanticSight : MonoBehaviour
             
             // Also make width based on distance (closer = thicker)
             float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
-            currentLineWidth *= (0.5f + distanceFactor * 0.5f);
+            float currentLineWidth = lineWidth * (0.5f + distanceFactor * 0.5f);
             
             line.startWidth = currentLineWidth;
             line.endWidth = currentLineWidth * 0.8f; // Slightly thinner at the end
-            
-            // Color with pulsing alpha for shimmer effect
-            Color baseColor = mass > 10f ? heavyMetalColor : metalColor;
-            if (enableLinePulse)
-            {
-                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
-                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
-            }
             
             line.startColor = baseColor;
             line.endColor = baseColor;
