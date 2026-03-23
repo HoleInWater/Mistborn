@@ -1,4 +1,4 @@
-using UnityEngine;
+sing UnityEngine;
 
 public class MetalPickup : MonoBehaviour
 {
@@ -29,19 +29,20 @@ public class MetalPickup : MonoBehaviour
     
     void CollectMetal(GameObject player)
     {
+        // Try to get Allomancer first
         Allomancer allomancer = player.GetComponent<Allomancer>();
         
         if (allomancer != null)
         {
-            // Allomancer usually handles both the type and the amount
             allomancer.RefillMetal(metalType, metalAmount);
         }
         else
         {
+            // If no Allomancer, try to get MetalReserve
             MetalReserve manager = player.GetComponent<MetalReserve>();
             if (manager != null)
             {
-                // FIX: Changed this to 1 argument to match the error's suggestion
+                // FIXED: Now correctly matches the Refill(float amount) in MetalReserve.cs
                 manager.Refill(metalAmount);
             }
         }
