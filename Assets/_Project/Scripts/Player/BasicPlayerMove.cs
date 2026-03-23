@@ -47,6 +47,10 @@ public class BasicPlayerMove : MonoBehaviour
     public float cameraRadius = 0.2f;
     // NOTE: Consider adding [Range(0.1f, 5f)] attribute for minDistance
     public float minDistance = 0.5f;
+    
+    [Header("Smoothing")]
+    public float acceleration = 8f; // Higher = Snappier, Lower = Smoother
+
 
     private float xRotation = 0f;
     private float yRotation = 0f;
@@ -128,7 +132,6 @@ void HandleMovement()
     float x = Input.GetAxisRaw("Horizontal");
     float z = Input.GetAxisRaw("Vertical");
 
-    // 1. Calculate direction relative to camera
     Vector3 forward = cameraPivot.forward;
     Vector3 right = cameraPivot.right;
     forward.y = 0; right.y = 0;
@@ -136,35 +139,31 @@ void HandleMovement()
 
     Vector3 moveDirection = (forward * z + right * x).normalized;
 
+    // 1. Determine Target Speed
+    float targetSpeed = 0f;
     if (moveDirection.magnitude >= 0.1f)
     {
-        // 2. Determine Speed (Walk vs Sprint)
-        float currentActiveSpeed = moveSpeed;
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-
-        if (Input.GetKey(KeyCode.LeftShift) && hasStamina)
-        {
-            currentActiveSpeed = sprintSpeed;
-            staminaSystem.DrainStamina(drainRate);
-        }
-
-        // 3. APPLY FORCE (The "True Physics" way)
-        // This calculates the velocity we WANT and applies it as a force
-        Vector3 targetVelocity = moveDirection * currentActiveSpeed;
-        Vector3 velocityChange = targetVelocity - new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        targetSpeed = (Input.GetKey(KeyCode.LeftShift) && hasStamina) ? sprintSpeed : moveSpeed;
         
-        // ForceMode.VelocityChange ignores mass, making it feel "snappy"
-        rb.AddForce(velocityChange, ForceMode.VelocityChange);
+        if (targetSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate);
 
-        // 4. Rotation
+        // Rotation remains smooth
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
-    else if (isGrounded)
-    {
-        // Friction: Quickly stop the player when no keys are held
-        rb.velocity = new Vector3(rb.velocity.x * 0.9f, rb.velocity.y, rb.velocity.z * 0.9f);
-    }
+
+    // 2. SMOOTH VELOCITY (The Lerp)
+    // We calculate the goal velocity on the X and Z planes
+    Vector3 targetVelocity = moveDirection * targetSpeed;
+    
+    // We blend current velocity toward target velocity based on acceleration
+    float lerpStep = acceleration * Time.deltaTime;
+    float newX = Mathf.Lerp(rb.velocity.x, targetVelocity.x, lerpStep);
+    float newZ = Mathf.Lerp(rb.velocity.z, targetVelocity.z, lerpStep);
+
+    // 3. Apply the smoothed velocity while PRESERVING gravity/jump (Y)
+    rb.velocity = new Vector3(newX, rb.velocity.y, newZ);
 }
     
     void HandleCamera()
