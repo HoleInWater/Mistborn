@@ -194,6 +194,7 @@ public class IronPull : MonoBehaviour
         if (metalLayer.value == 0)
         {
             metalLayer = LayerMask.GetMask("Metal");
+            Debug.Log($"[IRON PULL] metalLayer set to: {metalLayer.value}");
         }
         
         if (chestTransform == null)
@@ -321,18 +322,28 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null) return;
+        // Try to get camera if not set
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
+        
+        if (playerCamera == null)
+        {
+            if (Time.frameCount % 60 == 0) Debug.LogError("[IRON PULL] playerCamera is NULL!");
+            return;
+        }
         
         float closestDist = maxRange;
         
         // Method 1: Find objects with AllomanticTarget component
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
-        // Method 2: Also find objects tagged "Metal"
-        GameObject[] taggedMetals = GameObject.FindGameObjectsWithTag("Metal");
+        // Method 2: Find objects on "Metal" layer using overlap sphere
+        Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, maxRange, metalLayer);
         
         if (Time.frameCount % 60 == 0)
-            Debug.Log($"[IRON PULL] Searching - AllomanticTarget: {allTargets.Length}, Tagged Metal: {taggedMetals.Length}");
+            Debug.Log($"[IRON PULL] Searching - AllomanticTarget: {allTargets.Length}, Metal Layer: {colliders.Length}");
         
         // Check AllomanticTarget objects
         foreach (var metal in allTargets)
@@ -353,15 +364,12 @@ public class IronPull : MonoBehaviour
             }
         }
         
-        // Check tagged metal objects (if no target found yet)
-        foreach (GameObject metal in taggedMetals)
+        // Check Metal layer objects (if no target found yet)
+        foreach (Collider col in colliders)
         {
-            if (metal == null) continue;
-            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (col == null) continue;
+            Rigidbody rb = col.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
-            
-            // Skip if already have a target
-            if (hasCurrentTarget) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
             
@@ -369,10 +377,10 @@ public class IronPull : MonoBehaviour
             {
                 closestDist = dist;
                 currentTargetRigidbody = rb;
-                currentTarget = metal.GetComponent<AllomanticTarget>();
+                currentTarget = col.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
                 
-                Debug.Log($"[IRON PULL] Found tagged metal: {metal.name} at {dist:F1}m");
+                Debug.Log($"[IRON PULL] Found metal on layer: {col.name} at {dist:F1}m");
             }
         }
         
