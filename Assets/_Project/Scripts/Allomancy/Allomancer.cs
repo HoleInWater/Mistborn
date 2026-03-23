@@ -172,34 +172,34 @@ public class Allomancer : MonoBehaviour
     
     void Update()
     {
-        // 1. SCROLL WHEEL TO CHANGE INTENSITY
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0f) flareIntensity = Mathf.Min(10, flareIntensity + 1);
-        else if (scroll < 0f) flareIntensity = Mathf.Max(1, flareIntensity - 1);
-    
-        // 2. TOGGLE BURN/FLARE WITH 'B'
+        // TOGGLE BURN WITH 'B' KEY
         if (Input.GetKeyDown(KeyCode.B)) 
         {
             if (isBurningMetal) StopBurning();
             else StartBurning(GetCurrentMetal());
         }
     
-        // 3. DRAIN LOGIC
-        if (isBurningMetal && canBurnMetal)
+        // Check if we are currently using any metal
+        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
+        bool isUsingMetal = isBurningMetal || isFlaring;
+    
+        if (isUsingMetal && canBurnMetal)
         {
-            // Drain increases as you scroll up: 1x, 2x, ... up to 10x speed
-            float totalDrain = baseBurnRate * flareIntensity;
-            DrainMetal(GetCurrentMetal(), totalDrain * Time.deltaTime);
+            // Calculate total drain: 1 (base) + flare cost if active
+            float currentBurnRate = 1f;
+            if (isFlaring) currentBurnRate += FlareManager.Instance.flareBurnRate;
+    
+            DrainMetal(GetCurrentMetal(), currentBurnRate * Time.deltaTime);
         }
-        else
+        else if (!isUsingMetal)
         {
-            // Regenerate only when not burning
+            // Regenerate only when neither burning nor flaring
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
     
         if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
     }
-    
+
     public void RefillAllMetals()
     {
         for (int i = 0; i < metalReserves.Length; i++)
