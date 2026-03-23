@@ -309,9 +309,6 @@ public class SteelPush : MonoBehaviour
     
     void Update()
     {
-        // Log every 60 frames to confirm Update is running
-        if (Time.frameCount % 60 == 0) Debug.Log("[STEEL PUSH] Update() running, frame=" + Time.frameCount);
-        
         // Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
@@ -332,7 +329,6 @@ public class SteelPush : MonoBehaviour
         
         if (eKeyDown && !eKeyWasPressed)
         {
-            Debug.Log("[STEEL PUSH] E key pressed!");
             eKeyWasPressed = true;
             
             // Start burning (if not on cooldown)
@@ -362,27 +358,25 @@ public class SteelPush : MonoBehaviour
             StopBurning();
         }
         
-        // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
-        // Press Ctrl to toggle BOTH Iron and Steel flares at once
-        
         // Continuous metal drain while burning
         if (isBurning)
         {
             DrainMetal(1f);
         }
         
-        // Update targeted metal detection
-        UpdateTargetedMetal();
-        
-        // Steel Bubble: F key (one per press)
+        // Steel Bubble: F key (one per press, requires flaring)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (steelBubbleCooldownTimer <= 0f)
+            if (IsFlaring && steelBubbleCooldownTimer <= 0f)
             {
-                PushMetalsInBubble();
-                DrainMetal(steelBubbleMetalCostMultiplier);
-                steelBubbleCooldownTimer = steelBubbleCooldown;
-                bubbleAppliedThisPress = true;
+                if (!isBurning) StartBurning();
+                if (!bubbleAppliedThisPress)
+                {
+                    PushMetalsInBubble();
+                    DrainMetal(steelBubbleMetalCostMultiplier);
+                    steelBubbleCooldownTimer = steelBubbleCooldown;
+                    bubbleAppliedThisPress = true;
+                }
             }
         }
         
@@ -425,25 +419,15 @@ public class SteelPush : MonoBehaviour
         
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
-        Debug.Log($"[STEEL PUSH] Searching for metals... Found {allTargets.Length} AllomanticTargets");
-        
-        if (allTargets.Length == 0)
-        {
-            Debug.LogWarning("[STEEL PUSH] NO AllomanticTarget components found! Spawn metals with T key.");
-            return;
-        }
         
         foreach (var metal in allTargets)
         {
-            Debug.Log($"[STEEL PUSH] Checking: {metal.name}, canBePushed={metal.canBePushed}, hasRB={metal.GetComponent<Rigidbody>() != null}");
-            
             if (metal == null || !metal.canBePushed) continue;
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            Debug.Log($"[STEEL PUSH] Target: {metal.name}, dist={dist:F2}m");
             
             if (dist < closestDist && dist > 0.1f)
             {
@@ -455,9 +439,6 @@ public class SteelPush : MonoBehaviour
                 currentTargetHit.point = rb.position;
             }
         }
-        
-        if (hasCurrentTarget)
-            Debug.Log($"[STEEL PUSH] TARGET ACQUIRED: {currentTarget.name} at {closestDist:F2}m");
     }
     
     void UpdatePrediction()
