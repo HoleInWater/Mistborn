@@ -34,7 +34,8 @@ public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]
     bool isBurningMetal = false;
-    // currentMetal is now controlled by MetalSelector
+    private AllomancySkill.MetalType currentMetal; // Set by MetalSelector via SetCurrentMetal()
+
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
     public bool canBurnMetal = true;
@@ -100,14 +101,23 @@ public class Allomancer : MonoBehaviour
     {
         return isBurningMetal;
     }
-    
+
+    /// <summary>
+    /// Called by MetalSelector to update the active metal.
+    /// </summary>
+    public void SetCurrentMetal(AllomancySkill.MetalType metal)
+    {
+        currentMetal = metal;
+        canBurnMetal = metalReserves[(int)metal] > 0;
+    }
+
     public AllomancySkill.MetalType GetCurrentMetal()
     {
         // Get current metal from MetalSelector if available
         if (metalSelector != null)
             return metalSelector.GetActiveMetal();
         
-        // Fallback to stored currentMetal (should rarely happen)
+        // Fallback to stored currentMetal
         return currentMetal;
     }
     
@@ -123,8 +133,8 @@ public class Allomancer : MonoBehaviour
             Debug.Log($"[ALLOMANCER] DrainMetal({metal}, {amount:F2}) - reserve now: {metalReserves[(int)metal]:F1}");
         UpdateHUD(metal);
         
-        AllomancySkill.MetalType currentMetal = GetCurrentMetal();
-        if (metal == currentMetal)
+        AllomancySkill.MetalType activeMetal = GetCurrentMetal();
+        if (metal == activeMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;
         }
@@ -135,7 +145,8 @@ public class Allomancer : MonoBehaviour
         metalReserves[(int)metal] = Mathf.Min(100f, metalReserves[(int)metal] + amount);
         UpdateHUD(metal);
         
-        if (metal == currentMetal)
+        AllomancySkill.MetalType activeMetal = GetCurrentMetal();
+        if (metal == activeMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;
         }
@@ -146,7 +157,7 @@ public class Allomancer : MonoBehaviour
         if (metalHUD != null)
         {
             metalHUD.UpdateReserve(metalReserves[(int)metal]);
-            if (metal == currentMetal)
+            if (metal == GetCurrentMetal())
             {
                 metalHUD.SetCurrentMetal(metal);
             }
