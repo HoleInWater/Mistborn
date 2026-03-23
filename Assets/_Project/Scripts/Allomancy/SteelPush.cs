@@ -312,6 +312,8 @@ public class SteelPush : MonoBehaviour
         // Normal push: E key held (one per press)
         if (Input.GetKey(KeyCode.E) && isBurning && !pushAppliedThisPress)
         {
+            Debug.Log($"[PUSH] E pressed - burning={isBurning}, flaring={isFlaring}");
+            if (isFlaring) StartFlaringVignette();
             PushMetals();
             DrainMetal(isFlaring ? flaringMetalCostMultiplier : 1f);
             pushAppliedThisPress = true;
@@ -342,7 +344,6 @@ public class SteelPush : MonoBehaviour
     {
         if (!isBurning) return;
         isBurning = false;
-        isFlaring = false; // Reset flaring when stopping
         cooldownTimer = pushCooldown;
         if (allomancer != null)
         {
@@ -509,7 +510,11 @@ public class SteelPush : MonoBehaviour
         float playerMass = playerRigidbody.mass;
         float weightFactor = playerMass / referenceMass;
         float strength = allomanticStrength * weightFactor * masteryBonus;
-        if (isFlaring) strength *= maxFlareMultiplier;
+        if (isFlaring)
+        {
+            strength *= maxFlareMultiplier;
+            Debug.Log($"[PUSH] FLARING: strength {allomanticStrength * weightFactor * masteryBonus:F0f} -> {strength:F0f} (x{maxFlareMultiplier})");
+        }
         
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
