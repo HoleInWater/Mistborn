@@ -374,10 +374,9 @@ public class SteelPush : MonoBehaviour
             if (steelBubbleCooldownTimer <= 0f)
             {
                 PushMetalsInBubble();
-                    DrainMetal(steelBubbleMetalCostMultiplier);
-                    steelBubbleCooldownTimer = steelBubbleCooldown;
-                    bubbleAppliedThisPress = true;
-                }
+                DrainMetal(steelBubbleMetalCostMultiplier);
+                steelBubbleCooldownTimer = steelBubbleCooldown;
+                bubbleAppliedThisPress = true;
             }
         }
         
