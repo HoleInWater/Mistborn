@@ -253,29 +253,33 @@ public class SteelPush : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("[STEEL PUSH] Start() called");
+        
         if (playerRigidbody == null)
         {
             playerRigidbody = GetComponentInParent<Rigidbody>();
+            Debug.Log($"[STEEL PUSH] playerRigidbody auto-assigned: {playerRigidbody}");
         }
         
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
+            Debug.Log($"[STEEL PUSH] playerCamera auto-assigned: {playerCamera}");
         }
         
         if (allomancer == null)
         {
             allomancer = GetComponentInParent<Allomancer>();
+            Debug.Log($"[STEEL PUSH] allomancer auto-assigned: {allomancer}");
         }
         
         if (chestTransform == null)
         {
-            // Use player rigidbody position as chest (center of body)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
         }
         
-        // Create prediction line renderer
         CreatePredictionLine();
+        Debug.Log("[STEEL PUSH] Start() complete");
     }
     
     void CreatePredictionLine()
@@ -305,6 +309,9 @@ public class SteelPush : MonoBehaviour
     
     void Update()
     {
+        // Log every 60 frames to confirm Update is running
+        if (Time.frameCount % 60 == 0) Debug.Log("[STEEL PUSH] Update() running, frame=" + Time.frameCount);
+        
         // Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
@@ -316,8 +323,6 @@ public class SteelPush : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-
-        
         // Update targeted metal detection
         UpdateTargetedMetal();
         
@@ -327,6 +332,7 @@ public class SteelPush : MonoBehaviour
         
         if (eKeyDown && !eKeyWasPressed)
         {
+            Debug.Log("[STEEL PUSH] E key pressed!");
             eKeyWasPressed = true;
             
             // Start burning (if not on cooldown)
