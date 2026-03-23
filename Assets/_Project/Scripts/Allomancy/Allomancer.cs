@@ -82,8 +82,8 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<MetalSelector>() == null)
             gameObject.AddComponent<MetalSelector>();
         
-        if (GetComponent<MetalReserveBars>() == null)
-            gameObject.AddComponent<MetalReserveBars>();
+        if (GetComponent<MetalReserve>() == null)
+            gameObject.AddComponent<MetalReserve>();
         
         if (GetComponent<MetalBurnEffect>() == null)
             gameObject.AddComponent<MetalBurnEffect>();
