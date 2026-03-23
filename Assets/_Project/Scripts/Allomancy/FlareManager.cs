@@ -59,7 +59,7 @@ public class FlareManager : MonoBehaviour
     void Update()
     {
         // Example logic: Toggle flare with the 'F' key
-        if (Input.GetKeyDown(KeyCode.F))
+    if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             ToggleFlare();
         }
