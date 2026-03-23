@@ -91,6 +91,8 @@ public class SteelPush : MonoBehaviour
     public float impulseMassThreshold = 5f;
     [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
     public float impulseCalibration = 0.001f;
+    [Tooltip("Enable debug logging for impulse calibration")]
+    public bool debugCalibration = false;
     
     private bool isBurning = false;
     private bool isFlaring = false;
@@ -253,6 +255,12 @@ public class SteelPush : MonoBehaviour
                     // Impulse mode for light objects (coins, small metal)
                     float impulseForce = force * impulseCalibration;
                     targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
+                    
+                    if (debugCalibration)
+                    {
+                        float deltaV = impulseForce / targetMass;
+                        Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
+                    }
                 }
                 else
                 {
