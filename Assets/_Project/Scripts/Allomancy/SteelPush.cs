@@ -105,6 +105,18 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Show prediction when holding push button")]
     public bool showPredictionOnHold = true;
     
+    [Header("Push Force Visual Feedback")]
+    [Tooltip("Enable screen tint when pushing")]
+    public bool enablePushScreenTint = true;
+    [Tooltip("Color for weak pushes")]
+    public Color weakPushTint = new Color(0f, 1f, 0f, 0.1f); // Green
+    [Tooltip("Color for medium pushes")]
+    public Color mediumPushTint = new Color(1f, 1f, 0f, 0.2f); // Yellow
+    [Tooltip("Color for strong pushes")]
+    public Color strongPushTint = new Color(1f, 0f, 0f, 0.3f); // Red
+    [Tooltip("Duration of screen tint effect")]
+    public float pushTintDuration = 0.2f;
+    
     [Header("Steel Bubble (Defensive)")]
     [Tooltip("Enable steel bubble defensive ability")]
     public bool enableSteelBubble = true;
@@ -148,6 +160,10 @@ public class SteelPush : MonoBehaviour
     // Push prediction
     private LineRenderer predictionLine;
     private bool isPredictionActive = false;
+    
+    // Push force visual feedback
+    private Coroutine pushTintCoroutine;
+    private Color currentPushTint = Color.clear;
     
     void Start()
     {
@@ -342,13 +358,14 @@ public class SteelPush : MonoBehaviour
         
         // Calculate initial velocity (impulse model for light objects)
         Vector3 initialVelocity;
+        float initialSpeed;
         if (targetMass <= impulseMassThreshold)
         {
             // Impulse mode
             float impulseForce = force * impulseCalibration;
-            float speed = impulseForce / targetMass;
+            initialSpeed = impulseForce / targetMass;
             Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
-            initialVelocity = pushDirection * speed;
+            initialVelocity = pushDirection * initialSpeed;
         }
         else
         {
@@ -356,9 +373,10 @@ public class SteelPush : MonoBehaviour
             float acceleration = force / targetMass;
             Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
             initialVelocity = pushDirection * acceleration * 0.1f;
+            initialSpeed = initialVelocity.magnitude;
         }
         
-        // Calculate trajectory points
+        // Calculate trajectory points and track final velocity
         Vector3[] points = new Vector3[predictionPoints];
         Vector3 startPos = currentTargetRigidbody.position;
         Vector3 velocity = initialVelocity;
@@ -372,6 +390,21 @@ public class SteelPush : MonoBehaviour
             startPos += velocity * timeStep;
             velocity += Physics.gravity * timeStep;
         }
+        
+        // Color based on initial speed (velocity at push)
+        Color startColor = Color.cyan;
+        Color endColor;
+        
+        if (initialSpeed < 10f) // Slow
+            endColor = Color.green;
+        else if (initialSpeed < 30f) // Medium
+            endColor = Color.yellow;
+        else // Fast
+            endColor = Color.red;
+        
+        // Set gradient colors
+        predictionLine.startColor = startColor;
+        predictionLine.endColor = endColor;
         
         // Update line renderer
         predictionLine.positionCount = predictionPoints;
@@ -455,11 +488,12 @@ public class SteelPush : MonoBehaviour
                 
                 playerRigidbody.AddForce(pushForceVector);
                 
-                // Camera shake and sound for significant pushes (when pushing off anchored objects)
+                // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
                 if (force > shakeForceThreshold)
                 {
                     ShakeCamera(shakeMagnitude);
                     PlayPushSound();
+                    TriggerPushTint(force);
                 }
             }
             else
@@ -490,11 +524,12 @@ public class SteelPush : MonoBehaviour
                     Destroy(effect, 2f); // Auto-destroy after 2 seconds
                 }
                 
-                // Camera shake and sound for significant pushes
+                // Camera shake, sound, and screen tint for significant pushes
                 if (force > shakeForceThreshold)
                 {
                     ShakeCamera(shakeMagnitude);
                     PlayPushSound();
+                    TriggerPushTint(force);
                 }
             }
         }
@@ -555,6 +590,9 @@ public class SteelPush : MonoBehaviour
                 GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
                 Destroy(effect, 1f);
             }
+            
+            // Trigger screen tint for bubble pushes
+            TriggerPushTint(force);
         }
     }
     
@@ -574,6 +612,38 @@ public class SteelPush : MonoBehaviour
         {
             audioSource.PlayOneShot(pushSound, soundVolume);
         }
+    }
+    
+    void TriggerPushTint(float pushForce)
+    {
+        if (!enablePushScreenTint) return;
+        if (pushTintCoroutine != null) StopCoroutine(pushTintCoroutine);
+        pushTintCoroutine = StartCoroutine(PushTintCoroutine(pushForce));
+    }
+    
+    IEnumerator PushTintCoroutine(float pushForce)
+    {
+        // Determine color based on push force
+        Color tintColor;
+        if (pushForce < pushForce * 0.3f) // Weak push
+            tintColor = weakPushTint;
+        else if (pushForce < pushForce * 0.7f) // Medium push
+            tintColor = mediumPushTint;
+        else // Strong push
+            tintColor = strongPushTint;
+        
+        // Brief full-screen tint effect using GUI
+        float elapsed = 0f;
+        while (elapsed < pushTintDuration)
+        {
+            float alpha = Mathf.Lerp(tintColor.a, 0f, elapsed / pushTintDuration);
+            // We'll use OnGUI to draw this - store the current tint color
+            currentPushTint = new Color(tintColor.r, tintColor.g, tintColor.b, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        currentPushTint = Color.clear;
+        pushTintCoroutine = null;
     }
     
     void ShakeCamera(float magnitude)
@@ -657,6 +727,14 @@ public class SteelPush : MonoBehaviour
     // Real-time debug display for calibration
     void OnGUI()
     {
+        // Draw push tint effect (full screen overlay)
+        if (currentPushTint.a > 0.01f)
+        {
+            GUI.color = currentPushTint;
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = Color.white; // Reset for other GUI elements
+        }
+        
         if (!debugCalibration || !isBurning) return;
         
         GUIStyle style = new GUIStyle();
