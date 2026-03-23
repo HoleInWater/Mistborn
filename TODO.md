@@ -1,5 +1,12 @@
 # 🌑 MISTBORN ERA ONE — MASTER DEVELOPMENT TODO
 
+## 🎯 TODAY'S PRIORITIES (March 23rd 2026)
+**MAKE THESE VISIBLE IN GITHUB - TEAM FOCUS:**
+1. **Scroll Wheel Metal Selection** - Implement mouse scroll wheel to cycle through all 16 metals
+2. **Metal Reserve Bars UI** - Create visual bars showing all metal reserves (not just current)
+3. **Complete All 16 Metals** - Finish implementation of all metals with the 2-metal selection system
+4. **Particle System** - Create particle effects for metal burning/flaring
+
 > **Total Tasks:** 400+ | **Estimated Duration:** 1,198 days | **Current Phase:** 0 - Foundation Stabilization
 
 ## 📊 PROGRESS SUMMARY
