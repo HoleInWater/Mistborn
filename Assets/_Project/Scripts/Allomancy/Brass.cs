@@ -64,6 +64,7 @@ public class Brass : MonoBehaviour
                 // Soothing makes enemies calm and less aggressive
                 ai.SetEmotionState(AIController.EmotionState.Calm);
                 ai.SetAggressionMultiplier(currentStrength);
+                ai.SetEmotionalAura(new Color(0f, 0.8f, 1f, 0.8f), flareMult);
             }
         }
     }

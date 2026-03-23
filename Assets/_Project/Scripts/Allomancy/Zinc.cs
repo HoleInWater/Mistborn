@@ -64,6 +64,7 @@ public class Zinc : MonoBehaviour
                 // Rioting makes enemies enraged and more aggressive
                 ai.SetEmotionState(AIController.EmotionState.Enraged);
                 ai.SetAggressionMultiplier(currentStrength);
+                ai.SetEmotionalAura(new Color(1f, 0.2f, 0f, 0.8f), flareMult);
             }
         }
     }

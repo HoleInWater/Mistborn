@@ -29,6 +29,10 @@ public class AIController : MonoBehaviour
     private Transform player;
     private UnityEngine.AI.NavMeshAgent navAgent;
     private float originalSpeed;
+
+    [Header("Emotional Aura")]
+    private ParticleSystem auraParticles;
+    private float auraExpiryTimer = 0f;
     
     void Start()
     {
@@ -39,6 +43,12 @@ public class AIController : MonoBehaviour
     
     void Update()
     {
+        if (auraExpiryTimer > 0f)
+        {
+            auraExpiryTimer -= Time.deltaTime;
+            if (auraExpiryTimer <= 0f) ResetAura();
+        }
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         
         if (distanceToPlayer <= detectionRange)
@@ -113,5 +123,51 @@ public class AIController : MonoBehaviour
                 detectionRange = 30f;
                 break;
         }
+    }
+
+    public void SetEmotionalAura(Color color, float intensity)
+    {
+        if (auraParticles == null) CreateAuraParticles();
+
+        auraExpiryTimer = 0.5f; // Short duration, must be refreshed by the burning Allomancer
+        
+        var main = auraParticles.main;
+        main.startColor = color;
+        
+        var emission = auraParticles.emission;
+        emission.rateOverTime = 20f * intensity;
+        
+        if (!auraParticles.isPlaying) auraParticles.Play();
+    }
+
+    private void CreateAuraParticles()
+    {
+        GameObject go = new GameObject("EmotionalAura");
+        go.transform.SetParent(transform);
+        go.transform.localPosition = Vector3.up * 1f;
+
+        auraParticles = go.AddComponent<ParticleSystem>();
+        
+        var main = auraParticles.main;
+        main.startLifetime = 0.5f;
+        main.startSize = 0.5f;
+        main.simulationSpace = ParticleSystemSimulationSpace.Local;
+
+        var emission = auraParticles.emission;
+        emission.rateOverTime = 20f;
+
+        var shape = auraParticles.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.5f;
+
+        var renderer = go.GetComponent<ParticleSystemRenderer>();
+        renderer.material = new Material(Shader.Find("Sprites/Default")); // Generic glow
+    }
+
+    private void ResetAura()
+    {
+        if (auraParticles != null) auraParticles.Stop();
+        currentEmotion = EmotionState.Neutral;
+        UpdateBehavior();
     }
 }
