@@ -1,4 +1,4 @@
-sing UnityEngine;
+using UnityEngine;
 
 public class MetalPickup : MonoBehaviour
 {
