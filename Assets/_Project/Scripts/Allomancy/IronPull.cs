@@ -2,73 +2,69 @@
  *
  * PURPOSE:
  * Implements the Iron Allomancy ability (Lurcher) – pull metal objects toward the player.
+ * Physics are lore-accurate: mass ratios determine who moves more.
+ * Whoever has less mass moves more (Newton's 3rd Law + Mistborn canon).
  *
- * FLARE INTEGRATION:
- * ==================
- * Uses the single shared FlareManager intensity (1–10, scroll wheel).
- * Left Ctrl starts burning; Q executes a pull while burning is active.
- * Force scales smoothly with FlareManager.FlareMultiplier.
+ * FLARE INTEGRATION (scroll wheel):
+ * Pull force scales continuously with FlareManager.Instance.FlareMultiplier.
  *
  * CONTROLS:
- * - Left Ctrl   → Toggle burning ON / OFF (via FlareManager)
- * - Scroll wheel→ Adjust shared intensity 1–10 (via FlareManager)
- * - Q key       → Execute pull (requires burning to be active)
- * - Q release   → Stop burning Iron locally
+ * - Q key held    → While flaring, pull targeted metal object
+ * - Q release     → Stop burning Iron
+ * - Scroll wheel  → Adjust flare intensity (via FlareManager)
+ * - Left Ctrl     → Toggle max/off flare (via FlareManager)
  */
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class IronPull : MonoBehaviour
 {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /// <summary>Normalised 0–1 flare level from shared intensity.</summary>
     private float FlareLevel =>
-        FlareManager.Instance != null && FlareManager.Instance.IsBurning
-            ? (float)(FlareManager.Instance.Intensity - 1) / (FlareManager.Instance.maxIntensitySteps - 1)
+        FlareManager.Instance != null
+            ? (float)FlareManager.Instance.FlareIntensity / FlareManager.Instance.maxIntensitySteps
             : 0f;
 
-    /// <summary>Force multiplier from shared intensity.</summary>
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
-    /// <summary>True when burning is active.</summary>
     private bool IsFlaring =>
-        FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        FlareManager.Instance != null && FlareManager.Instance.IsIronFlaring;
 
     // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Settings")]
-    public float referenceMass     = 80f;
-    public float referenceDistance = 3f;
-    public float minDistance       = 1f;
-    public float maxRange          = 30f;
-    public float metalCostPerSecond= 2f;
+    public float referenceMass       = 80f;
+    public float referenceDistance   = 3f;
+    public float minDistance         = 1f;
+    public float maxRange            = 30f;
+    public float metalCostPerSecond  = 2f;
 
     [Header("Allomancy Physics")]
-    [Tooltip("Base allomantic strength (scaled up by flare multiplier at runtime).")]
-    public float allomanticStrength = 50f;
-    public float maxCoinVelocity    = 20f;
+    public float allomanticStrength  = 50f;
+    public float maxCoinVelocity     = 20f;
     [Range(1f, 2f)] public float distanceExponent = 1f;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
     [Header("Flare Scaling")]
-    [Tooltip("Metal cost multiplier at full intensity. Matches FlareManager.maxFlareMultiplier.")]
-    [Range(1f, 5f)]
-    public float flaringMetalCostMultiplier = 3f;
+    [Range(1.5f, 4f)]  public float maxFlareMultiplier        = 2.5f;
+    [Range(1f,   5f)]  public float flaringMetalCostMultiplier = 3f;
 
     [Header("References")]
-    public Camera     playerCamera;
-    public LayerMask  metalLayer;
-    public Allomancer allomancer;
-    public Rigidbody  playerRigidbody;
-    public Transform  chestTransform;
+    public Camera        playerCamera;
+    public LayerMask     metalLayer;
+    public Allomancer    allomancer;
+    public Rigidbody     playerRigidbody;
+    public Transform     chestTransform;
 
     [Header("Visual Effects")]
-    public float shakeMagnitude      = 0.1f;
-    public float shakeDuration       = 0.1f;
-    public float shakeForceThreshold = 100f;
+    public GameObject pullEffectPrefab;
+    public float shakeMagnitude       = 0.1f;
+    public float shakeDuration        = 0.1f;
+    public float shakeForceThreshold  = 100f;
     public bool  enablePullScreenTint = true;
     public Color weakPullTint   = new Color(0f, 0.5f, 1f, 0.1f);
     public Color mediumPullTint = new Color(0f, 0.8f, 1f, 0.2f);
@@ -84,14 +80,17 @@ public class IronPull : MonoBehaviour
     public bool debugPullOperations = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
-    private bool  isBurning      = false;
-    private bool  qKeyWasPressed = false;
-    private float cooldownTimer  = 0f;
+
+    private bool  isBurning            = false;
+    private bool  pullAppliedThisPress = false;
+    private bool  qKeyWasPressed       = false;
+    private float cooldownTimer        = 0f;
 
     private RaycastHit       currentTargetHit;
     private AllomanticTarget currentTarget;
     private Rigidbody        currentTargetRigidbody;
     private bool             hasCurrentTarget = false;
+    private bool             isAnchored       = false;
 
     private Coroutine pullTintCoroutine;
     private Color     currentPullTint = Color.clear;
@@ -130,12 +129,16 @@ public class IronPull : MonoBehaviour
         bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
         bool qKeyUp   = Input.GetKeyUp(KeyCode.Q);
 
-        if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f && IsFlaring)
+        if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
-            qKeyWasPressed = true;
-            if (!isBurning) StartBurning();
-            PullMetals();
-            DrainMetal(flaringMetalCostMultiplier);
+            if (IsFlaring)
+            {
+                qKeyWasPressed = true;
+                if (!isBurning) StartBurning();
+
+                PullMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+            }
         }
 
         if (qKeyUp)
@@ -171,6 +174,7 @@ public class IronPull : MonoBehaviour
         hasCurrentTarget       = false;
         currentTarget          = null;
         currentTargetRigidbody = null;
+        isAnchored             = false;
 
         if (playerCamera == null) playerCamera = Camera.main;
         if (playerCamera == null) return;
@@ -190,44 +194,48 @@ public class IronPull : MonoBehaviour
                 currentTargetRigidbody = rb;
                 currentTarget          = metal;
                 hasCurrentTarget       = true;
+                isAnchored             = metal.isAnchored || rb.isKinematic;
             }
         }
 
-        foreach (Collider col in Physics.OverlapSphere(playerCamera.transform.position, maxRange, metalLayer))
+        Collider[] colliders = Physics.OverlapSphere(
+            playerCamera.transform.position, maxRange, metalLayer);
+
+        foreach (Collider col in colliders)
         {
             if (col == null) continue;
             Rigidbody rb = col.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
 
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            if (dist < closestDist && dist > 0.1f)
+            if (dist < closestDist && dist > 0.1f && dist <= maxRange)
             {
                 closestDist            = dist;
                 currentTargetRigidbody = rb;
                 currentTarget          = col.GetComponent<AllomanticTarget>();
                 hasCurrentTarget       = true;
+                isAnchored             = rb.isKinematic;
             }
         }
     }
 
-    // ── Pull ──────────────────────────────────────────────────────────────────
+    // ── Pull Logic ────────────────────────────────────────────────────────────
 
     void PullMetals()
     {
-        if (playerRigidbody == null || !hasCurrentTarget || currentTargetRigidbody == null) return;
+        // --- Null checks ---
+        if (playerRigidbody == null || currentTargetRigidbody == null)
+            return;
+        if (!hasCurrentTarget)
+            return;
+        if (currentTarget != null && !currentTarget.canBePulled)
+            return;
 
-        Rigidbody        targetRb = currentTargetRigidbody;
-        AllomanticTarget target   = currentTarget;
+        // --- Direction and distance ---
+        Vector3 dirToTarget = currentTargetRigidbody.position - playerRigidbody.position;
+        float   distance    = dirToTarget.magnitude;
 
-        if (targetRb == playerRigidbody)               return;
-        if (target != null && !target.canBePulled)     return;
-
-        Vector3 pullOrigin  = playerRigidbody.position;
-        float   distance    = Vector3.Distance(pullOrigin, targetRb.position);
-        Vector3 dirToTarget = targetRb.position - pullOrigin;
-        bool    isAnchored  = (target != null && target.isAnchored) || targetRb.isKinematic;
-
-        // Scale strength by shared intensity multiplier
+        // --- Strength calculation ---
         float strength = allomanticStrength
                        * (playerRigidbody.mass / referenceMass)
                        * CurrentFlareMultiplier;
@@ -235,22 +243,34 @@ public class IronPull : MonoBehaviour
         float distanceFactor = Mathf.Clamp01(1f - (distance / maxRange));
         float force          = strength * distanceFactor;
 
-        if (debugPullOperations)
-            Debug.Log($"[IRON PULL] Intensity={FlareManager.Instance?.Intensity} Multiplier={CurrentFlareMultiplier:F2} Force={force:F0}");
+        // --- Mass setup ---
+        float playerMass = playerRigidbody.mass;
+        float objectMass = currentTargetRigidbody.mass;
 
-        if (force > 0.1f)
-        {
-            if (isAnchored)
-                playerRigidbody.AddForce(dirToTarget.normalized * force);
-            else
-                targetRb.AddForce(-dirToTarget.normalized * force, ForceMode.Impulse);
-        }
+        if (isAnchored)
+            objectMass = Mathf.Infinity;
 
+        float totalMass   = playerMass + objectMass;
+        float playerRatio = objectMass / totalMass;
+        float objectRatio = playerMass / totalMass;
+
+        Vector3 forceDir = dirToTarget.normalized * force;
+
+        // --- Apply forces ---
+        playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
+
+        if (!isAnchored)
+            currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
+
+        // --- Visual feedback ---
         if (force > shakeForceThreshold)
         {
             ShakeCamera(shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
             TriggerPullTint(force);
         }
+
+        if (debugPullOperations)
+            Debug.Log($"[IRON PULL] force={force:F0} playerRatio={playerRatio:F2} objectRatio={objectRatio:F2} anchored={isAnchored}");
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────
@@ -258,10 +278,12 @@ public class IronPull : MonoBehaviour
     void DrainMetal(float multiplier = 1f)
     {
         if (allomancer == null) return;
+
         float flareCostScale = Mathf.Lerp(1f, flaringMetalCostMultiplier, FlareLevel);
-        float drain          = metalCostPerSecond * Time.deltaTime * multiplier * flareCostScale
-                             + metalCostPerSecond * 0.5f * multiplier;
-        allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drain);
+        float drainAmount    = metalCostPerSecond * Time.deltaTime * multiplier * flareCostScale;
+        float actionDrain    = metalCostPerSecond * 0.5f * multiplier;
+
+        allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }
 
     // ── Prediction ────────────────────────────────────────────────────────────
@@ -270,7 +292,8 @@ public class IronPull : MonoBehaviour
     {
         GameObject lineObj = new GameObject("PullPredictionLine");
         predictionLine = lineObj.AddComponent<LineRenderer>();
-        Shader shader  = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
+
+        Shader shader = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
         predictionLine.material      = new Material(shader);
         predictionLine.startColor    = predictionColor;
         predictionLine.endColor      = predictionColor;
@@ -298,17 +321,20 @@ public class IronPull : MonoBehaviour
     {
         if (predictionLine == null || currentTargetRigidbody == null) return;
 
-        Vector3[] points  = new Vector3[predictionPoints];
-        Vector3   start   = currentTargetRigidbody.position;
-        Vector3   end     = playerRigidbody.position;
+        Vector3 startPos = currentTargetRigidbody.position;
+        Vector3 endPos   = playerRigidbody.position;
 
+        Vector3[] points = new Vector3[predictionPoints];
         for (int i = 0; i < predictionPoints; i++)
-            points[i] = Vector3.Lerp(start, end, i / (float)(predictionPoints - 1));
+        {
+            float t   = i / (float)(predictionPoints - 1);
+            points[i] = Vector3.Lerp(startPos, endPos, t);
+        }
 
-        float   dist      = Vector3.Distance(start, end);
-        Color   lineColor = dist < 5f  ? new Color(0f, 1f,   1f, 0.8f)
-                          : dist < 15f ? new Color(0f, 0.7f, 1f, 0.6f)
-                          :              new Color(0f, 0.5f, 1f, 0.4f);
+        float dist      = Vector3.Distance(startPos, endPos);
+        Color lineColor = dist < 5f  ? new Color(0f, 1f,   1f, 0.8f)
+                        : dist < 15f ? new Color(0f, 0.7f, 1f, 0.6f)
+                        :              new Color(0f, 0.5f, 1f, 0.4f);
 
         predictionLine.startColor    = lineColor;
         predictionLine.endColor      = lineColor;
@@ -328,16 +354,16 @@ public class IronPull : MonoBehaviour
 
     IEnumerator ShakeCoroutine(float magnitude)
     {
-        Vector3 orig    = playerCamera.transform.localPosition;
-        float   elapsed = 0f;
+        Vector3 originalPos = playerCamera.transform.localPosition;
+        float   elapsed     = 0f;
         while (elapsed < shakeDuration)
         {
-            playerCamera.transform.localPosition = orig
+            playerCamera.transform.localPosition = originalPos
                 + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f) * magnitude;
             elapsed += Time.deltaTime;
             yield return null;
         }
-        playerCamera.transform.localPosition = orig;
+        playerCamera.transform.localPosition = originalPos;
     }
 
     void TriggerPullTint(float force)
@@ -365,6 +391,8 @@ public class IronPull : MonoBehaviour
         pullTintCoroutine = null;
     }
 
+    // ── GUI ───────────────────────────────────────────────────────────────────
+
     void OnGUI()
     {
         if (currentPullTint.a > 0.01f)
@@ -372,6 +400,22 @@ public class IronPull : MonoBehaviour
             GUI.color = currentPullTint;
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
             GUI.color = Color.white;
+        }
+
+        if (IsFlaring && debugPullOperations)
+        {
+            GUIStyle style = new GUIStyle();
+            style.normal.textColor = Color.cyan;
+            style.fontSize         = 14;
+
+            GUI.Label(new Rect(10, 250, 300, 20), $"Iron Pull – FlareLevel: {FlareLevel:F2}", style);
+            GUI.Label(new Rect(10, 270, 300, 20), $"Multiplier: {CurrentFlareMultiplier:F2}×",  style);
+
+            if (hasCurrentTarget && currentTargetRigidbody != null)
+            {
+                float dist = Vector3.Distance(playerRigidbody.position, currentTargetRigidbody.position);
+                GUI.Label(new Rect(10, 290, 300, 20), $"Target: {dist:F1}m", style);
+            }
         }
     }
 }
