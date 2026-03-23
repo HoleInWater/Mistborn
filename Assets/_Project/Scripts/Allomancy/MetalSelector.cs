@@ -127,9 +127,9 @@ public class MetalSelector : MonoBehaviour
     
     void UpdateActiveMetal()
     {
-        // Set the allomancer's current metal to whichever is active
+        // Notify the allomancer of the newly active metal via the public setter
         AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
-        allomancer.currentMetal = activeMetal;
+        allomancer.SetCurrentMetal(activeMetal);
         
         if (metalHUD != null)
             metalHUD.SetCurrentMetal(activeMetal);
