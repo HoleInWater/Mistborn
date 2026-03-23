@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (14/400+):**
+**✅ Completed (22/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -30,6 +30,14 @@
 12. Anchor detection for Iron Pull - pulls player when target is heavy/kinematic
 13. Physics documentation updated with canonical evidence from Coppermind wiki
 14. Cleaned up Debug.Log statements with #if UNITY_EDITOR for production builds
+15. Integrated SteelPush with Allomancer metal reserves (uses DrainMetal)
+16. Fixed flaring to drain metal 3x faster
+17. Improved force calculation: simple inverse distance with minDistance limit
+18. Integrated IronPull with Allomancer metal reserves (uses DrainMetal)
+19. Improved anchor detection using AllomanticTarget.isAnchored flag
+20. Changed detection to OverlapSphere for metal-through-walls (lore accurate)
+21. Added tooltips to force settings for calibration clarity
+22. Added optional visual effect when pushing metal
 
 ---
 
