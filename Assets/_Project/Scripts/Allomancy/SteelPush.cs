@@ -61,6 +61,12 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Angle threshold (degrees) from downward to consider 'below' for flight boost")]
     public float flightAngleThreshold = 45f;
     
+    [Header("Impulse Mode")]
+    [Tooltip("Mass threshold (kg) below which objects receive impulse instead of continuous force")]
+    public float impulseMassThreshold = 5f;
+    [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
+    public float impulseCalibration = 0.001f;
+    
     private bool isBurning = false;
     private bool isFlaring = false;
     
@@ -200,7 +206,17 @@ public class SteelPush : MonoBehaviour
             else
             {
                 // Normal push on target
-                targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
+                if (targetMass <= impulseMassThreshold)
+                {
+                    // Impulse mode for light objects (coins, small metal)
+                    float impulseForce = force * impulseCalibration;
+                    targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
+                }
+                else
+                {
+                    // Continuous force for heavy objects
+                    targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
+                }
                 
                 // Spawn visual effect at target position
                 if (pushEffectPrefab != null && force > 50f)
