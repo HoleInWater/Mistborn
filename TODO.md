@@ -186,7 +186,7 @@
 - [x] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
 - [x] Implement anchor detection: if target mass > playerMass × 3 → push player
 - [x] Add Zenith Point: maximum force at 5m, falls off beyond
-- [ ] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
+- [x] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
 - [x] Implement flight mechanics: pushing off floor brackets launches player upward
 
 ### Allomantic Sight Polish
