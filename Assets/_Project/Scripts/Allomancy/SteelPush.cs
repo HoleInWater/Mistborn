@@ -72,6 +72,8 @@ public class SteelPush : MonoBehaviour
     public KeyCode focusKey = KeyCode.LeftControl;
     [Tooltip("Color for focused push crosshair")]
     public Color focusedPushColor = Color.red;
+    [Tooltip("Enable E key for pushing (alternative to right mouse button)")]
+    public bool enableEKeyPush = true;
     
     [Header("Audio")]
     [Tooltip("AudioSource for push sounds (optional)")]
@@ -224,13 +226,15 @@ public class SteelPush : MonoBehaviour
             cooldownTimer -= Time.deltaTime;
         }
         
-        if (Input.GetMouseButtonDown(1) && cooldownTimer <= 0f)
+        // Start burning: Right Mouse Button OR E key
+        bool pushKeyDown = Input.GetMouseButtonDown(1) || (enableEKeyPush && Input.GetKeyDown(KeyCode.E));
+        if (pushKeyDown && cooldownTimer <= 0f)
         {
             StartBurning();
         }
         
         // Flaring: holding Shift while burning increases force
-        isFlaring = Input.GetKey("e") && isBurning;
+        isFlaring = Input.GetKey(KeyCode.LeftShift) && isBurning;
         
         // Detect flaring start for visual effect
         if (isFlaring && !wasFlaring)
@@ -239,13 +243,15 @@ public class SteelPush : MonoBehaviour
         }
         wasFlaring = isFlaring;
         
+        // Update targeted metal detection (always update for prediction line)
+        UpdateTargetedMetal();
+        
         // Steel Bubble defensive ability
         if (enableSteelBubble && Input.GetKey(steelBubbleKey) && isBurning)
         {
             if (!isSteelBubbleActive)
             {
                 isSteelBubbleActive = true;
-                // Could add visual effect for bubble activation
             }
             PushMetalsInBubble();
             DrainMetal(steelBubbleMetalCostMultiplier);
@@ -254,20 +260,21 @@ public class SteelPush : MonoBehaviour
         {
             isSteelBubbleActive = false;
             
-            if (Input.GetMouseButton(1) && isBurning)
+            // Push while holding Right Mouse Button OR E key
+            bool pushKeyHeld = Input.GetMouseButton(1) || (enableEKeyPush && Input.GetKey(KeyCode.E));
+            if (pushKeyHeld && isBurning)
             {
                 PushMetals();
                 DrainMetal();
             }
         }
         
-        if (Input.GetMouseButtonUp(1))
+        // Stop burning when releasing Right Mouse Button OR E key
+        bool pushKeyUp = Input.GetMouseButtonUp(1) || (enableEKeyPush && Input.GetKeyUp(KeyCode.E));
+        if (pushKeyUp)
         {
             StopBurning();
         }
-        
-        // Update targeted metal detection
-        UpdateTargetedMetal();
         
         // Update push prediction
         UpdatePrediction();
@@ -323,10 +330,11 @@ public class SteelPush : MonoBehaviour
     
     void UpdatePrediction()
     {
-        // Show prediction when holding push button on a valid target
+        bool isPushing = Input.GetMouseButton(1) || (enableEKeyPush && Input.GetKey(KeyCode.E));
+        
         bool shouldShowPrediction = enablePushPrediction && 
                                    showPredictionOnHold && 
-                                   Input.GetMouseButton(1) && 
+                                   isPushing && 
                                    isBurning && 
                                    hasCurrentTarget && 
                                    currentTarget != null && 
