@@ -81,10 +81,10 @@ public class IronPull : MonoBehaviour
     public float metalCostPerSecond = 2f;
     
     [Header("Allomancy Physics (Lore-Accurate)")]
-    [Tooltip("Base allomantic strength - keeps force reasonable for gameplay")]
-    public float allomanticStrength = 150f;
+    [Tooltip("Base allomantic strength - weak without flaring")]
+    public float allomanticStrength = 50f;
     [Tooltip("Maximum velocity for coins (lore: terminal velocity based on strength)")]
-    public float maxCoinVelocity = 30f;
+    public float maxCoinVelocity = 20f;
     [Tooltip("Distance exponent (lore: force decreases with distance)")]
     [Range(1f, 2f)]
     public float distanceExponent = 1f;
@@ -228,17 +228,18 @@ public class IronPull : MonoBehaviour
         bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
         bool qKeyUp = Input.GetKeyUp(KeyCode.Q);
         
-        if (qKeyDown && !qKeyWasPressed)
+        if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
-            qKeyWasPressed = true;
-            
-            if (!isBurning)
-                StartBurning();
-            pullAppliedThisPress = false;
-            
-            PullMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            pullAppliedThisPress = true;
+            if (IsFlaring)
+            {
+                qKeyWasPressed = true;
+                
+                if (!isBurning)
+                    StartBurning();
+                
+                PullMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+            }
         }
         
         // Q KEY RELEASED: Stop burning Iron
@@ -246,15 +247,6 @@ public class IronPull : MonoBehaviour
         {
             qKeyWasPressed = false;
             StopBurning();
-        }
-        
-        // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
-        // Press Ctrl to toggle BOTH Iron and Steel flares at once
-        
-        // Continuous metal drain while burning
-        if (isBurning)
-        {
-            DrainMetal(1f);
         }
         
         // PREDICTION: Update pull trajectory prediction line

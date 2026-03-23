@@ -50,10 +50,10 @@ public class SteelPush : MonoBehaviour
     public float pushCooldown = 0.2f;
     
     [Header("Allomancy Physics (Lore-Accurate)")]
-    [Tooltip("Base allomantic strength - keeps force reasonable for gameplay")]
-    public float allomanticStrength = 150f;
+    [Tooltip("Base allomantic strength - weak without flaring")]
+    public float allomanticStrength = 50f;
     [Tooltip("Maximum velocity for coins (lore: terminal velocity based on strength)")]
-    public float maxCoinVelocity = 30f;
+    public float maxCoinVelocity = 20f;
     [Tooltip("Distance exponent (lore: force decreases with distance)")]
     [Range(1f, 2f)]
     public float distanceExponent = 1f;
@@ -257,22 +257,23 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // E KEY HANDLING - Push mechanics
+        // E KEY HANDLING - Push mechanics (requires flaring)
         bool eKeyDown = Input.GetKeyDown(KeyCode.E);
         bool eKeyUp = Input.GetKeyUp(KeyCode.E);
         
         if (eKeyDown && !eKeyWasPressed && cooldownTimer <= 0f)
         {
-            eKeyWasPressed = true;
-            
-            if (!isBurning)
-                StartBurning();
-            
-            PushMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            
             if (isFlaring)
+            {
+                eKeyWasPressed = true;
+                
+                if (!isBurning)
+                    StartBurning();
+                
+                PushMetals();
+                DrainMetal(flaringMetalCostMultiplier);
                 StartFlaringVignette();
+            }
         }
         
         // E KEY RELEASED
@@ -280,12 +281,6 @@ public class SteelPush : MonoBehaviour
         {
             eKeyWasPressed = false;
             StopBurning();
-        }
-        
-        // Continuous metal drain while burning
-        if (isBurning)
-        {
-            DrainMetal(1f);
         }
         
         // Steel Bubble: F key (one per press, requires flaring)
