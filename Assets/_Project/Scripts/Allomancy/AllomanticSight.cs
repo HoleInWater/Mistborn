@@ -63,10 +63,23 @@ public class AllomanticSight : MonoBehaviour
         if (!isActive)
         {
             ClearLines();
+            Time.timeScale = 1f; // Reset time scale when turning off
+        }
+        else
+        {
+            // Slow-motion effect when turning on
+            StartCoroutine(SlowMotionEffect(0.3f));
         }
         
         // Log state change (this Debug.Log should be removed for production)
         Debug.Log(isActive ? "Allomantic Sight ACTIVE" : "Allomantic Sight OFF");
+    }
+    
+    IEnumerator SlowMotionEffect(float duration)
+    {
+        Time.timeScale = 0.5f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = 1f;
     }
     
     // Draws lines from the player to all metal objects within range
