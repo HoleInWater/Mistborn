@@ -383,4 +383,18 @@ public class SteelPush : MonoBehaviour
         if (crosshairImage == null) return;
         crosshairImage.color = metalInRange ? metalInRangeColor : noMetalColor;
     }
+    
+    // Draw gizmos in editor for debugging
+    void OnDrawGizmosSelected()
+    {
+        if (playerRigidbody == null) return;
+        
+        // Draw push range sphere
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(playerRigidbody.position, maxRange);
+        
+        // Draw zenith distance sphere
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(playerRigidbody.position, zenithDistance);
+    }
 }
