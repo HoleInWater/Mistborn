@@ -329,6 +329,11 @@ public class IronPull : MonoBehaviour
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
+        if (allTargets.Length == 0 && Time.frameCount % 60 == 0)
+        {
+            Debug.LogWarning("[IRON PULL] No AllomanticTarget found! Press T to spawn metals.");
+        }
+        
         foreach (var metal in allTargets)
         {
             if (metal == null || !metal.canBePulled) continue;
@@ -344,13 +349,16 @@ public class IronPull : MonoBehaviour
                 currentTargetRigidbody = rb;
                 currentTarget = metal;
                 hasCurrentTarget = true;
+                
+                if (Time.frameCount % 60 == 0)
+                    Debug.Log($"[IRON PULL] Target: {metal.name} at {dist:F1}m");
             }
         }
     }
     
     void UpdatePrediction()
     {
-        bool shouldShowPrediction = enablePullPrediction && IsFlaring && hasCurrentTarget && currentTarget != null && currentTarget.canBePulled;
+        bool shouldShowPrediction = enablePullPrediction && hasCurrentTarget && currentTarget != null && currentTarget.canBePulled;
         
         if (shouldShowPrediction)
             DrawPredictionLine();
