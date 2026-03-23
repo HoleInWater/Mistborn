@@ -127,6 +127,12 @@ public class SteelPush : MonoBehaviour
     private float cooldownTimer = 0f;
     private bool isSteelBubbleActive = false;
     
+    // Targeted metal detection
+    private RaycastHit currentTargetHit;
+    private AllomanticTarget currentTarget;
+    private Rigidbody currentTargetRigidbody;
+    private bool hasCurrentTarget = false;
+    
     void Start()
     {
         if (playerRigidbody == null)
@@ -191,6 +197,9 @@ public class SteelPush : MonoBehaviour
         {
             StopBurning();
         }
+        
+        // Update targeted metal detection
+        UpdateTargetedMetal();
     }
     
     void StartBurning()
@@ -218,6 +227,27 @@ public class SteelPush : MonoBehaviour
 #if UNITY_EDITOR
         Debug.Log("Stopped burning Steel");
 #endif
+    }
+    
+    void UpdateTargetedMetal()
+    {
+        hasCurrentTarget = false;
+        currentTarget = null;
+        currentTargetRigidbody = null;
+        
+        if (playerCamera == null) return;
+        
+        // Raycast from camera center to find specific metal target
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
+        {
+            currentTargetRigidbody = currentTargetHit.rigidbody;
+            if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+            {
+                currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
+                hasCurrentTarget = true;
+            }
+        }
     }
     
     void PushMetals()
@@ -523,10 +553,61 @@ public class SteelPush : MonoBehaviour
         GUI.Label(new Rect(10, y, 400, 20), $"Steel Bubble: {isSteelBubbleActive}", style);
         y += 30;
         
-        // Show expected coin velocity calculation
+        // Show targeted metal info
+        if (hasCurrentTarget && currentTargetRigidbody != null)
+        {
+            GUI.Label(new Rect(10, y, 400, 20), $"Targeted Metal:", style);
+            y += 20;
+            
+            float distance = currentTargetHit.distance;
+            float mass = currentTarget != null ? currentTarget.GetEffectiveMass() : currentTargetRigidbody.mass;
+            bool canPush = currentTarget != null ? currentTarget.canBePushed : true;
+            bool isAnchored = (currentTarget != null && currentTarget.isAnchored) || currentTargetRigidbody.isKinematic;
+            
+            GUI.Label(new Rect(20, y, 400, 20), $"Distance: {distance:F2}m", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"Mass: {mass:F2}kg", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"Can Push: {canPush}", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"Anchored: {isAnchored}", style);
+            y += 20;
+            
+            // Calculate expected velocity for this specific target
+            if (canPush && distance > 0)
+            {
+                float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
+                float weightFactor = playerMass / referenceMass;
+                float force = pushForce * weightFactor;
+                
+                float effectiveDistance = Mathf.Max(distance, minDistance);
+                float distanceFactor = zenithDistance / effectiveDistance;
+                force *= distanceFactor;
+                
+                float expectedVelocity = 0f;
+                if (mass <= impulseMassThreshold)
+                {
+                    // Impulse mode for light objects
+                    float impulseForce = force * impulseCalibration;
+                    expectedVelocity = impulseForce / mass;
+                }
+                else
+                {
+                    // Continuous force - estimate after 1 second of push
+                    expectedVelocity = (force / mass) * 1f; // Approximate
+                }
+                
+                GUI.Label(new Rect(20, y, 400, 20), $"Expected Velocity: {expectedVelocity:F2} m/s", style);
+                y += 20;
+                GUI.Label(new Rect(20, y, 400, 20), $"Expected Speed: {expectedVelocity * 3.6f:F2} km/h", style);
+            }
+            y += 10;
+        }
+        
+        // Show expected coin velocity calculation for generic coin
         if (metalInRange)
         {
-            GUI.Label(new Rect(10, y, 400, 20), $"Expected Coin Velocity:", style);
+            GUI.Label(new Rect(10, y, 400, 20), $"Generic Coin Velocity (10g):", style);
             y += 20;
             GUI.Label(new Rect(20, y, 400, 20), $"At 10m: {CalculateExpectedVelocity(10f, 0.01f):F2} m/s", style);
             y += 20;
