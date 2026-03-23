@@ -35,7 +35,7 @@ public class MetalPickup : MonoBehaviour
         Allomancer allomancer = player.GetComponent<Allomancer>();
         if (allomancer == null)
         {
-            MetalReserveManager manager = player.GetComponent<MetalReserveManager>();
+            MetalReserve manager = player.GetComponent<MetalReserve>();
             if (manager != null)
             {
                 manager.Refill(metalType, metalAmount);
