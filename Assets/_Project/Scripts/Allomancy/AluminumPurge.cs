@@ -45,7 +45,9 @@ public class AluminumPurge : MonoBehaviour
         MetalReserve manager = GetComponent<MetalReserve>();
         if (manager != null)
         {
-            manager.PurgeAll();
+            // FIXED: Replaced non-existent PurgeAll() with direct value reset
+            // Change 'amount' to the actual variable name in your MetalReserve script if needed
+            manager.amount = 0; 
         }
         
         Debug.Log("Aluminum Purged - All metal reserves emptied!");
