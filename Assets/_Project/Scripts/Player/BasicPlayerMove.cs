@@ -128,41 +128,39 @@ public class BasicPlayerMove : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
     
-        float currentActiveSpeed = moveSpeed;
-        bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
-        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
-        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-    
-        if (isTryingToSprint && hasStamina)
-        {
-            currentActiveSpeed = sprintSpeed;
-            staminaSystem.DrainStamina(drainRate);
-        }
-    
+        // Calculate direction based on camera
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0; right.y = 0;
         forward.Normalize(); right.Normalize();
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
-    }
     
-    if (moveDirection.magnitude >= 0.1f)
-    {
-        // FIX: Use Rigidbody velocity instead of transform.position
-        // This keeps the Y velocity (the jump) intact while moving X and Z
-        Vector3 targetVelocity = moveDirection * currentActiveSpeed;
-        rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
-
-        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        // Movement Logic
+        if (moveDirection.magnitude >= 0.1f)
+        {
+            float currentActiveSpeed = moveSpeed;
+            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+    
+            if (Input.GetKey(KeyCode.LeftShift) && hasStamina)
+            {
+                currentActiveSpeed = sprintSpeed;
+                staminaSystem.DrainStamina(drainRate);
+            }
+    
+            // Apply movement velocity while KEEPING current Y velocity
+            rb.velocity = new Vector3(moveDirection.x * currentActiveSpeed, rb.velocity.y, moveDirection.z * currentActiveSpeed);
+    
+            // Rotate to face movement
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            // If no keys are pressed, stop horizontal movement but keep gravity falling
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+        }
     }
-    else if (isGrounded)
-    {
-        // Stop sliding when there is no input
-        rb.velocity = new Vector3(0, rb.velocity.y, 0);
-    }
-}
 
     void HandleCamera()
     {
