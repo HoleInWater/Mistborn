@@ -156,7 +156,6 @@ public class Allomancer : MonoBehaviour
     {
         if (metalReserve != null)
         {
-            metalReserve.UpdateReserve(metalReserves[(int)metal]);
             if (metal == GetCurrentMetal())
             {
                 metalReserve.SetCurrentMetal(metal);
