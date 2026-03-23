@@ -249,9 +249,6 @@ PrefabInstance:
       addedObject: {fileID: 641062197}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 641062199}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 641062198}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
@@ -259,6 +256,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 641062201}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062202}
   m_SourcePrefab: {fileID: 100100000, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
 --- !u!1 &53509032
 GameObject:
@@ -874,78 +874,6 @@ MonoBehaviour:
   - 0
   canBurnMetal: 1
   metalHUD: {fileID: 0}
---- !u!114 &641062199
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63cba1496441e434281fc54374201a85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SteelPush
-  pushForce: 800
-  referenceMass: 80
-  referenceDistance: 3
-  minDistance: 0.5
-  maxRange: 50
-  metalCostPerSecond: 2
-  pushCooldown: 5
-  allomanticStrength: 1000
-  maxCoinVelocity: 400
-  distanceExponent: 1
-  velocityDamping: 0.5
-  maxFlareMultiplier: 2
-  flaringMetalCostMultiplier: 3
-  masteryBonus: 1
-  playerCamera: {fileID: 53509035}
-  metalLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  allomancer: {fileID: 641062198}
-  playerRigidbody: {fileID: 641062184}
-  chestTransform: {fileID: 1689344841}
-  pushEffectPrefab: {fileID: 0}
-  shakeMagnitude: 0.1
-  shakeDuration: 0.1
-  shakeForceThreshold: 100
-  focusKey: 306
-  focusedPushColor: {r: 1, g: 0, b: 0, a: 1}
-  audioSource: {fileID: 0}
-  pushSound: {fileID: 0}
-  soundVolume: 0.5
-  vignetteImage: {fileID: 0}
-  flaringColor: {r: 1, g: 0.2, b: 0, a: 0.3}
-  vignettePulseDuration: 0.5
-  vignetteMaxAlpha: 0.3
-  crosshairImage: {fileID: 0}
-  metalInRangeColor: {r: 0, g: 1, b: 0, a: 1}
-  noMetalColor: {r: 1, g: 1, b: 1, a: 1}
-  enablePushPrediction: 1
-  predictionColor: {r: 1, g: 1, b: 0, a: 0.5}
-  predictionPoints: 20
-  predictionTimeStep: 0.1
-  showPredictionOnHold: 1
-  enablePushScreenTint: 1
-  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
-  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
-  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
-  pushTintDuration: 0.2
-  enableSteelBubble: 1
-  steelBubbleKey: 102
-  steelBubbleRadius: 15
-  steelBubbleForce: 15
-  steelBubbleCooldown: 0.5
-  steelBubbleMetalCostMultiplier: 2
-  flightLaunchMultiplier: 1.5
-  flightAngleThreshold: 45
-  impulseMassThreshold: 5
-  impulseCalibration: 0.00055
-  debugCalibration: 0
-  debugPushOperations: 1
-  debugFlareState: 1
 --- !u!114 &641062200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -976,7 +904,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57522ceaef2bb364e8952f791166c727, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IronPull
-  pullForce: 1
   referenceMass: 80
   referenceDistance: 30
   minDistance: 1
@@ -988,7 +915,6 @@ MonoBehaviour:
   velocityDamping: 0.5
   maxFlareMultiplier: 2
   flaringMetalCostMultiplier: 3
-  masteryBonus: 1
   playerCamera: {fileID: 53509035}
   metalLayer:
     serializedVersion: 2
@@ -1010,6 +936,77 @@ MonoBehaviour:
   predictionPoints: 20
   debugPullOperations: 1
   debugFlareState: 1
+--- !u!114 &641062202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75bcaf6bfd708a44289e39b64a0aeac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SteelPush
+  pushForce: 800
+  referenceMass: 80
+  referenceDistance: 3
+  minDistance: 1
+  maxRange: 30
+  metalCostPerSecond: 2
+  pushCooldown: 0.2
+  allomanticStrength: 1000
+  maxCoinVelocity: 400
+  distanceExponent: 1
+  velocityDamping: 0.5
+  maxFlareMultiplier: 2
+  flaringMetalCostMultiplier: 3
+  masteryBonus: 1
+  playerCamera: {fileID: 53509035}
+  metalLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  allomancer: {fileID: 641062198}
+  playerRigidbody: {fileID: 641062184}
+  chestTransform: {fileID: 0}
+  pushEffectPrefab: {fileID: 0}
+  shakeMagnitude: 0.1
+  shakeDuration: 0.1
+  shakeForceThreshold: 100
+  focusKey: 306
+  focusedPushColor: {r: 1, g: 0, b: 0, a: 1}
+  audioSource: {fileID: 0}
+  pushSound: {fileID: 0}
+  soundVolume: 0.5
+  vignetteImage: {fileID: 0}
+  flaringColor: {r: 1, g: 0.2, b: 0, a: 0.3}
+  vignettePulseDuration: 0.5
+  vignetteMaxAlpha: 0.3
+  crosshairImage: {fileID: 0}
+  metalInRangeColor: {r: 0, g: 1, b: 0, a: 1}
+  noMetalColor: {r: 1, g: 1, b: 1, a: 1}
+  enablePushPrediction: 1
+  predictionColor: {r: 1, g: 1, b: 0, a: 0.5}
+  predictionPoints: 20
+  predictionTimeStep: 0.1
+  showPredictionOnHold: 1
+  enablePushScreenTint: 1
+  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
+  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
+  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
+  pushTintDuration: 0.2
+  enableSteelBubble: 1
+  steelBubbleKey: 102
+  steelBubbleRadius: 2.5
+  steelBubbleForce: 50
+  steelBubbleCooldown: 0.5
+  steelBubbleMetalCostMultiplier: 1.5
+  flightLaunchMultiplier: 1.5
+  flightAngleThreshold: 45
+  impulseMassThreshold: 5
+  impulseCalibration: 0.000917
+  debugCalibration: 0
+  debugPushOperations: 1
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
