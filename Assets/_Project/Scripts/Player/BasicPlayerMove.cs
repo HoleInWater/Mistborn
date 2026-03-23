@@ -123,29 +123,30 @@ public class BasicPlayerMove : MonoBehaviour
         }
     }
 
-void HandleMovement()
-{
-    float x = Input.GetAxis("Horizontal");
-    float z = Input.GetAxis("Vertical");
-
-    float currentActiveSpeed = moveSpeed;
-    bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
-    bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
-    bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-
-    if (isTryingToSprint && hasStamina)
+    void HandleMovement()
     {
-        currentActiveSpeed = sprintSpeed;
-        staminaSystem.DrainStamina(drainRate);
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+    
+        float currentActiveSpeed = moveSpeed;
+        bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
+        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
+        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+    
+        if (isTryingToSprint && hasStamina)
+        {
+            currentActiveSpeed = sprintSpeed;
+            staminaSystem.DrainStamina(drainRate);
+        }
+    
+        Vector3 forward = cameraPivot.forward;
+        Vector3 right = cameraPivot.right;
+        forward.y = 0; right.y = 0;
+        forward.Normalize(); right.Normalize();
+    
+        Vector3 moveDirection = (forward * z + right * x).normalized;
     }
-
-    Vector3 forward = cameraPivot.forward;
-    Vector3 right = cameraPivot.right;
-    forward.y = 0; right.y = 0;
-    forward.Normalize(); right.Normalize();
-
-    Vector3 moveDirection = (forward * z + right * x).normalized;
-
+    
     if (moveDirection.magnitude >= 0.1f)
     {
         // FIX: Use Rigidbody velocity instead of transform.position
