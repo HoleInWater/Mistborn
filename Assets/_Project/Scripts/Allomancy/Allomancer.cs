@@ -87,8 +87,6 @@ public class Allomancer : MonoBehaviour
                 renderer.material.SetFloat("_Metallic", 1f);
                 renderer.material.SetFloat("_Glossiness", 0.8f);
             }
-            
-            Debug.Log($"[ALLOMANCER] Spawned test coin at {spawnPos}");
         }
     }
     

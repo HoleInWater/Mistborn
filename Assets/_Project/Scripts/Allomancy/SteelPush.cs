@@ -281,8 +281,6 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        Debug.Log($"[STEEL] Start - metalLayer={metalLayer.value}, camera={playerCamera?.name ?? "null"}, playerRB={playerRigidbody?.name ?? "null"}");
-        
         // Create prediction line renderer
         CreatePredictionLine();
     }
