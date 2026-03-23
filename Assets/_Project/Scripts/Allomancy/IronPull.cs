@@ -182,7 +182,7 @@ public class IronPull : MonoBehaviour
         UpdateTargetedMetal();
         
         // Pull: Left Mouse (requires flaring)
-        if (Input.GetKeyDown(KeyCode.Mouse0) && isFlaring && cooldownTimer <= 0f)
+        if (Input.GetKeyDown(KeyCode.Q) && isFlaring && cooldownTimer <= 0f)
         {
             if (!isBurning) StartBurning();
             if (!pullAppliedThisPress)
@@ -193,8 +193,7 @@ public class IronPull : MonoBehaviour
             }
         }
         
-        // Stop burning when releasing Left Mouse
-        if (Input.GetKeyUp(KeyCode.Mouse0))
+        if (Input.GetKeyUp(KeyCode.Q))
         {
             StopBurning();
         }
@@ -251,17 +250,6 @@ public class IronPull : MonoBehaviour
         
         if (shouldShowPrediction)
             DrawPredictionLine();
-        else if (isPredictionActive)
-        {
-            predictionLine.gameObject.SetActive(false);
-            isPredictionActive = false;
-        }
-    }
-        
-        if (shouldShowPrediction)
-        {
-            DrawPredictionLine();
-        }
         else if (isPredictionActive)
         {
             predictionLine.gameObject.SetActive(false);
