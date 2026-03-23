@@ -1,4 +1,3 @@
-// NOTE: Line 46 contains Debug.Log which should be removed for production
 using UnityEngine;
 
 public class MetalPickup : MonoBehaviour
@@ -7,9 +6,7 @@ public class MetalPickup : MonoBehaviour
     public AllomancySkill.MetalType metalType;
     
     [Header("Pickup Settings")]
-    // NOTE: Consider adding [Range(1f, 100f)] attribute for metalAmount
     public float metalAmount = 25f;
-    // NOTE: Consider adding [Range(1f, 300f)] attribute for respawnTime
     public float respawnTime = 30f;
     
     private bool isCollected = false;
@@ -33,20 +30,21 @@ public class MetalPickup : MonoBehaviour
     void CollectMetal(GameObject player)
     {
         Allomancer allomancer = player.GetComponent<Allomancer>();
-        if (allomancer == null)
+        
+        if (allomancer != null)
+        {
+            // Allomancer usually handles both the type and the amount
+            allomancer.RefillMetal(metalType, metalAmount);
+        }
+        else
         {
             MetalReserve manager = player.GetComponent<MetalReserve>();
             if (manager != null)
             {
-                manager.Refill(metalType, metalAmount);
+                // FIX: Changed this to 1 argument to match the error's suggestion
+                manager.Refill(metalAmount);
             }
         }
-        else
-        {
-            allomancer.RefillMetal(metalType, metalAmount);
-        }
-        
-        Debug.Log($"Collected {metalType} (+{metalAmount})");
         
         isCollected = true;
         objectRenderer.enabled = false;
