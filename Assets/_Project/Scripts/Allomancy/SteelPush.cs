@@ -127,6 +127,8 @@ public class SteelPush : MonoBehaviour
                 float force = pushForce * weightFactor;
                 
                 // Distance falloff with zenith point at zenithDistance meters
+                // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
+                // Our model: Linear increase to zenith (5m), then inverse (1/r) beyond
                 float distance = hit.distance;
                 if (distance > 0.1f) // Avoid division by zero
                 {
