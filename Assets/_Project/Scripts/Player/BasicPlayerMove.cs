@@ -137,6 +137,7 @@ public class BasicPlayerMove : MonoBehaviour
     
         if (moveDirection.magnitude >= 0.1f)
         {
+            // Check for Sprinting
             float currentActiveSpeed = moveSpeed;
             bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
     
@@ -146,14 +147,13 @@ public class BasicPlayerMove : MonoBehaviour
                 staminaSystem.DrainStamina(drainRate);
             }
     
-            // 1. ROTATION (Fixes the "Rotating but not moving" issue)
+            // Apply Movement (Ignoring Y so jump works)
+            Vector3 moveDelta = moveDirection * currentActiveSpeed * Time.deltaTime;
+            rb.MovePosition(new Vector3(transform.position.x + moveDelta.x, transform.position.y, transform.position.z + moveDelta.z));
+    
+            // Rotate
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    
-            // 2. MOVEMENT (Using MovePosition instead of Velocity)
-            // This calculates where the player SHOULD be next frame and moves them there physically
-            Vector3 nextPosition = transform.position + moveDirection * currentActiveSpeed * Time.deltaTime;
-            rb.MovePosition(nextPosition);
         }
     }
     
