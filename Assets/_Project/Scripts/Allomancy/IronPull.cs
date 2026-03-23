@@ -230,9 +230,7 @@ public class IronPull : MonoBehaviour
         currentTargetRigidbody = null;
         
         if (playerCamera == null) return;
-        if (metalLayer.value == 0) return; // No metal layer set
         
-        // Raycast from camera center to find specific metal target
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
         {
@@ -241,7 +239,6 @@ public class IronPull : MonoBehaviour
             {
                 currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
-                if (debugPullOperations) Debug.Log($"[PULL] Detected: {currentTargetRigidbody.name}");
             }
         }
     }
@@ -298,51 +295,33 @@ public class IronPull : MonoBehaviour
     void PullMetals()
     {
         if (playerRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            if (debugPullOperations) Debug.Log("[PULL] No target - aim at metal");
-            return;
-        }
-        
-        Vector3 pullOrigin = playerRigidbody.position;
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
         
         if (targetRigidbody == playerRigidbody) return;
         if (target != null && !target.canBePulled) return;
         
+        Vector3 pullOrigin = playerRigidbody.position;
         float distance = Vector3.Distance(pullOrigin, targetRigidbody.position);
         Vector3 directionToTarget = targetRigidbody.position - pullOrigin;
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
-        float playerMass = playerRigidbody.mass;
-        float strength = allomanticStrength * (playerMass / referenceMass) * masteryBonus;
+        float strength = allomanticStrength * (playerRigidbody.mass / referenceMass) * masteryBonus;
         if (isFlaring) strength *= maxFlareMultiplier;
         
-        // Linear distance falloff: force = strength × (1 - distance/maxRange)
-        // This matches lore: "thinner lines at distance" = weaker force
-        float distanceFactor = 1f;
-        if (distance > 0.01f && distance <= maxRange)
-        {
-            distanceFactor = 1f - (distance / maxRange);
-        }
-        else if (distance > maxRange)
-        {
-            distanceFactor = 0f;
-        }
+        float distanceFactor = 1f - (distance / maxRange);
+        distanceFactor = Mathf.Clamp01(distanceFactor);
         
         float force = strength * distanceFactor;
         
-        if (isAnchored)
+        if (force > 1f)
         {
-            playerRigidbody.AddForce(directionToTarget.normalized * force);
-            if (debugPullOperations) Debug.Log($"[PULL] Player pulled toward {targetRigidbody.name}: {force:F0f}N");
-        }
-        else if (force > 1f)
-        {
-            targetRigidbody.AddForce(-directionToTarget.normalized * force, ForceMode.Impulse);
-            if (debugPullOperations) Debug.Log($"[PULL] Pulled {targetRigidbody.name} toward player: {force:F0f}N");
+            if (isAnchored)
+                playerRigidbody.AddForce(directionToTarget.normalized * force);
+            else
+                targetRigidbody.AddForce(-directionToTarget.normalized * force, ForceMode.Impulse);
         }
         
         if (force > shakeForceThreshold)
