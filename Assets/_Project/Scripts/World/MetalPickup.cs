@@ -29,7 +29,6 @@ public class MetalPickup : MonoBehaviour
     
     void CollectMetal(GameObject player)
     {
-        // Try to get Allomancer first
         Allomancer allomancer = player.GetComponent<Allomancer>();
         
         if (allomancer != null)
@@ -38,18 +37,17 @@ public class MetalPickup : MonoBehaviour
         }
         else
         {
-            // If no Allomancer, try to get MetalReserve
             MetalReserve manager = player.GetComponent<MetalReserve>();
             if (manager != null)
             {
-                // FIXED: Now correctly matches the Refill(float amount) in MetalReserve.cs
-                manager.Refill(metalAmount);
+                // FIXED: Manually updating currentMetal to avoid the Refill() reference error
+                manager.currentMetal = Mathf.Min(manager.maxMetal, manager.currentMetal + metalAmount);
             }
         }
         
         isCollected = true;
-        objectRenderer.enabled = false;
-        objectCollider.enabled = false;
+        if (objectRenderer != null) objectRenderer.enabled = false;
+        if (objectCollider != null) objectCollider.enabled = false;
         
         Invoke("Respawn", respawnTime);
     }
@@ -57,7 +55,7 @@ public class MetalPickup : MonoBehaviour
     void Respawn()
     {
         isCollected = false;
-        objectRenderer.enabled = true;
-        objectCollider.enabled = true;
+        if (objectRenderer != null) objectRenderer.enabled = true;
+        if (objectCollider != null) objectCollider.enabled = true;
     }
 }
