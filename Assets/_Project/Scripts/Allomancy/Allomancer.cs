@@ -95,6 +95,7 @@ public class Allomancer : MonoBehaviour
     public void DrainMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
+        Debug.Log($"[ALLOMANCER] DrainMetal({metal}, {amount}) - Reserve now: {metalReserves[(int)metal]:F2}");
         UpdateHUD(metal);
         
         if (metal == currentMetal)
@@ -102,6 +103,7 @@ public class Allomancer : MonoBehaviour
             canBurnMetal = metalReserves[(int)metal] > 0;
             if (!canBurnMetal && metalHUD != null)
             {
+                Debug.Log("[ALLOMANCER] OUT OF METAL!");
                 metalHUD.ShowOutOfMetalWarning();
             }
         }

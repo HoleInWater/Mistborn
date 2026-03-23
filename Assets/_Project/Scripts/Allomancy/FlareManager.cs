@@ -60,7 +60,7 @@ public class FlareManager : MonoBehaviour
     [Tooltip("Key to toggle flaring for both metals at once")]
     public KeyCode globalFlareKey = KeyCode.LeftControl;
     [Tooltip("Enable debug logging")]
-    public bool debugMode = false;
+    public bool debugMode = true;
 
     // Per-metal flare states
     private bool _isIronFlaring = false;
