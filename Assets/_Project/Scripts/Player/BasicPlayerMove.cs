@@ -105,12 +105,21 @@ public class BasicPlayerMove : MonoBehaviour
 
     void HandleJump()
     {
-        // Jump only if the buffer is active and we are on the ground
+        // Check if grounded, buffer is active, AND we have enough stamina
         if (jumpBufferCounter > 0f && isGrounded)
         {
-            // Reset vertical velocity for a consistent, "soft" launch
-            rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
-            jumpBufferCounter = 0; // Clear the buffer
+            float jumpCost = 15f; // Match this to your preference
+    
+            if (staminaSystem != null && staminaSystem.currentStamina >= jumpCost)
+            {
+                // Perform the jump
+                rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
+                
+                // Drain the stamina instantly
+                staminaSystem.UseStamina(jumpCost);
+                
+                jumpBufferCounter = 0; 
+            }
         }
     }
 
