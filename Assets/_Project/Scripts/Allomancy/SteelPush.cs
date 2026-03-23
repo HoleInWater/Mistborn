@@ -182,6 +182,7 @@ public class SteelPush : MonoBehaviour
     private bool isFlaring = false;
     private bool pushAppliedThisPress = false;
     private bool bubbleAppliedThisPress = false;
+    private bool eKeyWasPressed = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
@@ -205,34 +206,20 @@ public class SteelPush : MonoBehaviour
     void Start()
     {
         if (playerRigidbody == null)
-        {
             playerRigidbody = GetComponentInParent<Rigidbody>();
-        }
         
         if (playerCamera == null)
-        {
             playerCamera = Camera.main;
-        }
         
         if (allomancer == null)
-        {
             allomancer = GetComponentInParent<Allomancer>();
-        }
+        
+        if (metalLayer.value == 0)
+            metalLayer = LayerMask.GetMask("Metal");
         
         if (chestTransform == null)
-        {
-            Transform player = GetComponentInParent<Transform>();
-            if (player != null)
-            {
-                Transform chest = player.Find("Chest");
-                if (chest == null) chest = player.Find("ChestBone");
-                if (chest == null) chest = player.Find("Spine2");
-                if (chest == null) chest = player.Find("Torso");
-                chestTransform = chest != null ? chest : player;
-            }
-        }
+            chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
         
-        // Create prediction line renderer
         CreatePredictionLine();
     }
     
@@ -274,24 +261,39 @@ public class SteelPush : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // Start burning: E key (one per press)
-        if (Input.GetKeyDown(KeyCode.E) && cooldownTimer <= 0f)
-        {
-            StartBurning();
-            pushAppliedThisPress = false;
-            bubbleAppliedThisPress = false;
-        }
-        
-        // Flaring: Ctrl toggles flaring mode (works anytime)
-        if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            isFlaring = !isFlaring;
-            if (debugPushOperations) Debug.Log($"[STEEL] Flaring: {(isFlaring ? "ON" : "OFF")}");
-            if (isFlaring && isBurning) StartFlaringVignette();
-        }
-        
         // Update targeted metal detection
         UpdateTargetedMetal();
+        
+        // E KEY HANDLING - Push mechanics
+        bool eKeyDown = Input.GetKeyDown(KeyCode.E);
+        bool eKeyUp = Input.GetKeyUp(KeyCode.E);
+        
+        if (eKeyDown && !eKeyWasPressed && cooldownTimer <= 0f)
+        {
+            eKeyWasPressed = true;
+            
+            if (!isBurning)
+                StartBurning();
+            
+            PushMetals();
+            DrainMetal(flaringMetalCostMultiplier);
+            
+            if (isFlaring)
+                StartFlaringVignette();
+        }
+        
+        // E KEY RELEASED
+        if (eKeyUp)
+        {
+            eKeyWasPressed = false;
+            StopBurning();
+        }
+        
+        // Continuous metal drain while burning
+        if (isBurning)
+        {
+            DrainMetal(1f);
+        }
         
         // Steel Bubble: F key (one per press, requires flaring)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
@@ -307,24 +309,6 @@ public class SteelPush : MonoBehaviour
                     bubbleAppliedThisPress = true;
                 }
             }
-        }
-        
-        // Normal push: E key (requires flaring)
-        if (Input.GetKeyDown(KeyCode.E) && isFlaring && !pushAppliedThisPress)
-        {
-            if (!isBurning) StartBurning();
-            Debug.Log($"[PUSH] E pressed - flaring={isFlaring}");
-            StartFlaringVignette();
-            PushMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            pushAppliedThisPress = true;
-        }
-        
-        // Stop burning when releasing E or F key
-        bool pushKeyUp = Input.GetKeyUp(KeyCode.E) || Input.GetKeyUp(steelBubbleKey);
-        if (pushKeyUp)
-        {
-            StopBurning();
         }
         
         // Update push prediction
@@ -360,14 +344,47 @@ public class SteelPush : MonoBehaviour
         
         if (playerCamera == null) return;
         
-        // Raycast from camera center to find specific metal target
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
+        float closestDist = maxRange;
+        
+        // Find objects with AllomanticTarget component
+        var allTargets = FindObjectsOfType<AllomanticTarget>();
+        
+        // Find objects on Metal layer using overlap sphere
+        Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, maxRange, metalLayer);
+        
+        // Check AllomanticTarget objects
+        foreach (var metal in allTargets)
         {
-            currentTargetRigidbody = currentTargetHit.rigidbody;
-            if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+            if (metal == null) continue;
+            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            if (!metal.canBePushed) continue;
+            
+            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
+            
+            if (dist < closestDist && dist > 0.1f)
             {
-                currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
+                closestDist = dist;
+                currentTargetRigidbody = rb;
+                currentTarget = metal;
+                hasCurrentTarget = true;
+            }
+        }
+        
+        // Check Metal layer objects
+        foreach (Collider col in colliders)
+        {
+            if (col == null) continue;
+            Rigidbody rb = col.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            
+            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
+            
+            if (dist < closestDist && dist > 0.1f && dist <= maxRange)
+            {
+                closestDist = dist;
+                currentTargetRigidbody = rb;
+                currentTarget = col.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
             }
         }
@@ -484,17 +501,8 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        if (playerRigidbody == null)
-        {
-            Debug.LogError("[PUSH] ERROR: playerRigidbody is null!");
-            return;
-        }
-        
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            if (debugPushOperations) Debug.Log("[PUSH] No target - aim at metal");
-            return;
-        }
+        if (playerRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Vector3 pushOrigin = playerRigidbody.position;
         Rigidbody targetRigidbody = currentTargetRigidbody;
@@ -503,20 +511,17 @@ public class SteelPush : MonoBehaviour
         if (targetRigidbody == playerRigidbody) return;
         if (target != null && !target.canBePushed) return;
         
-        float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
         float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
         Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
-        float playerMass = playerRigidbody.mass;
-        float weightFactor = playerMass / referenceMass;
+        // Lore-accurate: Allomantic strength based on player mass
+        float weightFactor = playerRigidbody.mass / referenceMass;
         float strength = allomanticStrength * weightFactor * masteryBonus;
         if (isFlaring)
-        {
             strength *= maxFlareMultiplier;
-            Debug.Log($"[PUSH] FLARING: strength {allomanticStrength * weightFactor * masteryBonus:F0f} -> {strength:F0f} (x{maxFlareMultiplier})");
-        }
         
+        // Lore-accurate: Force decreases with distance (inverse relationship)
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
         {
@@ -524,6 +529,7 @@ public class SteelPush : MonoBehaviour
             distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
         }
         
+        // Lore-accurate: Metals have terminal velocity based on allomancer strength
         Vector3 targetVelocity = targetRigidbody.velocity;
         float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
         float velocityDampingFactor = 1f;
