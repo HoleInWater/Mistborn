@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (12/400+):**
+**✅ Completed (14/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -28,6 +28,8 @@
 10. Weight-proportional force for Iron Pull - Same physics as Steel Push
 11. Anchor detection for Steel Push - pushes player when target is heavy/kinematic
 12. Anchor detection for Iron Pull - pulls player when target is heavy/kinematic
+13. Physics documentation updated with canonical evidence from Coppermind wiki
+14. Cleaned up Debug.Log statements with #if UNITY_EDITOR for production builds
 
 ---
 
