@@ -1,4 +1,4 @@
-// NOTE: Lines 19 and 50 contain Debug.Log which should be removed for production
+// NOTE: Lines 19 and 52 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class AluminumPurge : MonoBehaviour
@@ -36,6 +36,8 @@ public class AluminumPurge : MonoBehaviour
         Allomancer allomancer = GetComponent<Allomancer>();
         if (allomancer != null)
         {
+            // This loop currently drains Steel 16 times; 
+            // you may eventually want to loop through different MetalTypes here.
             for (int i = 0; i < 16; i++)
             {
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel, allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel));
@@ -45,9 +47,8 @@ public class AluminumPurge : MonoBehaviour
         MetalReserve manager = GetComponent<MetalReserve>();
         if (manager != null)
         {
-            // FIXED: Replaced non-existent PurgeAll() with direct value reset
-            // Change 'amount' to the actual variable name in your MetalReserve script if needed
-            manager.amount = 0; 
+            // FIXED: Using currentMetal from your MetalReserve script
+            manager.currentMetal = 0; 
         }
         
         Debug.Log("Aluminum Purged - All metal reserves emptied!");
