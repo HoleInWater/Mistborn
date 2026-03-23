@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class AnimationStateController : MonoBehaviour
 {
-    public Transform groundCheck;
-    public float groundDistance = 0.4f; // The size of the "check bubble"
-    public LayerMask groundMask;      // Set this to the "Ground" layer in the Inspector
 
     Animator animator;
     bool isGrounded;
@@ -17,8 +14,6 @@ public class AnimationStateController : MonoBehaviour
 
     void Update()
     {
-        // 1. CONSTANTLY CHECK IF ON THE FLOOR
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         bool isRunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");
@@ -29,13 +24,26 @@ public class AnimationStateController : MonoBehaviour
         bool jumpPressed = Input.GetKey("space");
         
         // WALKING LOGIC
-        if (!isWalking && forwardPressed) animator.SetBool("isWalking", true);
-        if (isWalking && !forwardPressed) animator.SetBool("isWalking", false);
-
+        if (!isWalking && forwardPressed) 
+        {
+            animator.SetBool("isWalking", true);
+        }
+        
+        if (isWalking && !forwardPressed)
+        {
+            animator.SetBool("isWalking", false);
+        }
+        
         // RUNNING LOGIC
-        if (!isRunning && (forwardPressed && runPressed)) animator.SetBool("isRunning", true);
-        if (isRunning && (!forwardPressed || !runPressed)) animator.SetBool("isRunning", false);
-
+        if (!isRunning && (forwardPressed && runPressed))
+        {
+            animator.SetBool("isRunning", true);
+        }
+        if (isRunning && (!forwardPressed || !runPressed))
+        {
+            animator.SetBool("isRunning", false);
+        }
+        
         // JUMP START: If grounded and space is pressed, start jump
         if (!isJumping && isGrounded && jumpPressed)
         {
