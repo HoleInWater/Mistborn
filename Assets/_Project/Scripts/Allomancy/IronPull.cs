@@ -327,7 +327,11 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null) return;
+        if (playerCamera == null) 
+        {
+            Debug.LogWarning("[IRON] No camera!");
+            return;
+        }
         
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
@@ -335,6 +339,7 @@ public class IronPull : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
+            Debug.Log($"[IRON] Ray hit: {hit.collider.name}");
             AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
             if (target != null && target.canBePulled)
             {
@@ -343,8 +348,17 @@ public class IronPull : MonoBehaviour
                 {
                     currentTarget = target;
                     hasCurrentTarget = true;
+                    Debug.Log($"[IRON] Target found: {hit.collider.name}");
                 }
             }
+            else
+            {
+                Debug.Log($"[IRON] Hit {hit.collider.name} but no valid AllomanticTarget");
+            }
+        }
+        else
+        {
+            Debug.Log("[IRON] Raycast missed all objects");
         }
     }
     

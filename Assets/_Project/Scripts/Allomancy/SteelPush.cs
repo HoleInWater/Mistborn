@@ -378,12 +378,12 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // Steel Bubble: F key (one per press, requires burning)
+        // Steel Bubble: F key (one per press, requires FLARING)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (steelBubbleCooldownTimer <= 0f)
+            if (steelBubbleCooldownTimer <= 0f && IsFlaring)
             {
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble!");
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble with flare!");
                 if (!isBurning) StartBurning();
                 if (!bubbleAppliedThisPress)
                 {
@@ -392,6 +392,10 @@ public class SteelPush : MonoBehaviour
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
                 }
+            }
+            else if (debugPushOperations && !IsFlaring)
+            {
+                Debug.Log("[BUBBLE] Failed - not flaring!");
             }
         }
         
