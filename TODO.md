@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (28/400+):**
+**✅ Completed (29/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -44,6 +44,7 @@
 26. Added flaring visual vignette effect (screen tint when flaring)
 27. Added debug logging for impulse calibration
 28. Added crosshair color change when metal is in range
+29. Added push cooldown after releasing button to prevent spam
 
 ---
 
