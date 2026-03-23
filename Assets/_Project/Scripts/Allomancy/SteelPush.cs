@@ -246,6 +246,10 @@ public class SteelPush : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl) && isBurning)
         {
             isFlaring = !isFlaring;
+            if (debugPushOperations)
+            {
+                Debug.Log($"Flaring: {(isFlaring ? "ON" : "OFF")}");
+            }
             if (isFlaring)
             {
                 StartFlaringVignette();
