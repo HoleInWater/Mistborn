@@ -143,9 +143,9 @@ public class IronPull : MonoBehaviour
     
     [Header("Debug")]
     [Tooltip("Enable debug logging for pull operations")]
-    public bool debugPullOperations = true;
+    public bool debugPullOperations = false;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = true;
+    public bool debugFlareState = false;
     
     private bool isBurning = false;
     private bool pullAppliedThisPress = false;
@@ -397,7 +397,6 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        if (debugPullOperations) Debug.Log($"[PULL] PullMetals: playerRB={playerRigidbody != null}, hasTarget={hasCurrentTarget}, targetRB={currentTargetRigidbody?.name ?? "null"}");
         if (playerRigidbody == null) return;
         if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
