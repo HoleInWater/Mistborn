@@ -661,13 +661,12 @@ public class SteelPush : MonoBehaviour
     
     IEnumerator PushTintCoroutine(float pushForce)
     {
-        // Determine color based on push force
         Color tintColor;
-        if (pushForce < pushForce * 0.3f) // Weak push
+        if (pushForce < shakeForceThreshold * 0.3f)
             tintColor = weakPushTint;
-        else if (pushForce < pushForce * 0.7f) // Medium push
+        else if (pushForce < shakeForceThreshold * 0.7f)
             tintColor = mediumPushTint;
-        else // Strong push
+        else
             tintColor = strongPushTint;
         
         // Brief full-screen tint effect using GUI
