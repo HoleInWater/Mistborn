@@ -61,7 +61,11 @@ public class MetalHUD : MonoBehaviour
     void Start()
     {
         UpdateMetalDisplay();
-        SubscribeToFlareEvents();
+    }
+    
+    void Update()
+    {
+        UpdateFlareDisplay();
     }
     
     void SubscribeToFlareEvents()
