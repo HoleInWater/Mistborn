@@ -1,16 +1,15 @@
 /* FlareIntensityHUD.cs
  *
  * PURPOSE:
- * Draws the flare intensity bar in the top-right corner of the screen.
- * Uses Unity's OnGUI — no Canvas setup required.
+ * Draws a single 10-segment flare intensity bar in the top-right corner.
+ * Reflects the one shared intensity used by both Iron and Steel.
  *
  * SETUP:
  * Attach to any active GameObject. Reads FlareManager.Instance automatically.
  *
  * DISPLAY STATES:
- * - Not burning  → bar is dimmed, label reads "BURNING OFF"
- * - Burning, intensity 0  → bar is active but all segments unlit, label reads "BURNING"
- * - Burning, intensity >0 → segments fill left→right, orange→red, label reads "FLARING  N / 10"
+ * - Not burning  → bar dimmed, label reads "FLARE"
+ * - Burning      → segments fill 1–10 (orange → red), label reads "FLARE  4 / 10"
  */
 
 using UnityEngine;
@@ -18,51 +17,29 @@ using UnityEngine;
 public class FlareIntensityHUD : MonoBehaviour
 {
     [Header("Layout")]
-    [Tooltip("Distance from the right edge of the screen (pixels).")]
-    public float marginRight = 20f;
-
-    [Tooltip("Distance from the top edge of the screen (pixels).")]
-    public float marginTop = 20f;
-
-    [Tooltip("Width of each segment block (pixels).")]
-    public float segmentWidth = 18f;
-
-    [Tooltip("Height of each segment block (pixels).")]
+    public float marginRight   = 20f;
+    public float marginTop     = 20f;
+    public float segmentWidth  = 18f;
     public float segmentHeight = 10f;
-
-    [Tooltip("Gap between segments (pixels).")]
-    public float segmentGap = 3f;
-
-    [Tooltip("Height of the label row above the bar (pixels).")]
-    public float labelHeight = 18f;
+    public float segmentGap    = 3f;
+    public float labelHeight   = 18f;
 
     [Header("Colors")]
-    [Tooltip("Segment color at low intensity (steps 1–4).")]
-    public Color lowColor  = new Color(1f, 0.55f, 0f, 1f);   // orange
+    public Color lowColor  = new Color(1f, 0.55f, 0f, 1f);           // orange
+    public Color midColor  = new Color(1f, 0.25f, 0f, 1f);           // deep orange
+    public Color highColor = new Color(1f, 0.05f, 0f, 1f);           // red
+    public Color offColor  = new Color(0.15f, 0.15f, 0.15f, 0.8f);  // unlit segment
+    public Color labelOnColor  = new Color(0.9f, 0.9f, 0.9f, 1f);
+    public Color labelOffColor = new Color(0.35f, 0.35f, 0.35f, 1f);
 
-    [Tooltip("Segment color at mid intensity (steps 5–7).")]
-    public Color midColor  = new Color(1f, 0.25f, 0f, 1f);   // deep orange
-
-    [Tooltip("Segment color at high intensity (steps 8–10).")]
-    public Color highColor = new Color(1f, 0.05f, 0f, 1f);   // red
-
-    [Tooltip("Color of unlit segments.")]
-    public Color offColor  = new Color(0.15f, 0.15f, 0.15f, 0.8f);
-
-    [Tooltip("Label color while burning.")]
-    public Color labelColor = new Color(0.85f, 0.85f, 0.85f, 1f);
-
-    [Tooltip("Label color while NOT burning (dimmed).")]
-    public Color labelOffColor = new Color(0.4f, 0.4f, 0.4f, 1f);
-
-    [Tooltip("Alpha applied to the whole HUD when not burning.")]
+    [Tooltip("Alpha of the whole HUD when not burning.")]
     [Range(0f, 1f)]
     public float idleAlpha = 0.3f;
 
     [Header("Options")]
-    [Tooltip("Show N / 10 count next to label.")]
     public bool showNumber = true;
 
+    // ── Private ───────────────────────────────────────────────────────────────
     private Texture2D _pixel;
     private GUIStyle  _labelStyle;
 
@@ -77,17 +54,14 @@ public class FlareIntensityHUD : MonoBehaviour
     {
         if (FlareManager.Instance == null) return;
 
-        bool isBurning  = FlareManager.Instance.IsBurning;
-        bool isFlaring  = FlareManager.Instance.IsFlaring;
-        int  intensity  = FlareManager.Instance.FlareIntensity;
-        int  maxSteps   = FlareManager.Instance.maxIntensitySteps;
+        bool isBurning = FlareManager.Instance.IsBurning;
+        int  intensity = FlareManager.Instance.Intensity;
+        int  maxSteps  = FlareManager.Instance.maxIntensitySteps;
+        float alpha    = isBurning ? 1f : idleAlpha;
 
-        float alpha = isBurning ? 1f : idleAlpha;
-
-        // ── Dimensions ────────────────────────────────────────────────────────
         float barWidth = maxSteps * segmentWidth + (maxSteps - 1) * segmentGap;
-        float x = Screen.width - marginRight - barWidth;
-        float y = marginTop;
+        float x        = Screen.width - marginRight - barWidth;
+        float y        = marginTop;
 
         // ── Label ─────────────────────────────────────────────────────────────
         if (_labelStyle == null)
@@ -100,27 +74,14 @@ public class FlareIntensityHUD : MonoBehaviour
             };
         }
 
-        string labelText;
-        Color  lc;
-
-        if (!isBurning)
-        {
-            labelText = "BURNING OFF";
-            lc        = labelOffColor;
-        }
-        else if (intensity == 0)
-        {
-            labelText = "BURNING";
-            lc        = labelColor;
-        }
-        else
-        {
-            labelText = showNumber ? $"FLARING  {intensity} / {maxSteps}" : "FLARING";
-            lc        = labelColor;
-        }
-
+        Color lc = isBurning ? labelOnColor : labelOffColor;
         lc.a *= alpha;
         _labelStyle.normal.textColor = lc;
+
+        string labelText = isBurning && showNumber
+            ? $"FLARE  {intensity} / {maxSteps}"
+            : "FLARE";
+
         GUI.Label(new Rect(x, y, barWidth, labelHeight), labelText, _labelStyle);
 
         // ── Segments ──────────────────────────────────────────────────────────
@@ -129,7 +90,7 @@ public class FlareIntensityHUD : MonoBehaviour
         for (int i = 0; i < maxSteps; i++)
         {
             float segX = x + i * (segmentWidth + segmentGap);
-            bool  lit  = isBurning && i < intensity;
+            bool  lit  = isBurning && (i + 1) <= intensity;
 
             Color c;
             if (!lit)
@@ -141,7 +102,6 @@ public class FlareIntensityHUD : MonoBehaviour
             {
                 float t = (float)(i + 1) / maxSteps;
                 c = t <= 0.4f ? lowColor : t <= 0.7f ? midColor : highColor;
-                // no alpha reduction — lit segments are always full brightness
             }
 
             GUI.color = c;
