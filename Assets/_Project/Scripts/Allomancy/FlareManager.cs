@@ -53,6 +53,8 @@ public class FlareManager : MonoBehaviour
     public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
     public bool IsFlaring { get; private set; }
     public static FlareManager Instance { get; private set; }
+    public bool IsIronFlaring => IsFlaring;
+    public bool IsSteelFlaring => IsFlaring;
 
     void Update()
     {
