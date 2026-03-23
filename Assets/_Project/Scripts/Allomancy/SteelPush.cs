@@ -221,6 +221,8 @@ public class SteelPush : MonoBehaviour
     public bool debugCalibration = false;
     [Tooltip("Enable debug logging for push operations")]
     public bool debugPushOperations = true;
+    [Tooltip("Enable debug logging for flare state")]
+    public bool debugFlareState = true;
     
     private bool isBurning = false;
     private bool pushAppliedThisPress = false;
@@ -345,6 +347,7 @@ public class SteelPush : MonoBehaviour
             // Execute push (always, regardless of flare state)
             if (isBurning && !pushAppliedThisPress)
             {
+                if (debugPushOperations) Debug.Log($"[PUSH] Executing push! Flaring={IsFlaring}");
                 PushMetals();
                 DrainMetal(flaringMetalCostMultiplier);
                 pushAppliedThisPress = true;
@@ -378,6 +381,7 @@ public class SteelPush : MonoBehaviour
         {
             if (IsFlaring && steelBubbleCooldownTimer <= 0f)
             {
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble! Flaring={IsFlaring}");
                 if (!isBurning) StartBurning();
                 if (!bubbleAppliedThisPress)
                 {
@@ -386,6 +390,10 @@ public class SteelPush : MonoBehaviour
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
                 }
+            }
+            else if (debugPushOperations && !IsFlaring)
+            {
+                Debug.Log($"[BUBBLE] Blocked - not flaring! IsFlaring={IsFlaring}");
             }
         }
         
@@ -420,13 +428,22 @@ public class SteelPush : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null) return;
-        if (metalLayer.value == 0) return; // No metal layer set
+        if (playerCamera == null)
+        {
+            if (debugPushOperations) Debug.Log("[PUSH] No camera!");
+            return;
+        }
+        if (metalLayer.value == 0)
+        {
+            if (debugPushOperations) Debug.Log($"[PUSH] No metal layer! metalLayer={metalLayer.value}");
+            return;
+        }
         
         // Raycast from camera center to find specific metal target
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
         {
+            if (debugPushOperations) Debug.Log($"[PUSH] Hit: {currentTargetHit.collider.name}");
             currentTargetRigidbody = currentTargetHit.rigidbody;
             if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
             {

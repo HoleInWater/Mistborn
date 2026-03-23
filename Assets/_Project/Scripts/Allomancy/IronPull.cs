@@ -144,6 +144,8 @@ public class IronPull : MonoBehaviour
     [Header("Debug")]
     [Tooltip("Enable debug logging for pull operations")]
     public bool debugPullOperations = true;
+    [Tooltip("Enable debug logging for flare state")]
+    public bool debugFlareState = true;
     
     private bool isBurning = false;
     private bool pullAppliedThisPress = false;
@@ -249,51 +251,40 @@ public class IronPull : MonoBehaviour
         UpdateTargetedMetal();
         
         // =========================================================================
-        // Q KEY HANDLING - Per-Metal Flare System
+        // Q KEY HANDLING - Pull mechanics
         // =========================================================================
-        // This implements the sequence: [Start Burn] → [Toggle Flare] → [Execute Pull]
-        // qKeyWasPressed prevents GetKeyDown from firing multiple times per press
-        // Flare state is managed by FlareManager (centralized)
+        // Controls: Q = Pull, Ctrl = Flare toggle
+        // Q ALWAYS pulls (flare is optional extra power)
         
         bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
         bool qKeyUp = Input.GetKeyUp(KeyCode.Q);
         
-        // FIRST FRAME OF Q PRESS: Handle the key press sequence
         if (qKeyDown && !qKeyWasPressed)
         {
-            qKeyWasPressed = true; // Mark as pressed to prevent re-triggering
+            qKeyWasPressed = true;
             
-            // PHASE 1: Start burning (if not already burning and cooldown expired)
+            // Start burning (if not on cooldown)
             if (cooldownTimer <= 0f)
             {
                 if (!isBurning) StartBurning();
-                pullAppliedThisPress = false; // Reset for new sequence
+                pullAppliedThisPress = false;
             }
             
-            // PHASE 2: Q pressed while burning - decide action based on flare state
-            if (isBurning)
+            // Execute pull (always, regardless of flare state)
+            if (isBurning && !pullAppliedThisPress)
             {
-                // If already flared AND haven't pulled yet this press → EXECUTE PULL
-                if (IsFlaring && !pullAppliedThisPress)
-                {
-                    PullMetals();
-                    DrainMetal(flaringMetalCostMultiplier); // 3x metal cost when flared
-                    pullAppliedThisPress = true;
-                }
-                // Otherwise → TOGGLE IRON FLARE STATE via FlareManager
-                else
-                {
-                    if (FlareManager.Instance != null)
-                        FlareManager.Instance.ToggleIronFlare();
-                }
+                if (debugPullOperations) Debug.Log($"[PULL] Executing pull! Flaring={IsFlaring}");
+                PullMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+                pullAppliedThisPress = true;
             }
         }
         
-        // Q KEY RELEASED: Stop burning Iron (reset state machine)
+        // Q KEY RELEASED: Stop burning Iron
         if (qKeyUp)
         {
-            qKeyWasPressed = false; // Reset press tracking
-            StopBurning();          // Stop burning, PRESERVE flare state
+            qKeyWasPressed = false;
+            StopBurning();
         }
         
         // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
@@ -336,7 +327,16 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null) return;
+        if (playerCamera == null)
+        {
+            if (debugPullOperations) Debug.Log("[PULL] No camera!");
+            return;
+        }
+        if (metalLayer.value == 0)
+        {
+            if (debugPullOperations) Debug.Log($"[PULL] No metal layer! metalLayer={metalLayer.value}");
+            return;
+        }
         
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
@@ -344,6 +344,7 @@ public class IronPull : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
+            if (debugPullOperations) Debug.Log($"[PULL] Hit: {hit.collider.name} layer={LayerMask.LayerToName(hit.collider.gameObject.layer)}");
             int hitLayer = hit.collider.gameObject.layer;
             if ((metalLayer.value & (1 << hitLayer)) != 0)
             {
@@ -352,7 +353,12 @@ public class IronPull : MonoBehaviour
                 {
                     currentTarget = hit.collider.GetComponent<AllomanticTarget>();
                     hasCurrentTarget = true;
+                    if (debugPullOperations) Debug.Log($"[PULL] Found target: {currentTargetRigidbody.name}");
                 }
+            }
+            else if (debugPullOperations)
+            {
+                Debug.Log($"[PULL] Hit non-metal layer: {LayerMask.LayerToName(hitLayer)} metalLayer={metalLayer.value}");
             }
         }
     }
