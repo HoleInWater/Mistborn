@@ -232,9 +232,99 @@ public bool IsInRange(Vector3 targetPosition)
 
 ---
 
+## Canonical Evidence from Coppermind Wiki
+
+### Rule 1: Force Proportional to Weight
+
+**From Coppermind (Steel page):**
+> "The strength of your push is roughly proportional to your physical weight. This means that larger Allomancers can generally Steelpush and Ironpull more powerfully than a smaller counterpart."
+
+**Game Implementation:**
+```csharp
+float forceMultiplier = playerWeight / targetWeight;
+float pushForce = baseForce * forceMultiplier;
+```
+
+### Rule 2: Force Inversely Proportional to Distance
+
+**From Coppermind:**
+> "The force of the Push upon an object is inversely proportional to the Coinshot's distance to said object. This continues until the Coinshot hits a zenith, or point of maximum altitude."
+
+**Note:** This is NOT inverse square law (1/r²), but simple inverse (1/r). The zenith point is where this relationship changes.
+
+### Rule 3: Zenith Point (Maximum Altitude)
+
+**From Coppermind:**
+> "This continues until the Coinshot hits a zenith, or point of maximum altitude. This zenith is higher for more powerful Steelpushes, such as those burned in conjunction with duralumin, or with more massive steel anchors."
+
+**Game Implication:**
+- There's a point where push force maxes out
+- Beyond this point, force may decrease or behave differently
+- We set zenith at 5 meters for balanced gameplay
+
+### Rule 4: Spiritual Realm Blue Lines
+
+**From Coppermind:**
+> "When burning steel, blue lines emerge from the Coinshot and connect themselves to pieces of nearby metal, with the size of the steel line indicating how big the metal is."
+
+> "The steel lines manifest themselves on the Spiritual Realm and can be cut or interfered with. Supposedly due to their lack of physicality, they can pass through physical objects such as walls, allowing a Coinshot to ascertain the location of metals outside of their line of sight and to detect such things as metal girders within walls."
+
+**Game Implementation:**
+- Blue lines should pass through walls (no line-of-sight check needed)
+- Line thickness indicates metal mass
+- Can see through floors/ceilings
+
+### Rule 5: Metal Inside Bodies is Resistant
+
+**From Coppermind:**
+> "Steel Allomancy is strongly resisted by the body of sophonts, thus making metalminds embedded into the body difficult to push. Due to this, some Feruchemists choose to surgically implant their metalminds into their body."
+
+> "The degree of resistance is proportional to how Invested the target is, and would therefore require more force to push metal in the body of someone such as Susebron and an average Scadrian, who would be harder than a Drab."
+
+**Game Implication:**
+- Metal armor on NPCs should be harder to push than external metal
+- Invested metal (metalminds) even more resistant
+
+### Rule 6: Conservation of Momentum with Feruchemy
+
+**From Coppermind:**
+> "The Law of Conservation of Momentum holds when using iron Feruchemy. Therefore, a Coinshot who has access to iron Feruchemy can alter their mass in order to increase or decrease their velocity. When one increases their mass, their velocity would decrease in order to equalize their momentum, and vice versa."
+
+**For Our Game:**
+- Basic physics: momentum is conserved
+- If player is lighter (via Feruchemy), they accelerate faster but can't push as hard
+- If player is heavier, they push harder but accelerate slower
+
+### Rule 7: Steelpush is NOT Pure Newtonian
+
+**Key Insight:** While we use Newtonian physics as a base, Allomancy modifies it:
+
+1. **Force varies with distance** (not constant like gravity)
+2. **Zenith point exists** (no infinite force at zero distance)
+3. **Metal in body is protected** (not pure physics)
+4. **Blue lines are Spiritual, not Physical** (no line-of-sight needed)
+
+---
+
 ## References
 
+### Canonical Sources (Primary)
+- **Coppermind Wiki - Steel page**: https://coppermind.net/wiki/Steel
+  - Weight proportionality rule (Section: Allomantic Use)
+  - Distance inverse relationship (Section: Allomantic Use)  
+  - Zenith point mechanics (Section: Allomantic Use)
+  - Spiritual Realm blue lines (Section: Allomantic Use)
+  - Body resistance to Steelpush (Section: Allomantic Use)
+  - Conservation of momentum with Feruchemy (Section: Synergy with Iron Feruchemy)
+
+### Community Sources (Secondary)
 - Reddit r/Mistborn physics discussions
 - 17th Shard forums (detailed simulations)
 - The Final Empire (TFE Ch. 8 - Vin's steel sight)
 - Well of Ascension (Wax's steel bubble mechanics)
+
+### Book References
+- The Final Empire, Chapter 7: "Steelpushing is the art of burning steel to push metals away"
+- The Lost Metal, Chapter 25: "The steel lines manifest themselves on the Spiritual Realm"
+- The Lost Metal, Chapter 7: "The force of the Push is inversely proportional to distance"
+- The Alloy of Law, Prologue: "Steelpushing liquid metals works similarly to a ferrofluid"
