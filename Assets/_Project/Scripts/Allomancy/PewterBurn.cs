@@ -1,4 +1,4 @@
-// NOTE: Lines 48 and 55 contain Debug.Log which should be removed for production
+
 using UnityEngine;
 
 public class PewterBurn : MonoBehaviour
@@ -22,6 +22,14 @@ public class PewterBurn : MonoBehaviour
     {
         if (playerController == null)
             playerController = GetComponent<BasicPlayerMove>();
+
+        // Capture the baseline speed so EnhancePhysical and RestoreStats
+        // multiply/restore the real value rather than the default 0.
+        if (playerController != null)
+        {
+            originalSpeed = playerController.moveSpeed;
+            originalJump  = playerController.jumpVelocity;
+        }
     }
     
     void Update()
@@ -46,14 +54,18 @@ public class PewterBurn : MonoBehaviour
     void StartBurning()
     {
         isBurning = true;
-        Debug.Log("Burning Pewter - Enhanced!");
+#if UNITY_EDITOR
+        Debug.Log("[PewterBurn] Burning Pewter - Enhanced!");
+#endif
     }
     
     void StopBurning()
     {
         isBurning = false;
         RestoreStats();
-        Debug.Log("Stopped burning Pewter");
+#if UNITY_EDITOR
+        Debug.Log("[PewterBurn] Stopped burning Pewter");
+#endif
     }
     
     void EnhancePhysical()
