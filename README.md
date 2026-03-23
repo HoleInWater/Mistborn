@@ -8,6 +8,13 @@ Right now the focus is on getting the Steel and Iron mechanics feeling right. Th
 
 ## Welcome, Kelsier's Crew 👋
 
+## 🎯 TODAY'S PRIORITIES (March 23rd 2026)
+**MAKE THESE VISIBLE IN GITHUB - TEAM FOCUS:**
+1. **Scroll Wheel Metal Selection** - Implement mouse scroll wheel to cycle through all 16 metals
+2. **Metal Reserve Bars UI** - Create visual bars showing all metal reserves (not just current)
+3. **Complete All 16 Metals** - Finish implementation of all metals with the 2-metal selection system
+4. **Particle System** - Create particle effects for metal burning/flaring
+
 Here's where to start:
 
 ### 1. Read the Docs
@@ -391,6 +398,16 @@ The project includes comprehensive documentation:
 | 19-22 | Atium Retcon, Hemalurgy, Enhancement Metals |
 | 23-26 | Time Bubble Physics, Game Implementation Guide |
 | A-F | WoB Reference, Quick Reference Card, Formulas |
+
+## March 23rd 2026 TODO List
+
+### PRIMARY GOALS FOR TODAY:
+1. **Scroll Wheel Metal Selection** - Implement mouse scroll wheel to cycle through all 16 metals
+2. **Metal Reserve Bars UI** - Create visual bars showing all metal reserves (not just current)
+3. **Complete All 16 Metals** - Finish implementation of all metals with the 2-metal selection system
+4. **Particle System** - Create particle effects for metal burning/flaring
+
+---
 
 ## License
 
