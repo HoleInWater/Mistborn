@@ -31,6 +31,7 @@
 
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class SteelPush : MonoBehaviour
@@ -54,6 +55,12 @@ public class SteelPush : MonoBehaviour
     [Header("Visual Effects")]
     [Tooltip("Particle effect prefab to spawn when pushing metal (optional)")]
     public GameObject pushEffectPrefab;
+    [Tooltip("Camera shake magnitude when pushing with significant force")]
+    public float shakeMagnitude = 0.1f;
+    [Tooltip("Duration of camera shake in seconds")]
+    public float shakeDuration = 0.1f;
+    [Tooltip("Minimum force required to trigger camera shake")]
+    public float shakeForceThreshold = 100f;
     
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
@@ -203,6 +210,12 @@ public class SteelPush : MonoBehaviour
                 }
                 
                 playerRigidbody.AddForce(pushForceVector);
+                
+                // Camera shake for significant pushes (when pushing off anchored objects)
+                if (force > shakeForceThreshold)
+                {
+                    ShakeCamera(shakeMagnitude);
+                }
             }
             else
             {
@@ -225,6 +238,12 @@ public class SteelPush : MonoBehaviour
                     GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
                     Destroy(effect, 2f); // Auto-destroy after 2 seconds
                 }
+                
+                // Camera shake for significant pushes
+                if (force > shakeForceThreshold)
+                {
+                    ShakeCamera(shakeMagnitude);
+                }
             }
         }
     }
@@ -237,5 +256,30 @@ public class SteelPush : MonoBehaviour
         if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
+    }
+    
+    void ShakeCamera(float magnitude)
+    {
+        if (playerCamera == null || magnitude <= 0f) return;
+        StartCoroutine(ShakeCoroutine(magnitude));
+    }
+    
+    IEnumerator ShakeCoroutine(float magnitude)
+    {
+        Vector3 originalPos = playerCamera.transform.localPosition;
+        float elapsed = 0f;
+        
+        while (elapsed < shakeDuration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+            
+            playerCamera.transform.localPosition = originalPos + new Vector3(x, y, 0f);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        
+        playerCamera.transform.localPosition = originalPos;
     }
 }
