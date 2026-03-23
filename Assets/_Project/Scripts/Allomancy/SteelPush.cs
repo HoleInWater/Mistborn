@@ -90,13 +90,17 @@ public class SteelPush : MonoBehaviour
     void StartBurning()
     {
         isBurning = true;
+#if UNITY_EDITOR
         Debug.Log("Burning Steel - Push ready");
+#endif
     }
     
     void StopBurning()
     {
         isBurning = false;
+#if UNITY_EDITOR
         Debug.Log("Stopped burning Steel");
+#endif
     }
     
     void PushMetals()

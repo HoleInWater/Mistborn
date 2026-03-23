@@ -90,13 +90,17 @@ public class IronPull : MonoBehaviour
     void StartBurning()
     {
         isBurning = true;
+#if UNITY_EDITOR
         Debug.Log("Burning Iron - Pull ready");
+#endif
     }
     
     void StopBurning()
     {
         isBurning = false;
+#if UNITY_EDITOR
         Debug.Log("Stopped burning Iron");
+#endif
     }
     
     void PullMetals()
