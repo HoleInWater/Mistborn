@@ -326,20 +326,22 @@ public class IronPull : MonoBehaviour
         
         float closestDist = maxRange;
         
-        // Find all AllomanticTargets in scene
+        // Method 1: Find objects with AllomanticTarget component
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
-        if (allTargets.Length == 0 && Time.frameCount % 60 == 0)
-        {
-            Debug.LogWarning("[IRON PULL] No AllomanticTarget found! Press T to spawn metals.");
-        }
+        // Method 2: Also find objects tagged "Metal"
+        GameObject[] taggedMetals = GameObject.FindGameObjectsWithTag("Metal");
         
+        if (Time.frameCount % 60 == 0)
+            Debug.Log($"[IRON PULL] Searching - AllomanticTarget: {allTargets.Length}, Tagged Metal: {taggedMetals.Length}");
+        
+        // Check AllomanticTarget objects
         foreach (var metal in allTargets)
         {
-            if (metal == null || !metal.canBePulled) continue;
-            
+            if (metal == null) continue;
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
+            if (!metal.canBePulled) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
             
@@ -349,9 +351,29 @@ public class IronPull : MonoBehaviour
                 currentTargetRigidbody = rb;
                 currentTarget = metal;
                 hasCurrentTarget = true;
+            }
+        }
+        
+        // Check tagged metal objects (if no AllomanticTarget found closer)
+        foreach (GameObject metal in taggedMetals)
+        {
+            if (metal == null) continue;
+            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            
+            // Skip if already have a closer target with AllomanticTarget
+            if (currentTarget != null) continue;
+            
+            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
+            
+            if (dist < closestDist && dist > 0.1f && dist <= maxRange)
+            {
+                closestDist = dist;
+                currentTargetRigidbody = rb;
+                hasCurrentTarget = true;
                 
                 if (Time.frameCount % 60 == 0)
-                    Debug.Log($"[IRON PULL] Target: {metal.name} at {dist:F1}m");
+                    Debug.Log($"[IRON PULL] Found tagged metal: {metal.name} at {dist:F1}m");
             }
         }
     }
@@ -417,11 +439,11 @@ public class IronPull : MonoBehaviour
         
         if (!hasCurrentTarget || currentTargetRigidbody == null)
         {
-            Debug.LogWarning("[IRON PULL] No target! Press T to spawn metals first.");
+            Debug.LogWarning("[IRON PULL] No target found!");
             return;
         }
         
-        Debug.Log("[IRON PULL] Pulling: " + currentTarget.name);
+        Debug.Log("[IRON PULL] Pulling: " + (currentTarget != null ? currentTarget.name : currentTargetRigidbody.name));
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
