@@ -72,6 +72,8 @@ public class SteelPush : MonoBehaviour
     public LayerMask metalLayer;
     public Allomancer allomancer;
     public Rigidbody playerRigidbody;
+    [Tooltip("Transform where push originates from (chest/center). Uses playerRigidbody if not set.")]
+    public Transform chestTransform;
     
     [Header("Visual Effects")]
     [Tooltip("Particle effect prefab to spawn when pushing metal (optional)")]
@@ -206,6 +208,19 @@ public class SteelPush : MonoBehaviour
         if (allomancer == null)
         {
             allomancer = GetComponentInParent<Allomancer>();
+        }
+        
+        if (chestTransform == null)
+        {
+            Transform player = GetComponentInParent<Transform>();
+            if (player != null)
+            {
+                Transform chest = player.Find("Chest");
+                if (chest == null) chest = player.Find("ChestBone");
+                if (chest == null) chest = player.Find("Spine2");
+                if (chest == null) chest = player.Find("Torso");
+                chestTransform = chest != null ? chest : player;
+            }
         }
         
         // Create prediction line renderer
@@ -477,8 +492,11 @@ public class SteelPush : MonoBehaviour
             return;
         }
         
-        // Detect all metal objects within maxRange radius
-        Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        // Use chest transform as push origin (lore: blue lines emerge from chest)
+        Vector3 pushOrigin = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        
+        // Detect all metal objects within maxRange radius from chest
+        Collider[] colliders = Physics.OverlapSphere(pushOrigin, maxRange, metalLayer);
         
         Debug.Log($"[PUSH] Found {colliders.Length} metals in range ({maxRange}m)");
         
@@ -496,7 +514,7 @@ public class SteelPush : MonoBehaviour
             if (target != null && !target.canBePushed) continue;
             
             float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
-            float distance = Vector3.Distance(playerRigidbody.position, targetRigidbody.position);
+            float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
             
             Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F1}kg, dist={distance:F1}m");
             
@@ -504,8 +522,8 @@ public class SteelPush : MonoBehaviour
             float weightFactor = playerMass / referenceMass;
             float force = pushForce * weightFactor;
             
-            // Direction from player to target
-            Vector3 directionToTarget = targetRigidbody.position - playerRigidbody.position;
+            // Direction from chest to target (lore: push originates from center of body)
+            Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
             
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
             
