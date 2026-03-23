@@ -49,6 +49,47 @@ public class Allomancer : MonoBehaviour
         {
             metalReserves[i] = 100f;
         }
+        
+        SpawnTestCoins();
+    }
+    
+    void SpawnTestCoins()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 spawnPos = transform.position + new Vector3(
+                Random.Range(-3f, 3f),
+                1f,
+                Random.Range(-3f, 3f)
+            );
+            
+            GameObject coin = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            coin.name = $"TestCoin_{i}";
+            coin.transform.position = spawnPos;
+            coin.transform.localScale = new Vector3(0.08f, 0.08f, 0.02f);
+            
+            Rigidbody rb = coin.AddComponent<Rigidbody>();
+            rb.mass = 0.005f;
+            rb.drag = 0.5f;
+            
+            AllomanticTarget target = coin.AddComponent<AllomanticTarget>();
+            target.canBePushed = true;
+            target.canBePulled = true;
+            target.isAnchored = false;
+            target.metalType = AllomancySkill.MetalType.Steel;
+            target.effectiveMass = 0.005f;
+            
+            Renderer renderer = coin.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material = new Material(Shader.Find("Standard"));
+                renderer.material.color = new Color(0.9f, 0.8f, 0.3f);
+                renderer.material.SetFloat("_Metallic", 1f);
+                renderer.material.SetFloat("_Glossiness", 0.8f);
+            }
+            
+            Debug.Log($"[ALLOMANCER] Spawned test coin at {spawnPos}");
+        }
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)

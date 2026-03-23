@@ -328,7 +328,6 @@ public class IronPull : MonoBehaviour
         currentTargetRigidbody = null;
         
         if (playerCamera == null) return;
-        if (metalLayer.value == 0) return;
         
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
@@ -336,13 +335,13 @@ public class IronPull : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
-            int hitLayer = hit.collider.gameObject.layer;
-            if ((metalLayer.value & (1 << hitLayer)) != 0)
+            AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
+            if (target != null && target.canBePulled)
             {
                 currentTargetRigidbody = hit.rigidbody;
                 if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
                 {
-                    currentTarget = hit.collider.GetComponent<AllomanticTarget>();
+                    currentTarget = target;
                     hasCurrentTarget = true;
                 }
             }
