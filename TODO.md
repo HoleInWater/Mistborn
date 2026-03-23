@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (25/400+):**
+**✅ Completed (28/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -41,6 +41,9 @@
 23. Added flight mechanics: extra upward boost when pushing off anchored objects below
 24. Added impulse mode for light objects (coins) to achieve realistic velocities
 25. Added camera shake and placeholder audio system for push feedback
+26. Added flaring visual vignette effect (screen tint when flaring)
+27. Added debug logging for impulse calibration
+28. Added crosshair color change when metal is in range
 
 ---
 
