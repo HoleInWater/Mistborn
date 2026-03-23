@@ -93,6 +93,18 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Color when no metal in range")]
     public Color noMetalColor = Color.white;
     
+    [Header("Steel Bubble (Defensive)")]
+    [Tooltip("Enable steel bubble defensive ability")]
+    public bool enableSteelBubble = true;
+    [Tooltip("Key to activate steel bubble")]
+    public KeyCode steelBubbleKey = KeyCode.F;
+    [Tooltip("Radius of steel bubble (meters)")]
+    public float steelBubbleRadius = 3f;
+    [Tooltip("Force applied by steel bubble")]
+    public float steelBubbleForce = 500f;
+    [Tooltip("Does steel bubble consume extra metal?")]
+    public float steelBubbleMetalCostMultiplier = 2f;
+    
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
     public float flightLaunchMultiplier = 1.5f;
@@ -113,6 +125,7 @@ public class SteelPush : MonoBehaviour
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
+    private bool isSteelBubbleActive = false;
     
     void Start()
     {
@@ -152,10 +165,26 @@ public class SteelPush : MonoBehaviour
         }
         wasFlaring = isFlaring;
         
-        if (Input.GetMouseButton(1) && isBurning)
+        // Steel Bubble defensive ability
+        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && isBurning)
         {
-            PushMetals();
-            DrainMetal();
+            if (!isSteelBubbleActive)
+            {
+                isSteelBubbleActive = true;
+                // Could add visual effect for bubble activation
+            }
+            PushMetalsInBubble();
+            DrainMetal(steelBubbleMetalCostMultiplier);
+        }
+        else
+        {
+            isSteelBubbleActive = false;
+            
+            if (Input.GetMouseButton(1) && isBurning)
+            {
+                PushMetals();
+                DrainMetal();
+            }
         }
         
         if (Input.GetMouseButtonUp(1))
@@ -311,11 +340,69 @@ public class SteelPush : MonoBehaviour
         }
     }
     
-    void DrainMetal()
+    void PushMetalsInBubble()
+    {
+        if (playerRigidbody == null) return;
+        
+        // Detect all metal objects within steel bubble radius
+        Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
+        
+        foreach (Collider collider in colliders)
+        {
+            Rigidbody targetRigidbody = collider.attachedRigidbody;
+            if (targetRigidbody == null) continue;
+            if (targetRigidbody == playerRigidbody) continue;
+            
+            // Get target mass and check if pushable
+            float targetMass = 1f;
+            AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
+            if (target != null)
+            {
+                if (!target.canBePushed) continue;
+                targetMass = target.GetEffectiveMass();
+            }
+            else
+            {
+                targetMass = targetRigidbody.mass;
+            }
+            
+            // Bubble pushes all objects equally regardless of distance (within radius)
+            float force = steelBubbleForce;
+            
+            // Weight-proportional factor (bubble uses reference mass)
+            float weightFactor = playerRigidbody.mass / referenceMass;
+            force *= weightFactor;
+            
+            // Direction: radial from player center
+            Vector3 direction = (targetRigidbody.position - playerRigidbody.position).normalized;
+            
+            // Anchor detection for bubble
+            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            if (isAnchored)
+            {
+                // Push player away from anchored object
+                playerRigidbody.AddForce(-direction * force * Time.deltaTime);
+            }
+            else
+            {
+                // Push object away from player
+                targetRigidbody.AddForce(direction * force * Time.deltaTime);
+            }
+            
+            // Visual effect for bubble push
+            if (pushEffectPrefab != null && force > 50f)
+            {
+                GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
+                Destroy(effect, 1f);
+            }
+        }
+    }
+    
+    void DrainMetal(float multiplier = 1f)
     {
         if (allomancer == null) return;
         
-        float drainAmount = metalCostPerSecond * Time.deltaTime;
+        float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
         if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
@@ -398,6 +485,13 @@ public class SteelPush : MonoBehaviour
         // Draw zenith distance sphere
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(playerRigidbody.position, zenithDistance);
+        
+        // Draw steel bubble sphere
+        if (enableSteelBubble)
+        {
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Semi-transparent orange
+            Gizmos.DrawWireSphere(playerRigidbody.position, steelBubbleRadius);
+        }
     }
     
     // Real-time debug display for calibration
@@ -425,6 +519,8 @@ public class SteelPush : MonoBehaviour
         GUI.Label(new Rect(10, y, 400, 20), $"Flaring: {isFlaring}", style);
         y += 20;
         GUI.Label(new Rect(10, y, 400, 20), $"Cooldown: {cooldownTimer:F2}s", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Steel Bubble: {isSteelBubbleActive}", style);
         y += 30;
         
         // Show expected coin velocity calculation
