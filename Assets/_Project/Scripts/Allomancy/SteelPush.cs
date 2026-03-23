@@ -492,10 +492,11 @@ public class SteelPush : MonoBehaviour
             return;
         }
         
-        // Use chest transform as push origin (lore: blue lines emerge from chest)
-        Vector3 pushOrigin = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        // Push from rigidbody position (feet level for now)
+        // TODO: Use chestTransform for lore-accurate chest-based push
+        Vector3 pushOrigin = playerRigidbody.position;
         
-        // Detect all metal objects within maxRange radius from chest
+        // Detect all metal objects within maxRange radius
         Collider[] colliders = Physics.OverlapSphere(pushOrigin, maxRange, metalLayer);
         
         Debug.Log($"[PUSH] Found {colliders.Length} metals in range ({maxRange}m)");
