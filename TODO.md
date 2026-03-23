@@ -59,6 +59,7 @@
 41. Added push prediction line showing trajectory when targeting metal objects
 42. Added push force visual feedback with color-coded screen tint and prediction line velocity coloring
 43. Fixed allomancy physics to match book lore: inverse distance (1/r) with zenith cap (max 2x), fixed syntax errors, improved debug display
+44. Fixed prediction line physics with zenith cap, added static CalculatePushForce helper method for tests
 
 ---
 
