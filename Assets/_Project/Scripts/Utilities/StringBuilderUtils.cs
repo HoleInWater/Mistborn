@@ -89,11 +89,23 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Replaces all occurrences of a string
+        /// Reverses the contents of the StringBuilder
         /// </summary>
-        public static StringBuilder Replace(StringBuilder sb, string oldValue, string newValue)
+        public static StringBuilder Reverse(StringBuilder sb)
         {
-            return sb.Replace(oldValue, newValue);
+            if (sb == null) return null;
+
+            int left = 0;
+            int right = sb.Length - 1;
+            while (left < right)
+            {
+                char temp = sb[left];
+                sb[left] = sb[right];
+                sb[right] = temp;
+                left++;
+                right--;
+            }
+            return sb;
         }
 
         /// <summary>
