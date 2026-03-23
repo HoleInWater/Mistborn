@@ -1,26 +1,28 @@
 /* FlareManager.cs
  *
  * PURPOSE:
- * Centralized manager for Allomantic flaring. Controls burn state and flare intensity.
+ * Centralized manager for Allomantic flaring. One shared intensity (1–10)
+ * that applies equally to both Iron and Steel. Burning is toggled with
+ * Left Ctrl; the scroll wheel adjusts intensity while burning.
  *
  * CONTROL SCHEME:
  * ===============
- * - Left Ctrl          → Toggle burning ON / OFF
- * - Scroll wheel UP    → (while burning) Increase flare intensity
- * - Scroll wheel DOWN  → (while burning) Decrease flare intensity
+ * - Left Ctrl        → Toggle burning ON / OFF
+ * - Scroll UP        → (while burning) Increase intensity toward 10
+ * - Scroll DOWN      → (while burning) Decrease intensity toward 1
  *
- * Flare intensity only changes while actively burning.
- * Stopping burn via Ctrl preserves the last intensity so it resumes where you left off.
+ * Intensity is never 0 — burning always starts at 1 and scrolls between 1–10.
+ * Turning burning off preserves the current intensity for next time.
  *
  * USAGE FROM OTHER SCRIPTS:
  * =========================
- *   FlareManager.Instance.IsFlaring          // true if burning AND intensity > 0
- *   FlareManager.Instance.IsIronFlaring      // alias
- *   FlareManager.Instance.IsSteelFlaring     // alias
- *   FlareManager.Instance.IsBurning          // true if Ctrl is toggled on
- *   FlareManager.Instance.FlareIntensity     // 0–10
- *   FlareManager.Instance.FlareMultiplier    // 1.0 – maxFlareMultiplier (for force scaling)
- *   FlareManager.Instance.flareBurnRate      // drain per second at current intensity
+ *   FlareManager.Instance.IsBurning        // true when Left Ctrl is toggled on
+ *   FlareManager.Instance.IsFlaring        // same — burning always means flaring (intensity >= 1)
+ *   FlareManager.Instance.IsIronFlaring    // alias for IsBurning
+ *   FlareManager.Instance.IsSteelFlaring   // alias for IsBurning
+ *   FlareManager.Instance.Intensity        // 1–10
+ *   FlareManager.Instance.FlareMultiplier  // 1.0 – maxFlareMultiplier (for force scaling)
+ *   FlareManager.Instance.flareBurnRate    // drain per second at current intensity
  */
 
 using UnityEngine;
@@ -38,105 +40,106 @@ public class FlareManager : MonoBehaviour
 
     // ── Inspector ─────────────────────────────────────────────────────────────
     [Header("Dependencies")]
-    [Tooltip("Reference to the MetalReserve UI/data component.")]
     public MetalReserve metalReserve;
 
-    [Header("Flare Settings")]
-    [Tooltip("How many scroll steps between 0 and max intensity.")]
+    [Header("Intensity Settings")]
+    [Tooltip("Maximum intensity level (scroll ceiling).")]
     public int maxIntensitySteps = 10;
 
-    [Tooltip("How much each scroll tick changes intensity.")]
+    [Tooltip("Intensity change per scroll tick.")]
     public int scrollStepSize = 1;
 
-    [Tooltip("Base drain per second while burning at intensity 0.")]
+    [Header("Burn Rates")]
+    [Tooltip("Drain per second at intensity 1.")]
     public float baseBurnRate = 1f;
 
-    [Tooltip("Extra drain per second added per intensity step.")]
+    [Tooltip("Additional drain per second per intensity step above 1.")]
     public float burnRatePerStep = 1.5f;
 
-    [Tooltip("Force multiplier at max intensity.")]
+    [Header("Force Scaling")]
+    [Tooltip("Force multiplier at intensity 10.")]
     [Range(1.5f, 4f)]
     public float maxFlareMultiplier = 2.5f;
 
-    // ── Public State ──────────────────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────────────────────
 
-    /// <summary>Whether the player has burning toggled on (Ctrl key).</summary>
+    /// <summary>Whether burning is toggled on (Left Ctrl).</summary>
     public bool IsBurning { get; private set; } = false;
 
-    /// <summary>Current flare intensity (0 = burning but not flaring, max = full flare).</summary>
-    public int FlareIntensity { get; private set; } = 0;
+    /// <summary>Shared intensity 1–10. Persists when burning is toggled off.</summary>
+    public int Intensity { get; private set; } = 1;
 
-    /// <summary>True when burning AND intensity > 0.</summary>
-    public bool IsFlaring      => IsBurning && FlareIntensity > 0;
-    public bool IsIronFlaring  => IsFlaring;
-    public bool IsSteelFlaring => IsFlaring;
+    // ── Derived Properties ────────────────────────────────────────────────────
 
-    /// <summary>Smooth force multiplier: 1.0 at intensity 0, maxFlareMultiplier at max.</summary>
+    /// <summary>True when burning is active. Intensity is always >= 1 so burning = flaring.</summary>
+    public bool IsFlaring      => IsBurning;
+    public bool IsIronFlaring  => IsBurning;
+    public bool IsSteelFlaring => IsBurning;
+
+    /// <summary>Backward-compat alias.</summary>
+    public int FlareIntensity => Intensity;
+
+    /// <summary>
+    /// Smooth force multiplier: 1.0 at intensity 1, maxFlareMultiplier at intensity 10.
+    /// Returns 1.0 when not burning.
+    /// </summary>
     public float FlareMultiplier =>
         IsBurning
-            ? Mathf.Lerp(1f, maxFlareMultiplier, (float)FlareIntensity / maxIntensitySteps)
+            ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
             : 1f;
 
-    /// <summary>Total drain per second at current state (used by Allomancer).</summary>
+    /// <summary>Metal drain per second at current intensity.</summary>
     public float flareBurnRate =>
-        IsBurning ? baseBurnRate + burnRatePerStep * FlareIntensity : 0f;
+        IsBurning ? baseBurnRate + burnRatePerStep * (Intensity - 1) : 0f;
 
     // ── Unity Loop ────────────────────────────────────────────────────────────
 
     void Update()
     {
-        HandleCtrlToggle();
+        HandleBurnToggle();
         HandleScrollWheel();
         HandleMetalDrain();
     }
 
-    void HandleCtrlToggle()
+    void HandleBurnToggle()
     {
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             IsBurning = !IsBurning;
-            Debug.Log($"[FLARE] Burning {(IsBurning ? "ON" : "OFF")} – intensity {FlareIntensity}");
+            Debug.Log($"[FLARE] Burning {(IsBurning ? "ON" : "OFF")} – intensity {Intensity}");
         }
     }
 
     void HandleScrollWheel()
     {
-        // Scroll only adjusts intensity while actively burning
         if (!IsBurning) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll == 0f) return;
 
-        if (scroll > 0f)
-            FlareIntensity = Mathf.Min(FlareIntensity + scrollStepSize, maxIntensitySteps);
-        else if (scroll < 0f)
-            FlareIntensity = Mathf.Max(FlareIntensity - scrollStepSize, 0);
+        int delta = scroll > 0f ? scrollStepSize : -scrollStepSize;
+        Intensity = Mathf.Clamp(Intensity + delta, 1, maxIntensitySteps);
     }
 
     void HandleMetalDrain()
     {
-        if (!IsBurning) return;
-        if (metalReserve == null) return;
+        if (!IsBurning || metalReserve == null) return;
 
         metalReserve.Drain(flareBurnRate * Time.deltaTime);
 
         if (metalReserve.currentMetal <= 0)
         {
-            IsBurning      = false;
-            FlareIntensity = 0;
+            IsBurning = false;
             Debug.Log("[FLARE] Metal exhausted – burning stopped.");
         }
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    public void SetFlareIntensity(int step) =>
-        FlareIntensity = Mathf.Clamp(step, 0, maxIntensitySteps);
+    public void StopBurning() => IsBurning = false;
 
-    public void StopFlaring()
-    {
-        IsBurning      = false;
-        FlareIntensity = 0;
-    }
+    public void SetIntensity(int v) =>
+        Intensity = Mathf.Clamp(v, 1, maxIntensitySteps);
 
-    // No OnGUI here — FlareIntensityHUD.cs handles all display.
+    // No OnGUI — FlareIntensityHUD handles all display.
 }
