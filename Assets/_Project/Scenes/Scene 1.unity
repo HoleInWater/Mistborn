@@ -422,7 +422,7 @@ Rigidbody:
   m_GameObject: {fileID: 641062182}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 3
+  m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -502,7 +502,7 @@ MonoBehaviour:
   sprintSpeed: 10
   rotationSpeed: 10
   mouseSensitivity: 200
-  jumpVelocity: 15
+  jumpVelocity: 5
   fallMultiplier: 5
   lowJumpMultiplier: 2
   jumpBufferTime: 0.2
@@ -518,6 +518,7 @@ MonoBehaviour:
   smoothSpeed: 10
   cameraRadius: 0.2
   minDistance: 0.5
+  acceleration: 8
 --- !u!114 &641062194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -545,6 +546,7 @@ MonoBehaviour:
   maxStamina: 100
   currentStamina: 0
   regenRate: 15
+  regenDelay: 2
   uiDocument: {fileID: 551459339}
 --- !u!114 &641062196
 MonoBehaviour:
