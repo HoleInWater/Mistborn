@@ -220,9 +220,9 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Enable debug logging for impulse calibration")]
     public bool debugCalibration = false;
     [Tooltip("Enable debug logging for push operations")]
-    public bool debugPushOperations = true;
+    public bool debugPushOperations = false;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = true;
+    public bool debugFlareState = false;
     
     private bool isBurning = false;
     private bool pushAppliedThisPress = false;
@@ -340,7 +340,6 @@ public class SteelPush : MonoBehaviour
             // Execute push (always, regardless of flare state)
             if (isBurning && !pushAppliedThisPress)
             {
-                if (debugPushOperations) Debug.Log($"[PUSH] Executing push! Flaring={IsFlaring}");
                 PushMetals();
                 DrainMetal(flaringMetalCostMultiplier);
                 pushAppliedThisPress = true;
@@ -374,11 +373,7 @@ public class SteelPush : MonoBehaviour
         {
             if (steelBubbleCooldownTimer <= 0f)
             {
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble!");
-                if (!isBurning) StartBurning();
-                if (!bubbleAppliedThisPress)
-                {
-                    PushMetalsInBubble();
+                PushMetalsInBubble();
                     DrainMetal(steelBubbleMetalCostMultiplier);
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
@@ -557,7 +552,6 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        if (debugPushOperations) Debug.Log($"[PUSH] PushMetals called - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
         if (playerRigidbody == null) return;
         if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
