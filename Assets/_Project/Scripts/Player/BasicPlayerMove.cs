@@ -123,38 +123,45 @@ public class BasicPlayerMove : MonoBehaviour
         }
     }
 
-    void HandleMovement()
+void HandleMovement()
+{
+    float x = Input.GetAxis("Horizontal");
+    float z = Input.GetAxis("Vertical");
+
+    float currentActiveSpeed = moveSpeed;
+    bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
+    bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
+    bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+
+    if (isTryingToSprint && hasStamina)
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        float currentActiveSpeed = moveSpeed;
-        bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
-        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
-        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-
-        if (isTryingToSprint && hasStamina)
-        {
-            currentActiveSpeed = sprintSpeed;
-            staminaSystem.DrainStamina(drainRate);
-        }
-
-        Vector3 forward = cameraPivot.forward;
-        Vector3 right = cameraPivot.right;
-        forward.y = 0; right.y = 0;
-        forward.Normalize(); right.Normalize();
-
-        Vector3 moveDirection = (forward * z + right * x).normalized;
-
-        if (moveDirection.magnitude >= 0.1f)
-        {
-            // Direct position move can feel snappy; consider adding 
-            // a Lerp here if you want "weighty" acceleration later.
-            transform.position += moveDirection * currentActiveSpeed * Time.deltaTime;
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
+        currentActiveSpeed = sprintSpeed;
+        staminaSystem.DrainStamina(drainRate);
     }
+
+    Vector3 forward = cameraPivot.forward;
+    Vector3 right = cameraPivot.right;
+    forward.y = 0; right.y = 0;
+    forward.Normalize(); right.Normalize();
+
+    Vector3 moveDirection = (forward * z + right * x).normalized;
+
+    if (moveDirection.magnitude >= 0.1f)
+    {
+        // FIX: Use Rigidbody velocity instead of transform.position
+        // This keeps the Y velocity (the jump) intact while moving X and Z
+        Vector3 targetVelocity = moveDirection * currentActiveSpeed;
+        rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
+
+        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+    else if (isGrounded)
+    {
+        // Stop sliding when there is no input
+        rb.velocity = new Vector3(0, rb.velocity.y, 0);
+    }
+}
 
     void HandleCamera()
     {
