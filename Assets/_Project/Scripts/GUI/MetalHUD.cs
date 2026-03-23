@@ -94,6 +94,8 @@ public class MetalHUD : MonoBehaviour
         bool ironFlaring = FlareManager.Instance.IsIronFlaring;
         bool steelFlaring = FlareManager.Instance.IsSteelFlaring;
         
+        Debug.Log($"[METAL HUD] Iron={ironFlaring}, Steel={steelFlaring}");
+        
         if (ironFlareIndicator != null)
         {
             ironFlareIndicator.color = ironFlaring ? flaredColor : unflaredColor;
