@@ -58,7 +58,7 @@ public class AnimationStateController : MonoBehaviour
         }
 
         // Jumping while running
-        if (!isJumping && ((forwardPressed || runPressed) && jumpPressed))
+        if (!isRunJump && (jumpPressed && (forwardPressed || runPressed)))
         {
             animator.SetBool("isRunJump", true);
         }
