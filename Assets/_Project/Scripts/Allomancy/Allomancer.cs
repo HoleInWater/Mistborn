@@ -82,11 +82,17 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<MetalSelector>() == null)
             gameObject.AddComponent<MetalSelector>();
         
-        if (GetComponent<MetalReserve>() == null)
-            gameObject.AddComponent<MetalReserve>();
+        if (GetComponent<MetalReserveBars>() == null)
+            gameObject.AddComponent<MetalReserveBars>();
         
-        //if (GetComponent<MetalBurnEffect>() == null)
-            //gameObject.AddComponent<MetalBurnEffect>();
+        if (GetComponent<MetalBurnEffect>() == null)
+            gameObject.AddComponent<MetalBurnEffect>();
+        
+        if (GetComponent<Tin>() == null)
+            gameObject.AddComponent<Tin>();
+        
+        if (GetComponent<Pewter>() == null)
+            gameObject.AddComponent<Pewter>();
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)
