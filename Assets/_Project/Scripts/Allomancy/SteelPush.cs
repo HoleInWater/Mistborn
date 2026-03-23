@@ -577,10 +577,6 @@ public class SteelPush : MonoBehaviour
         float playerMass = playerRigidbody.mass;
         float weightFactor = playerMass / referenceMass;
         float strength = allomanticStrength * weightFactor * masteryBonus;
-        if (IsFlaring)
-        {
-            strength *= maxFlareMultiplier;
-        }
         
         // Linear distance falloff: force = strength × (1 - distance/maxRange)
         float distanceFactor = 1f;
@@ -595,11 +591,13 @@ public class SteelPush : MonoBehaviour
         
         float force = strength * distanceFactor;
         
+        Debug.Log($"[PUSH] Force={force}, targetMass={targetMass}, distance={distance}");
+        
         if (isAnchored)
         {
             playerRigidbody.AddForce(-directionToTarget.normalized * force);
         }
-        else if (force > 1f)
+        else if (force > 0.1f)
         {
             targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
         }
