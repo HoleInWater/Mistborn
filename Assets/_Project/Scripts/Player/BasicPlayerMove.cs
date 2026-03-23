@@ -5,9 +5,9 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f; 
-    public float sprintSpeed = 10f; 
-    public float rotationSpeed = 10f; 
+    public float moveSpeed = 5f;
+    public float sprintSpeed = 10f;
+    public float rotationSpeed = 10f;
     public float mouseSensitivity = 200f;
 
     [Header("Jumping & Gravity")]
@@ -16,7 +16,7 @@ public class BasicPlayerMove : MonoBehaviour
     public float lowJumpMultiplier = 2f;
     public float jumpBufferTime = 0.2f;
     public LayerMask groundLayer;
-    
+
     [Header("Stamina Settings")]
     public float drainRate = 25f;
 
@@ -27,7 +27,7 @@ public class BasicPlayerMove : MonoBehaviour
     public float smoothSpeed = 10f;
     public float cameraRadius = 0.2f;
     public float minDistance = 0.5f;
-    
+
     [Header("Smoothness Settings")]
     public float acceleration = 10f;
 
@@ -44,17 +44,19 @@ public class BasicPlayerMove : MonoBehaviour
 
     private PlayerStamina staminaSystem;
 
-    // Cached input for use in FixedUpdate
+    // Cached inputs — read in Update, consumed in FixedUpdate
     private float inputX;
     private float inputZ;
     private bool sprintHeld;
+    private bool spaceHeld; // Separate from sprint — needed for low-jump gravity
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; 
+        rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.isKinematic = false; // Safety: must be false for velocity to work
 
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
@@ -66,21 +68,23 @@ public class BasicPlayerMove : MonoBehaviour
 
     void Update()
     {
-        // Ground check runs in Update for responsiveness
+        // Ground check stays in Update for instant responsiveness
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
 
-        // Cache inputs here so FixedUpdate can use them safely
+        // Cache ALL inputs here — FixedUpdate reads these, never calls Input directly
         inputX = Input.GetAxisRaw("Horizontal");
         inputZ = Input.GetAxisRaw("Vertical");
         sprintHeld = Input.GetKey(KeyCode.LeftShift);
+        spaceHeld = Input.GetKey(KeyCode.Space); // For low-jump gravity check in FixedUpdate
 
-        // Jump buffer
+        // Jump buffer — GetKeyDown MUST be in Update or it gets missed
         if (Input.GetKeyDown(KeyCode.Space))
             jumpBufferCounter = jumpBufferTime;
         else
             jumpBufferCounter -= Time.deltaTime;
 
-        // Flag a jump request — FixedUpdate will execute it
+        // Set jump flag here in Update where input is reliable
+        // FixedUpdate will execute the actual velocity change
         if (jumpBufferCounter > 0f && isGrounded)
         {
             float jumpCost = 15f;
@@ -104,29 +108,6 @@ public class BasicPlayerMove : MonoBehaviour
         HandleGravity();
     }
 
-    void HandleJump()
-    {
-        if (!jumpRequested) return;
-
-        // Preserve horizontal momentum completely, only set Y
-        rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
-        jumpRequested = false;
-    }
-
-    void HandleGravity()
-    {
-        if (rb.velocity.y < 0)
-        {
-            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
-        }
-        else if (rb.velocity.y > 0 && !sprintHeld) // reuses cached input
-        {
-            // NOTE: If you want low-jump to only trigger on Space release,
-            // cache Input.GetKey(KeyCode.Space) in Update instead of reusing sprintHeld
-            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
-        }
-    }
-
     void HandleMovement()
     {
         Vector3 forward = cameraPivot.forward;
@@ -136,7 +117,7 @@ public class BasicPlayerMove : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        // Use cached inputs from Update
+        // Use cached inputs — never call Input.GetAxis inside FixedUpdate
         Vector3 moveDirection = (forward * inputZ + right * inputX).normalized;
 
         float targetSpeed = 0f;
@@ -152,14 +133,38 @@ public class BasicPlayerMove : MonoBehaviour
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
 
-        Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        // Preserve Y entirely — jump and gravity are never overwritten here
+        Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         Vector3 targetHorizontalVel = moveDirection * targetSpeed;
         Vector3 smoothedVel = Vector3.MoveTowards(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
 
-        // Y is always preserved — jumping and gravity are never overwritten
         rb.velocity = new Vector3(smoothedVel.x, rb.velocity.y, smoothedVel.z);
 
-        if (moveDirection.magnitude > 0.1f && rb.IsSleeping()) rb.WakeUp();
+        if (moveDirection.magnitude > 0.1f && rb.IsSleeping())
+            rb.WakeUp();
+    }
+
+    void HandleJump()
+    {
+        if (!jumpRequested) return;
+
+        // Set Y velocity directly — horizontal momentum is completely preserved
+        rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
+        jumpRequested = false;
+    }
+
+    void HandleGravity()
+    {
+        if (rb.velocity.y < 0)
+        {
+            // Falling — apply fast-fall multiplier
+            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        else if (rb.velocity.y > 0 && !spaceHeld) // BUG FIX: was !sprintHeld before
+        {
+            // Rising but Space released — apply low-jump cut
+            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
     }
 
     void HandleCamera()
