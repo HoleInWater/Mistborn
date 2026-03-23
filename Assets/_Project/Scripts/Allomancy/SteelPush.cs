@@ -550,7 +550,7 @@ public class SteelPush : MonoBehaviour
             distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
         }
 
-        Vector3 targetVelocity = targetRigidbody.velocity;
+        Vector3 targetVelocity = targetRigidbody.linearVelocity;
         float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
         float velocityDampingFactor = 1f;
         if (velocityAwayFromPlayer > 0)
