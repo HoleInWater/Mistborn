@@ -153,12 +153,14 @@ public class SteelPush : MonoBehaviour
     public bool enableSteelBubble = true;
     [Tooltip("Key to activate steel bubble")]
     public KeyCode steelBubbleKey = KeyCode.F;
-    [Tooltip("Radius of steel bubble (meters)")]
-    public float steelBubbleRadius = 3f;
-    [Tooltip("Force applied by steel bubble")]
-    public float steelBubbleForce = 500f;
+    [Tooltip("Radius of steel bubble (~6-10 feet like Wax's bubble)")]
+    public float steelBubbleRadius = 2.5f;
+    [Tooltip("Force applied by steel bubble (lore: gentle push like breeze)")]
+    public float steelBubbleForce = 50f;
+    [Tooltip("Cooldown between steel bubble activations")]
+    public float steelBubbleCooldown = 0.5f;
     [Tooltip("Does steel bubble consume extra metal?")]
-    public float steelBubbleMetalCostMultiplier = 2f;
+    public float steelBubbleMetalCostMultiplier = 1.5f;
     
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
@@ -179,9 +181,11 @@ public class SteelPush : MonoBehaviour
     private bool isBurning = false;
     private bool isFlaring = false;
     private bool pushAppliedThisPress = false;
+    private bool bubbleAppliedThisPress = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
+    private float steelBubbleCooldownTimer = 0f;
     private bool isSteelBubbleActive = false;
     
     // Targeted metal detection
@@ -266,62 +270,48 @@ public class SteelPush : MonoBehaviour
             return;
         }
         
-        // Update cooldown timer
-        if (cooldownTimer > 0f)
-        {
-            cooldownTimer -= Time.deltaTime;
-        }
+        // Update cooldown timers
+        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
+        if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // Start burning: E key
-        bool pushKeyDown = Input.GetKeyDown(KeyCode.E);
-        if (pushKeyDown && cooldownTimer <= 0f)
+        // Start burning: E key (one per press)
+        if (Input.GetKeyDown(KeyCode.E) && cooldownTimer <= 0f)
         {
             StartBurning();
-            pushAppliedThisPress = false; // Reset for new push
+            pushAppliedThisPress = false;
+            bubbleAppliedThisPress = false;
         }
         
         // Flaring: Ctrl toggles flaring mode
         if (Input.GetKeyDown(KeyCode.LeftControl) && isBurning)
         {
             isFlaring = !isFlaring;
-            if (debugPushOperations)
-            {
-                Debug.Log($"Flaring: {(isFlaring ? "ON" : "OFF")}");
-            }
-            if (isFlaring)
-            {
-                StartFlaringVignette();
-            }
+            if (debugPushOperations) Debug.Log($"Flaring: {(isFlaring ? "ON" : "OFF")}");
+            if (isFlaring) StartFlaringVignette();
         }
         
-        // Update targeted metal detection (always update for prediction line)
+        // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // Steel Bubble defensive ability (F key - requires flaring)
-        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && isFlaring && cooldownTimer <= 0f)
+        // Steel Bubble: F key (one per press, requires flaring)
+        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey) && isFlaring && steelBubbleCooldownTimer <= 0f)
         {
-            if (!isBurning)
+            if (!isBurning) StartBurning();
+            if (!bubbleAppliedThisPress)
             {
-                StartBurning();
+                PushMetalsInBubble();
+                DrainMetal(steelBubbleMetalCostMultiplier);
+                steelBubbleCooldownTimer = steelBubbleCooldown;
+                bubbleAppliedThisPress = true;
             }
-            isSteelBubbleActive = true;
-            PushMetalsInBubble();
-            DrainMetal(steelBubbleMetalCostMultiplier);
         }
-        else
+        
+        // Normal push: E key held (one per press)
+        if (Input.GetKey(KeyCode.E) && isBurning && !pushAppliedThisPress)
         {
-            isSteelBubbleActive = false;
-            
-            // Push ONCE per key press (not continuously while held)
-            bool pushKeyHeld = Input.GetKey(KeyCode.E);
-            if (pushKeyHeld && isBurning && !pushAppliedThisPress)
-            {
-                PushMetals();
-                // Lore: flaring uses more metal for less proportional power (efficiency loss)
-                float metalMultiplier = isFlaring ? flaringMetalCostMultiplier : 1f;
-                DrainMetal(metalMultiplier);
-                pushAppliedThisPress = true;
-            }
+            PushMetals();
+            DrainMetal(isFlaring ? flaringMetalCostMultiplier : 1f);
+            pushAppliedThisPress = true;
         }
         
         // Stop burning when releasing E or F key
