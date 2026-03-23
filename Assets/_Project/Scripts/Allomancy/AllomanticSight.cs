@@ -44,9 +44,12 @@ public class AllomanticSight : MonoBehaviour
     
     // ===== PRIVATE STATE =====
     private bool isActive = false; // Whether the sight is currently active
-    private List<LineRenderer> activeLines = new List<LineRenderer>(); // Pool of active line renderers
+    private List<LineRenderer> activeLines = new List<LineRenderer>(); // Currently active line renderers
+    private List<LineRenderer> linePool = new List<LineRenderer>(); // Pool of inactive line renderers for reuse
     private float metalReserve = 100f; // Current metal reserve for burning Tin
     private float metalCostPerSecond = 1f; // How fast metal drains while sight is active
+    [Tooltip("Maximum number of blue lines to pool (prevents infinite growth)")]
+    public int maxLines = 100;
     
     void Start()
     {
@@ -59,6 +62,82 @@ public class AllomanticSight : MonoBehaviour
                 Debug.LogError("AllomanticSight: No main camera found! Please assign playerCamera in Inspector.");
             }
         }
+        
+        // Initialize line pool
+        InitializeLinePool();
+    }
+    
+    void InitializeLinePool()
+    {
+        // Pre-create line renderers and add to pool
+        for (int i = 0; i < maxLines; i++)
+        {
+            CreateLineRenderer();
+        }
+    }
+    
+    LineRenderer CreateLineRenderer()
+    {
+        GameObject lineObj = new GameObject("MetalLine_Pooled");
+        lineObj.SetActive(false; // Start inactive
+        LineRenderer line = lineObj.AddComponent<LineRenderer>();
+        
+        // Set up line renderer properties
+        Shader shader = Shader.Find("Sprites/Default");
+        if (shader != null)
+        {
+            line.material = new Material(shader);
+        }
+        else
+        {
+            line.material = new Material(Shader.Find("Unlit/Color"));
+        }
+        
+        line.positionCount = 2;
+        line.useWorldSpace = true;
+        
+        // Add to pool
+        linePool.Add(line);
+        return line;
+    }
+    
+    LineRenderer GetLineFromPool()
+    {
+        // If pool is empty, create a new one (unless we've hit max)
+        if (linePool.Count == 0)
+        {
+            if (activeLines.Count + linePool.Count < maxLines)
+            {
+                return CreateLineRenderer();
+            }
+            else
+            {
+                // Reuse the oldest active line
+                if (activeLines.Count > 0)
+                {
+                    LineRenderer oldest = activeLines[0];
+                    activeLines.RemoveAt(0);
+                    return oldest;
+                }
+                return null; // Shouldn't happen, but just in case
+            }
+        }
+        
+        // Get last line from pool
+        LineRenderer line = linePool[linePool.Count - 1];
+        linePool.RemoveAt(linePool.Count - 1);
+        
+        // Activate and return
+        line.gameObject.SetActive(true);
+        return line;
+    }
+    
+    void ReturnLineToPool(LineRenderer line)
+    {
+        if (line == null) return;
+        
+        line.gameObject.SetActive(false);
+        linePool.Add(line);
     }
     
     // Update is called once per frame
@@ -111,8 +190,8 @@ public class AllomanticSight : MonoBehaviour
     // Draws lines from the player to all metal objects within range
     void VisualizeMetals()
     {
-        // First, clear any existing lines from previous frame
-        ClearLines();
+        // First, return all active lines to pool
+        ReturnAllActiveLinesToPool();
         
         // Check if playerCamera is assigned
         if (playerCamera == null)
@@ -135,11 +214,8 @@ public class AllomanticSight : MonoBehaviour
             Vector3 direction = (metal.transform.position - originPoint).normalized;
             float distance = Vector3.Distance(originPoint, metal.transform.position);
             
-            // Create a new GameObject to hold the LineRenderer
-            // PERFORMANCE NOTE: Creating new GameObjects every frame is inefficient
-            // TODO: Implement object pooling for LineRenderers to improve performance
-            GameObject lineObj = new GameObject("MetalLine");
-            LineRenderer line = lineObj.AddComponent<LineRenderer>();
+            // Get a line renderer from pool
+            LineRenderer line = GetLineFromPool();
             
             // Set line start and end positions
             // Start: origin point (chest or camera)
@@ -167,18 +243,6 @@ public class AllomanticSight : MonoBehaviour
             line.startWidth = currentLineWidth;
             line.endWidth = currentLineWidth * 0.8f; // Slightly thinner at the end
             
-            // Safely create material - use default sprite material
-            Shader shader = Shader.Find("Sprites/Default");
-            if (shader != null)
-            {
-                line.material = new Material(shader);
-            }
-            else
-            {
-                // Fallback to default material
-                line.material = new Material(Shader.Find("Unlit/Color"));
-            }
-            
             // Color with pulsing alpha for shimmer effect
             Color baseColor = mass > 10f ? heavyMetalColor : metalColor;
             if (enableLinePulse)
@@ -190,20 +254,25 @@ public class AllomanticSight : MonoBehaviour
             line.startColor = baseColor;
             line.endColor = baseColor;
             
-            // Add line to our tracking list for cleanup
+            // Add line to active list
             activeLines.Add(line);
         }
     }
     
-    // Destroys all active line renderers and clears the list
-    void ClearLines()
+    // Returns all active lines to the pool and clears the active list
+    void ReturnAllActiveLinesToPool()
     {
         foreach (LineRenderer line in activeLines)
         {
-            if (line != null)
-                Destroy(line.gameObject);
+            ReturnLineToPool(line);
         }
         activeLines.Clear();
+    }
+    
+    // Legacy method for compatibility
+    void ClearLines()
+    {
+        ReturnAllActiveLinesToPool();
     }
     
     // Drains metal reserve while sight is active
@@ -220,7 +289,20 @@ public class AllomanticSight : MonoBehaviour
     // Cleanup when object is destroyed
     void OnDestroy()
     {
-        ClearLines();
+        // Destroy all pooled and active line GameObjects
+        foreach (LineRenderer line in linePool)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        foreach (LineRenderer line in activeLines)
+        {
+            if (line != null)
+                Destroy(line.gameObject);
+        }
+        
+        linePool.Clear();
+        activeLines.Clear();
     }
     
     // Public getter for metal reserve (for UI display)
