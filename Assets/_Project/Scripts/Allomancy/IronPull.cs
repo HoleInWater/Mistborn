@@ -48,6 +48,7 @@ public class IronPull : MonoBehaviour
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private bool isFlaring = false;
     
     void Start()
     {
@@ -70,6 +71,9 @@ public class IronPull : MonoBehaviour
         {
             StartBurning();
         }
+        
+        // Flaring: holding Shift while burning increases force
+        isFlaring = Input.GetKey(KeyCode.LeftShift) && isBurning;
         
         if (Input.GetMouseButton(0) && isBurning)
         {
