@@ -516,81 +516,82 @@ public class SteelPush : MonoBehaviour
             
             Vector3 pushDirection = directionToTarget.normalized;
             
-                if (isAnchored)
+            if (isAnchored)
+            {
+                // Push player away from anchored object
+                Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
+                
+                // Flight mechanics: extra upward boost when pushing off objects below
+                float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
+                if (angleFromDown < flightAngleThreshold)
                 {
-                    // Push player away from anchored object
-                    Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
-                    
-                    // Flight mechanics: extra upward boost when pushing off objects below
-                    float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
-                    if (angleFromDown < flightAngleThreshold)
-                    {
-                        // Object is below player, apply flight boost
-                        pushForceVector *= flightLaunchMultiplier;
-                    }
-                    
-                    playerRigidbody.AddForce(pushForceVector);
+                    // Object is below player, apply flight boost
+                    pushForceVector *= flightLaunchMultiplier;
+                }
+                
+                playerRigidbody.AddForce(pushForceVector);
+                
+                if (debugPushOperations)
+                {
+                    Debug.Log($"Steel Push APPLIED: Pushed player from anchored object '{collider.gameObject.name}', Force={force:F2}N, Direction={-pushDirection}");
+                }
+                
+                // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
+                if (force > shakeForceThreshold)
+                {
+                    ShakeCamera(shakeMagnitude);
+                    PlayPushSound();
+                    TriggerPushTint(force);
+                }
+            }
+            else
+            {
+                // Normal push on target
+                if (targetMass <= impulseMassThreshold)
+                {
+                    // Impulse mode for light objects (coins, small metal)
+                    float impulseForce = force * impulseCalibration;
+                    targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
                     
                     if (debugPushOperations)
                     {
-                        Debug.Log($"Steel Push APPLIED: Pushed player from anchored object '{collider.gameObject.name}', Force={force:F2}N, Direction={-pushDirection}");
+                        float deltaV = impulseForce / targetMass;
+                        Debug.Log($"Steel Push APPLIED: Impulse to '{collider.gameObject.name}', Mass={targetMass:F3}kg, ImpulseForce={impulseForce:F2}, DeltaV={deltaV:F2} m/s, Direction={pushDirection}");
                     }
                     
-                    // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
-                    if (force > shakeForceThreshold)
+                    if (debugCalibration)
                     {
-                        ShakeCamera(shakeMagnitude);
-                        PlayPushSound();
-                        TriggerPushTint(force);
+                        float deltaV = impulseForce / targetMass;
+                        Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
                     }
                 }
                 else
                 {
-                    // Normal push on target
-                    if (targetMass <= impulseMassThreshold)
-                    {
-                        // Impulse mode for light objects (coins, small metal)
-                        float impulseForce = force * impulseCalibration;
-                        targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
-                        
-                        if (debugPushOperations)
-                        {
-                            float deltaV = impulseForce / targetMass;
-                            Debug.Log($"Steel Push APPLIED: Impulse to '{collider.gameObject.name}', Mass={targetMass:F3}kg, ImpulseForce={impulseForce:F2}, DeltaV={deltaV:F2} m/s, Direction={pushDirection}");
-                        }
-                        
-                        if (debugCalibration)
-                        {
-                            float deltaV = impulseForce / targetMass;
-                            Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
-                        }
-                    }
-                    else
-                    {
-                        // Continuous force for heavy objects
-                        targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
-                        
-                        if (debugPushOperations)
-                        {
-                            Debug.Log($"Steel Push APPLIED: Continuous force to '{collider.gameObject.name}', Mass={targetMass:F2}kg, Force={force:F2}N, Direction={pushDirection}");
-                        }
-                    }
+                    // Continuous force for heavy objects
+                    targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
                     
-                    // Spawn visual effect at target position
-                    if (pushEffectPrefab != null && force > 50f)
+                    if (debugPushOperations)
                     {
-                        GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
-                        Destroy(effect, 2f); // Auto-destroy after 2 seconds
-                    }
-                    
-                    // Camera shake, sound, and screen tint for significant pushes
-                    if (force > shakeForceThreshold)
-                    {
-                        ShakeCamera(shakeMagnitude);
-                        PlayPushSound();
-                        TriggerPushTint(force);
+                        Debug.Log($"Steel Push APPLIED: Continuous force to '{collider.gameObject.name}', Mass={targetMass:F2}kg, Force={force:F2}N, Direction={pushDirection}");
                     }
                 }
+                
+                // Spawn visual effect at target position
+                if (pushEffectPrefab != null && force > 50f)
+                {
+                    GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
+                    Destroy(effect, 2f);
+                }
+                
+                // Camera shake, sound, and screen tint for significant pushes
+                if (force > shakeForceThreshold)
+                {
+                    ShakeCamera(shakeMagnitude);
+                    PlayPushSound();
+                    TriggerPushTint(force);
+                }
+            }
+        }
         
         if (debugPushOperations && colliders.Length == 0)
         {
