@@ -136,27 +136,40 @@ public class BasicPlayerMove : MonoBehaviour
     
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
-        forward.y = 0; right.y = 0;
-        forward.Normalize(); right.Normalize();
+        forward.y = 0; 
+        right.y = 0;
+        forward.Normalize(); 
+        right.Normalize();
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
     
-        // 1. Calculate Target Speed
+        // Calculate Target Speed
         float targetSpeed = 0f;
         if (moveDirection.magnitude > 0.1f)
         {
             bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
             targetSpeed = (Input.GetKey(KeyCode.LeftShift) && hasStamina) ? sprintSpeed : moveSpeed;
-            
-            if (targetSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate);
+    
+            if (targetSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate * Time.fixedDeltaTime);
     
             // Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            
-            // FORCED WAKE UP: Ensures the physics engine doesn't "sleep" the player
-            if (rb.IsSleeping()) rb.WakeUp();
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
+    
+        // THE FIX: Use MoveTowards and FixedUpdate
+        // We only care about horizontal velocity for the 'blend'
+        Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        Vector3 targetHorizontalVel = moveDirection * targetSpeed;
+    
+        // Use MoveTowards for consistent acceleration (Lerp is frame-rate dependent)
+        Vector3 smoothedVel = Vector3.MoveTowards(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
+    
+        // APPLY: We MUST keep rb.velocity.y untouched so gravity and jumps work!
+        rb.velocity = new Vector3(smoothedVel.x, rb.velocity.y, smoothedVel.z);
+    
+        if (moveDirection.magnitude > 0.1f && rb.IsSleeping()) rb.WakeUp();
+    }
     
         // 2. THE FIX: Linear Velocity Calculation
         // We get our current horizontal velocity
