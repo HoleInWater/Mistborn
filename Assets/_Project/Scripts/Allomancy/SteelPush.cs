@@ -31,6 +31,7 @@
 
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SteelPush : MonoBehaviour
 {
@@ -118,62 +119,68 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit[] hits = Physics.RaycastAll(ray, maxRange, metalLayer);
+        if (playerRigidbody == null) return;
         
-        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 1f;
+        // Detect all metal objects within maxRange radius, ignoring line-of-sight
+        // LORE: Steel Push works through walls (blue lines in Spiritual Realm)
+        Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
         
-        foreach (RaycastHit hit in hits)
+        float playerMass = playerRigidbody.mass;
+        
+        foreach (Collider collider in colliders)
         {
-            if (hit.rigidbody != null)
+            Rigidbody targetRigidbody = collider.attachedRigidbody;
+            if (targetRigidbody == null) continue;
+            
+            // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
+            float targetMass = 1f;
+            AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
+            if (target != null)
             {
-                // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
-                float targetMass = 1f;
-                AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
-                if (target != null)
-                {
-                    targetMass = target.GetEffectiveMass();
-                }
-                else
-                {
-                    targetMass = hit.rigidbody.mass;
-                }
-                
-                // Weight-proportional force: F = pushForce * (playerMass / targetMass)
-                float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
-                float force = pushForce * weightFactor;
-                
-                // Distance falloff: force inversely proportional to distance
-                // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
-                float distance = hit.distance;
-                if (distance > 0.01f) // Avoid division by zero
-                {
-                    // Use minDistance to prevent unrealistic forces at very close range
-                    float effectiveDistance = Mathf.Max(distance, minDistance);
-                    float distanceFactor = zenithDistance / effectiveDistance;
-                    force *= distanceFactor;
-                }
-                
-                // Clamp force to reasonable values
-                force = Mathf.Clamp(force, 0f, pushForce * 10f);
-                
-                // Flaring doubles the force
-                if (isFlaring) force *= 2f;
-                
-                // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
-                bool isAnchored = (target != null && target.isAnchored) || hit.rigidbody.isKinematic;
-                Vector3 pushDirection = (hit.point - playerCamera.transform.position).normalized;
-                
-                if (isAnchored && playerRigidbody != null)
-                {
-                    // Push player away from anchored object
-                    playerRigidbody.AddForce(-pushDirection * force * Time.deltaTime);
-                }
-                else
-                {
-                    // Normal push on target
-                    hit.rigidbody.AddForce(pushDirection * force * Time.deltaTime);
-                }
+                targetMass = target.GetEffectiveMass();
+            }
+            else
+            {
+                targetMass = targetRigidbody.mass;
+            }
+            
+            // Weight-proportional force: F = pushForce * (playerMass / targetMass)
+            float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
+            float force = pushForce * weightFactor;
+            
+            // Distance from player to target
+            Vector3 directionToTarget = targetRigidbody.position - playerRigidbody.position;
+            float distance = directionToTarget.magnitude;
+            
+            // Distance falloff: force inversely proportional to distance
+            // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
+            if (distance > 0.01f) // Avoid division by zero
+            {
+                // Use minDistance to prevent unrealistic forces at very close range
+                float effectiveDistance = Mathf.Max(distance, minDistance);
+                float distanceFactor = zenithDistance / effectiveDistance;
+                force *= distanceFactor;
+            }
+            
+            // Clamp force to reasonable values
+            force = Mathf.Clamp(force, 0f, pushForce * 10f);
+            
+            // Flaring doubles the force
+            if (isFlaring) force *= 2f;
+            
+            // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
+            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            Vector3 pushDirection = directionToTarget.normalized;
+            
+            if (isAnchored)
+            {
+                // Push player away from anchored object
+                playerRigidbody.AddForce(-pushDirection * force * Time.deltaTime);
+            }
+            else
+            {
+                // Normal push on target
+                targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
             }
         }
     }
