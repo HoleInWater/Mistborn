@@ -38,6 +38,19 @@ public class AllomanticSight : MonoBehaviour
     private float metalReserve = 100f; // Current metal reserve for burning Tin
     private float metalCostPerSecond = 1f; // How fast metal drains while sight is active
     
+    void Start()
+    {
+        // Auto-assign playerCamera to main camera if not set
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+            if (playerCamera == null)
+            {
+                Debug.LogError("AllomanticSight: No main camera found! Please assign playerCamera in Inspector.");
+            }
+        }
+    }
+    
     // Update is called once per frame
     void Update()
     {
@@ -89,6 +102,13 @@ public class AllomanticSight : MonoBehaviour
         // First, clear any existing lines from previous frame
         ClearLines();
         
+        // Check if playerCamera is assigned
+        if (playerCamera == null)
+        {
+            Debug.LogError("AllomanticSight: playerCamera is not assigned!");
+            return;
+        }
+        
         // Find all metal objects within range using Physics.OverlapSphere
         // This checks all colliders on the metalLayer within metalRange of this object
         Collider[] metals = Physics.OverlapSphere(transform.position, metalRange, metalLayer);
@@ -116,7 +136,19 @@ public class AllomanticSight : MonoBehaviour
             
             // Determine color based on mass: heavier objects get darker blue lines
             float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
-            line.material = new Material(Shader.Find("Sprites/Default"));
+            
+            // Safely create material - use default sprite material
+            Shader shader = Shader.Find("Sprites/Default");
+            if (shader != null)
+            {
+                line.material = new Material(shader);
+            }
+            else
+            {
+                // Fallback to default material
+                line.material = new Material(Shader.Find("Unlit/Color"));
+            }
+            
             line.startColor = mass > 10f ? heavyMetalColor : metalColor;
             line.endColor = line.startColor;
             
