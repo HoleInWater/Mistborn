@@ -190,7 +190,7 @@ public class IronPull : MonoBehaviour
         {
             metalLayer = LayerMask.GetMask("Metal");
         }
-        Debug.Log($"[IRON] Start - metalLayer={metalLayer.value}, camera={playerCamera?.name ?? "null"}, playerRB={playerRigidbody?.name ?? "null"}");
+        Debug.Log($"[IRON] Start - metalLayer={metalLayer.value}, cam={playerCamera != null}, playerRB={playerRigidbody != null}");
         
         if (chestTransform == null)
         {
@@ -263,20 +263,17 @@ public class IronPull : MonoBehaviour
         if (qKeyDown && !qKeyWasPressed)
         {
             qKeyWasPressed = true;
-            Debug.Log($"[PULL] Q pressed! cooldown={cooldownTimer}, isBurning={isBurning}");
             
             // Start burning (if not on cooldown)
             if (cooldownTimer <= 0f)
             {
                 if (!isBurning) StartBurning();
                 pullAppliedThisPress = false;
-                Debug.Log($"[PULL] Started burning, isBurning now={isBurning}");
             }
             
             // Execute pull (always, regardless of flare state)
             if (isBurning && !pullAppliedThisPress)
             {
-                Debug.Log($"[PULL] Executing pull!");
                 PullMetals();
                 DrainMetal(flaringMetalCostMultiplier);
                 pullAppliedThisPress = true;
@@ -403,17 +400,9 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        Debug.Log($"[PULL] PullMetals start - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
-        if (playerRigidbody == null) 
-        {
-            Debug.Log("[PULL] FAIL: no player RB");
-            return;
-        }
-        if (!hasCurrentTarget || currentTargetRigidbody == null) 
-        {
-            Debug.Log("[PULL] FAIL: no target");
-            return;
-        }
+        Debug.Log($"[PULL] PullMetals: playerRB={playerRigidbody != null}, hasTarget={hasCurrentTarget}, targetRB={currentTargetRigidbody?.name ?? "null"}");
+        if (playerRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
