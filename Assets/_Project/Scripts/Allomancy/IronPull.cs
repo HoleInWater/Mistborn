@@ -138,6 +138,8 @@ public class IronPull : MonoBehaviour
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
             if (target != null)
             {
+                // Skip if target cannot be pulled (e.g., aluminum)
+                if (!target.canBePulled) continue;
                 targetMass = target.GetEffectiveMass();
             }
             else

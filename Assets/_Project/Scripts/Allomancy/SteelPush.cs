@@ -212,6 +212,8 @@ public class SteelPush : MonoBehaviour
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
             if (target != null)
             {
+                // Skip if target cannot be pushed (e.g., aluminum)
+                if (!target.canBePushed) continue;
                 targetMass = target.GetEffectiveMass();
             }
             else
