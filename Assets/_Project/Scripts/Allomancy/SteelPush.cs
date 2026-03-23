@@ -147,6 +147,7 @@ public class SteelPush : MonoBehaviour
         {
             Rigidbody targetRigidbody = collider.attachedRigidbody;
             if (targetRigidbody == null) continue;
+            if (targetRigidbody == playerRigidbody) continue; // Skip player's own rigidbody
             
             // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
             float targetMass = 1f;
