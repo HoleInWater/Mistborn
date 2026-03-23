@@ -42,11 +42,11 @@ public class SteelPush : MonoBehaviour
     public float pushForce = 800f;
     [Tooltip("Reference mass for force calculation (average human = 80kg).")]
     public float referenceMass = 80f;
-    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (zenithDistance / distance).")]
-    public float zenithDistance = 5f;
+    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (referenceDistance / distance).")]
+    public float referenceDistance = 3f;
     [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
-    public float minDistance = 0.5f;
-    public float maxRange = 50f;
+    public float minDistance = 1f;
+    public float maxRange = 30f;
     public float metalCostPerSecond = 2f;
     [Tooltip("Cooldown time in seconds after releasing push button")]
     public float pushCooldown = 0.2f;
@@ -66,6 +66,12 @@ public class SteelPush : MonoBehaviour
     public float shakeDuration = 0.1f;
     [Tooltip("Minimum force required to trigger camera shake")]
     public float shakeForceThreshold = 100f;
+    
+    [Header("Focused Push")]
+    [Tooltip("Key to hold for pushing only targeted metal (single selection)")]
+    public KeyCode focusKey = KeyCode.LeftControl;
+    [Tooltip("Color for focused push crosshair")]
+    public Color focusedPushColor = Color.red;
     
     [Header("Audio")]
     [Tooltip("AudioSource for push sounds (optional)")]
@@ -139,9 +145,11 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Mass threshold (kg) below which objects receive impulse instead of continuous force")]
     public float impulseMassThreshold = 5f;
     [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
-    public float impulseCalibration = 0.00055f; // Calibrated for 22.22 m/s at 10m with 10g coin
+    public float impulseCalibration = 0.000917f; // Calibrated for 22.22 m/s at 10m with 10g coin after referenceDistance change
     [Tooltip("Enable debug logging for impulse calibration")]
     public bool debugCalibration = false;
+    [Tooltip("Enable debug logging for push operations")]
+    public bool debugPushOperations = true;
     
     private bool isBurning = false;
     private bool isFlaring = false;
@@ -350,7 +358,7 @@ public class SteelPush : MonoBehaviour
         // Apply distance factor
         float distance = currentTargetHit.distance;
         float effectiveDistance = Mathf.Max(distance, minDistance);
-        float distanceFactor = zenithDistance / effectiveDistance;
+        float distanceFactor = referenceDistance / effectiveDistance;
         force *= distanceFactor;
         
         // Apply flaring multiplier
@@ -423,6 +431,11 @@ public class SteelPush : MonoBehaviour
         metalInRange = colliders.Length > 0;
         UpdateCrosshairColor();
         
+        if (debugPushOperations && colliders.Length > 0)
+        {
+            Debug.Log($"Steel Push: Detected {colliders.Length} metal objects within {maxRange}m range");
+        }
+        
         float playerMass = playerRigidbody.mass;
         
         foreach (Collider collider in colliders)
@@ -453,14 +466,33 @@ public class SteelPush : MonoBehaviour
             Vector3 directionToTarget = targetRigidbody.position - playerRigidbody.position;
             float distance = directionToTarget.magnitude;
             
+            // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
+            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            
             // Distance falloff: force inversely proportional to distance
             // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
-            if (distance > 0.01f) // Avoid division by zero
+            // LORE: "This continues until the Coinshot hits a zenith, or point of maximum altitude"
+            // The zenith point is where force maxes out. Force increases until zenith, then decreases.
+            if (distance > 0.01f && distance <= maxRange)
             {
-                // Use minDistance to prevent unrealistic forces at very close range
                 float effectiveDistance = Mathf.Max(distance, minDistance);
-                float distanceFactor = zenithDistance / effectiveDistance;
+                
+                // Calculate distance factor using inverse proportional (1/r)
+                float distanceFactor = referenceDistance / effectiveDistance;
+                
+                // Zenith cap: force cannot exceed zenith multiplier (prevents infinite force at close range)
+                // At referenceDistance (zenith), force = pushForce * weightFactor (distanceFactor = 1)
+                // Closer than zenith: force would exceed base, but we cap at zenith * 2 for gameplay
+                float zenithCap = 2f; // Maximum force multiplier at point-blank
+                distanceFactor = Mathf.Min(distanceFactor, zenithCap);
+                
+                // Apply distance falloff
                 force *= distanceFactor;
+            }
+            else if (distance > maxRange)
+            {
+                // Beyond max range: no force
+                force = 0f;
             }
             
             // Clamp force to reasonable values
@@ -469,69 +501,92 @@ public class SteelPush : MonoBehaviour
             // Flaring doubles the force
             if (isFlaring) force *= 2f;
             
-            // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
-            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            if (debugPushOperations)
+            {
+                Debug.Log($"Steel Push: Target={collider.gameObject.name}, Distance={distance:F2}m, Mass={targetMass:F2}kg, Force={force:F2}N, Anchored={isAnchored}");
+            }
+            
             Vector3 pushDirection = directionToTarget.normalized;
             
-            if (isAnchored)
-            {
-                // Push player away from anchored object
-                Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
-                
-                // Flight mechanics: extra upward boost when pushing off objects below
-                float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
-                if (angleFromDown < flightAngleThreshold)
+                if (isAnchored)
                 {
-                    // Object is below player, apply flight boost
-                    pushForceVector *= flightLaunchMultiplier;
-                }
-                
-                playerRigidbody.AddForce(pushForceVector);
-                
-                // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
-                if (force > shakeForceThreshold)
-                {
-                    ShakeCamera(shakeMagnitude);
-                    PlayPushSound();
-                    TriggerPushTint(force);
-                }
-            }
-            else
-            {
-                // Normal push on target
-                if (targetMass <= impulseMassThreshold)
-                {
-                    // Impulse mode for light objects (coins, small metal)
-                    float impulseForce = force * impulseCalibration;
-                    targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
+                    // Push player away from anchored object
+                    Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
                     
-                    if (debugCalibration)
+                    // Flight mechanics: extra upward boost when pushing off objects below
+                    float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
+                    if (angleFromDown < flightAngleThreshold)
                     {
-                        float deltaV = impulseForce / targetMass;
-                        Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
+                        // Object is below player, apply flight boost
+                        pushForceVector *= flightLaunchMultiplier;
+                    }
+                    
+                    playerRigidbody.AddForce(pushForceVector);
+                    
+                    if (debugPushOperations)
+                    {
+                        Debug.Log($"Steel Push APPLIED: Pushed player from anchored object '{collider.gameObject.name}', Force={force:F2}N, Direction={-pushDirection}");
+                    }
+                    
+                    // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
+                    if (force > shakeForceThreshold)
+                    {
+                        ShakeCamera(shakeMagnitude);
+                        PlayPushSound();
+                        TriggerPushTint(force);
                     }
                 }
                 else
                 {
-                    // Continuous force for heavy objects
-                    targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
+                    // Normal push on target
+                    if (targetMass <= impulseMassThreshold)
+                    {
+                        // Impulse mode for light objects (coins, small metal)
+                        float impulseForce = force * impulseCalibration;
+                        targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
+                        
+                        if (debugPushOperations)
+                        {
+                            float deltaV = impulseForce / targetMass;
+                            Debug.Log($"Steel Push APPLIED: Impulse to '{collider.gameObject.name}', Mass={targetMass:F3}kg, ImpulseForce={impulseForce:F2}, DeltaV={deltaV:F2} m/s, Direction={pushDirection}");
+                        }
+                        
+                        if (debugCalibration)
+                        {
+                            float deltaV = impulseForce / targetMass;
+                            Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
+                        }
+                    }
+                    else
+                    {
+                        // Continuous force for heavy objects
+                        targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
+                        
+                        if (debugPushOperations)
+                        {
+                            Debug.Log($"Steel Push APPLIED: Continuous force to '{collider.gameObject.name}', Mass={targetMass:F2}kg, Force={force:F2}N, Direction={pushDirection}");
+                        }
+                    }
+                    
+                    // Spawn visual effect at target position
+                    if (pushEffectPrefab != null && force > 50f)
+                    {
+                        GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
+                        Destroy(effect, 2f); // Auto-destroy after 2 seconds
+                    }
+                    
+                    // Camera shake, sound, and screen tint for significant pushes
+                    if (force > shakeForceThreshold)
+                    {
+                        ShakeCamera(shakeMagnitude);
+                        PlayPushSound();
+                        TriggerPushTint(force);
+                    }
                 }
-                
-                // Spawn visual effect at target position
-                if (pushEffectPrefab != null && force > 50f)
-                {
-                    GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
-                    Destroy(effect, 2f); // Auto-destroy after 2 seconds
-                }
-                
-                // Camera shake, sound, and screen tint for significant pushes
-                if (force > shakeForceThreshold)
-                {
-                    ShakeCamera(shakeMagnitude);
-                    PlayPushSound();
-                    TriggerPushTint(force);
-                }
-            }
+        
+        if (debugPushOperations && colliders.Length == 0)
+        {
+            Debug.Log($"Steel Push: No metal objects detected within {maxRange}m range");
         }
     }
     
@@ -708,13 +763,13 @@ public class SteelPush : MonoBehaviour
     {
         if (playerRigidbody == null) return;
         
-        // Draw push range sphere
+        // Draw push range sphere (yellow)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(playerRigidbody.position, maxRange);
         
-        // Draw zenith distance sphere
+        // Draw zenith distance sphere (cyan) - peak force zone
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(playerRigidbody.position, zenithDistance);
+        Gizmos.DrawWireSphere(playerRigidbody.position, referenceDistance);
         
         // Draw steel bubble sphere
         if (enableSteelBubble)
@@ -744,11 +799,13 @@ public class SteelPush : MonoBehaviour
         float y = 100f;
         GUI.Label(new Rect(10, y, 400, 20), $"Steel Push Debug", style);
         y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Push Force: {pushForce}", style);
+        GUI.Label(new Rect(10, y, 400, 20), $"Push Force: {pushForce} N", style);
         y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Zenith Distance: {zenithDistance}m", style);
+        GUI.Label(new Rect(10, y, 400, 20), $"Zenith (Reference) Distance: {referenceDistance}m", style);
         y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Min Distance: {minDistance}m", style);
+        GUI.Label(new Rect(10, y, 400, 20), $"Max Range: {maxRange}m", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Physics: 1/r (inverse proportional)", style);
         y += 20;
         GUI.Label(new Rect(10, y, 400, 20), $"Impulse Calibration: {impulseCalibration}", style);
         y += 20;
@@ -788,9 +845,19 @@ public class SteelPush : MonoBehaviour
                 float weightFactor = playerMass / referenceMass;
                 float force = pushForce * weightFactor;
                 
+                // Calculate distance factor with zenith cap
                 float effectiveDistance = Mathf.Max(distance, minDistance);
-                float distanceFactor = zenithDistance / effectiveDistance;
+                float distanceFactor = referenceDistance / effectiveDistance;
+                distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
                 force *= distanceFactor;
+                
+                // Show force calculation breakdown
+                GUI.Label(new Rect(20, y, 400, 20), $"Weight Factor: {weightFactor:F2}", style);
+                y += 20;
+                GUI.Label(new Rect(20, y, 400, 20), $"Distance Factor: {distanceFactor:F2} (1/{effectiveDistance:F1}m)", style);
+                y += 20;
+                GUI.Label(new Rect(20, y, 400, 20), $"Final Force: {force:F2} N", style);
+                y += 20;
                 
                 float expectedVelocity = 0f;
                 if (mass <= impulseMassThreshold)
@@ -802,12 +869,11 @@ public class SteelPush : MonoBehaviour
                 else
                 {
                     // Continuous force - estimate after 1 second of push
-                    expectedVelocity = (force / mass) * 1f; // Approximate
+                    expectedVelocity = (force / mass) * 1f;
                 }
                 
-                GUI.Label(new Rect(20, y, 400, 20), $"Expected Velocity: {expectedVelocity:F2} m/s", style);
+                GUI.Label(new Rect(20, y, 400, 20), $"Expected Velocity: {expectedVelocity:F2} m/s ({expectedVelocity * 3.6f:F1} km/h)", style);
                 y += 20;
-                GUI.Label(new Rect(20, y, 400, 20), $"Expected Speed: {expectedVelocity * 3.6f:F2} km/h", style);
             }
             y += 10;
         }
@@ -833,7 +899,7 @@ public class SteelPush : MonoBehaviour
         float force = pushForce * weightFactor;
         
         float effectiveDistance = Mathf.Max(distance, minDistance);
-        float distanceFactor = zenithDistance / effectiveDistance;
+        float distanceFactor = referenceDistance / effectiveDistance;
         force *= distanceFactor;
         
         float impulseForce = force * impulseCalibration;

@@ -41,12 +41,14 @@ public class IronPull : MonoBehaviour
     public float pullForce = 800f;
     [Tooltip("Reference mass for force calculation (average human = 80kg).")]
     public float referenceMass = 80f;
-    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (zenithDistance / distance).")]
-    public float zenithDistance = 5f;
+    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (referenceDistance / distance).")]
+    public float referenceDistance = 3f;
     [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
-    public float minDistance = 0.5f;
-    public float maxRange = 50f;
+    public float minDistance = 1f;
+    public float maxRange = 30f;
     public float metalCostPerSecond = 2f;
+    [Tooltip("Enable debug logging for pull operations")]
+    public bool debugPullOperations = true;
     
     [Header("References")]
     public Camera playerCamera;
@@ -295,6 +297,12 @@ public class IronPull : MonoBehaviour
         // Detect all metal objects within maxRange radius, ignoring line-of-sight
         // LORE: Iron Pull works through walls (blue lines in Spiritual Realm)
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        metalInRange = colliders.Length > 0;
+        
+        if (debugPullOperations && colliders.Length > 0)
+        {
+            Debug.Log($"Iron Pull: Detected {colliders.Length} metal objects within {maxRange}m range");
+        }
         
         float playerMass = playerRigidbody.mass;
         
@@ -328,12 +336,26 @@ public class IronPull : MonoBehaviour
             
             // Distance falloff: force inversely proportional to distance
             // LORE: From Coppermind - "The force of the Pull is inversely proportional to distance"
-            if (distance > 0.01f) // Avoid division by zero
+            // LORE: "This continues until the Lurcher hits a zenith, or point of maximum altitude"
+            // The zenith point is where force maxes out. Force increases until zenith, then decreases.
+            if (distance > 0.01f && distance <= maxRange)
             {
-                // Use minDistance to prevent unrealistic forces at very close range
                 float effectiveDistance = Mathf.Max(distance, minDistance);
-                float distanceFactor = zenithDistance / effectiveDistance;
+                
+                // Calculate distance factor using inverse proportional (1/r)
+                float distanceFactor = referenceDistance / effectiveDistance;
+                
+                // Zenith cap: force cannot exceed zenith multiplier (prevents infinite force at close range)
+                float zenithCap = 2f; // Maximum force multiplier at point-blank
+                distanceFactor = Mathf.Min(distanceFactor, zenithCap);
+                
+                // Apply distance falloff
                 force *= distanceFactor;
+            }
+            else if (distance > maxRange)
+            {
+                // Beyond max range: no force
+                force = 0f;
             }
             
             // Clamp force to reasonable values
@@ -341,6 +363,11 @@ public class IronPull : MonoBehaviour
             
             // Flaring doubles the force
             if (isFlaring) force *= 2f;
+            
+            if (debugPullOperations)
+            {
+                Debug.Log($"Iron Pull: Target={collider.gameObject.name}, Distance={distance:F2}m, Mass={targetMass:F2}kg, Force={force:F2}N");
+            }
             
             // Anchor detection: if target is anchored (fixed) or kinematic, pull player instead
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
@@ -350,6 +377,11 @@ public class IronPull : MonoBehaviour
             {
                 // Pull player toward anchored object
                 playerRigidbody.AddForce(directionToTarget.normalized * force * Time.deltaTime);
+                
+                if (debugPullOperations)
+                {
+                    Debug.Log($"Iron Pull APPLIED: Pulled player toward anchored object '{collider.gameObject.name}', Force={force:F2}N");
+                }
                 
                 // Visual feedback for anchored pulls
                 if (force > shakeForceThreshold)
@@ -379,6 +411,11 @@ public class IronPull : MonoBehaviour
                     TriggerPullTint(force);
                 }
             }
+        }
+        
+        if (debugPullOperations && colliders.Length == 0)
+        {
+            Debug.Log($"Iron Pull: No metal objects detected within {maxRange}m range");
         }
     }
     
