@@ -131,8 +131,8 @@ public class MetalSelector : MonoBehaviour
         AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         allomancer.SetCurrentMetal(activeMetal);
         
-        if (metalHUD != null)
-            metalHUD.SetCurrentMetal(activeMetal);
+        if (metalReserve != null)
+            metalReserve.SetCurrentMetal(activeMetal);
     }
     
     // Public methods for other scripts to query selected metals
