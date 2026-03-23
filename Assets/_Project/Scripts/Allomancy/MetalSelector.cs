@@ -132,7 +132,7 @@ public class MetalSelector : MonoBehaviour
         allomancer.SetCurrentMetal(activeMetal);
         
         if (metalReserve != null)
-            metalReserve.SetCurrentMetal(metalAmount);
+            metalReserve.SetCurrentMetal(metalReserve.maxMetal);
     }
     
     // Public methods for other scripts to query selected metals
