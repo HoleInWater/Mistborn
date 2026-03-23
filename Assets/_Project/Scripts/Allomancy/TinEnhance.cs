@@ -1,78 +1,64 @@
-// NOTE: Lines 47, 54, 64 contain Debug.Log which should be removed for production
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TinEnhance : MonoBehaviour
 {
     [Header("Settings")]
-    public float senseMultiplier = 3f;
+    public float focusedFOV = 45f;
+    public float transitionSpeed = 8f;
     public float metalCostPerSecond = 2f;
     public float hearingRange = 50f;
     public float sightRange = 100f;
-    
+
     [Header("References")]
     public Camera playerCamera;
-    
+
     private float metalReserve = 100f;
     private bool isBurning = false;
     private float originalFOV;
-    
+
     void Start()
     {
         if (playerCamera != null)
             originalFOV = playerCamera.fieldOfView;
     }
-    
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
+        if (Input.GetKeyDown(KeyCode.E) && metalReserve > 0f)
             StartBurning();
-        }
-        
+
         if (Input.GetKey(KeyCode.E) && isBurning)
-        {
             EnhanceSenses();
-            DrainMetal();
-        }
-        
+        else
+            RestoreSenses();
+
         if (Input.GetKeyUp(KeyCode.E))
-        {
             StopBurning();
-        }
     }
-    
-    void StartBurning()
-    {
-        isBurning = true;
-        Debug.Log("Burning Tin - Enhanced senses!");
-    }
-    
+
+    void StartBurning() => isBurning = true;
+
     void StopBurning()
     {
         isBurning = false;
-        RestoreSenses();
-        Debug.Log("Stopped burning Tin");
     }
-    
+
     void EnhanceSenses()
     {
         if (playerCamera != null)
-        {
-            playerCamera.fieldOfView = originalFOV * senseMultiplier;
-        }
-        
-        Debug.Log($"Hearing enemies within {hearingRange * senseMultiplier}m");
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView, focusedFOV, transitionSpeed * Time.deltaTime);
+
+        DrainMetal();
     }
-    
+
     void RestoreSenses()
     {
         if (playerCamera != null)
-        {
-            playerCamera.fieldOfView = originalFOV;
-        }
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView, originalFOV, transitionSpeed * Time.deltaTime);
     }
-    
+
     void DrainMetal()
     {
         metalReserve -= metalCostPerSecond * Time.deltaTime;
@@ -82,7 +68,7 @@ public class TinEnhance : MonoBehaviour
             StopBurning();
         }
     }
-    
+
     public float GetMetalReserve() => metalReserve;
     public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }
