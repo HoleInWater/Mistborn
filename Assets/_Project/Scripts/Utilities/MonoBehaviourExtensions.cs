@@ -238,7 +238,7 @@ namespace MistbornGame.Utilities
         
         public T Value => value;
         public bool IsComplete => isComplete;
-        public Coroutine Coroutine => coroutine;
+        public Coroutine ActiveCoroutine => coroutine;
     }
 
     /// <summary>
