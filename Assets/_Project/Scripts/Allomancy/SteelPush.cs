@@ -155,6 +155,7 @@ public class SteelPush : MonoBehaviour
     
     private bool isBurning = false;
     private bool isFlaring = false;
+    private bool pushAppliedThisPress = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
@@ -240,6 +241,7 @@ public class SteelPush : MonoBehaviour
         if (pushKeyDown && cooldownTimer <= 0f)
         {
             StartBurning();
+            pushAppliedThisPress = false; // Reset for new push
         }
         
         // Flaring: Ctrl toggles flaring mode
@@ -273,12 +275,13 @@ public class SteelPush : MonoBehaviour
         {
             isSteelBubbleActive = false;
             
-            // Push while holding Q key OR E key
+            // Push ONCE per key press (not continuously while held)
             bool pushKeyHeld = Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E);
-            if (pushKeyHeld && isBurning)
+            if (pushKeyHeld && isBurning && !pushAppliedThisPress)
             {
                 PushMetals();
                 DrainMetal();
+                pushAppliedThisPress = true;
             }
         }
         
@@ -448,54 +451,36 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        Debug.Log("PushMetals() called!");
+        Debug.Log($"[PUSH] Started - burning={isBurning}, flaring={isFlaring}");
         
         if (playerRigidbody == null)
         {
-            Debug.Log("PushMetals: playerRigidbody is null!");
+            Debug.LogError("[PUSH] ERROR: playerRigidbody is null!");
             return;
         }
         
-        // Detect all metal objects within maxRange radius, ignoring line-of-sight
+        // Detect all metal objects within maxRange radius
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
-        metalInRange = colliders.Length > 0;
-        UpdateCrosshairColor();
         
-        Debug.Log($"PushMetals: {colliders.Length} metals found, range={maxRange}");
+        Debug.Log($"[PUSH] Found {colliders.Length} metals in range ({maxRange}m)");
         
         if (colliders.Length == 0) return;
         
         float playerMass = playerRigidbody.mass;
+        int pushedCount = 0;
         
         foreach (Collider collider in colliders)
         {
             Rigidbody targetRigidbody = collider.attachedRigidbody;
-            if (targetRigidbody == null)
-            {
-                Debug.Log($"PushMetals: {collider.gameObject.name} has no rigidbody");
-                continue;
-            }
-            if (targetRigidbody == playerRigidbody) continue; // Skip player's own rigidbody
+            if (targetRigidbody == null || targetRigidbody == playerRigidbody) continue;
             
-            // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
-            float targetMass = 1f;
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
-            if (target != null)
-            {
-                // Skip if target cannot be pushed (e.g., aluminum)
-                if (!target.canBePushed)
-                {
-                    Debug.Log($"PushMetals: {collider.gameObject.name} cannot be pushed");
-                    continue;
-                }
-                targetMass = target.GetEffectiveMass();
-            }
-            else
-            {
-                targetMass = targetRigidbody.mass;
-            }
+            if (target != null && !target.canBePushed) continue;
             
-            Debug.Log($"PushMetals: Processing {collider.gameObject.name}, mass={targetMass}, distance={Vector3.Distance(playerRigidbody.position, targetRigidbody.position):F2}m");
+            float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
+            float distance = Vector3.Distance(playerRigidbody.position, targetRigidbody.position);
+            
+            Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F1}kg, dist={distance:F1}m");
             
             // Weight-proportional force: F = pushForce * (playerMass / referenceMass)
             float weightFactor = playerMass / referenceMass;
@@ -505,127 +490,59 @@ public class SteelPush : MonoBehaviour
             Vector3 directionToTarget = targetRigidbody.position - playerRigidbody.position;
             float distance = directionToTarget.magnitude;
             
-            // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
             
-            // Distance falloff: force inversely proportional to distance
-            // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
-            // LORE: "This continues until the Coinshot hits a zenith, or point of maximum altitude"
-            // The zenith point is where force maxes out. Force increases until zenith, then decreases.
+            // Calculate force with distance falloff
             if (distance > 0.01f && distance <= maxRange)
             {
                 float effectiveDistance = Mathf.Max(distance, minDistance);
-                
-                // Calculate distance factor using inverse proportional (1/r)
-                float distanceFactor = referenceDistance / effectiveDistance;
-                
-                // Zenith cap: force cannot exceed zenith multiplier (prevents infinite force at close range)
-                // At referenceDistance (zenith), force = pushForce * weightFactor (distanceFactor = 1)
-                // Closer than zenith: force would exceed base, but we cap at zenith * 2 for gameplay
-                float zenithCap = 2f; // Maximum force multiplier at point-blank
-                distanceFactor = Mathf.Min(distanceFactor, zenithCap);
-                
-                // Apply distance falloff
+                float distanceFactor = Mathf.Min(referenceDistance / effectiveDistance, 2f);
                 force *= distanceFactor;
-            }
-            else if (distance > maxRange)
-            {
-                // Beyond max range: no force
-                force = 0f;
-            }
-            
-            // Clamp force to reasonable values
-            force = Mathf.Clamp(force, 0f, pushForce * 10f);
-            
-            // Flaring doubles the force
-            if (isFlaring) force *= 2f;
-            
-
-            
-            Vector3 pushDirection = directionToTarget.normalized;
-            
-            if (isAnchored)
-            {
-                // Push player away from anchored object
-                Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
-                
-                // Flight mechanics: extra upward boost when pushing off objects below
-                float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
-                if (angleFromDown < flightAngleThreshold)
-                {
-                    // Object is below player, apply flight boost
-                    pushForceVector *= flightLaunchMultiplier;
-                }
-                
-                playerRigidbody.AddForce(pushForceVector);
-                
-                if (debugPushOperations)
-                {
-                    Debug.Log($"Steel Push APPLIED: Pushed player from anchored object '{collider.gameObject.name}', Force={force:F2}N, Direction={-pushDirection}");
-                }
-                
-                // Camera shake, sound, and screen tint for significant pushes (when pushing off anchored objects)
-                if (force > shakeForceThreshold)
-                {
-                    ShakeCamera(shakeMagnitude);
-                    PlayPushSound();
-                    TriggerPushTint(force);
-                }
             }
             else
             {
-                // Normal push on target
-                if (targetMass <= impulseMassThreshold)
-                {
-                    // Impulse mode for light objects (coins, small metal)
-                    float impulseForce = force * impulseCalibration;
-                    targetRigidbody.AddForce(pushDirection * impulseForce, ForceMode.Impulse);
-                    
-                    if (debugPushOperations)
-                    {
-                        float deltaV = impulseForce / targetMass;
-                        Debug.Log($"Steel Push APPLIED: Impulse to '{collider.gameObject.name}', Mass={targetMass:F3}kg, ImpulseForce={impulseForce:F2}, DeltaV={deltaV:F2} m/s, Direction={pushDirection}");
-                    }
-                    
-                    if (debugCalibration)
-                    {
-                        float deltaV = impulseForce / targetMass;
-                        Debug.Log($"Impulse: mass={targetMass:F3}kg, impulseForce={impulseForce:F2}, deltaV={deltaV:F2} m/s, distance={distance:F2}m");
-                    }
-                }
-                else
-                {
-                    // Continuous force for heavy objects
-                    targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
-                    
-                    if (debugPushOperations)
-                    {
-                        Debug.Log($"Steel Push APPLIED: Continuous force to '{collider.gameObject.name}', Mass={targetMass:F2}kg, Force={force:F2}N, Direction={pushDirection}");
-                    }
-                }
-                
-                // Spawn visual effect at target position
-                if (pushEffectPrefab != null && force > 50f)
-                {
-                    GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
-                    Destroy(effect, 2f);
-                }
-                
-                // Camera shake, sound, and screen tint for significant pushes
-                if (force > shakeForceThreshold)
-                {
-                    ShakeCamera(shakeMagnitude);
-                    PlayPushSound();
-                    TriggerPushTint(force);
-                }
+                force = 0f;
+            }
+            
+            force = Mathf.Clamp(force, 0f, pushForce * 10f);
+            if (isFlaring) force *= 2f;
+            
+            Debug.Log($"[PUSH] Force calc: base={pushForce}, final={force:F0f}N, anchored={isAnchored}");
+            
+            Vector3 pushDirection = directionToTarget.normalized;
+            
+            if (force <= 0f)
+            {
+                Debug.Log($"[PUSH] Skipped {collider.name} - force is 0");
+                continue;
+            }
+            
+            if (isAnchored)
+            {
+                Vector3 pushForceVector = -pushDirection * force;
+                playerRigidbody.AddForce(pushForceVector);
+                Debug.Log($"[PUSH] Pushed PLAYER with {force:F0f}N!");
+                pushedCount++;
+            }
+            else
+            {
+                targetRigidbody.AddForce(pushDirection * force, ForceMode.Impulse);
+                Debug.Log($"[PUSH] Pushed {collider.name} with {force:F0f}N!");
+                pushedCount++;
+            }
+            
+            if (force > shakeForceThreshold)
+            {
+                ShakeCamera(shakeMagnitude);
+                TriggerPushTint(force);
             }
         }
         
-        if (debugPushOperations && colliders.Length == 0)
-        {
-            Debug.Log($"Steel Push: No metal objects detected within {maxRange}m range");
-        }
+        Debug.Log($"[PUSH] Done - pushed {pushedCount} objects");
     }
+    
+    void PushMetalsInBubble()
+    {
     
     void PushMetalsInBubble()
     {
