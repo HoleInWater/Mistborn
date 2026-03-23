@@ -243,12 +243,13 @@ public class IronPull : MonoBehaviour
         // DETECTION: Update targeted metal detection (raycast from camera)
         UpdateTargetedMetal();
         
-        // =========================================================================
-        // Q KEY HANDLING - Pull mechanics
-        // =========================================================================
-        // Controls: Q = Pull, Ctrl = Flare toggle
-        // Q ALWAYS pulls (flare is optional extra power)
+        // Debug: Q key state
+        if (Input.GetKeyDown(KeyCode.Q) && debugPullOperations)
+            Debug.Log("[IRON PULL] Q key pressed");
+        if (Input.GetKeyUp(KeyCode.Q) && debugPullOperations)
+            Debug.Log("[IRON PULL] Q key released");
         
+        // Q KEY HANDLING - Pull mechanics
         bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
         bool qKeyUp = Input.GetKeyUp(KeyCode.Q);
         
@@ -328,9 +329,15 @@ public class IronPull : MonoBehaviour
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
+        if (debugPullOperations) Debug.Log($"[IRON PULL] UpdateTargetedMetal() - Found {allTargets.Length} AllomanticTargets in scene");
+        
         foreach (var metal in allTargets)
         {
-            if (metal == null || !metal.canBePulled) continue;
+            if (metal == null || !metal.canBePulled)
+            {
+                if (debugPullOperations) Debug.Log($"[IRON PULL] Skipping {metal?.name} - canBePulled: {metal?.canBePulled}");
+                continue;
+            }
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
@@ -344,6 +351,8 @@ public class IronPull : MonoBehaviour
                 currentTargetRigidbody = rb;
                 currentTarget = metal;
                 hasCurrentTarget = true;
+                
+                if (debugPullOperations) Debug.Log($"[IRON PULL] Target acquired: {metal.name} at {dist:F2}m");
             }
         }
     }
@@ -400,7 +409,13 @@ public class IronPull : MonoBehaviour
     void PullMetals()
     {
         if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null)
+        {
+            if (debugPullOperations) Debug.Log("[IRON PULL] PullMetals() - No target!");
+            return;
+        }
+        
+        if (debugPullOperations) Debug.Log("[IRON PULL] PullMetals() - Executing pull!");
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
