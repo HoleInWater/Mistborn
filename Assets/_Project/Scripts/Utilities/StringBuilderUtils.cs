@@ -117,14 +117,6 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Reverses the contents of the StringBuilder
-        /// </summary>
-        public static StringBuilder Reverse(StringBuilder sb)
-        {
-            return sb.Reverse();
-        }
-
-        /// <summary>
         /// Gets the string representation
         /// </summary>
         public static string ToString(StringBuilder sb)
