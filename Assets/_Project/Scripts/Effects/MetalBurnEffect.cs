@@ -130,7 +130,7 @@ public class MetalBurnEffect : MonoBehaviour
         if (isFlaring && FlareManager.Instance != null)
         {
             float pulse = 0.8f + Mathf.PingPong(Time.time * 2f, 0.4f);
-            main.startSize = baseSize * flareSizeMultiplier * pulse * FlareManager.Instance.flareIntensity;
+            main.startSize = baseSize * flareSizeMultiplier * pulse * FlareManager.Instance.FlareIntensity;
         }
     }
     
