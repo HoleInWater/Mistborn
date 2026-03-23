@@ -167,17 +167,22 @@ public class Allomancer : MonoBehaviour
     
     void Update()
     {
-        // If we are currently burning metal, drain it by 1 per second
-        if (isBurningMetal && canBurnMetal)
+        // Check if we are currently using any metal
+        bool isUsingMetal = isBurningMetal || (FlareManager.Instance != null && FlareManager.Instance.IsFlaring);
+    
+        if (isUsingMetal && canBurnMetal)
         {
-            DrainMetal(GetCurrentMetal(), 1f * Time.deltaTime);
+            // ... (your existing drain logic from the previous step)
+        }
+        else
+        {
+            // REGENERATION LOGIC
+            // If we aren't using metal, refill the current reserve over time
+            RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
     
         // Refill key for testing
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            RefillAllMetals();
-        }
+        if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
     }
     
     public void RefillAllMetals()
