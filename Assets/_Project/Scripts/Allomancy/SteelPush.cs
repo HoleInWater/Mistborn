@@ -355,11 +355,19 @@ public class SteelPush : MonoBehaviour
         float weightFactor = playerMass / referenceMass;
         float force = pushForce * weightFactor;
         
-        // Apply distance factor
+        // Apply distance factor with zenith cap
         float distance = currentTargetHit.distance;
-        float effectiveDistance = Mathf.Max(distance, minDistance);
-        float distanceFactor = referenceDistance / effectiveDistance;
-        force *= distanceFactor;
+        if (distance > 0.01f && distance <= maxRange)
+        {
+            float effectiveDistance = Mathf.Max(distance, minDistance);
+            float distanceFactor = referenceDistance / effectiveDistance;
+            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
+            force *= distanceFactor;
+        }
+        else if (distance > maxRange)
+        {
+            force = 0f; // Beyond range
+        }
         
         // Apply flaring multiplier
         if (isFlaring) force *= 2f;
@@ -898,12 +906,45 @@ public class SteelPush : MonoBehaviour
         float weightFactor = playerMass / referenceMass;
         float force = pushForce * weightFactor;
         
-        float effectiveDistance = Mathf.Max(distance, minDistance);
-        float distanceFactor = referenceDistance / effectiveDistance;
-        force *= distanceFactor;
+        // Apply distance factor with zenith cap
+        if (distance > 0.01f && distance <= maxRange)
+        {
+            float effectiveDistance = Mathf.Max(distance, minDistance);
+            float distanceFactor = referenceDistance / effectiveDistance;
+            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
+            force *= distanceFactor;
+        }
+        else if (distance > maxRange)
+        {
+            force = 0f;
+        }
         
         float impulseForce = force * impulseCalibration;
         return impulseForce / coinMass; // deltaV = impulse / mass
+    }
+    
+    // Static helper to calculate push force (for tests or external use)
+    // LORE: Force = baseForce × (playerMass/referenceMass) × (referenceDistance/distance), capped at 2x zenith
+    public static float CalculatePushForce(float distance, float basePushForce, float playerMass, 
+        float referenceMass = 80f, float referenceDistance = 3f, float maxRange = 30f, bool flaring = false)
+    {
+        float weightFactor = playerMass / referenceMass;
+        float force = basePushForce * weightFactor;
+        
+        if (distance > 0.01f && distance <= maxRange)
+        {
+            float distanceFactor = referenceDistance / Mathf.Max(distance, 1f);
+            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
+            force *= distanceFactor;
+        }
+        else if (distance > maxRange)
+        {
+            force = 0f;
+        }
+        
+        if (flaring) force *= 2f;
+        
+        return force;
     }
     
     void OnDestroy()
