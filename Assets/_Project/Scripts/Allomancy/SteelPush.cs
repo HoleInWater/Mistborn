@@ -454,14 +454,21 @@ public class SteelPush : MonoBehaviour
         metalInRange = colliders.Length > 0;
         UpdateCrosshairColor();
         
-
+        if (debugPushOperations)
+        {
+            Debug.Log($"PushMetals: {colliders.Length} metals found, range={maxRange}, pos={playerRigidbody.position}");
+        }
         
         float playerMass = playerRigidbody.mass;
         
         foreach (Collider collider in colliders)
         {
             Rigidbody targetRigidbody = collider.attachedRigidbody;
-            if (targetRigidbody == null) continue;
+            if (targetRigidbody == null)
+            {
+                if (debugPushOperations) Debug.Log($"PushMetals: {collider.gameObject.name} has no rigidbody");
+                continue;
+            }
             if (targetRigidbody == playerRigidbody) continue; // Skip player's own rigidbody
             
             // Get target mass (use AllomanticTarget if available, else Rigidbody mass)
@@ -470,13 +477,19 @@ public class SteelPush : MonoBehaviour
             if (target != null)
             {
                 // Skip if target cannot be pushed (e.g., aluminum)
-                if (!target.canBePushed) continue;
+                if (!target.canBePushed)
+                {
+                    if (debugPushOperations) Debug.Log($"PushMetals: {collider.gameObject.name} cannot be pushed");
+                    continue;
+                }
                 targetMass = target.GetEffectiveMass();
             }
             else
             {
                 targetMass = targetRigidbody.mass;
             }
+            
+            if (debugPushOperations) Debug.Log($"PushMetals: Processing {collider.gameObject.name}, mass={targetMass}, pos={targetRigidbody.position}");
             
             // Weight-proportional force: F = pushForce * (playerMass / referenceMass)
             float weightFactor = playerMass / referenceMass;
