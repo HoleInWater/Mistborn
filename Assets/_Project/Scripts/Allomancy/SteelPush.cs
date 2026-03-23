@@ -359,6 +359,7 @@ public class SteelPush : MonoBehaviour
         currentTargetRigidbody = null;
         
         if (playerCamera == null) return;
+        if (metalLayer.value == 0) return; // No metal layer set
         
         // Raycast from camera center to find specific metal target
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
@@ -369,6 +370,7 @@ public class SteelPush : MonoBehaviour
             {
                 currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
+                if (debugPushOperations) Debug.Log($"[PUSH] Detected: {currentTargetRigidbody.name}");
             }
         }
     }
