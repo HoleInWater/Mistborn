@@ -482,13 +482,12 @@ public class SteelPush : MonoBehaviour
             
             Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F1}kg, dist={distance:F1}m");
             
-            // Weight-proportional force: F = pushForce * (playerMass / referenceMass)
+            // Weight-proportional force
             float weightFactor = playerMass / referenceMass;
             float force = pushForce * weightFactor;
             
-            // Distance from player to target
+            // Direction from player to target
             Vector3 directionToTarget = targetRigidbody.position - playerRigidbody.position;
-            float distance = directionToTarget.magnitude;
             
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
             
