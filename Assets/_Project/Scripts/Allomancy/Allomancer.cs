@@ -81,10 +81,11 @@ public class Allomancer : MonoBehaviour
 
         if (isUsingMetal && canBurnMetal)
         {
-            // Base drain + flare contribution (scales with scroll-wheel intensity)
-            float drainRate = baseBurnRate;
-            if (isFlaring && FlareManager.Instance != null)
-                drainRate += FlareManager.Instance.flareBurnRate;
+            // flareBurnRate already includes the base burn rate at all intensities.
+            // When not flaring, fall back to baseBurnRate alone.
+            float drainRate = (isFlaring && FlareManager.Instance != null)
+                ? FlareManager.Instance.flareBurnRate
+                : baseBurnRate;
 
             DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
         }
