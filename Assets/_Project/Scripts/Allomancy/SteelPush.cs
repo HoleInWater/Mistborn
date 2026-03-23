@@ -270,15 +270,8 @@ public class SteelPush : MonoBehaviour
         
         if (chestTransform == null)
         {
-            Transform player = GetComponentInParent<Transform>();
-            if (player != null)
-            {
-                Transform chest = player.Find("Chest");
-                if (chest == null) chest = player.Find("ChestBone");
-                if (chest == null) chest = player.Find("Spine2");
-                if (chest == null) chest = player.Find("Torso");
-                chestTransform = chest != null ? chest : player;
-            }
+            // Use player rigidbody position as chest (center of body)
+            chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
         }
         
         // Create prediction line renderer
