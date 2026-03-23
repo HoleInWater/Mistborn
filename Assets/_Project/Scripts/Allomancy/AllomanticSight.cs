@@ -27,6 +27,16 @@ public class AllomanticSight : MonoBehaviour
     [Tooltip("Layer mask for metal objects (set in Unity Editor)")]
     public LayerMask metalLayer;
     
+    [Header("Line Animation")]
+    [Tooltip("Should the blue lines pulse/shimmer as described in the books?")]
+    public bool enableLinePulse = true;
+    [Tooltip("Speed of line pulsing effect")]
+    public float pulseSpeed = 2f;
+    [Tooltip("How much the line width varies during pulse")]
+    public float pulseAmplitude = 0.02f;
+    [Tooltip("Reference to player's chest transform (if null, uses camera)")]
+    public Transform chestTransform;
+    
     // ===== REFERENCES =====
     [Header("References")]
     [Tooltip("Reference to the player's camera for line rendering origin")]
@@ -111,6 +121,9 @@ public class AllomanticSight : MonoBehaviour
             return;
         }
         
+        // Determine origin point: chest if available, otherwise camera
+        Vector3 originPoint = chestTransform != null ? chestTransform.position : playerCamera.transform.position;
+        
         // Find all metal objects within range using Physics.OverlapSphere
         // This checks all colliders on the metalLayer within metalRange of this object
         Collider[] metals = Physics.OverlapSphere(transform.position, metalRange, metalLayer);
@@ -118,9 +131,9 @@ public class AllomanticSight : MonoBehaviour
         // Loop through each metal object found
         foreach (Collider metal in metals)
         {
-            // Calculate direction and distance for potential future use (e.g., distance-based line thickness)
-            Vector3 direction = (metal.transform.position - playerCamera.transform.position).normalized;
-            float distance = Vector3.Distance(playerCamera.transform.position, metal.transform.position);
+            // Calculate direction and distance for line properties
+            Vector3 direction = (metal.transform.position - originPoint).normalized;
+            float distance = Vector3.Distance(originPoint, metal.transform.position);
             
             // Create a new GameObject to hold the LineRenderer
             // PERFORMANCE NOTE: Creating new GameObjects every frame is inefficient
@@ -129,17 +142,30 @@ public class AllomanticSight : MonoBehaviour
             LineRenderer line = lineObj.AddComponent<LineRenderer>();
             
             // Set line start and end positions
-            // Start: slightly in front of camera (to avoid clipping with camera model)
+            // Start: origin point (chest or camera)
             // End: at the metal object's position
-            line.SetPosition(0, playerCamera.transform.position + playerCamera.transform.forward * 0.5f);
+            line.SetPosition(0, originPoint);
             line.SetPosition(1, metal.transform.position);
-            
-            // Set line width
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
             
             // Determine color based on mass: heavier objects get darker blue lines
             float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+            
+            // Line width with pulsing effect
+            float currentLineWidth = lineWidth;
+            if (enableLinePulse)
+            {
+                // Add sinusoidal pulsing based on time and object position for variety
+                float pulse = Mathf.Sin(Time.time * pulseSpeed + metal.GetInstanceID() * 0.1f);
+                currentLineWidth += pulse * pulseAmplitude;
+                currentLineWidth = Mathf.Max(0.01f, currentLineWidth); // Prevent zero or negative width
+            }
+            
+            // Also make width based on distance (closer = thicker)
+            float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
+            currentLineWidth *= (0.5f + distanceFactor * 0.5f);
+            
+            line.startWidth = currentLineWidth;
+            line.endWidth = currentLineWidth * 0.8f; // Slightly thinner at the end
             
             // Safely create material - use default sprite material
             Shader shader = Shader.Find("Sprites/Default");
@@ -153,8 +179,16 @@ public class AllomanticSight : MonoBehaviour
                 line.material = new Material(Shader.Find("Unlit/Color"));
             }
             
-            line.startColor = mass > 10f ? heavyMetalColor : metalColor;
-            line.endColor = line.startColor;
+            // Color with pulsing alpha for shimmer effect
+            Color baseColor = mass > 10f ? heavyMetalColor : metalColor;
+            if (enableLinePulse)
+            {
+                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
+                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
+            }
+            
+            line.startColor = baseColor;
+            line.endColor = baseColor;
             
             // Add line to our tracking list for cleanup
             activeLines.Add(line);
