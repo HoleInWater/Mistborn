@@ -24,6 +24,12 @@ public class AllomanticSight : MonoBehaviour
     [Tooltip("Color for heavy metal objects (Koloss weapons, large structures)")]
     public Color heavyMetalColor = Color.blue; // Darker blue for heavier objects
     
+    [Tooltip("Color for metals that cannot be pushed (aluminum, etc.)")]
+    public Color nonPushableColor = Color.gray; // Gray for aluminum and other non-pushable metals
+    
+    [Tooltip("Color for anchored/fixed metal objects")]
+    public Color anchoredColor = Color.red; // Red for anchored objects
+    
     [Tooltip("Layer mask for metal objects (set in Unity Editor)")]
     public LayerMask metalLayer;
     
@@ -223,17 +229,42 @@ public class AllomanticSight : MonoBehaviour
             line.SetPosition(0, originPoint);
             line.SetPosition(1, metal.transform.position);
             
-            // Determine color based on mass: heavier objects get darker blue lines
-            float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+            // Get AllomanticTarget component for additional info
+            AllomanticTarget target = metal.GetComponent<AllomanticTarget>();
             
-            // Line width with pulsing effect
-            float currentLineWidth = lineWidth;
+            // Determine color based on metal properties
+            Color baseColor;
+            if (target != null)
+            {
+                if (!target.canBePushed)
+                {
+                    // Non-pushable metals (aluminum, etc.)
+                    baseColor = nonPushableColor;
+                }
+                else if (target.isAnchored || (metal.attachedRigidbody != null && metal.attachedRigidbody.isKinematic))
+                {
+                    // Anchored/fixed metals
+                    baseColor = anchoredColor;
+                }
+                else
+                {
+                    // Normal pushable metals
+                    float mass = target.GetEffectiveMass();
+                    baseColor = mass > 10f ? heavyMetalColor : metalColor;
+                }
+            }
+            else
+            {
+                // No AllomanticTarget component - use mass-based color
+                float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+                baseColor = mass > 10f ? heavyMetalColor : metalColor;
+            }
+            
+            // Add pulsing alpha for shimmer effect
             if (enableLinePulse)
             {
-                // Add sinusoidal pulsing based on time and object position for variety
-                float pulse = Mathf.Sin(Time.time * pulseSpeed + metal.GetInstanceID() * 0.1f);
-                currentLineWidth += pulse * pulseAmplitude;
-                currentLineWidth = Mathf.Max(0.01f, currentLineWidth); // Prevent zero or negative width
+                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
+                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
             }
             
             // Also make width based on distance (closer = thicker)
