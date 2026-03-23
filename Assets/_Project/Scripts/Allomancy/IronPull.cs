@@ -395,7 +395,7 @@ public class IronPull : MonoBehaviour
         Vector3 directionToTarget = targetRigidbody.position - pullOrigin;
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
-        float strength = allomanticStrength * (playerRigidbody.mass / referenceMass) * masteryBonus;
+        float strength = allomanticStrength * (playerRigidbody.mass / referenceMass);
         if (IsFlaring) strength *= maxFlareMultiplier;
         
         float distanceFactor = 1f - (distance / maxRange);

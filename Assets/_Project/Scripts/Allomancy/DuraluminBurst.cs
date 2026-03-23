@@ -35,18 +35,16 @@ public class DuraluminBurst : MonoBehaviour
         SteelPush steel = GetComponent<SteelPush>();
         if (steel != null)
         {
-            steel.pushForce *= burstMultiplier;
+            steel.allomanticStrength *= burstMultiplier;
             Invoke("EndBurst", burstDuration);
         }
         
         IronPull iron = GetComponent<IronPull>();
         if (iron != null)
         {
-            iron.pullForce *= burstMultiplier;
+            iron.allomanticStrength *= burstMultiplier;
             Invoke("EndBurst", burstDuration);
         }
-        
-        Debug.Log("Duralumin Burst - Allomancy enhanced!");
     }
     
     void EndBurst()
@@ -56,16 +54,14 @@ public class DuraluminBurst : MonoBehaviour
         SteelPush steel = GetComponent<SteelPush>();
         if (steel != null)
         {
-            steel.pushForce /= burstMultiplier;
+            steel.allomanticStrength /= burstMultiplier;
         }
         
         IronPull iron = GetComponent<IronPull>();
         if (iron != null)
         {
-            iron.pullForce /= burstMultiplier;
+            iron.allomanticStrength /= burstMultiplier;
         }
-        
-        Debug.Log("Burst ended");
     }
     
     public float GetMetalReserve() => metalReserve;
