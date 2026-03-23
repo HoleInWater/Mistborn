@@ -306,6 +306,33 @@ float pushForce = baseForce * forceMultiplier;
 
 ---
 
+## Blue Lines Research (Spiritual Realm)
+
+### Key Findings from Reddit & Coppermind:
+
+1. **Lines emerge from chest**: "When burning steel, blue lines emerge from the Coinshot and connect themselves to pieces of nearby metal."
+
+2. **Line size indicates mass**: "The size of the steel line indicating how big the metal is."
+
+3. **Spiritual Realm manifestation**: "The steel lines manifest themselves on the Spiritual Realm and can pass through physical objects such as walls."
+
+4. **Can be cut/interfered with**: "The steel lines can be cut or interfered with."
+
+5. **Perception-based**: "What an Allomancer 'Sees' is based on what they think about the world." Skilled Allomancers can see lines to individual metal parts.
+
+6. **Center of mass**: "The line usually points to the objects center of mass."
+
+7. **Color**: Blue due to Connection lines in Cosmere (Brandon Sanderson's color choice).
+
+### Implementation Notes:
+- Lines should pass through walls (no line-of-sight checks)
+- Line thickness should scale with target mass
+- Lines originate from player's chest, not camera
+- Lines are visible only when burning steel/iron (Allomantic Sight ability)
+- Skilled Allomancers could see more detail (future feature)
+
+---
+
 ## References
 
 ### Canonical Sources (Primary)
