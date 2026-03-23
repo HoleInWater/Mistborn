@@ -51,7 +51,7 @@ public class AnimationStateController : MonoBehaviour
         }
 
         // JUMP END: If we were jumping but are now touching the ground, STOP
-        if (isJumping && (forwardPressed && !jumpPressed))
+        if (isJumping && (!forwardPressed && !jumpPressed))
         {
             animator.SetBool("isJumping", false);
         }
