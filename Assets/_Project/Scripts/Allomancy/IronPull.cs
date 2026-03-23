@@ -35,8 +35,11 @@ using UnityEngine;
 public class IronPull : MonoBehaviour
 {
     [Header("Settings")]
+    [Tooltip("Base force applied when pulling. Needs calibration for desired coin velocities.")]
     public float pullForce = 800f;
+    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (zenithDistance / distance).")]
     public float zenithDistance = 5f;
+    [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
     public float minDistance = 0.5f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
