@@ -213,11 +213,13 @@ namespace MistbornGame.Utilities
             int padding = totalWidth - value.Length;
             if (alignLeft)
             {
-                return sb.Append(value).AppendRepeat(paddingChar, padding);
+                sb.Append(value);
+                return AppendRepeat(sb, paddingChar, padding);
             }
             else
             {
-                return sb.AppendRepeat(paddingChar, padding).Append(value);
+                AppendRepeat(sb, paddingChar, padding);
+                return sb.Append(value);
             }
         }
 
