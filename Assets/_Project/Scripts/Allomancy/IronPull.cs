@@ -145,6 +145,9 @@ public class IronPull : MonoBehaviour
                 // Clamp force to reasonable values
                 force = Mathf.Clamp(force, 0f, pullForce * 10f);
                 
+                // Flaring doubles the force
+                if (isFlaring) force *= 2f;
+                
                 // Anchor detection: if target is heavy or kinematic, pull player instead
                 bool isAnchored = (targetMass > playerMass * 3) || hit.rigidbody.isKinematic;
                 Vector3 pullDirection = (playerCamera.transform.position - hit.point).normalized;
