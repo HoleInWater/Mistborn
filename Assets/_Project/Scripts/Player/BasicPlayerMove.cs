@@ -125,21 +125,16 @@ public class BasicPlayerMove : MonoBehaviour
 
     void HandleMovement()
     {
-        // 1. Get raw input (Standard Unity Input)
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
     
-        // 2. Calculate direction
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
-        forward.y = 0; 
-        right.y = 0;
-        forward.Normalize(); 
-        right.Normalize();
+        forward.y = 0; right.y = 0;
+        forward.Normalize(); right.Normalize();
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
     
-        // 3. Movement Logic
         if (moveDirection.magnitude >= 0.1f)
         {
             float currentActiveSpeed = moveSpeed;
@@ -151,23 +146,19 @@ public class BasicPlayerMove : MonoBehaviour
                 staminaSystem.DrainStamina(drainRate);
             }
     
-            // Apply velocity: We keep rb.velocity.y so jumping/gravity still works
-            Vector3 newVelocity = moveDirection * currentActiveSpeed;
-            rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.z);
-    
-            // Rotation
+            // 1. ROTATION (Fixes the "Rotating but not moving" issue)
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            
-            Debug.Log("Moving! Direction: " + moveDirection + " Speed: " + currentActiveSpeed);
-        }
-        else
-        {
-            // Stop horizontal movement when keys are released
-            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+    
+            // 2. MOVEMENT (Using MovePosition instead of Velocity)
+            // This calculates where the player SHOULD be next frame and moves them there physically
+            Vector3 nextPosition = transform.position + moveDirection * currentActiveSpeed * Time.deltaTime;
+            rb.MovePosition(nextPosition);
+    
+            Debug.Log("Forcing Position Move: " + nextPosition);
         }
     }
-
+    
     void HandleCamera()
     {
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
