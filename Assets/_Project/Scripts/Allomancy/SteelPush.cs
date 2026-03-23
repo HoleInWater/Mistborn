@@ -55,6 +55,12 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Particle effect prefab to spawn when pushing metal (optional)")]
     public GameObject pushEffectPrefab;
     
+    [Header("Flight Mechanics")]
+    [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
+    public float flightLaunchMultiplier = 1.5f;
+    [Tooltip("Angle threshold (degrees) from downward to consider 'below' for flight boost")]
+    public float flightAngleThreshold = 45f;
+    
     private bool isBurning = false;
     private bool isFlaring = false;
     
@@ -179,7 +185,17 @@ public class SteelPush : MonoBehaviour
             if (isAnchored)
             {
                 // Push player away from anchored object
-                playerRigidbody.AddForce(-pushDirection * force * Time.deltaTime);
+                Vector3 pushForceVector = -pushDirection * force * Time.deltaTime;
+                
+                // Flight mechanics: extra upward boost when pushing off objects below
+                float angleFromDown = Vector3.Angle(-pushDirection, Vector3.down);
+                if (angleFromDown < flightAngleThreshold)
+                {
+                    // Object is below player, apply flight boost
+                    pushForceVector *= flightLaunchMultiplier;
+                }
+                
+                playerRigidbody.AddForce(pushForceVector);
             }
             else
             {
