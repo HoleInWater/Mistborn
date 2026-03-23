@@ -7,21 +7,15 @@ public class MetalReserve : MonoBehaviour
     public UIDocument uiDocument;
     public string metalProgressBarName = "Metal";
 
-    [Header("Metal Reserves")]
-    public float[] reserves = new float[16];
-    public float maxReserve = 100f;
+    [Header("Metal Settings")]
+    public float currentMetal = 100f;
+    public float maxMetal = 100f;
     
     [Header("Recovery Settings")]
     public float passiveRecoveryRate = 0.5f;
     public float metalFlareRecovery = 25f;
 
-    [Header("Active Display")]
-    // Which metal should the HUD show? 
-    // You can change this via code when the player switches "Active" metals.
-    public AllomancySkill.MetalType activeMetalDisplay = AllomancySkill.MetalType.Iron; 
-
     private ProgressBar _metalBar;
-    private AllomancySkill.MetalType[] metalTypes = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
 
     void OnEnable()
     {
@@ -33,78 +27,47 @@ public class MetalReserve : MonoBehaviour
             if (_metalBar != null)
             {
                 _metalBar.lowValue = 0;
-                _metalBar.highValue = maxReserve;
+                _metalBar.highValue = maxMetal;
             }
-        }
-    }
-
-    void Start()
-    {
-        for (int i = 0; i < reserves.Length; i++)
-        {
-            reserves[i] = maxReserve;
         }
     }
 
     void Update()
     {
-        PassiveRecovery();
+        // Passive recovery over time
+        currentMetal = Mathf.Min(maxMetal, currentMetal + passiveRecoveryRate * Time.deltaTime);
+        
         UpdateHUD();
-    }
-
-    void PassiveRecovery()
-    {
-        for (int i = 0; i < reserves.Length; i++)
-        {
-            reserves[i] = Mathf.Min(maxReserve, reserves[i] + passiveRecoveryRate * Time.deltaTime);
-        }
     }
 
     private void UpdateHUD()
     {
         if (_metalBar != null)
         {
-            float currentVal = GetReserve(activeMetalDisplay);
-            _metalBar.value = currentVal;
-            // Updates the text on the bar to show the metal name and amount
-            _metalBar.title = $"{activeMetalDisplay}: {Mathf.FloorToInt(currentVal)} / {maxReserve}";
+            _metalBar.value = currentMetal;
+            // Display as "Metal: 75 / 100"
+            _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
         }
     }
 
-    public float GetReserve(AllomancySkill.MetalType metal)
+    // Public methods for other scripts to call
+    public void Drain(float amount)
     {
-        return reserves[(int)metal];
+        currentMetal = Mathf.Max(0, currentMetal - amount);
     }
 
-    public void Drain(AllomancySkill.MetalType metal, float amount)
+    public void Refill(float amount)
     {
-        reserves[(int)metal] = Mathf.Max(0, reserves[(int)metal] - amount);
-    }
-
-    public void Refill(AllomancySkill.MetalType metal, float amount)
-    {
-        reserves[(int)metal] = Mathf.Min(maxReserve, reserves[(int)metal] + amount);
+        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
     }
 
     public void MetalFlare()
     {
-        foreach (AllomancySkill.MetalType metal in metalTypes)
-        {
-            Refill(metal, metalFlareRecovery);
-        }
+        Refill(metalFlareRecovery);
     }
 
     public void PurgeAll()
     {
-        for (int i = 0; i < reserves.Length; i++)
-        {
-            reserves[i] = 0f;
-        }
-    }
-    
-    // Call this from your selection script to swap which metal is on the HUD
-    public void SetActiveHUDMetal(AllomancySkill.MetalType metal)
-    {
-        activeMetalDisplay = metal;
+        currentMetal = 0f;
     }
 }
