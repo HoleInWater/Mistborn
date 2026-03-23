@@ -99,6 +99,15 @@ public class Allomancer : MonoBehaviour
         
         if (GetComponent<Brass>() == null)
             gameObject.AddComponent<Brass>();
+        
+        if (GetComponent<Copper>() == null)
+            gameObject.AddComponent<Copper>();
+        
+        if (GetComponent<Bronze>() == null)
+            gameObject.AddComponent<Bronze>();
+        
+        if (GetComponent<Atium>() == null)
+            gameObject.AddComponent<Atium>();
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)
