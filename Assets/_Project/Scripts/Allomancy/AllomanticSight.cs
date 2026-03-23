@@ -86,7 +86,9 @@ public class AllomanticSight : MonoBehaviour
         }
         
         // Log state change (this Debug.Log should be removed for production)
+#if UNITY_EDITOR
         Debug.Log(isActive ? "Allomantic Sight ACTIVE" : "Allomantic Sight OFF");
+#endif
     }
     
     IEnumerator SlowMotionEffect(float duration)
