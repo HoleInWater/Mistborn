@@ -353,7 +353,7 @@ public class IronPull : MonoBehaviour
     
     void UpdatePrediction()
     {
-        bool shouldShowPrediction = enablePullPrediction && isFlaring && hasCurrentTarget && currentTarget != null && currentTarget.canBePulled;
+        bool shouldShowPrediction = enablePullPrediction && IsFlaring && hasCurrentTarget && currentTarget != null && currentTarget.canBePulled;
         
         if (shouldShowPrediction)
             DrawPredictionLine();
@@ -417,7 +417,7 @@ public class IronPull : MonoBehaviour
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
         float strength = allomanticStrength * (playerRigidbody.mass / referenceMass) * masteryBonus;
-        if (isFlaring) strength *= maxFlareMultiplier;
+        if (IsFlaring) strength *= maxFlareMultiplier;
         
         float distanceFactor = 1f - (distance / maxRange);
         distanceFactor = Mathf.Clamp01(distanceFactor);
@@ -508,7 +508,7 @@ public class IronPull : MonoBehaviour
             GUI.color = Color.white;
         }
         
-        if (isFlaring && debugPullOperations)
+        if (IsFlaring && debugPullOperations)
         {
             GUIStyle style = new GUIStyle();
             style.normal.textColor = Color.cyan;

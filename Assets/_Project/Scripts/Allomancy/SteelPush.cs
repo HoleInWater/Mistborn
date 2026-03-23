@@ -379,7 +379,7 @@ public class SteelPush : MonoBehaviour
         // Steel Bubble: F key (one per press, requires flaring)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (isFlaring && steelBubbleCooldownTimer <= 0f)
+            if (IsFlaring && steelBubbleCooldownTimer <= 0f)
             {
                 if (!isBurning) StartBurning();
                 if (!bubbleAppliedThisPress)
@@ -490,7 +490,7 @@ public class SteelPush : MonoBehaviour
         }
         
         // Apply flaring multiplier
-        if (isFlaring) force *= 2f;
+        if (IsFlaring) force *= 2f;
         
         // Calculate initial velocity (impulse model for light objects)
         Vector3 initialVelocity;
@@ -551,17 +551,8 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        if (playerRigidbody == null)
-        {
-            Debug.LogError("[PUSH] ERROR: playerRigidbody is null!");
-            return;
-        }
-        
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            if (debugPushOperations) Debug.Log("[PUSH] No target - aim at metal");
-            return;
-        }
+        if (playerRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Vector3 pushOrigin = playerRigidbody.position;
         Rigidbody targetRigidbody = currentTargetRigidbody;
@@ -578,14 +569,12 @@ public class SteelPush : MonoBehaviour
         float playerMass = playerRigidbody.mass;
         float weightFactor = playerMass / referenceMass;
         float strength = allomanticStrength * weightFactor * masteryBonus;
-        if (isFlaring)
+        if (IsFlaring)
         {
             strength *= maxFlareMultiplier;
-            Debug.Log($"[PUSH] FLARING: strength {allomanticStrength * weightFactor * masteryBonus:F0f} -> {strength:F0f} (x{maxFlareMultiplier})");
         }
         
         // Linear distance falloff: force = strength × (1 - distance/maxRange)
-        // This matches lore: "thinner lines at distance" = weaker force
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
         {
@@ -601,12 +590,10 @@ public class SteelPush : MonoBehaviour
         if (isAnchored)
         {
             playerRigidbody.AddForce(-directionToTarget.normalized * force);
-            if (debugPushOperations) Debug.Log($"[PUSH] Pushed player: {force:F0f}N");
         }
         else if (force > 1f)
         {
             targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
-            if (debugPushOperations) Debug.Log($"[PUSH] Pushed {targetRigidbody.name}: {force:F0f}N");
         }
         
         if (force > shakeForceThreshold)
@@ -621,7 +608,6 @@ public class SteelPush : MonoBehaviour
         if (playerRigidbody == null) return;
         
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
-        if (debugPushOperations) Debug.Log($"[BUBBLE] {colliders.Length} metals in {steelBubbleRadius}m range");
         
         foreach (Collider collider in colliders)
         {
@@ -638,12 +624,10 @@ public class SteelPush : MonoBehaviour
             if (isAnchored)
             {
                 playerRigidbody.AddForce(-direction * force * Time.deltaTime);
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed player from {collider.name}");
             }
             else
             {
                 targetRigidbody.AddForce(direction * force, ForceMode.Impulse);
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed {collider.name}: {force:F0f}N");
             }
             
             TriggerPushTint(force);
@@ -655,7 +639,7 @@ public class SteelPush : MonoBehaviour
         if (allomancer == null) return;
         
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
-        if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
+        if (IsFlaring) drainAmount *= 3f; // Flaring drains 3x faster
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
     }
@@ -810,7 +794,7 @@ public class SteelPush : MonoBehaviour
         y += 20;
         GUI.Label(new Rect(10, y, 400, 20), $"Metal in Range: {metalInRange}", style);
         y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Flaring: {isFlaring}", style);
+        GUI.Label(new Rect(10, y, 400, 20), $"Flaring: {IsFlaring}", style);
         y += 20;
         GUI.Label(new Rect(10, y, 400, 20), $"Cooldown: {cooldownTimer:F2}s", style);
         y += 20;

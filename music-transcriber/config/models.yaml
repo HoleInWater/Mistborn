@@ -1,0 +1,18 @@
+# Model registry — maps friendly names to download sources / cache keys
+
+separation:
+  htdemucs:
+    description: "Hybrid Transformer Demucs v4 — 4 stems (default)"
+    stems: [vocals, drums, bass, other]
+  htdemucs_6s:
+    description: "Hybrid Transformer Demucs v4 — 6 stems"
+    stems: [vocals, drums, bass, other, guitar, piano]
+  mdx_extra:
+    description: "MDX-Net extra — higher quality, slower"
+    stems: [vocals, drums, bass, other]
+
+transcription:
+  basic_pitch:
+    description: "Spotify Basic Pitch — fast, good for monophonic/simple poly"
+  mt3:
+    description: "Google MT3 — slower, better polyphonic (Phase 2)"

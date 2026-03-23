@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────
+# music-transcriber  |  default configuration
+# ─────────────────────────────────────────────
+
+separation:
+  model: htdemucs          # htdemucs | htdemucs_6s | mdx_extra
+  device: cpu              # cpu | cuda | mps
+  stems:                   # null = all stems
+    - vocals
+    - bass
+    - other
+    - drums
+
+transcription:
+  backend: basic_pitch     # basic_pitch | mt3
+  onset_threshold: 0.5     # 0.0–1.0  (higher = fewer notes, less noise)
+  frame_threshold: 0.3     # 0.0–1.0
+  minimum_note_length: 0.1 # seconds — filters very short notes
+
+quantization:
+  subdivision: 8           # 4=quarter, 8=eighth, 16=sixteenth
+  bpm: null                # null = auto-detect
+  min_note_duration: 0.05  # seconds — post-quantization cleanup
+
+rendering:
+  musescore_path: musescore  # or /usr/bin/musescore4 etc.
+  title: "Transcription"
+  composer: ""
+
+output:
+  base_dir: data
