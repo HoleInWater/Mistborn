@@ -254,6 +254,7 @@ public class IronPull : MonoBehaviour
         
         if (qKeyDown && !qKeyWasPressed)
         {
+            Debug.Log("[IRON PULL] Q key pressed!");
             qKeyWasPressed = true;
             
             // Start burning (if not on cooldown)
@@ -296,11 +297,12 @@ public class IronPull : MonoBehaviour
     {
         if (isBurning) return;
         isBurning = true;
-        if (debugPullOperations) Debug.Log("[IRON PULL] StartBurning() - Iron burning started");
+        Debug.Log("[IRON PULL] StartBurning()");
         if (allomancer != null)
         {
             allomancer.StartBurning(AllomancySkill.MetalType.Iron);
         }
+    }
     }
     
     void StopBurning()
@@ -398,8 +400,21 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
+        Debug.Log("[IRON PULL] PullMetals called");
+        
+        if (playerRigidbody == null)
+        {
+            Debug.LogError("[IRON PULL] playerRigidbody is null!");
+            return;
+        }
+        
+        if (!hasCurrentTarget || currentTargetRigidbody == null)
+        {
+            Debug.LogWarning("[IRON PULL] No target! Press T to spawn metals first.");
+            return;
+        }
+        
+        Debug.Log("[IRON PULL] Pulling: " + currentTarget.name);
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
