@@ -190,6 +190,7 @@ public class IronPull : MonoBehaviour
         {
             metalLayer = LayerMask.GetMask("Metal");
         }
+        Debug.Log($"[IRON] Start - metalLayer={metalLayer.value}, camera={playerCamera?.name ?? "null"}, playerRB={playerRigidbody?.name ?? "null"}");
         
         if (chestTransform == null)
         {
