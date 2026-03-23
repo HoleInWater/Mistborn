@@ -143,9 +143,9 @@ public class IronPull : MonoBehaviour
     
     [Header("Debug")]
     [Tooltip("Enable debug logging for pull operations")]
-    public bool debugPullOperations = false;
+    public bool debugPullOperations = true;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = false;
+    public bool debugFlareState = true;
     
     private bool isBurning = false;
     private bool pullAppliedThisPress = false;
@@ -296,6 +296,7 @@ public class IronPull : MonoBehaviour
     {
         if (isBurning) return;
         isBurning = true;
+        if (debugPullOperations) Debug.Log("[IRON PULL] StartBurning() - Iron burning started");
         if (allomancer != null)
         {
             allomancer.StartBurning(AllomancySkill.MetalType.Iron);
@@ -307,6 +308,7 @@ public class IronPull : MonoBehaviour
         if (!isBurning) return;
         isBurning = false;
         cooldownTimer = 0.2f;
+        if (debugPullOperations) Debug.Log("[IRON PULL] StopBurning() - Iron burning stopped");
         if (allomancer != null)
         {
             allomancer.StopBurning();
@@ -438,12 +440,11 @@ public class IronPull : MonoBehaviour
     {
         if (allomancer == null) return;
         
-        // Continuous drain while burning
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
-        if (IsFlaring) drainAmount *= 3f; // Flaring drains 3x faster
-        
-        // Also drain extra per action (pull)
+        if (IsFlaring) drainAmount *= 3f;
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
+        
+        if (debugPullOperations) Debug.Log($"[IRON PULL] DrainMetal() - draining {drainAmount + actionDrain} (multiplier: {multiplier}, flaring: {IsFlaring})");
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }

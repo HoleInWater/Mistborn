@@ -218,11 +218,11 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
     public float impulseCalibration = 0.000917f; // Calibrated for 22.22 m/s at 10m with 10g coin after referenceDistance change
     [Tooltip("Enable debug logging for impulse calibration")]
-    public bool debugCalibration = false;
+    public bool debugCalibration = true;
     [Tooltip("Enable debug logging for push operations")]
-    public bool debugPushOperations = false;
+    public bool debugPushOperations = true;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = false;
+    public bool debugFlareState = true;
     
     private bool isBurning = false;
     private bool pushAppliedThisPress = false;
@@ -388,6 +388,7 @@ public class SteelPush : MonoBehaviour
     {
         if (isBurning) return;
         isBurning = true;
+        if (debugPushOperations) Debug.Log("[STEEL PUSH] StartBurning() - Steel burning started");
         if (allomancer != null)
         {
             allomancer.StartBurning(AllomancySkill.MetalType.Steel);
@@ -399,6 +400,7 @@ public class SteelPush : MonoBehaviour
         if (!isBurning) return;
         isBurning = false;
         cooldownTimer = pushCooldown;
+        if (debugPushOperations) Debug.Log("[STEEL PUSH] StopBurning() - Steel burning stopped");
         if (allomancer != null)
         {
             allomancer.StopBurning();
@@ -634,12 +636,11 @@ public class SteelPush : MonoBehaviour
     {
         if (allomancer == null) return;
         
-        // Continuous drain while burning
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
-        if (IsFlaring) drainAmount *= 3f; // Flaring drains 3x faster
-        
-        // Also drain extra per action (push/bubble)
+        if (IsFlaring) drainAmount *= 3f;
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
+        
+        if (debugPushOperations) Debug.Log($"[STEEL PUSH] DrainMetal() - draining {drainAmount + actionDrain} (multiplier: {multiplier}, flaring: {IsFlaring})");
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount + actionDrain);
     }
