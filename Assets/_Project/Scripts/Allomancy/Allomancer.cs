@@ -167,7 +167,13 @@ public class Allomancer : MonoBehaviour
     
     void Update()
     {
-        // Press R to refill all metal reserves (for testing)
+        // If we are currently burning metal, drain it by 1 per second
+        if (isBurningMetal && canBurnMetal)
+        {
+            DrainMetal(GetCurrentMetal(), 1f * Time.deltaTime);
+        }
+    
+        // Refill key for testing
         if (Input.GetKeyDown(KeyCode.R))
         {
             RefillAllMetals();
