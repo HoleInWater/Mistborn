@@ -38,6 +38,10 @@ public class AllomanticTarget : MonoBehaviour
     [Tooltip("Mass of the metal (used for push/pull calculations). If 0, uses Rigidbody mass.")]
     public float mass = 0f;
     
+    [Header("Physics Settings")]
+    [Tooltip("Air drag for this metal object (0 = no drag, higher = more resistance)")]
+    public float drag = 0.1f;
+    
     [Header("References")]
     [Tooltip("Reference to the Rigidbody (if any). Automatically assigned if left empty.")]
     public Rigidbody rigidbody;
@@ -49,10 +53,17 @@ public class AllomanticTarget : MonoBehaviour
             rigidbody = GetComponent<Rigidbody>();
         }
         
-        // Ensure gravity is enabled for realistic physics
-        if (rigidbody != null && !rigidbody.useGravity)
+        if (rigidbody != null)
         {
-            rigidbody.useGravity = true;
+            // Ensure gravity is enabled for realistic physics
+            if (!rigidbody.useGravity)
+            {
+                rigidbody.useGravity = true;
+            }
+            
+            // Apply air drag for more realistic projectile motion
+            rigidbody.drag = drag;
+            rigidbody.angularDrag = drag * 2f; // More angular drag for stability
         }
         
         if (mass <= 0f && rigidbody != null)
