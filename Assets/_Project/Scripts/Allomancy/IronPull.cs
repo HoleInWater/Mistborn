@@ -171,37 +171,21 @@ public class IronPull : MonoBehaviour
     
     void Start()
     {
-        Debug.Log("[IRON PULL] Start() called");
-        
         if (playerRigidbody == null)
-        {
             playerRigidbody = GetComponentInParent<Rigidbody>();
-            Debug.Log($"[IRON PULL] playerRigidbody: {playerRigidbody}");
-        }
         
         if (playerCamera == null)
-        {
             playerCamera = Camera.main;
-            Debug.Log($"[IRON PULL] playerCamera: {playerCamera}");
-        }
         
         if (allomancer == null)
-        {
             allomancer = GetComponentInParent<Allomancer>();
-            Debug.Log($"[IRON PULL] allomancer: {(allomancer != null ? "FOUND" : "NOT FOUND")}");
-        }
         
-        // Always try to get Metal layer
         metalLayer = LayerMask.GetMask("Metal");
-        Debug.Log($"[IRON PULL] metalLayer = {metalLayer} (Metal layer bit)");
         
         if (chestTransform == null)
-        {
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
-        }
         
         CreatePredictionLine();
-        Debug.Log("[IRON PULL] Start() complete");
     }
     
     void CreatePredictionLine()
@@ -253,19 +237,12 @@ public class IronPull : MonoBehaviour
         
         if (qKeyDown && !qKeyWasPressed)
         {
-            Debug.Log("[IRON PULL] Q pressed - cooldown=" + cooldownTimer + " isBurning=" + isBurning);
             qKeyWasPressed = true;
             
-            // Start burning
-            if (!isBurning) 
-            {
+            if (!isBurning)
                 StartBurning();
-                Debug.Log("[IRON PULL] Started burning");
-            }
             pullAppliedThisPress = false;
             
-            // Execute pull
-            Debug.Log("[IRON PULL] Executing pull - hasTarget=" + hasCurrentTarget);
             PullMetals();
             DrainMetal(flaringMetalCostMultiplier);
             pullAppliedThisPress = true;
@@ -295,11 +272,8 @@ public class IronPull : MonoBehaviour
     {
         if (isBurning) return;
         isBurning = true;
-        Debug.Log("[IRON PULL] StartBurning()");
         if (allomancer != null)
-        {
             allomancer.StartBurning(AllomancySkill.MetalType.Iron);
-        }
     }
     
     void StopBurning()
@@ -320,28 +294,18 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        // Try to get camera if not set
         if (playerCamera == null)
-        {
             playerCamera = Camera.main;
-        }
         
-        if (playerCamera == null)
-        {
-            if (Time.frameCount % 60 == 0) Debug.LogError("[IRON PULL] playerCamera is NULL!");
-            return;
-        }
+        if (playerCamera == null) return;
         
         float closestDist = maxRange;
         
-        // Method 1: Find objects with AllomanticTarget component
+        // Find objects with AllomanticTarget component
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
-        // Method 2: Find objects on "Metal" layer using overlap sphere
+        // Find objects on Metal layer
         Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, maxRange, metalLayer);
-        
-        if (Time.frameCount % 60 == 0)
-            Debug.Log($"[IRON PULL] Searching - AllomanticTarget: {allTargets.Length}, Metal Layer: {colliders.Length}");
         
         // Check AllomanticTarget objects
         foreach (var metal in allTargets)
@@ -362,7 +326,7 @@ public class IronPull : MonoBehaviour
             }
         }
         
-        // Check Metal layer objects (if no target found yet)
+        // Check Metal layer objects
         foreach (Collider col in colliders)
         {
             if (col == null) continue;
@@ -377,13 +341,8 @@ public class IronPull : MonoBehaviour
                 currentTargetRigidbody = rb;
                 currentTarget = col.GetComponent<AllomanticTarget>();
                 hasCurrentTarget = true;
-                
-                Debug.Log($"[IRON PULL] Found metal on layer: {col.name} at {dist:F1}m");
             }
         }
-        
-        if (hasCurrentTarget)
-            Debug.Log($"[IRON PULL] Target ready: {(currentTarget != null ? currentTarget.name : currentTargetRigidbody.name)}");
     }
     
     void UpdatePrediction()
@@ -437,30 +396,14 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        if (playerRigidbody == null)
-        {
-            Debug.LogError("[IRON PULL] playerRigidbody is null!");
-            return;
-        }
-        
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            Debug.LogWarning("[IRON PULL] No target - hasCurrentTarget=" + hasCurrentTarget);
-            return;
-        }
+        if (playerRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
         
-        string targetName = target != null ? target.name : targetRigidbody.name;
-        Debug.Log($"[IRON PULL] PULLING {targetName}!");
-        
         if (targetRigidbody == playerRigidbody) return;
-        if (target != null && !target.canBePulled)
-        {
-            Debug.LogWarning("[IRON PULL] Target cannot be pulled - canBePulled=false");
-            return;
-        }
+        if (target != null && !target.canBePulled) return;
         
         Vector3 pullOrigin = playerRigidbody.position;
         float distance = Vector3.Distance(pullOrigin, targetRigidbody.position);
@@ -474,7 +417,6 @@ public class IronPull : MonoBehaviour
         distanceFactor = Mathf.Clamp01(distanceFactor);
         
         float force = strength * distanceFactor;
-        Debug.Log($"[IRON PULL] Force={force:F0}N at {distance:F1}m");
         
         if (force > 0.1f)
         {
@@ -482,7 +424,6 @@ public class IronPull : MonoBehaviour
                 playerRigidbody.AddForce(directionToTarget.normalized * force);
             else
                 targetRigidbody.AddForce(-directionToTarget.normalized * force, ForceMode.Impulse);
-            Debug.Log("[IRON PULL] Force applied!");
         }
         
         if (force > shakeForceThreshold)
