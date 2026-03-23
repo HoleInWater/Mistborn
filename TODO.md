@@ -188,7 +188,7 @@
 ### Metal Flaring
 - [x] Add flaring input: Shift + Push/Pull = burn faster
 - [x] Implement flaring: force × 2, reserve drain × 3
-- [ ] Add screen vignette/pulse VFX when flaring
+- [x] Add screen vignette/pulse VFX when flaring
 
 ### Metal Wheel UI
 - [ ] Create radial menu with 16 metal slots
