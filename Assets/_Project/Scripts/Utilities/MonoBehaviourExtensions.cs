@@ -69,13 +69,17 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Stops all coroutines on a MonoBehaviour
+        /// Stops all coroutines on a MonoBehaviour (extension method with null check)
+        /// Note: This method exists for null safety but may conflict with built-in method.
+        /// Consider using direct call if null check not needed.
         /// </summary>
-        public static void StopAllCoroutines(this MonoBehaviour behaviour)
+        public static void StopAllCoroutinesSafe(this MonoBehaviour behaviour)
         {
             if (behaviour != null)
             {
-                behaviour.StopAllCoroutines();
+                // Call the built-in StopAllCoroutines method via reflection to avoid recursion
+                var method = typeof(MonoBehaviour).GetMethod("StopAllCoroutines", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                method?.Invoke(behaviour, null);
             }
         }
 
