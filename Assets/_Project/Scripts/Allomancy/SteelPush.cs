@@ -297,13 +297,14 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection (always update for prediction line)
         UpdateTargetedMetal();
         
-        // Steel Bubble defensive ability
-        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && isBurning)
+        // Steel Bubble defensive ability (F key - works standalone)
+        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && cooldownTimer <= 0f)
         {
-            if (!isSteelBubbleActive)
+            if (!isBurning)
             {
-                isSteelBubbleActive = true;
+                StartBurning();
             }
+            isSteelBubbleActive = true;
             PushMetalsInBubble();
             DrainMetal(steelBubbleMetalCostMultiplier);
         }
@@ -323,8 +324,8 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Stop burning when releasing E key
-        bool pushKeyUp = Input.GetKeyUp(KeyCode.E);
+        // Stop burning when releasing E or F key
+        bool pushKeyUp = Input.GetKeyUp(KeyCode.E) || Input.GetKeyUp(steelBubbleKey);
         if (pushKeyUp)
         {
             StopBurning();
