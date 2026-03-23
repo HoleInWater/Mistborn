@@ -131,9 +131,11 @@ public class BasicPlayerMove : MonoBehaviour
 
     void HandleMovement()
     {
+        // 1. Get Inputs
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
     
+        // 2. Calculate Direction relative to Camera
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0; right.y = 0;
@@ -141,20 +143,30 @@ public class BasicPlayerMove : MonoBehaviour
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
     
+        // 3. Determine Target Speed
+        float targetSpeed = 0f;
         if (moveDirection.magnitude > 0.1f)
         {
-            float currentSpeed = (Input.GetKey(KeyCode.LeftShift) && staminaSystem.currentStamina > 1) ? sprintSpeed : moveSpeed;
-            if (currentSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate);
+            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+            bool isSprinting = Input.GetKey(KeyCode.LeftShift) && hasStamina;
+            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
     
-            // ROTATION
+            if (isSprinting) staminaSystem.DrainStamina(drainRate);
+    
+            // Smooth Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    
-            // POSITION MOVE (Bypasses velocity issues while keeping jump height)
-            // We move the character manually, but leave the Y-axis alone for physics
-            Vector3 moveDelta = moveDirection * currentSpeed * Time.deltaTime;
-            transform.position += moveDelta;
         }
+    
+        // 4. THE CRITICAL FIX: Smoothly blend Horizontal Velocity only
+        // We calculate what our X and Z should be, but we DO NOT touch rb.velocity.y
+        Vector3 targetVelocity = moveDirection * targetSpeed;
+        
+        float newX = Mathf.Lerp(rb.velocity.x, targetVelocity.x, acceleration * Time.deltaTime);
+        float newZ = Mathf.Lerp(rb.velocity.z, targetVelocity.z, acceleration * Time.deltaTime);
+    
+        // 5. Apply the new velocity (Preserving the Jump/Gravity on Y)
+        rb.velocity = new Vector3(newX, rb.velocity.y, newZ);
     }
     
     void HandleCamera()
