@@ -35,6 +35,12 @@ public class AllomanticTarget : MonoBehaviour
     [Tooltip("If true, this object is anchored (fixed) and will pull the player instead of moving")]
     public bool isAnchored = false;
     
+    [Tooltip("Can this object be pushed by Steel? (False for aluminum, etc.)")]
+    public bool canBePushed = true;
+    
+    [Tooltip("Can this object be pulled by Iron? (False for aluminum, etc.)")]
+    public bool canBePulled = true;
+    
     [Tooltip("Mass of the metal (used for push/pull calculations). If 0, uses Rigidbody mass.")]
     public float mass = 0f;
     
@@ -69,6 +75,14 @@ public class AllomanticTarget : MonoBehaviour
         if (mass <= 0f && rigidbody != null)
         {
             mass = rigidbody.mass;
+        }
+        
+        // Set push/pull flags based on metal type (aluminum alloys are not pushable)
+        if (metalType == AllomancySkill.MetalType.Aluminum || 
+            metalType == AllomancySkill.MetalType.Duralumin)
+        {
+            canBePushed = false;
+            canBePulled = false;
         }
         
         // Register this metal object
