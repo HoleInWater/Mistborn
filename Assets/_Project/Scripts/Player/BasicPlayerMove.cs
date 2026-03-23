@@ -123,45 +123,49 @@ public class BasicPlayerMove : MonoBehaviour
         }
     }
 
-    void HandleMovement()
+void HandleMovement()
+{
+    float x = Input.GetAxisRaw("Horizontal");
+    float z = Input.GetAxisRaw("Vertical");
+
+    // 1. Calculate direction relative to camera
+    Vector3 forward = cameraPivot.forward;
+    Vector3 right = cameraPivot.right;
+    forward.y = 0; right.y = 0;
+    forward.Normalize(); right.Normalize();
+
+    Vector3 moveDirection = (forward * z + right * x).normalized;
+
+    if (moveDirection.magnitude >= 0.1f)
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical");
-    
-        Vector3 forward = cameraPivot.forward;
-        Vector3 right = cameraPivot.right;
-        forward.y = 0; right.y = 0;
-        forward.Normalize(); right.Normalize();
-    
-        Vector3 moveDirection = (forward * z + right * x).normalized;
-    
-        if (moveDirection.magnitude >= 0.1f)
+        // 2. Determine Speed (Walk vs Sprint)
+        float currentActiveSpeed = moveSpeed;
+        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+
+        if (Input.GetKey(KeyCode.LeftShift) && hasStamina)
         {
-            // 1. Determine Speed
-            float currentActiveSpeed = moveSpeed;
-            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-    
-            if (Input.GetKey(KeyCode.LeftShift) && hasStamina)
-            {
-                currentActiveSpeed = sprintSpeed;
-                staminaSystem.DrainStamina(drainRate);
-            }
-    
-            // 2. Apply Horizontal Velocity
-            // We set X and Z, but we KEEP rb.velocity.y so jumping/gravity works!
-            Vector3 horizontalVelocity = moveDirection * currentActiveSpeed;
-            rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
-    
-            // 3. Rotation
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            currentActiveSpeed = sprintSpeed;
+            staminaSystem.DrainStamina(drainRate);
         }
-        else
-        {
-            // Stop moving horizontally when no keys are pressed, but let gravity work
-            rb.velocity = new Vector3(0, rb.velocity.y, 0);
-        }
+
+        // 3. APPLY FORCE (The "True Physics" way)
+        // This calculates the velocity we WANT and applies it as a force
+        Vector3 targetVelocity = moveDirection * currentActiveSpeed;
+        Vector3 velocityChange = targetVelocity - new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        
+        // ForceMode.VelocityChange ignores mass, making it feel "snappy"
+        rb.AddForce(velocityChange, ForceMode.VelocityChange);
+
+        // 4. Rotation
+        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
+    else if (isGrounded)
+    {
+        // Friction: Quickly stop the player when no keys are held
+        rb.velocity = new Vector3(rb.velocity.x * 0.9f, rb.velocity.y, rb.velocity.z * 0.9f);
+    }
+}
     
     void HandleCamera()
     {
