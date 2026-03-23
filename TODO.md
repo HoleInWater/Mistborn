@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (37/400+):**
+**✅ Completed (38/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -53,6 +53,7 @@
 35. Fixed weight-proportional force to use referenceMass instead of targetMass (lore accurate)
 36. Added steel bubble defensive ability (pushes all nearby metal away)
 37. Improved blue lines with pulsing/shimmering effect and chest-origin as per lore
+38. Implemented object pooling for blue lines to improve performance
 
 ---
 
