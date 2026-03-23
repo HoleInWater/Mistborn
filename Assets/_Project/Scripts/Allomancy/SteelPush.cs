@@ -51,6 +51,22 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Cooldown time in seconds after releasing push button")]
     public float pushCooldown = 0.2f;
     
+    [Header("Allomancy Physics (Lore-Based)")]
+    [Tooltip("Maximum force multiplier when flaring (lore: there's a cap to how hard you can flare)")]
+    [Range(1.5f, 3f)]
+    public float maxFlareMultiplier = 2f;
+    [Tooltip("Metal cost multiplier when flaring (lore: flaring wastes energy, ~3x metal for ~2x power)")]
+    [Range(1f, 5f)]
+    public float flaringMetalCostMultiplier = 3f;
+    [Tooltip("Power efficiency when flaring (lore: higher burn = less efficient energy transfer)")]
+    [Range(0.5f, 1f)]
+    public float flaringEfficiency = 0.66f; // ~2x power for 3x metal = 66% efficiency
+    [Tooltip("Skill mastery bonus (lore: masters can push beyond natural limits with practice)")]
+    [Range(1f, 2f)]
+    public float masteryBonus = 1f;
+    [Tooltip("Maximum push force cap regardless of flaring or mastery")]
+    public float maxPushForce = 2000f;
+    
     [Header("References")]
     public Camera playerCamera;
     public LayerMask metalLayer;
@@ -280,7 +296,9 @@ public class SteelPush : MonoBehaviour
             if (pushKeyHeld && isBurning && !pushAppliedThisPress)
             {
                 PushMetals();
-                DrainMetal();
+                // Lore: flaring uses more metal for less proportional power (efficiency loss)
+                float metalMultiplier = isFlaring ? flaringMetalCostMultiplier : 1f;
+                DrainMetal(metalMultiplier);
                 pushAppliedThisPress = true;
             }
         }
@@ -482,7 +500,7 @@ public class SteelPush : MonoBehaviour
             
             Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F1}kg, dist={distance:F1}m");
             
-            // Weight-proportional force
+            // Calculate base force with weight proportionality
             float weightFactor = playerMass / referenceMass;
             float force = pushForce * weightFactor;
             
@@ -491,7 +509,7 @@ public class SteelPush : MonoBehaviour
             
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
             
-            // Calculate force with distance falloff
+            // Calculate force with distance falloff (lore: 1/r inverse proportional)
             if (distance > 0.01f && distance <= maxRange)
             {
                 float effectiveDistance = Mathf.Max(distance, minDistance);
@@ -503,10 +521,23 @@ public class SteelPush : MonoBehaviour
                 force = 0f;
             }
             
-            force = Mathf.Clamp(force, 0f, pushForce * 10f);
-            if (isFlaring) force *= 2f;
+            // Apply mastery bonus (lore: practice makes masters stronger)
+            force *= masteryBonus;
             
-            Debug.Log($"[PUSH] Force calc: base={pushForce}, final={force:F0f}N, anchored={isAnchored}");
+            // Apply flaring with efficiency penalty (lore: flaring wastes energy)
+            float metalCost = metalCostPerSecond;
+            if (isFlaring)
+            {
+                // Flaring has diminishing returns - cap at maxFlareMultiplier but costs more metal
+                float flareMultiplier = Mathf.Min(maxFlareMultiplier, flaringEfficiency * maxFlareMultiplier);
+                force *= flareMultiplier;
+                metalCost *= flaringMetalCostMultiplier;
+            }
+            
+            // Final force cap
+            force = Mathf.Clamp(force, 0f, maxPushForce);
+            
+            Debug.Log($"[PUSH] Force: base={pushForce}, distFalloff=applied, mastery={masteryBonus:F2}x, flaring={isFlaring}, final={force:F0f}N");
             
             Vector3 pushDirection = directionToTarget.normalized;
             
