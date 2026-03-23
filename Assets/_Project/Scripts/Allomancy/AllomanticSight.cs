@@ -123,6 +123,8 @@ public class AllomanticSight : MonoBehaviour
             float distance = Vector3.Distance(playerCamera.transform.position, metal.transform.position);
             
             // Create a new GameObject to hold the LineRenderer
+            // PERFORMANCE NOTE: Creating new GameObjects every frame is inefficient
+            // TODO: Implement object pooling for LineRenderers to improve performance
             GameObject lineObj = new GameObject("MetalLine");
             LineRenderer line = lineObj.AddComponent<LineRenderer>();
             
