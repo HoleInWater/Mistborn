@@ -608,6 +608,8 @@ public class SteelPush : MonoBehaviour
         // Detect all metal objects within steel bubble radius
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
         
+        Debug.Log($"[BUBBLE] Found {colliders.Length} metals in range ({steelBubbleRadius}m)");
+        
         foreach (Collider collider in colliders)
         {
             Rigidbody targetRigidbody = collider.attachedRigidbody;
@@ -615,24 +617,11 @@ public class SteelPush : MonoBehaviour
             if (targetRigidbody == playerRigidbody) continue;
             
             // Get target mass and check if pushable
-            float targetMass = 1f;
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
-            if (target != null)
-            {
-                if (!target.canBePushed) continue;
-                targetMass = target.GetEffectiveMass();
-            }
-            else
-            {
-                targetMass = targetRigidbody.mass;
-            }
+            if (target != null && !target.canBePushed) continue;
             
-            // Bubble pushes all objects equally regardless of distance (within radius)
+            // Bubble pushes all objects with constant force (not distance-based)
             float force = steelBubbleForce;
-            
-            // Weight-proportional factor (bubble uses reference mass)
-            float weightFactor = playerRigidbody.mass / referenceMass;
-            force *= weightFactor;
             
             // Direction: radial from player center
             Vector3 direction = (targetRigidbody.position - playerRigidbody.position).normalized;
@@ -643,18 +632,13 @@ public class SteelPush : MonoBehaviour
             {
                 // Push player away from anchored object
                 playerRigidbody.AddForce(-direction * force * Time.deltaTime);
+                Debug.Log($"[BUBBLE] Pushed player away from {collider.name}");
             }
             else
             {
-                // Push object away from player
-                targetRigidbody.AddForce(direction * force * Time.deltaTime);
-            }
-            
-            // Visual effect for bubble push
-            if (pushEffectPrefab != null && force > 50f)
-            {
-                GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
-                Destroy(effect, 1f);
+                // Push object away from player with impulse
+                targetRigidbody.AddForce(direction * force, ForceMode.Impulse);
+                Debug.Log($"[BUBBLE] Pushed {collider.name} with {force:F0f}N");
             }
             
             // Trigger screen tint for bubble pushes
