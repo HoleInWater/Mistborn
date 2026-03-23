@@ -155,7 +155,6 @@ public class SteelPush : MonoBehaviour
     
     private bool isBurning = false;
     private bool isFlaring = false;
-    private bool wasFlaring = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
     private float cooldownTimer = 0f;
@@ -243,15 +242,15 @@ public class SteelPush : MonoBehaviour
             StartBurning();
         }
         
-        // Flaring: holding Ctrl while burning increases force
-        isFlaring = Input.GetKey(KeyCode.LeftControl) && isBurning;
-        
-        // Detect flaring start for visual effect
-        if (isFlaring && !wasFlaring)
+        // Flaring: Ctrl toggles flaring mode
+        if (Input.GetKeyDown(KeyCode.LeftControl) && isBurning)
         {
-            StartFlaringVignette();
+            isFlaring = !isFlaring;
+            if (isFlaring)
+            {
+                StartFlaringVignette();
+            }
         }
-        wasFlaring = isFlaring;
         
         // Update targeted metal detection (always update for prediction line)
         UpdateTargetedMetal();
