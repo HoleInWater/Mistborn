@@ -62,6 +62,14 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Minimum force required to trigger camera shake")]
     public float shakeForceThreshold = 100f;
     
+    [Header("Audio")]
+    [Tooltip("AudioSource for push sounds (optional)")]
+    public AudioSource audioSource;
+    [Tooltip("Sound to play when pushing metal (optional)")]
+    public AudioClip pushSound;
+    [Tooltip("Volume multiplier for push sounds")]
+    public float soundVolume = 0.5f;
+    
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
     public float flightLaunchMultiplier = 1.5f;
@@ -211,10 +219,11 @@ public class SteelPush : MonoBehaviour
                 
                 playerRigidbody.AddForce(pushForceVector);
                 
-                // Camera shake for significant pushes (when pushing off anchored objects)
+                // Camera shake and sound for significant pushes (when pushing off anchored objects)
                 if (force > shakeForceThreshold)
                 {
                     ShakeCamera(shakeMagnitude);
+                    PlayPushSound();
                 }
             }
             else
@@ -239,10 +248,11 @@ public class SteelPush : MonoBehaviour
                     Destroy(effect, 2f); // Auto-destroy after 2 seconds
                 }
                 
-                // Camera shake for significant pushes
+                // Camera shake and sound for significant pushes
                 if (force > shakeForceThreshold)
                 {
                     ShakeCamera(shakeMagnitude);
+                    PlayPushSound();
                 }
             }
         }
@@ -256,6 +266,14 @@ public class SteelPush : MonoBehaviour
         if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
+    }
+    
+    void PlayPushSound()
+    {
+        if (audioSource != null && pushSound != null)
+        {
+            audioSource.PlayOneShot(pushSound, soundVolume);
+        }
     }
     
     void ShakeCamera(float magnitude)
