@@ -1,35 +1,3 @@
-/* IronPull.cs
- * 
- * PURPOSE:
- * Implements the Iron Allomancy ability (Lurcher) - pull metal objects toward the player.
- * Requires burning Iron metal to activate.
- * 
- * KEY FIELDS:
- * - pullForce: Base force applied when pulling metal objects
- * - maxRange: Maximum distance for pulling metal (units)
- * - metalCostPerSecond: Metal reserve consumption rate while burning
- * - allomancer: Reference to the Allomancer system for metal reserve checks
- * - playerCamera: Camera for raycasting (determines pull direction)
- * 
- * HOW IT WORKS:
- * 1. Player holds Left Mouse Button to burn Iron
- * 2. Raycasts from camera detect metal objects within range
- * 3. Applies force toward player based on pullForce and object mass
- * 4. Can pull player toward anchored heavy objects (isAnchored=true)
- * 5. Checks canBurnMetal before allowing pull
- * 
- * IMPORTANT NOTES:
- * - Requires Allomancer component to check metal reserves
- * - Heavy/anchored objects pull the player instead of moving
- * - Force is proportional to player mass vs target mass
- * - Disabled when metal reserve hits 0
- * 
- * LORE ACCURACY:
- * Iron Pull (Lurcher ability) - pulls metal toward center of self.
- * Same physics as Steel Push but opposite direction.
- */
-
-// NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -106,8 +74,6 @@ public class IronPull : MonoBehaviour
     public Color predictionColor = new Color(0f, 0.5f, 1f, 0.5f);
     [Tooltip("Number of points in prediction line")]
     public int predictionPoints = 20;
-    [Tooltip("Show prediction when holding pull button")]
-    public bool showPredictionOnHold = true;
     
     [Header("Debug")]
     [Tooltip("Enable debug logging for pull operations")]
@@ -124,7 +90,6 @@ public class IronPull : MonoBehaviour
     private bool hasCurrentTarget = false;
     
     // Visual feedback
-    private bool metalInRange = false;
     private float cooldownTimer = 0f;
     private Coroutine pullTintCoroutine;
     private Color currentPullTint = Color.clear;
@@ -246,23 +211,17 @@ public class IronPull : MonoBehaviour
         {
             allomancer.StartBurning(AllomancySkill.MetalType.Iron);
         }
-#if UNITY_EDITOR
-        Debug.Log("Burning Iron - Pull ready");
-#endif
     }
     
     void StopBurning()
     {
         if (!isBurning) return;
         isBurning = false;
-        cooldownTimer = pullCooldown; // Start cooldown after releasing
+        cooldownTimer = 0.2f;
         if (allomancer != null)
         {
             allomancer.StopBurning();
         }
-#if UNITY_EDITOR
-        Debug.Log("Stopped burning Iron");
-#endif
     }
     
     void UpdateTargetedMetal()
@@ -288,14 +247,16 @@ public class IronPull : MonoBehaviour
     
     void UpdatePrediction()
     {
-        // Show prediction when holding pull button on a valid target
-        bool shouldShowPrediction = enablePullPrediction && 
-                                   showPredictionOnHold && 
-                                   Input.GetMouseButton(0) && 
-                                   isBurning && 
-                                   hasCurrentTarget && 
-                                   currentTarget != null && 
-                                   currentTarget.canBePulled;
+        bool shouldShowPrediction = enablePullPrediction && isFlaring && hasCurrentTarget && currentTarget != null && currentTarget.canBePulled;
+        
+        if (shouldShowPrediction)
+            DrawPredictionLine();
+        else if (isPredictionActive)
+        {
+            predictionLine.gameObject.SetActive(false);
+            isPredictionActive = false;
+        }
+    }
         
         if (shouldShowPrediction)
         {
@@ -348,7 +309,6 @@ public class IronPull : MonoBehaviour
     {
         if (playerRigidbody == null) return;
         
-        // Normal pull: only pull the targeted metal (not all metals)
         if (!hasCurrentTarget || currentTargetRigidbody == null)
         {
             if (debugPullOperations) Debug.Log("[PULL] No target - aim at metal");
@@ -362,51 +322,31 @@ public class IronPull : MonoBehaviour
         if (targetRigidbody == playerRigidbody) return;
         if (target != null && !target.canBePulled) return;
         
-        float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
         float distance = Vector3.Distance(pullOrigin, targetRigidbody.position);
         Vector3 directionToTarget = targetRigidbody.position - pullOrigin;
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
         float playerMass = playerRigidbody.mass;
-        float weightFactor = playerMass / referenceMass;
-        float strength = allomanticStrength * weightFactor * masteryBonus;
-        if (isFlaring)
-        {
-            strength *= maxFlareMultiplier;
-            if (debugPullOperations) Debug.Log($"[PULL] FLARING: strength {allomanticStrength * weightFactor * masteryBonus:F0f} -> {strength:F0f}");
-        }
+        float strength = allomanticStrength * (playerMass / referenceMass) * masteryBonus;
+        if (isFlaring) strength *= maxFlareMultiplier;
         
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
         {
-            float effectiveDistance = Mathf.Max(distance, minDistance);
-            distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
+            distanceFactor = Mathf.Pow(referenceDistance / Mathf.Max(distance, minDistance), distanceExponent);
         }
         
-        Vector3 targetVelocity = targetRigidbody.velocity;
-        float velocityTowardPlayer = Vector3.Dot(targetVelocity, -directionToTarget.normalized);
-        float velocityDampingFactor = 1f;
-        if (velocityTowardPlayer > 0)
-        {
-            float velocityRatio = Mathf.Clamp01(velocityTowardPlayer / maxCoinVelocity);
-            velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
-        }
-        
-        float force = strength * distanceFactor * velocityDampingFactor;
+        float force = strength * distanceFactor;
         
         if (isAnchored)
         {
             playerRigidbody.AddForce(directionToTarget.normalized * force);
-            if (debugPullOperations) Debug.Log($"[PULL] Pulled player: {force:F0f}N");
+            if (debugPullOperations) Debug.Log($"[PULL] Player pulled toward {targetRigidbody.name}: {force:F0f}N");
         }
         else if (force > 1f)
         {
-            float currentVelocity = targetVelocity.magnitude;
-            if (currentVelocity < maxCoinVelocity)
-            {
-                targetRigidbody.AddForce(-directionToTarget.normalized * force, ForceMode.Impulse);
-                if (debugPullOperations) Debug.Log($"[PULL] Pulled {targetRigidbody.name}: {force:F0f}N");
-            }
+            targetRigidbody.AddForce(-directionToTarget.normalized * force, ForceMode.Impulse);
+            if (debugPullOperations) Debug.Log($"[PULL] Pulled {targetRigidbody.name} toward player: {force:F0f}N");
         }
         
         if (force > shakeForceThreshold)
@@ -422,12 +362,6 @@ public class IronPull : MonoBehaviour
         
         float drainAmount = metalCostPerSecond * multiplier;
         allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount);
-    }
-    
-    void PlayPullSound()
-    {
-        // Placeholder for audio - similar to SteelPush
-        // Could use different sound for pulling
     }
     
     void ShakeCamera(float magnitude)
@@ -462,18 +396,14 @@ public class IronPull : MonoBehaviour
         pullTintCoroutine = StartCoroutine(PullTintCoroutine(pullForce));
     }
     
-    IEnumerator PullTintCoroutine(float pullForce)
+    IEnumerator PullTintCoroutine(float force)
     {
-        // Determine color based on pull force
-        Color tintColor;
-        if (pullForce < pullForce * 0.3f) // Weak pull
-            tintColor = weakPullTint;
-        else if (pullForce < pullForce * 0.7f) // Medium pull
-            tintColor = mediumPullTint;
-        else // Strong pull
+        Color tintColor = weakPullTint;
+        if (force > shakeForceThreshold * 2f)
             tintColor = strongPullTint;
+        else if (force > shakeForceThreshold)
+            tintColor = mediumPullTint;
         
-        // Brief full-screen tint effect using GUI
         float elapsed = 0f;
         while (elapsed < pullTintDuration)
         {
@@ -488,31 +418,24 @@ public class IronPull : MonoBehaviour
     
     void OnGUI()
     {
-        // Draw pull tint effect (full screen overlay)
         if (currentPullTint.a > 0.01f)
         {
             GUI.color = currentPullTint;
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white; // Reset for other GUI elements
+            GUI.color = Color.white;
         }
         
-        // Simple debug display for Iron Pull
-        if (isBurning)
+        if (isFlaring && debugPullOperations)
         {
             GUIStyle style = new GUIStyle();
-            style.normal.textColor = Color.blue;
+            style.normal.textColor = Color.cyan;
             style.fontSize = 14;
             
-            GUI.Label(new Rect(10, 250, 300, 20), $"Iron Pull Active", style);
+            GUI.Label(new Rect(10, 250, 300, 20), $"Iron Pull: Flaring", style);
             if (hasCurrentTarget && currentTargetRigidbody != null)
             {
-                float distance = currentTargetHit.distance;
-                float mass = currentTarget != null ? currentTarget.GetEffectiveMass() : currentTargetRigidbody.mass;
-                bool canPull = currentTarget != null ? currentTarget.canBePulled : true;
-                bool isAnchored = (currentTarget != null && currentTarget.isAnchored) || currentTargetRigidbody.isKinematic;
-                
-                GUI.Label(new Rect(10, 270, 300, 20), $"Target: {distance:F2}m, {mass:F1}kg", style);
-                GUI.Label(new Rect(10, 290, 300, 20), $"Can Pull: {canPull}, Anchored: {isAnchored}", style);
+                float distance = Vector3.Distance(playerRigidbody.position, currentTargetRigidbody.position);
+                GUI.Label(new Rect(10, 270, 300, 20), $"Target: {distance:F1}m", style);
             }
         }
     }
