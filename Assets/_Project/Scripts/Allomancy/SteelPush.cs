@@ -93,6 +93,18 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Color when no metal in range")]
     public Color noMetalColor = Color.white;
     
+    [Header("Push Prediction")]
+    [Tooltip("Enable trajectory prediction when targeting metal")]
+    public bool enablePushPrediction = true;
+    [Tooltip("Color for prediction line")]
+    public Color predictionColor = new Color(1f, 1f, 0f, 0.5f); // Semi-transparent yellow
+    [Tooltip("Number of points in prediction line")]
+    public int predictionPoints = 20;
+    [Tooltip("Time step for prediction (seconds)")]
+    public float predictionTimeStep = 0.1f;
+    [Tooltip("Show prediction when holding push button")]
+    public bool showPredictionOnHold = true;
+    
     [Header("Steel Bubble (Defensive)")]
     [Tooltip("Enable steel bubble defensive ability")]
     public bool enableSteelBubble = true;
@@ -133,12 +145,44 @@ public class SteelPush : MonoBehaviour
     private Rigidbody currentTargetRigidbody;
     private bool hasCurrentTarget = false;
     
+    // Push prediction
+    private LineRenderer predictionLine;
+    private bool isPredictionActive = false;
+    
     void Start()
     {
         if (playerRigidbody == null)
         {
             playerRigidbody = GetComponentInParent<Rigidbody>();
         }
+        
+        // Create prediction line renderer
+        CreatePredictionLine();
+    }
+    
+    void CreatePredictionLine()
+    {
+        GameObject lineObj = new GameObject("PushPredictionLine");
+        predictionLine = lineObj.AddComponent<LineRenderer>();
+        
+        // Set up line renderer
+        Shader shader = Shader.Find("Sprites/Default");
+        if (shader != null)
+        {
+            predictionLine.material = new Material(shader);
+        }
+        else
+        {
+            predictionLine.material = new Material(Shader.Find("Unlit/Color"));
+        }
+        
+        predictionLine.startColor = predictionColor;
+        predictionLine.endColor = predictionColor;
+        predictionLine.startWidth = 0.03f;
+        predictionLine.endWidth = 0.01f;
+        predictionLine.positionCount = predictionPoints;
+        predictionLine.useWorldSpace = true;
+        predictionLine.gameObject.SetActive(false);
     }
     
     void Update()
@@ -200,6 +244,9 @@ public class SteelPush : MonoBehaviour
         
         // Update targeted metal detection
         UpdateTargetedMetal();
+        
+        // Update push prediction
+        UpdatePrediction();
     }
     
     void StartBurning()
@@ -248,6 +295,89 @@ public class SteelPush : MonoBehaviour
                 hasCurrentTarget = true;
             }
         }
+    }
+    
+    void UpdatePrediction()
+    {
+        // Show prediction when holding push button on a valid target
+        bool shouldShowPrediction = enablePushPrediction && 
+                                   showPredictionOnHold && 
+                                   Input.GetMouseButton(1) && 
+                                   isBurning && 
+                                   hasCurrentTarget && 
+                                   currentTarget != null && 
+                                   currentTarget.canBePushed;
+        
+        if (shouldShowPrediction)
+        {
+            DrawPredictionLine();
+        }
+        else if (isPredictionActive)
+        {
+            predictionLine.gameObject.SetActive(false);
+            isPredictionActive = false;
+        }
+    }
+    
+    void DrawPredictionLine()
+    {
+        if (predictionLine == null || currentTargetRigidbody == null) return;
+        
+        // Get target mass
+        float targetMass = currentTarget.GetEffectiveMass();
+        
+        // Calculate initial velocity based on push force
+        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
+        float weightFactor = playerMass / referenceMass;
+        float force = pushForce * weightFactor;
+        
+        // Apply distance factor
+        float distance = currentTargetHit.distance;
+        float effectiveDistance = Mathf.Max(distance, minDistance);
+        float distanceFactor = zenithDistance / effectiveDistance;
+        force *= distanceFactor;
+        
+        // Apply flaring multiplier
+        if (isFlaring) force *= 2f;
+        
+        // Calculate initial velocity (impulse model for light objects)
+        Vector3 initialVelocity;
+        if (targetMass <= impulseMassThreshold)
+        {
+            // Impulse mode
+            float impulseForce = force * impulseCalibration;
+            float speed = impulseForce / targetMass;
+            Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
+            initialVelocity = pushDirection * speed;
+        }
+        else
+        {
+            // Continuous force - estimate after 0.1 seconds
+            float acceleration = force / targetMass;
+            Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
+            initialVelocity = pushDirection * acceleration * 0.1f;
+        }
+        
+        // Calculate trajectory points
+        Vector3[] points = new Vector3[predictionPoints];
+        Vector3 startPos = currentTargetRigidbody.position;
+        Vector3 velocity = initialVelocity;
+        float timeStep = predictionTimeStep;
+        
+        for (int i = 0; i < predictionPoints; i++)
+        {
+            points[i] = startPos;
+            
+            // Update position and velocity for projectile motion with gravity
+            startPos += velocity * timeStep;
+            velocity += Physics.gravity * timeStep;
+        }
+        
+        // Update line renderer
+        predictionLine.positionCount = predictionPoints;
+        predictionLine.SetPositions(points);
+        predictionLine.gameObject.SetActive(true);
+        isPredictionActive = true;
     }
     
     void PushMetals()
@@ -630,5 +760,13 @@ public class SteelPush : MonoBehaviour
         
         float impulseForce = force * impulseCalibration;
         return impulseForce / coinMass; // deltaV = impulse / mass
+    }
+    
+    void OnDestroy()
+    {
+        if (predictionLine != null)
+        {
+            Destroy(predictionLine.gameObject);
+        }
     }
 }
