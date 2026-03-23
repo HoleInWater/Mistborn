@@ -235,8 +235,6 @@ public class IronPull : MonoBehaviour
     
     void Update()
     {
-        if (debugPullOperations) Debug.Log($"[PULL] Update - canBurn={allomancer?.canBurnMetal ?? true}, Q={Input.GetKeyDown(KeyCode.Q)}");
-        
         // EARLY EXIT: Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
@@ -265,18 +263,20 @@ public class IronPull : MonoBehaviour
         if (qKeyDown && !qKeyWasPressed)
         {
             qKeyWasPressed = true;
+            Debug.Log($"[PULL] Q pressed! cooldown={cooldownTimer}, isBurning={isBurning}");
             
             // Start burning (if not on cooldown)
             if (cooldownTimer <= 0f)
             {
                 if (!isBurning) StartBurning();
                 pullAppliedThisPress = false;
+                Debug.Log($"[PULL] Started burning, isBurning now={isBurning}");
             }
             
             // Execute pull (always, regardless of flare state)
             if (isBurning && !pullAppliedThisPress)
             {
-                if (debugPullOperations) Debug.Log($"[PULL] Executing pull! Flaring={IsFlaring}");
+                Debug.Log($"[PULL] Executing pull!");
                 PullMetals();
                 DrainMetal(flaringMetalCostMultiplier);
                 pullAppliedThisPress = true;
@@ -403,9 +403,17 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        if (debugPullOperations) Debug.Log($"[PULL] PullMetals called - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
-        if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
+        Debug.Log($"[PULL] PullMetals start - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
+        if (playerRigidbody == null) 
+        {
+            Debug.Log("[PULL] FAIL: no player RB");
+            return;
+        }
+        if (!hasCurrentTarget || currentTargetRigidbody == null) 
+        {
+            Debug.Log("[PULL] FAIL: no target");
+            return;
+        }
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
@@ -452,6 +460,7 @@ public class IronPull : MonoBehaviour
         // Also drain extra per action (pull)
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
         
+        Debug.Log($"[IRON] Drain: {drainAmount + actionDrain}, allomancer={allomancer != null}");
         allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }
     
