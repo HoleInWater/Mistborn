@@ -427,18 +427,20 @@ public class SteelPush : MonoBehaviour
         currentTargetRigidbody = null;
         
         if (playerCamera == null) return;
-        if (metalLayer.value == 0) return;
         
         // Raycast from camera center to find specific metal target
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
+        if (Physics.Raycast(ray, out currentTargetHit, maxRange))
         {
-            currentTargetRigidbody = currentTargetHit.rigidbody;
-            if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+            AllomanticTarget target = currentTargetHit.collider.GetComponent<AllomanticTarget>();
+            if (target != null && target.canBePushed)
             {
-                currentTarget = currentTargetHit.collider.GetComponent<AllomanticTarget>();
-                hasCurrentTarget = true;
-                // Debug removed - was firing every frame
+                currentTargetRigidbody = currentTargetHit.rigidbody;
+                if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+                {
+                    currentTarget = target;
+                    hasCurrentTarget = true;
+                }
             }
         }
     }
@@ -611,7 +613,7 @@ public class SteelPush : MonoBehaviour
     {
         if (playerRigidbody == null) return;
         
-        Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
+        Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius);
         
         foreach (Collider collider in colliders)
         {
@@ -619,11 +621,11 @@ public class SteelPush : MonoBehaviour
             if (targetRigidbody == null || targetRigidbody == playerRigidbody) continue;
             
             AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
-            if (target != null && !target.canBePushed) continue;
+            if (target == null || !target.canBePushed) continue;
             
             float force = steelBubbleForce;
             Vector3 direction = (targetRigidbody.position - playerRigidbody.position).normalized;
-            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+            bool isAnchored = target.isAnchored || targetRigidbody.isKinematic;
             
             if (isAnchored)
             {
