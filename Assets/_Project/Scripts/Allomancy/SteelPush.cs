@@ -1,200 +1,81 @@
-/* SteelPush.cs
- * 
- * PURPOSE:
- * Implements the Steel Allomancy ability (Coinshot) - push metal objects away from the player.
- * Requires burning Steel metal to activate.
- * 
- * KEY FIELDS:
- * - pushForce: Base force applied when pushing metal objects
- * - maxRange: Maximum distance for pushing metal (units)
- * - metalCostPerSecond: Metal reserve consumption rate while burning
- * - allomancer: Reference to the Allomancer system for metal reserve checks
- * - playerCamera: Camera for raycasting (determines push direction)
- * 
- * HOW IT WORKS:
- * 1. Player holds Right Mouse Button to burn Steel
- * 2. Raycasts from camera detect metal objects within range
- * 3. Applies force away from player based on pushForce and object mass
- * 4. Can push player away from anchored heavy objects (isAnchored=true)
- * 5. Checks canBurnMetal before allowing push
- * 
- * IMPORTANT NOTES:
- * - Requires Allomancer component to check metal reserves
- * - Heavy/anchored objects push the player instead of moving
- * - Force is proportional to player mass vs target mass
- * - Disabled when metal reserve hits 0
- * 
- * LORE ACCURACY:
- * Steel Push (Coinshot ability) - pushes metal away from center of self.
- * Stronger push when closer (zenith point ~5m). Anchored objects push the allomancer.
- */
-
-// NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
 
 public class SteelPush : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Reference mass for force calculation (average human = 80kg).")]
     public float referenceMass = 80f;
-    [Tooltip("Reference distance where force factor = 1.")]
     public float referenceDistance = 3f;
-    [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
     public float minDistance = 1f;
     public float maxRange = 30f;
     public float metalCostPerSecond = 2f;
-    [Tooltip("Cooldown time in seconds after releasing push button")]
     public float pushCooldown = 0.2f;
     
     [Header("Allomancy Physics (Lore-Accurate)")]
-    [Tooltip("Base allomantic strength - weak without flaring")]
     public float allomanticStrength = 50f;
-    [Tooltip("Maximum velocity for coins (lore: terminal velocity based on strength)")]
     public float maxCoinVelocity = 20f;
-    [Tooltip("Distance exponent (lore: force decreases with distance)")]
     [Range(1f, 2f)]
     public float distanceExponent = 1f;
-    [Tooltip("Velocity damping (lore: coins slow down as they fly)")]
     [Range(0f, 1f)]
     public float velocityDamping = 0.5f;
     
     [Header("Flaring")]
-    [Tooltip("Maximum force multiplier when flaring - flaring = max power")]
     [Range(1.5f, 4f)]
     public float maxFlareMultiplier = 2.5f;
-    [Tooltip("Metal cost multiplier when flaring")]
     [Range(1f, 5f)]
     public float flaringMetalCostMultiplier = 3f;
-    [Tooltip("Skill mastery bonus")]
-    [Range(1f, 2f)]
-    public float masteryBonus = 1f;
+    
+    [Header("Steel Bubble")]
+    [Tooltip("Enable steel bubble (defensive push field)")]
+    public bool enableSteelBubble = true;
+    public KeyCode steelBubbleKey = KeyCode.F;
+    public float steelBubbleRadius = 2.5f;
+    public float steelBubbleForce = 50f;
+    public float steelBubbleCooldown = 0.5f;
+    public float steelBubbleMetalCostMultiplier = 1.5f;
     
     [Header("References")]
     public Camera playerCamera;
     public LayerMask metalLayer;
     public Allomancer allomancer;
     public Rigidbody playerRigidbody;
-    [Tooltip("Transform where push originates from (chest/center). Uses playerRigidbody if not set.")]
     public Transform chestTransform;
     
     [Header("Visual Effects")]
-    [Tooltip("Particle effect prefab to spawn when pushing metal (optional)")]
     public GameObject pushEffectPrefab;
-    [Tooltip("Camera shake magnitude when pushing with significant force")]
     public float shakeMagnitude = 0.1f;
-    [Tooltip("Duration of camera shake in seconds")]
     public float shakeDuration = 0.1f;
-    [Tooltip("Minimum force required to trigger camera shake")]
     public float shakeForceThreshold = 100f;
     
-    [Header("Focused Push")]
-    [Tooltip("Key to hold for pushing only targeted metal (single selection)")]
-    public KeyCode focusKey = KeyCode.LeftControl;
-    [Tooltip("Color for focused push crosshair")]
-    public Color focusedPushColor = Color.red;
-    
-    [Header("Audio")]
-    [Tooltip("AudioSource for push sounds (optional)")]
-    public AudioSource audioSource;
-    [Tooltip("Sound to play when pushing metal (optional)")]
-    public AudioClip pushSound;
-    [Tooltip("Volume multiplier for push sounds")]
-    public float soundVolume = 0.5f;
-    
-    [Header("Flaring Visual Effect")]
-    [Tooltip("UI Image for vignette effect when flaring (optional)")]
-    public UnityEngine.UI.Image vignetteImage;
-    [Tooltip("Color of vignette when flaring")]
-    public Color flaringColor = new Color(1f, 0.2f, 0f, 0.3f); // Orange tint
-    [Tooltip("Duration of vignette pulse in seconds")]
-    public float vignettePulseDuration = 0.5f;
-    [Tooltip("Maximum alpha of vignette during pulse")]
-    public float vignetteMaxAlpha = 0.3f;
-    
-    [Header("UI Feedback")]
-    [Tooltip("Crosshair UI Image that changes color when metal is in range (optional)")]
-    public UnityEngine.UI.Image crosshairImage;
-    [Tooltip("Color when metal is within push range")]
-    public Color metalInRangeColor = Color.green;
-    [Tooltip("Color when no metal in range")]
-    public Color noMetalColor = Color.white;
-    
-    [Header("Push Prediction")]
-    [Tooltip("Enable trajectory prediction when targeting metal")]
+    [Header("Prediction")]
     public bool enablePushPrediction = true;
-    [Tooltip("Color for prediction line")]
-    public Color predictionColor = new Color(1f, 1f, 0f, 0.5f); // Semi-transparent yellow
-    [Tooltip("Number of points in prediction line")]
+    public Color predictionColor = Color.red;
     public int predictionPoints = 20;
-    [Tooltip("Time step for prediction (seconds)")]
     public float predictionTimeStep = 0.1f;
-    [Tooltip("Show prediction when holding push button")]
-    public bool showPredictionOnHold = true;
-    
-    [Header("Push Force Visual Feedback")]
-    [Tooltip("Enable screen tint when pushing")]
-    public bool enablePushScreenTint = true;
-    [Tooltip("Color for weak pushes")]
-    public Color weakPushTint = new Color(0f, 1f, 0f, 0.1f); // Green
-    [Tooltip("Color for medium pushes")]
-    public Color mediumPushTint = new Color(1f, 1f, 0f, 0.2f); // Yellow
-    [Tooltip("Color for strong pushes")]
-    public Color strongPushTint = new Color(1f, 0f, 0f, 0.3f); // Red
-    [Tooltip("Duration of screen tint effect")]
-    public float pushTintDuration = 0.2f;
-    
-    [Header("Steel Bubble (Defensive)")]
-    [Tooltip("Enable steel bubble defensive ability")]
-    public bool enableSteelBubble = true;
-    [Tooltip("Key to activate steel bubble")]
-    public KeyCode steelBubbleKey = KeyCode.F;
-    [Tooltip("Radius of steel bubble (~6-10 feet like Wax's bubble)")]
-    public float steelBubbleRadius = 2.5f;
-    [Tooltip("Force applied by steel bubble (lore: gentle push like breeze)")]
-    public float steelBubbleForce = 50f;
-    [Tooltip("Cooldown between steel bubble activations")]
-    public float steelBubbleCooldown = 0.5f;
-    [Tooltip("Does steel bubble consume extra metal?")]
-    public float steelBubbleMetalCostMultiplier = 1.5f;
-    
-    [Header("Flight Mechanics")]
-    [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
-    public float flightLaunchMultiplier = 1.5f;
-    [Tooltip("Angle threshold (degrees) from downward to consider 'below' for flight boost")]
-    public float flightAngleThreshold = 45f;
     
     [Header("Debug")]
-    [Tooltip("Enable debug logging")]
-    public bool debugCalibration = false;
     public bool debugPushOperations = false;
     
     private bool isBurning = false;
     private bool isFlaring = false;
-    private bool pushAppliedThisPress = false;
-    private bool bubbleAppliedThisPress = false;
     private bool eKeyWasPressed = false;
+    private bool bubbleAppliedThisPress = false;
     private Coroutine vignetteCoroutine;
-    private bool metalInRange = false;
     private float cooldownTimer = 0f;
     private float steelBubbleCooldownTimer = 0f;
-    private bool isSteelBubbleActive = false;
     
-    // Targeted metal detection
     private RaycastHit currentTargetHit;
     private AllomanticTarget currentTarget;
     private Rigidbody currentTargetRigidbody;
     private bool hasCurrentTarget = false;
     
-    // Push prediction
-    private LineRenderer predictionLine;
-    private bool isPredictionActive = false;
-    
-    // Push force visual feedback
+    private float cooldown = 0f;
     private Coroutine pushTintCoroutine;
     private Color currentPushTint = Color.clear;
+    
+    private LineRenderer predictionLine;
+    private bool isPredictionActive = false;
     
     void Start()
     {
@@ -221,16 +102,11 @@ public class SteelPush : MonoBehaviour
         GameObject lineObj = new GameObject("PushPredictionLine");
         predictionLine = lineObj.AddComponent<LineRenderer>();
         
-        // Set up line renderer
         Shader shader = Shader.Find("Sprites/Default");
         if (shader != null)
-        {
             predictionLine.material = new Material(shader);
-        }
         else
-        {
             predictionLine.material = new Material(Shader.Find("Unlit/Color"));
-        }
         
         predictionLine.startColor = predictionColor;
         predictionLine.endColor = predictionColor;
@@ -243,21 +119,17 @@ public class SteelPush : MonoBehaviour
     
     void Update()
     {
-        // Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
             if (isBurning) StopBurning();
             return;
         }
         
-        // Update cooldown timers
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // E KEY HANDLING - Push mechanics (requires flaring)
         bool eKeyDown = Input.GetKeyDown(KeyCode.E);
         bool eKeyUp = Input.GetKeyUp(KeyCode.E);
         
@@ -266,24 +138,19 @@ public class SteelPush : MonoBehaviour
             if (isFlaring)
             {
                 eKeyWasPressed = true;
-                
-                if (!isBurning)
-                    StartBurning();
-                
+                if (!isBurning) StartBurning();
                 PushMetals();
                 DrainMetal(flaringMetalCostMultiplier);
                 StartFlaringVignette();
             }
         }
         
-        // E KEY RELEASED
         if (eKeyUp)
         {
             eKeyWasPressed = false;
             StopBurning();
         }
         
-        // Steel Bubble: F key (one per press, requires flaring)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
             if (isFlaring && steelBubbleCooldownTimer <= 0f)
@@ -299,7 +166,6 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Update push prediction
         UpdatePrediction();
     }
     
@@ -308,9 +174,7 @@ public class SteelPush : MonoBehaviour
         if (isBurning) return;
         isBurning = true;
         if (allomancer != null)
-        {
             allomancer.StartBurning(AllomancySkill.MetalType.Steel);
-        }
     }
     
     void StopBurning()
@@ -319,9 +183,7 @@ public class SteelPush : MonoBehaviour
         isBurning = false;
         cooldownTimer = pushCooldown;
         if (allomancer != null)
-        {
             allomancer.StopBurning();
-        }
     }
     
     void UpdateTargetedMetal()
@@ -333,14 +195,9 @@ public class SteelPush : MonoBehaviour
         if (playerCamera == null) return;
         
         float closestDist = maxRange;
-        
-        // Find objects with AllomanticTarget component
         var allTargets = FindObjectsOfType<AllomanticTarget>();
-        
-        // Find objects on Metal layer using overlap sphere
         Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, maxRange, metalLayer);
         
-        // Check AllomanticTarget objects
         foreach (var metal in allTargets)
         {
             if (metal == null) continue;
@@ -349,7 +206,6 @@ public class SteelPush : MonoBehaviour
             if (!metal.canBePushed) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            
             if (dist < closestDist && dist > 0.1f)
             {
                 closestDist = dist;
@@ -359,7 +215,6 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Check Metal layer objects
         foreach (Collider col in colliders)
         {
             if (col == null) continue;
@@ -367,7 +222,6 @@ public class SteelPush : MonoBehaviour
             if (rb == null || rb == playerRigidbody) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            
             if (dist < closestDist && dist > 0.1f && dist <= maxRange)
             {
                 closestDist = dist;
@@ -380,20 +234,10 @@ public class SteelPush : MonoBehaviour
     
     void UpdatePrediction()
     {
-        bool isPushing = Input.GetKey(KeyCode.E);
-        
-        bool shouldShowPrediction = enablePushPrediction && 
-                                   showPredictionOnHold && 
-                                   isPushing && 
-                                   isBurning && 
-                                   hasCurrentTarget && 
-                                   currentTarget != null && 
-                                   currentTarget.canBePushed;
+        bool shouldShowPrediction = enablePushPrediction && hasCurrentTarget && currentTarget != null && currentTarget.canBePushed;
         
         if (shouldShowPrediction)
-        {
             DrawPredictionLine();
-        }
         else if (isPredictionActive)
         {
             predictionLine.gameObject.SetActive(false);
@@ -405,52 +249,20 @@ public class SteelPush : MonoBehaviour
     {
         if (predictionLine == null || currentTargetRigidbody == null) return;
         
-        // Get target mass
-        float targetMass = currentTarget.GetEffectiveMass();
+        float distance = Vector3.Distance(playerRigidbody.position, currentTargetRigidbody.position);
+        Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
         
-        // Calculate initial velocity based on push force
-        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
-        float weightFactor = playerMass / referenceMass;
-        float force = pushForce * weightFactor;
+        float weightFactor = playerRigidbody.mass / referenceMass;
+        float strength = allomanticStrength * weightFactor;
+        if (isFlaring) strength *= maxFlareMultiplier;
         
-        // Apply distance factor with zenith cap
-        float distance = currentTargetHit.distance;
-        if (distance > 0.01f && distance <= maxRange)
-        {
-            float effectiveDistance = Mathf.Max(distance, minDistance);
-            float distanceFactor = referenceDistance / effectiveDistance;
-            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
-            force *= distanceFactor;
-        }
-        else if (distance > maxRange)
-        {
-            force = 0f; // Beyond range
-        }
+        float distanceFactor = 1f - (distance / maxRange);
+        distanceFactor = Mathf.Clamp01(distanceFactor);
         
-        // Apply flaring multiplier
-        if (isFlaring) force *= 2f;
+        float force = strength * distanceFactor;
+        float initialSpeed = Mathf.Min(force * 0.1f, maxCoinVelocity);
+        Vector3 initialVelocity = pushDirection * initialSpeed;
         
-        // Calculate initial velocity (impulse model for light objects)
-        Vector3 initialVelocity;
-        float initialSpeed;
-        if (targetMass <= impulseMassThreshold)
-        {
-            // Impulse mode
-            float impulseForce = force * impulseCalibration;
-            initialSpeed = impulseForce / targetMass;
-            Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
-            initialVelocity = pushDirection * initialSpeed;
-        }
-        else
-        {
-            // Continuous force - estimate after 0.1 seconds
-            float acceleration = force / targetMass;
-            Vector3 pushDirection = (currentTargetRigidbody.position - playerRigidbody.position).normalized;
-            initialVelocity = pushDirection * acceleration * 0.1f;
-            initialSpeed = initialVelocity.magnitude;
-        }
-        
-        // Calculate trajectory points and track final velocity
         Vector3[] points = new Vector3[predictionPoints];
         Vector3 startPos = currentTargetRigidbody.position;
         Vector3 velocity = initialVelocity;
@@ -459,28 +271,13 @@ public class SteelPush : MonoBehaviour
         for (int i = 0; i < predictionPoints; i++)
         {
             points[i] = startPos;
-            
-            // Update position and velocity for projectile motion with gravity
             startPos += velocity * timeStep;
             velocity += Physics.gravity * timeStep;
         }
         
-        // Color based on initial speed (velocity at push)
-        Color startColor = Color.cyan;
-        Color endColor;
-        
-        if (initialSpeed < 10f) // Slow
-            endColor = Color.green;
-        else if (initialSpeed < 30f) // Medium
-            endColor = Color.yellow;
-        else // Fast
-            endColor = Color.red;
-        
-        // Set gradient colors
-        predictionLine.startColor = startColor;
-        predictionLine.endColor = endColor;
-        
-        // Update line renderer
+        Color lineColor = isFlaring ? Color.yellow : predictionColor;
+        predictionLine.startColor = lineColor;
+        predictionLine.endColor = lineColor;
         predictionLine.positionCount = predictionPoints;
         predictionLine.SetPositions(points);
         predictionLine.gameObject.SetActive(true);
@@ -503,45 +300,22 @@ public class SteelPush : MonoBehaviour
         Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
         bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
         
-        // Lore-accurate: Allomantic strength based on player mass
         float weightFactor = playerRigidbody.mass / referenceMass;
-        float strength = allomanticStrength * weightFactor * masteryBonus;
-        if (isFlaring)
-            strength *= maxFlareMultiplier;
+        float strength = allomanticStrength * weightFactor;
+        if (isFlaring) strength *= maxFlareMultiplier;
         
-        // Lore-accurate: Force decreases with distance (inverse relationship)
-        float distanceFactor = 1f;
-        if (distance > 0.01f && distance <= maxRange)
-        {
-            float effectiveDistance = Mathf.Max(distance, minDistance);
-            distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
-        }
+        float distanceFactor = 1f - (distance / maxRange);
+        distanceFactor = Mathf.Clamp01(distanceFactor);
         
-        // Lore-accurate: Metals have terminal velocity based on allomancer strength
-        Vector3 targetVelocity = targetRigidbody.velocity;
-        float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
-        float velocityDampingFactor = 1f;
-        if (velocityAwayFromPlayer > 0)
-        {
-            float velocityRatio = Mathf.Clamp01(velocityAwayFromPlayer / maxCoinVelocity);
-            velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
-        }
-        
-        float force = strength * distanceFactor * velocityDampingFactor;
+        float force = strength * distanceFactor;
         
         if (isAnchored)
         {
             playerRigidbody.AddForce(-directionToTarget.normalized * force);
-            if (debugPushOperations) Debug.Log($"[PUSH] Pushed player: {force:F0f}N");
         }
         else if (force > 1f)
         {
-            float currentVelocity = targetVelocity.magnitude;
-            if (currentVelocity < maxCoinVelocity)
-            {
-                targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
-                if (debugPushOperations) Debug.Log($"[PUSH] Pushed {targetRigidbody.name}: {force:F0f}N");
-            }
+            targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
         }
         
         if (force > shakeForceThreshold)
@@ -556,7 +330,6 @@ public class SteelPush : MonoBehaviour
         if (playerRigidbody == null) return;
         
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, steelBubbleRadius, metalLayer);
-        if (debugPushOperations) Debug.Log($"[BUBBLE] {colliders.Length} metals in {steelBubbleRadius}m range");
         
         foreach (Collider collider in colliders)
         {
@@ -568,71 +341,17 @@ public class SteelPush : MonoBehaviour
             
             float force = steelBubbleForce;
             Vector3 direction = (targetRigidbody.position - playerRigidbody.position).normalized;
-            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
-            
-            if (isAnchored)
-            {
-                playerRigidbody.AddForce(-direction * force * Time.deltaTime);
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed player from {collider.name}");
-            }
-            else
-            {
-                targetRigidbody.AddForce(direction * force, ForceMode.Impulse);
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Pushed {collider.name}: {force:F0f}N");
-            }
-            
-            TriggerPushTint(force);
+            targetRigidbody.AddForce(direction * force, ForceMode.Impulse);
         }
     }
     
     void DrainMetal(float multiplier = 1f)
     {
         if (allomancer == null) return;
-        
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
-        if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
-        
-        allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
-    }
-    
-    void PlayPushSound()
-    {
-        if (audioSource != null && pushSound != null)
-        {
-            audioSource.PlayOneShot(pushSound, soundVolume);
-        }
-    }
-    
-    void TriggerPushTint(float pushForce)
-    {
-        if (!enablePushScreenTint) return;
-        if (pushTintCoroutine != null) StopCoroutine(pushTintCoroutine);
-        pushTintCoroutine = StartCoroutine(PushTintCoroutine(pushForce));
-    }
-    
-    IEnumerator PushTintCoroutine(float pushForce)
-    {
-        // Determine color based on push force
-        Color tintColor;
-        if (pushForce < pushForce * 0.3f) // Weak push
-            tintColor = weakPushTint;
-        else if (pushForce < pushForce * 0.7f) // Medium push
-            tintColor = mediumPushTint;
-        else // Strong push
-            tintColor = strongPushTint;
-        
-        // Brief full-screen tint effect using GUI
-        float elapsed = 0f;
-        while (elapsed < pushTintDuration)
-        {
-            float alpha = Mathf.Lerp(tintColor.a, 0f, elapsed / pushTintDuration);
-            // We'll use OnGUI to draw this - store the current tint color
-            currentPushTint = new Color(tintColor.r, tintColor.g, tintColor.b, alpha);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        currentPushTint = Color.clear;
-        pushTintCoroutine = null;
+        if (isFlaring) drainAmount *= 3f;
+        float actionDrain = metalCostPerSecond * 0.5f * multiplier;
+        allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount + actionDrain);
     }
     
     void ShakeCamera(float magnitude)
@@ -650,9 +369,7 @@ public class SteelPush : MonoBehaviour
         {
             float x = Random.Range(-1f, 1f) * magnitude;
             float y = Random.Range(-1f, 1f) * magnitude;
-            
             playerCamera.transform.localPosition = originalPos + new Vector3(x, y, 0f);
-            
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -660,224 +377,52 @@ public class SteelPush : MonoBehaviour
         playerCamera.transform.localPosition = originalPos;
     }
     
-    void StartFlaringVignette()
+    void TriggerPushTint(float force)
     {
-        if (vignetteImage == null) return;
-        if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
-        vignetteCoroutine = StartCoroutine(VignettePulseCoroutine());
+        if (pushTintCoroutine != null) StopCoroutine(pushTintCoroutine);
+        pushTintCoroutine = StartCoroutine(PushTintCoroutine(force));
     }
     
-    IEnumerator VignettePulseCoroutine()
+    IEnumerator PushTintCoroutine(float force)
     {
-        vignetteImage.gameObject.SetActive(true);
-        vignetteImage.color = flaringColor;
+        Color tintColor = new Color(1f, 0.5f, 0f, 0.2f);
         float elapsed = 0f;
-        while (elapsed < vignettePulseDuration)
+        while (elapsed < 0.2f)
         {
-            float t = elapsed / vignettePulseDuration;
-            float alpha = Mathf.Sin(t * Mathf.PI) * vignetteMaxAlpha;
-            Color c = flaringColor;
-            c.a = alpha;
-            vignetteImage.color = c;
+            float alpha = Mathf.Lerp(tintColor.a, 0f, elapsed / 0.2f);
+            currentPushTint = new Color(tintColor.r, tintColor.g, tintColor.b, alpha);
             elapsed += Time.deltaTime;
             yield return null;
         }
-        vignetteImage.gameObject.SetActive(false);
+        currentPushTint = Color.clear;
+        pushTintCoroutine = null;
+    }
+    
+    void StartFlaringVignette()
+    {
+        if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
+        vignetteCoroutine = StartCoroutine(FlareVignetteRoutine());
+    }
+    
+    IEnumerator FlareVignetteRoutine()
+    {
+        yield return new WaitForSeconds(0.5f);
         vignetteCoroutine = null;
     }
     
-    void UpdateCrosshairColor()
-    {
-        if (crosshairImage == null) return;
-        crosshairImage.color = metalInRange ? metalInRangeColor : noMetalColor;
-    }
-    
-    // Draw gizmos in editor for debugging
-    void OnDrawGizmosSelected()
-    {
-        if (playerRigidbody == null) return;
-        
-        // Draw push range sphere (yellow)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(playerRigidbody.position, maxRange);
-        
-        // Draw zenith distance sphere (cyan) - peak force zone
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(playerRigidbody.position, referenceDistance);
-        
-        // Draw steel bubble sphere
-        if (enableSteelBubble)
-        {
-            Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Semi-transparent orange
-            Gizmos.DrawWireSphere(playerRigidbody.position, steelBubbleRadius);
-        }
-    }
-    
-    // Real-time debug display for calibration
     void OnGUI()
     {
-        // Draw push tint effect (full screen overlay)
         if (currentPushTint.a > 0.01f)
         {
             GUI.color = currentPushTint;
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white; // Reset for other GUI elements
+            GUI.color = Color.white;
         }
-        
-        if (!debugCalibration || !isBurning) return;
-        
-        GUIStyle style = new GUIStyle();
-        style.normal.textColor = Color.yellow;
-        style.fontSize = 14;
-        
-        float y = 100f;
-        GUI.Label(new Rect(10, y, 400, 20), $"Steel Push Debug", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Push Force: {pushForce} N", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Zenith (Reference) Distance: {referenceDistance}m", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Max Range: {maxRange}m", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Physics: 1/r (inverse proportional)", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Impulse Calibration: {impulseCalibration}", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Metal in Range: {metalInRange}", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Flaring: {isFlaring}", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Cooldown: {cooldownTimer:F2}s", style);
-        y += 20;
-        GUI.Label(new Rect(10, y, 400, 20), $"Steel Bubble: {isSteelBubbleActive}", style);
-        y += 30;
-        
-        // Show targeted metal info
-        if (hasCurrentTarget && currentTargetRigidbody != null)
-        {
-            GUI.Label(new Rect(10, y, 400, 20), $"Targeted Metal:", style);
-            y += 20;
-            
-            float distance = currentTargetHit.distance;
-            float mass = currentTarget != null ? currentTarget.GetEffectiveMass() : currentTargetRigidbody.mass;
-            bool canPush = currentTarget != null ? currentTarget.canBePushed : true;
-            bool isAnchored = (currentTarget != null && currentTarget.isAnchored) || currentTargetRigidbody.isKinematic;
-            
-            GUI.Label(new Rect(20, y, 400, 20), $"Distance: {distance:F2}m", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"Mass: {mass:F2}kg", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"Can Push: {canPush}", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"Anchored: {isAnchored}", style);
-            y += 20;
-            
-            // Calculate expected velocity for this specific target
-            if (canPush && distance > 0)
-            {
-                float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
-                float weightFactor = playerMass / referenceMass;
-                float force = pushForce * weightFactor;
-                
-                // Calculate distance factor with zenith cap
-                float effectiveDistance = Mathf.Max(distance, minDistance);
-                float distanceFactor = referenceDistance / effectiveDistance;
-                distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
-                force *= distanceFactor;
-                
-                // Show force calculation breakdown
-                GUI.Label(new Rect(20, y, 400, 20), $"Weight Factor: {weightFactor:F2}", style);
-                y += 20;
-                GUI.Label(new Rect(20, y, 400, 20), $"Distance Factor: {distanceFactor:F2} (1/{effectiveDistance:F1}m)", style);
-                y += 20;
-                GUI.Label(new Rect(20, y, 400, 20), $"Final Force: {force:F2} N", style);
-                y += 20;
-                
-                float expectedVelocity = 0f;
-                if (mass <= impulseMassThreshold)
-                {
-                    // Impulse mode for light objects
-                    float impulseForce = force * impulseCalibration;
-                    expectedVelocity = impulseForce / mass;
-                }
-                else
-                {
-                    // Continuous force - estimate after 1 second of push
-                    expectedVelocity = (force / mass) * 1f;
-                }
-                
-                GUI.Label(new Rect(20, y, 400, 20), $"Expected Velocity: {expectedVelocity:F2} m/s ({expectedVelocity * 3.6f:F1} km/h)", style);
-                y += 20;
-            }
-            y += 10;
-        }
-        
-        // Show expected coin velocity calculation for generic coin
-        if (metalInRange)
-        {
-            GUI.Label(new Rect(10, y, 400, 20), $"Generic Coin Velocity (10g):", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"At 10m: {CalculateExpectedVelocity(10f, 0.01f):F2} m/s", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"At 5m:  {CalculateExpectedVelocity(5f, 0.01f):F2} m/s", style);
-            y += 20;
-            GUI.Label(new Rect(20, y, 400, 20), $"At 1m:  {CalculateExpectedVelocity(1f, 0.01f):F2} m/s", style);
-        }
-    }
-    
-    // Calculate expected velocity for a coin at given distance and mass
-    float CalculateExpectedVelocity(float distance, float coinMass)
-    {
-        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
-        float weightFactor = playerMass / referenceMass;
-        float force = pushForce * weightFactor;
-        
-        // Apply distance factor with zenith cap
-        if (distance > 0.01f && distance <= maxRange)
-        {
-            float effectiveDistance = Mathf.Max(distance, minDistance);
-            float distanceFactor = referenceDistance / effectiveDistance;
-            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
-            force *= distanceFactor;
-        }
-        else if (distance > maxRange)
-        {
-            force = 0f;
-        }
-        
-        float impulseForce = force * impulseCalibration;
-        return impulseForce / coinMass; // deltaV = impulse / mass
-    }
-    
-    // Static helper to calculate push force (for tests or external use)
-    // LORE: Force = baseForce × (playerMass/referenceMass) × (referenceDistance/distance), capped at 2x zenith
-    public static float CalculatePushForce(float distance, float basePushForce, float playerMass, 
-        float referenceMass = 80f, float referenceDistance = 3f, float maxRange = 30f, bool flaring = false)
-    {
-        float weightFactor = playerMass / referenceMass;
-        float force = basePushForce * weightFactor;
-        
-        if (distance > 0.01f && distance <= maxRange)
-        {
-            float distanceFactor = referenceDistance / Mathf.Max(distance, 1f);
-            distanceFactor = Mathf.Min(distanceFactor, 2f); // Zenith cap
-            force *= distanceFactor;
-        }
-        else if (distance > maxRange)
-        {
-            force = 0f;
-        }
-        
-        if (flaring) force *= 2f;
-        
-        return force;
     }
     
     void OnDestroy()
     {
         if (predictionLine != null)
-        {
             Destroy(predictionLine.gameObject);
-        }
     }
 }
