@@ -182,6 +182,16 @@ public class SteelPush : MonoBehaviour
             playerRigidbody = GetComponentInParent<Rigidbody>();
         }
         
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
+        
+        if (allomancer == null)
+        {
+            allomancer = GetComponentInParent<Allomancer>();
+        }
+        
         // Create prediction line renderer
         CreatePredictionLine();
     }
@@ -288,23 +298,17 @@ public class SteelPush : MonoBehaviour
         {
             allomancer.StartBurning(AllomancySkill.MetalType.Steel);
         }
-#if UNITY_EDITOR
-        Debug.Log("Burning Steel - Push ready");
-#endif
     }
     
     void StopBurning()
     {
         if (!isBurning) return;
         isBurning = false;
-        cooldownTimer = pushCooldown; // Start cooldown after releasing
+        cooldownTimer = pushCooldown;
         if (allomancer != null)
         {
             allomancer.StopBurning();
         }
-#if UNITY_EDITOR
-        Debug.Log("Stopped burning Steel");
-#endif
     }
     
     void UpdateTargetedMetal()
@@ -447,10 +451,7 @@ public class SteelPush : MonoBehaviour
         metalInRange = colliders.Length > 0;
         UpdateCrosshairColor();
         
-        if (debugPushOperations && colliders.Length > 0)
-        {
-            Debug.Log($"Steel Push: Detected {colliders.Length} metal objects within {maxRange}m range");
-        }
+
         
         float playerMass = playerRigidbody.mass;
         
@@ -517,10 +518,7 @@ public class SteelPush : MonoBehaviour
             // Flaring doubles the force
             if (isFlaring) force *= 2f;
             
-            if (debugPushOperations)
-            {
-                Debug.Log($"Steel Push: Target={collider.gameObject.name}, Distance={distance:F2}m, Mass={targetMass:F2}kg, Force={force:F2}N, Anchored={isAnchored}");
-            }
+
             
             Vector3 pushDirection = directionToTarget.normalized;
             
