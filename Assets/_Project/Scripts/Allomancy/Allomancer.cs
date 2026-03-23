@@ -93,6 +93,9 @@ public class Allomancer : MonoBehaviour
         
         if (GetComponent<Pewter>() == null)
             gameObject.AddComponent<Pewter>();
+        
+        if (GetComponent<Zinc>() == null)
+            gameObject.AddComponent<Zinc>();
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)
