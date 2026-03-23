@@ -496,35 +496,32 @@ public class SteelPush : MonoBehaviour
             return;
         }
         
-        // Push from rigidbody position (feet level for now)
-        // TODO: Use chestTransform for lore-accurate chest-based push
+        // Normal push: only push the targeted metal (not all metals)
+        // Steel bubble pushes all metals, this pushes only what you're aiming at
+        if (!hasCurrentTarget || currentTargetRigidbody == null)
+        {
+            Debug.Log("[PUSH] No targeted metal - use steel bubble (F) to push all metals");
+            return;
+        }
+        
+        // Push from rigidbody position
         Vector3 pushOrigin = playerRigidbody.position;
         
-        // Detect all metal objects within maxRange radius
-        Collider[] colliders = Physics.OverlapSphere(pushOrigin, maxRange, metalLayer);
+        Rigidbody targetRigidbody = currentTargetRigidbody;
+        AllomanticTarget target = currentTarget;
         
-        Debug.Log($"[PUSH] Found {colliders.Length} metals in range ({maxRange}m)");
+        if (targetRigidbody == playerRigidbody) return;
+        if (target != null && !target.canBePushed) return;
         
-        if (colliders.Length == 0) return;
+        float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
+        float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
+        Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
+        
+        bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
+        
+        Debug.Log($"[PUSH] Target: {targetRigidbody.name}, mass={targetMass:F2}kg, dist={distance:F1}m, anchored={isAnchored}");
         
         float playerMass = playerRigidbody.mass;
-        int pushedCount = 0;
-        
-        foreach (Collider collider in colliders)
-        {
-            Rigidbody targetRigidbody = collider.attachedRigidbody;
-            if (targetRigidbody == null || targetRigidbody == playerRigidbody) continue;
-            
-            AllomanticTarget target = collider.GetComponent<AllomanticTarget>();
-            if (target != null && !target.canBePushed) continue;
-            
-            float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
-            float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
-            Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
-            
-            bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
-            
-            Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F2}kg, dist={distance:F1}m, anchored={isAnchored}");
             
             // LORE-ACCURATE PHYSICS MODEL:
             // 1. Base allomantic strength (determines max force AND max velocity)
@@ -576,7 +573,6 @@ public class SteelPush : MonoBehaviour
                 Vector3 pushForceVector = -directionToTarget.normalized * force;
                 playerRigidbody.AddForce(pushForceVector);
                 Debug.Log($"[PUSH] Pushed PLAYER with {force:F0f}N (anchored target)");
-                pushedCount++;
             }
             else if (force > 1f)
             {
@@ -585,17 +581,16 @@ public class SteelPush : MonoBehaviour
                 if (currentVelocity < maxCoinVelocity)
                 {
                     targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
-                    Debug.Log($"[PUSH] Pushed {collider.name} with {force:F0f}N");
-                    pushedCount++;
+                    Debug.Log($"[PUSH] Pushed {targetRigidbody.name} with {force:F0f}N");
                 }
                 else
                 {
-                    Debug.Log($"[PUSH] {collider.name} at terminal velocity ({currentVelocity:F0f} m/s), no force applied");
+                    Debug.Log($"[PUSH] {targetRigidbody.name} at terminal velocity ({currentVelocity:F0f} m/s), no force applied");
                 }
             }
             else
             {
-                Debug.Log($"[PUSH] {collider.name} - force too low ({force:F1}N)");
+                Debug.Log($"[PUSH] {targetRigidbody.name} - force too low ({force:F1}N)");
             }
             
             // Visual feedback
@@ -604,9 +599,6 @@ public class SteelPush : MonoBehaviour
                 ShakeCamera(shakeMagnitude);
                 TriggerPushTint(force);
             }
-        }
-        
-        Debug.Log($"[PUSH] Done - pushed {pushedCount} objects");
     }
     
     void PushMetalsInBubble()
