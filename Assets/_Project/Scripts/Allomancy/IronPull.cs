@@ -38,6 +38,8 @@ public class IronPull : MonoBehaviour
     [Header("Settings")]
     [Tooltip("Base force applied when pulling. Needs calibration for desired coin velocities.")]
     public float pullForce = 800f;
+    [Tooltip("Reference mass for force calculation (average human = 80kg).")]
+    public float referenceMass = 80f;
     [Tooltip("Reference distance where force factor = 1. Force = baseForce * (zenithDistance / distance).")]
     public float zenithDistance = 5f;
     [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
@@ -147,8 +149,8 @@ public class IronPull : MonoBehaviour
                 targetMass = targetRigidbody.mass;
             }
             
-            // Weight-proportional force: F = pullForce * (playerMass / targetMass)
-            float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
+            // Weight-proportional force: F = pullForce * (playerMass / referenceMass)
+            float weightFactor = playerMass / referenceMass;
             float force = pullForce * weightFactor;
             
             // Distance from player to target
