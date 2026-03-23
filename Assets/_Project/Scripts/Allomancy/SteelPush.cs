@@ -316,12 +316,18 @@ public class SteelPush : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // =========================================================================
-        // E KEY HANDLING - Push mechanics
-        // =========================================================================
-        // Controls: E = Push, Ctrl = Flare toggle
-        // E ALWAYS pushes (flare is optional extra power)
+        // Debug: E key state
+        if (Input.GetKeyDown(KeyCode.E) && debugPushOperations)
+            Debug.Log("[STEEL PUSH] E key pressed");
+        if (Input.GetKeyUp(KeyCode.E) && debugPushOperations)
+            Debug.Log("[STEEL PUSH] E key released");
+        if (Input.GetKeyDown(KeyCode.F) && debugPushOperations)
+            Debug.Log("[STEEL PUSH] F key pressed (bubble)");
         
+        // Update targeted metal detection
+        UpdateTargetedMetal();
+        
+        // E KEY HANDLING - Push mechanics
         bool eKeyDown = Input.GetKeyDown(KeyCode.E);
         bool eKeyUp = Input.GetKeyUp(KeyCode.E);
         
@@ -420,9 +426,15 @@ public class SteelPush : MonoBehaviour
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
+        if (debugPushOperations) Debug.Log($"[STEEL PUSH] UpdateTargetedMetal() - Found {allTargets.Length} AllomanticTargets in scene");
+        
         foreach (var metal in allTargets)
         {
-            if (metal == null || !metal.canBePushed) continue;
+            if (metal == null || !metal.canBePushed)
+            {
+                if (debugPushOperations) Debug.Log($"[STEEL PUSH] Skipping {metal?.name} - canBePushed: {metal?.canBePushed}");
+                continue;
+            }
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
@@ -438,6 +450,8 @@ public class SteelPush : MonoBehaviour
                 hasCurrentTarget = true;
                 currentTargetHit.distance = dist;
                 currentTargetHit.point = rb.position;
+                
+                if (debugPushOperations) Debug.Log($"[STEEL PUSH] Target acquired: {metal.name} at {dist:F2}m");
             }
         }
     }
@@ -554,7 +568,13 @@ public class SteelPush : MonoBehaviour
     void PushMetals()
     {
         if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
+        if (!hasCurrentTarget || currentTargetRigidbody == null)
+        {
+            if (debugPushOperations) Debug.Log("[STEEL PUSH] PushMetals() - No target!");
+            return;
+        }
+        
+        if (debugPushOperations) Debug.Log("[STEEL PUSH] PushMetals() - Executing push!");
         
         Vector3 pushOrigin = playerRigidbody.position;
         Rigidbody targetRigidbody = currentTargetRigidbody;
