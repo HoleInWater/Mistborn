@@ -543,9 +543,6 @@ public class SteelPush : MonoBehaviour
     
     void PushMetalsInBubble()
     {
-    
-    void PushMetalsInBubble()
-    {
         if (playerRigidbody == null) return;
         
         // Detect all metal objects within steel bubble radius
