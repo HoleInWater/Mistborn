@@ -4,7 +4,7 @@
 // This ability reveals all metal within range, passing through walls and geometry.
 
 using UnityEngine;
-using System.Collections
+using System.Collections;
 using System.Collections.Generic;
 
 public class AllomanticSight : MonoBehaviour
