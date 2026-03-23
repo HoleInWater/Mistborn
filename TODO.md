@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (33/400+):**
+**✅ Completed (35/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -24,7 +24,7 @@
 6. Out-of-metal UI feedback - Added warning display when metal reserves hit 0
 7. Repository clean-up - Removed duplicate utility scripts, reorganized folders
 8. Added comprehensive comments to all new code
-9. Weight-proportional force for Steel Push - F = playerMass / targetMass × baseForce
+9. Weight-proportional force for Steel Push - F = playerMass / referenceMass × baseForce
 10. Weight-proportional force for Iron Pull - Same physics as Steel Push
 11. Anchor detection for Steel Push - pushes player when target is heavy/kinematic
 12. Anchor detection for Iron Pull - pulls player when target is heavy/kinematic
@@ -49,6 +49,8 @@
 31. Added static metal registry and tagging system for efficient metal detection
 32. Researched blue lines (Spiritual Realm) from Reddit and Coppermind, updated docs
 33. Added aluminum filtering: aluminum alloys cannot be pushed/pulled (lore accurate)
+34. Added real-time debug display for calibration in editor
+35. Fixed weight-proportional force to use referenceMass instead of targetMass (lore accurate)
 
 ---
 
