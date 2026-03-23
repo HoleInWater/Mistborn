@@ -322,11 +322,10 @@ public class SteelPush : MonoBehaviour
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
         // =========================================================================
-        // E KEY HANDLING - Per-Metal Flare System
+        // E KEY HANDLING - Push mechanics
         // =========================================================================
-        // This implements the sequence: [Start Burn] → [Toggle Flare] → [Execute Push]
-        // eKeyWasPressed prevents GetKeyDown from firing multiple times per press
-        // Flare state is managed by FlareManager (centralized)
+        // Controls: E = Push, Ctrl = Flare toggle
+        // E ALWAYS pushes (flare is optional extra power)
         
         bool eKeyDown = Input.GetKeyDown(KeyCode.E);
         bool eKeyUp = Input.GetKeyUp(KeyCode.E);
@@ -335,7 +334,7 @@ public class SteelPush : MonoBehaviour
         {
             eKeyWasPressed = true;
             
-            // PHASE 1: Start burning (if not already burning and cooldown expired)
+            // Start burning (if not on cooldown)
             if (cooldownTimer <= 0f)
             {
                 StartBurning();
@@ -343,27 +342,19 @@ public class SteelPush : MonoBehaviour
                 bubbleAppliedThisPress = false;
             }
             
-            // PHASE 2: E pressed while burning - decide action based on flare state
-            if (isBurning)
+            // Execute push (always, regardless of flare state)
+            if (isBurning && !pushAppliedThisPress)
             {
-                // If already flared AND haven't pushed yet this press → EXECUTE PUSH
-                if (IsFlaring && !pushAppliedThisPress)
-                {
-                    PushMetals();
-                    DrainMetal(flaringMetalCostMultiplier);
-                    pushAppliedThisPress = true;
-                }
-                // Otherwise → TOGGLE STEEL FLARE STATE via FlareManager
-                else
-                {
-                    if (FlareManager.Instance != null)
-                        FlareManager.Instance.ToggleSteelFlare();
-                    if (IsFlaring) StartFlaringVignette();
-                }
+                PushMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+                pushAppliedThisPress = true;
+                
+                // Play vignette if flared
+                if (IsFlaring) StartFlaringVignette();
             }
         }
         
-        // E KEY RELEASED: Stop burning Steel (reset state machine)
+        // E KEY RELEASED: Stop burning Steel
         if (eKeyUp)
         {
             eKeyWasPressed = false;
@@ -372,6 +363,12 @@ public class SteelPush : MonoBehaviour
         
         // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
         // Press Ctrl to toggle BOTH Iron and Steel flares at once
+        
+        // Continuous metal drain while burning
+        if (isBurning)
+        {
+            DrainMetal(1f);
+        }
         
         // Update targeted metal detection
         UpdateTargetedMetal();
@@ -638,10 +635,14 @@ public class SteelPush : MonoBehaviour
     {
         if (allomancer == null) return;
         
+        // Continuous drain while burning
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
         if (IsFlaring) drainAmount *= 3f; // Flaring drains 3x faster
         
-        allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
+        // Also drain extra per action (push/bubble)
+        float actionDrain = metalCostPerSecond * 0.5f * multiplier;
+        
+        allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount + actionDrain);
     }
     
     void PlayPushSound()
