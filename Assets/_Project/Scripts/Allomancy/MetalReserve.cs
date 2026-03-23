@@ -3,57 +3,74 @@ using UnityEngine.UIElements;
 
 public class MetalReserve : MonoBehaviour
 {
+    [Header("UI Settings")]
     public UIDocument uiDocument;
     public string metalProgressBarName = "Metal";
 
-    public float currentMetal = 50f; // Start at 50 to see if it moves to 100
+    [Header("Metal Settings")]
+    public float currentMetal = 100f;
     public float maxMetal = 100f;
-    public float passiveRecoveryRate = 5f; // Faster for testing
+    
+    [Header("Recovery Settings")]
+    public float passiveRecoveryRate = 0.5f;
 
     private ProgressBar _metalBar;
+    private float _lastDisplayedMetal = -1f;
 
-    void OnEnable()
+    void Start()
     {
-        InitializeUI();
+        SetupUI();
     }
 
-    private void InitializeUI()
+    private void SetupUI()
     {
-        if (uiDocument == null)
+        if (uiDocument != null)
         {
-            Debug.LogError("MetalReserve: UIDocument is missing from the Inspector!");
-            return;
-        }
+            var root = uiDocument.rootVisualElement;
+            _metalBar = root.Q<ProgressBar>(metalProgressBarName);
 
-        var root = uiDocument.rootVisualElement;
-        _metalBar = root.Q<ProgressBar>(metalProgressBarName);
-
-        if (_metalBar != null)
-        {
-            Debug.Log($"MetalReserve: Found ProgressBar '{metalProgressBarName}'!");
-            _metalBar.lowValue = 0;
-            _metalBar.highValue = maxMetal;
-        }
-        else
-        {
-            Debug.LogError($"MetalReserve: Could NOT find a ProgressBar named '{metalProgressBarName}'. Check your UXML names.");
+            if (_metalBar != null)
+            {
+                _metalBar.lowValue = 0;
+                _metalBar.highValue = maxMetal;
+            }
         }
     }
 
     void Update()
     {
-        // If it wasn't found at start, keep trying (in case UI loads late)
-        if (_metalBar == null) InitializeUI();
-
+        // Passive recovery
         if (currentMetal < maxMetal)
         {
-            currentMetal += passiveRecoveryRate * Time.deltaTime;
+            currentMetal = Mathf.MoveTowards(currentMetal, maxMetal, passiveRecoveryRate * Time.deltaTime);
         }
+        
+        UpdateHUD();
+    }
+
+    private void UpdateHUD()
+    {
+        if (_metalBar == null) SetupUI();
 
         if (_metalBar != null)
         {
-            _metalBar.value = currentMetal;
-            _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
+            if (!Mathf.Approximately(_lastDisplayedMetal, currentMetal))
+            {
+                _metalBar.value = currentMetal;
+                _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
+                _lastDisplayedMetal = currentMetal;
+            }
         }
+    }
+
+    // THESE ARE THE METHODS THE ERROR SAYS ARE MISSING
+    public void Drain(float amount)
+    {
+        currentMetal = Mathf.Max(0, currentMetal - amount);
+    }
+
+    public void Refill(float amount)
+    {
+        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
     }
 }
