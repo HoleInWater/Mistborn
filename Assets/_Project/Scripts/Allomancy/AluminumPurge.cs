@@ -42,7 +42,7 @@ public class AluminumPurge : MonoBehaviour
             }
         }
         
-        MetalReserveManager manager = GetComponent<MetalReserveManager>();
+        MetalReserve manager = GetComponent<MetalReserve>();
         if (manager != null)
         {
             manager.PurgeAll();
