@@ -38,13 +38,7 @@ public class MetalReserve : MonoBehaviour
     }
 
     void Update()
-    {
-        // Passive recovery
-        if (currentMetal < maxMetal)
-        {
-            currentMetal = Mathf.MoveTowards(currentMetal, maxMetal, passiveRecoveryRate * Time.deltaTime);
-        }
-        
+    { 
         UpdateHUD();
     }
 
