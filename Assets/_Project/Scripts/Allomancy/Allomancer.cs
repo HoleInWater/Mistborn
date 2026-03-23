@@ -70,9 +70,11 @@ public class Allomancer : MonoBehaviour
     
     public void StartBurning(AllomancySkill.MetalType metal)
     {
+        Debug.Log($"[ALLOMANCER] StartBurning({metal}) - reserve={(int)metal}=" + metalReserves[(int)metal]);
         currentMetal = metal;
         isBurningMetal = true;
         canBurnMetal = metalReserves[(int)metal] > 0;
+        Debug.Log($"[ALLOMANCER] canBurnMetal={canBurnMetal}");
     }
     
     public void StopBurning()
@@ -98,6 +100,8 @@ public class Allomancer : MonoBehaviour
     public void DrainMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
+        if (Time.frameCount % 60 == 0)
+            Debug.Log($"[ALLOMANCER] DrainMetal({metal}, {amount:F2}) - reserve now: {metalReserves[(int)metal]:F1}");
         UpdateHUD(metal);
         
         if (metal == currentMetal)
