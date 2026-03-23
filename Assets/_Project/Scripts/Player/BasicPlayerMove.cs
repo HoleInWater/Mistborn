@@ -48,8 +48,9 @@ public class BasicPlayerMove : MonoBehaviour
     // NOTE: Consider adding [Range(0.1f, 5f)] attribute for minDistance
     public float minDistance = 0.5f;
     
-    [Header("Smoothing")]
-    public float acceleration = 8f; // Higher = Snappier, Lower = Smoother
+    [Header("Smoothness Settings")]
+    public float acceleration = 50f; // High value for snappy-but-smooth response
+    public float deceleration = 40f; // How fast you stop
 
 
     private float xRotation = 0f;
@@ -127,44 +128,46 @@ public class BasicPlayerMove : MonoBehaviour
         }
     }
 
-void HandleMovement()
-{
-    float x = Input.GetAxisRaw("Horizontal");
-    float z = Input.GetAxisRaw("Vertical");
-
-    Vector3 forward = cameraPivot.forward;
-    Vector3 right = cameraPivot.right;
-    forward.y = 0; right.y = 0;
-    forward.Normalize(); right.Normalize();
-
-    Vector3 moveDirection = (forward * z + right * x).normalized;
-
-    // 1. Determine Target Speed
-    float targetSpeed = 0f;
-    if (moveDirection.magnitude >= 0.1f)
+    void HandleMovement()
     {
-        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
-        targetSpeed = (Input.GetKey(KeyCode.LeftShift) && hasStamina) ? sprintSpeed : moveSpeed;
-        
-        if (targetSpeed == sprintSpeed) staminaSystem.DrainStamina(drainRate);
-
-        // Rotation remains smooth
-        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-    }
-
-    // 2. SMOOTH VELOCITY (The Lerp)
-    // We calculate the goal velocity on the X and Z planes
-    Vector3 targetVelocity = moveDirection * targetSpeed;
+        // 1. Get Input
+        float x = Input.GetAxisRaw("Horizontal");
+        float z = Input.GetAxisRaw("Vertical");
     
-    // We blend current velocity toward target velocity based on acceleration
-    float lerpStep = acceleration * Time.deltaTime;
-    float newX = Mathf.Lerp(rb.velocity.x, targetVelocity.x, lerpStep);
-    float newZ = Mathf.Lerp(rb.velocity.z, targetVelocity.z, lerpStep);
-
-    // 3. Apply the smoothed velocity while PRESERVING gravity/jump (Y)
-    rb.velocity = new Vector3(newX, rb.velocity.y, newZ);
-}
+        // 2. Calculate Direction
+        Vector3 forward = cameraPivot.forward;
+        Vector3 right = cameraPivot.right;
+        forward.y = 0; right.y = 0;
+        forward.Normalize(); right.Normalize();
+    
+        Vector3 moveDirection = (forward * z + right * x).normalized;
+    
+        // 3. Determine Speed
+        float targetSpeed = 0f;
+        if (moveDirection.magnitude > 0.1f)
+        {
+            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+            bool isSprinting = Input.GetKey(KeyCode.LeftShift) && hasStamina;
+            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+    
+            if (isSprinting) staminaSystem.DrainStamina(drainRate);
+    
+            // Smooth Rotation
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+    
+        // 4. THE FIX: Smoothly transition horizontal velocity
+        Vector3 targetVelocity = moveDirection * targetSpeed;
+        Vector3 currentHorizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        
+        // MoveTowards is more reliable than Lerp for stopping and starting
+        float speedChange = (targetSpeed > 0) ? acceleration : deceleration;
+        Vector3 newHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetVelocity, speedChange * Time.deltaTime);
+    
+        // 5. Apply (Maintaining Y for jumping/gravity)
+        rb.velocity = new Vector3(newHorizontalVelocity.x, rb.velocity.y, newHorizontalVelocity.z);
+    }
     
     void HandleCamera()
     {
