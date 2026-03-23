@@ -73,6 +73,16 @@ public class IronPull : MonoBehaviour
     [Tooltip("Duration of screen tint effect")]
     public float pullTintDuration = 0.2f;
     
+    [Header("Pull Prediction")]
+    [Tooltip("Enable trajectory prediction when targeting metal")]
+    public bool enablePullPrediction = true;
+    [Tooltip("Color for prediction line")]
+    public Color predictionColor = new Color(0f, 0.5f, 1f, 0.5f); // Blue
+    [Tooltip("Number of points in prediction line")]
+    public int predictionPoints = 20;
+    [Tooltip("Show prediction when holding pull button")]
+    public bool showPredictionOnHold = true;
+    
     private bool isBurning = false;
     private bool isFlaring = false;
     
@@ -90,12 +100,44 @@ public class IronPull : MonoBehaviour
     private Coroutine pullTintCoroutine;
     private Color currentPullTint = Color.clear;
     
+    // Pull prediction
+    private LineRenderer predictionLine;
+    private bool isPredictionActive = false;
+    
     void Start()
     {
         if (playerRigidbody == null)
         {
             playerRigidbody = GetComponentInParent<Rigidbody>();
         }
+        
+        // Create prediction line renderer
+        CreatePredictionLine();
+    }
+    
+    void CreatePredictionLine()
+    {
+        GameObject lineObj = new GameObject("PullPredictionLine");
+        predictionLine = lineObj.AddComponent<LineRenderer>();
+        
+        // Set up line renderer
+        Shader shader = Shader.Find("Sprites/Default");
+        if (shader != null)
+        {
+            predictionLine.material = new Material(shader);
+        }
+        else
+        {
+            predictionLine.material = new Material(Shader.Find("Unlit/Color"));
+        }
+        
+        predictionLine.startColor = predictionColor;
+        predictionLine.endColor = predictionColor;
+        predictionLine.startWidth = 0.03f;
+        predictionLine.endWidth = 0.01f;
+        predictionLine.positionCount = predictionPoints;
+        predictionLine.useWorldSpace = true;
+        predictionLine.gameObject.SetActive(false);
     }
     
     void Update()
@@ -134,6 +176,9 @@ public class IronPull : MonoBehaviour
         
         // Update targeted metal detection
         UpdateTargetedMetal();
+        
+        // Update pull prediction
+        UpdatePrediction();
     }
     
     void StartBurning()
@@ -182,6 +227,64 @@ public class IronPull : MonoBehaviour
                 hasCurrentTarget = true;
             }
         }
+    }
+    
+    void UpdatePrediction()
+    {
+        // Show prediction when holding pull button on a valid target
+        bool shouldShowPrediction = enablePullPrediction && 
+                                   showPredictionOnHold && 
+                                   Input.GetMouseButton(0) && 
+                                   isBurning && 
+                                   hasCurrentTarget && 
+                                   currentTarget != null && 
+                                   currentTarget.canBePulled;
+        
+        if (shouldShowPrediction)
+        {
+            DrawPredictionLine();
+        }
+        else if (isPredictionActive)
+        {
+            predictionLine.gameObject.SetActive(false);
+            isPredictionActive = false;
+        }
+    }
+    
+    void DrawPredictionLine()
+    {
+        if (predictionLine == null || currentTargetRigidbody == null) return;
+        
+        // Calculate trajectory for pull: straight line toward player
+        Vector3 startPos = currentTargetRigidbody.position;
+        Vector3 endPos = playerRigidbody.position;
+        
+        // Create straight line points from target to player
+        Vector3[] points = new Vector3[predictionPoints];
+        for (int i = 0; i < predictionPoints; i++)
+        {
+            float t = i / (float)(predictionPoints - 1);
+            points[i] = Vector3.Lerp(startPos, endPos, t);
+        }
+        
+        // Color based on distance (shorter = brighter blue)
+        float distance = Vector3.Distance(startPos, endPos);
+        Color lineColor;
+        if (distance < 5f)
+            lineColor = new Color(0f, 1f, 1f, 0.8f); // Bright cyan for close
+        else if (distance < 15f)
+            lineColor = new Color(0f, 0.7f, 1f, 0.6f); // Medium blue
+        else
+            lineColor = new Color(0f, 0.5f, 1f, 0.4f); // Dark blue for far
+        
+        predictionLine.startColor = lineColor;
+        predictionLine.endColor = lineColor;
+        
+        // Update line renderer
+        predictionLine.positionCount = predictionPoints;
+        predictionLine.SetPositions(points);
+        predictionLine.gameObject.SetActive(true);
+        isPredictionActive = true;
     }
     
     void PullMetals()
