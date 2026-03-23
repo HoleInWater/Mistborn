@@ -176,19 +176,19 @@ public class IronPull : MonoBehaviour
         if (playerRigidbody == null)
         {
             playerRigidbody = GetComponentInParent<Rigidbody>();
-            Debug.Log($"[IRON PULL] playerRigidbody auto-assigned: {playerRigidbody}");
+            Debug.Log($"[IRON PULL] playerRigidbody: {playerRigidbody}");
         }
         
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
-            Debug.Log($"[IRON PULL] playerCamera auto-assigned: {playerCamera}");
+            Debug.Log($"[IRON PULL] playerCamera: {playerCamera}");
         }
         
         if (allomancer == null)
         {
             allomancer = GetComponentInParent<Allomancer>();
-            Debug.Log($"[IRON PULL] allomancer auto-assigned: {allomancer}");
+            Debug.Log($"[IRON PULL] allomancer: {(allomancer != null ? "FOUND" : "NOT FOUND")}");
         }
         
         if (metalLayer.value == 0)
