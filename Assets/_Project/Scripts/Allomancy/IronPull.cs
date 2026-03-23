@@ -31,6 +31,7 @@
 
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class IronPull : MonoBehaviour
