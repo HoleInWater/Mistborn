@@ -1,9 +1,9 @@
 /* FlareManager.cs
  *
  * PURPOSE:
- * Centralized manager for Allomantic flaring. One shared intensity (1–10)
- * that applies equally to both Iron and Steel. Burning is toggled with
- * Left Ctrl; the scroll wheel adjusts intensity while burning.
+ * Manages burn state and flare intensity (1–10). Does NOT touch metal reserves
+ * directly — Allomancer.cs owns the single reserve pool and handles all draining.
+ * Switching intensity just changes how fast Allomancer drains that one pool.
  *
  * CONTROL SCHEME:
  * ===============
@@ -11,18 +11,18 @@
  * - Scroll UP        → (while burning) Increase intensity toward 10
  * - Scroll DOWN      → (while burning) Decrease intensity toward 1
  *
- * Intensity is never 0 — burning always starts at 1 and scrolls between 1–10.
- * Turning burning off preserves the current intensity for next time.
+ * Intensity is never 0 — burning always starts at 1 and scrolls 1–10.
+ * Turning burning off preserves intensity for next time.
  *
  * USAGE FROM OTHER SCRIPTS:
  * =========================
  *   FlareManager.Instance.IsBurning        // true when Left Ctrl is toggled on
- *   FlareManager.Instance.IsFlaring        // same — burning always means flaring (intensity >= 1)
+ *   FlareManager.Instance.IsFlaring        // alias for IsBurning
  *   FlareManager.Instance.IsIronFlaring    // alias for IsBurning
  *   FlareManager.Instance.IsSteelFlaring   // alias for IsBurning
  *   FlareManager.Instance.Intensity        // 1–10
- *   FlareManager.Instance.FlareMultiplier  // 1.0 – maxFlareMultiplier (for force scaling)
- *   FlareManager.Instance.flareBurnRate    // drain per second at current intensity
+ *   FlareManager.Instance.FlareMultiplier  // 1.0–maxFlareMultiplier (for force scaling)
+ *   FlareManager.Instance.flareBurnRate    // drain/sec passed to Allomancer
  */
 
 using UnityEngine;
@@ -39,8 +39,6 @@ public class FlareManager : MonoBehaviour
     }
 
     // ── Inspector ─────────────────────────────────────────────────────────────
-    [Header("Dependencies")]
-    public MetalReserve metalReserve;
 
     [Header("Intensity Settings")]
     [Tooltip("Maximum intensity level (scroll ceiling).")]
@@ -50,7 +48,7 @@ public class FlareManager : MonoBehaviour
     public int scrollStepSize = 1;
 
     [Header("Burn Rates")]
-    [Tooltip("Drain per second at intensity 1.")]
+    [Tooltip("Drain per second passed to Allomancer at intensity 1.")]
     public float baseBurnRate = 1f;
 
     [Tooltip("Additional drain per second per intensity step above 1.")]
@@ -71,7 +69,6 @@ public class FlareManager : MonoBehaviour
 
     // ── Derived Properties ────────────────────────────────────────────────────
 
-    /// <summary>True when burning is active. Intensity is always >= 1 so burning = flaring.</summary>
     public bool IsFlaring      => IsBurning;
     public bool IsIronFlaring  => IsBurning;
     public bool IsSteelFlaring => IsBurning;
@@ -80,7 +77,7 @@ public class FlareManager : MonoBehaviour
     public int FlareIntensity => Intensity;
 
     /// <summary>
-    /// Smooth force multiplier: 1.0 at intensity 1, maxFlareMultiplier at intensity 10.
+    /// Force multiplier: 1.0 at intensity 1, maxFlareMultiplier at intensity 10.
     /// Returns 1.0 when not burning.
     /// </summary>
     public float FlareMultiplier =>
@@ -88,7 +85,10 @@ public class FlareManager : MonoBehaviour
             ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
             : 1f;
 
-    /// <summary>Metal drain per second at current intensity.</summary>
+    /// <summary>
+    /// Drain rate per second at current intensity.
+    /// Read by Allomancer.Update() — it drains the actual reserve pool.
+    /// </summary>
     public float flareBurnRate =>
         IsBurning ? baseBurnRate + burnRatePerStep * (Intensity - 1) : 0f;
 
@@ -98,7 +98,6 @@ public class FlareManager : MonoBehaviour
     {
         HandleBurnToggle();
         HandleScrollWheel();
-        HandleMetalDrain();
     }
 
     void HandleBurnToggle()
@@ -121,19 +120,6 @@ public class FlareManager : MonoBehaviour
         Intensity = Mathf.Clamp(Intensity + delta, 1, maxIntensitySteps);
     }
 
-    void HandleMetalDrain()
-    {
-        if (!IsBurning || metalReserve == null) return;
-
-        metalReserve.Drain(flareBurnRate * Time.deltaTime);
-
-        if (metalReserve.currentMetal <= 0)
-        {
-            IsBurning = false;
-            Debug.Log("[FLARE] Metal exhausted – burning stopped.");
-        }
-    }
-
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void StopBurning() => IsBurning = false;
@@ -142,4 +128,5 @@ public class FlareManager : MonoBehaviour
         Intensity = Mathf.Clamp(v, 1, maxIntensitySteps);
 
     // No OnGUI — FlareIntensityHUD handles all display.
+    // No metal draining — Allomancer.cs owns the reserve pool.
 }
