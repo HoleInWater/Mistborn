@@ -347,6 +347,7 @@ public class SteelPush : MonoBehaviour
             // Execute push (always, regardless of flare state)
             if (isBurning && !pushAppliedThisPress)
             {
+                Debug.Log($"[PUSH] hasTarget={hasCurrentTarget}, target={currentTargetRigidbody?.name}");
                 if (debugPushOperations) Debug.Log($"[PUSH] Executing push! Flaring={IsFlaring}");
                 PushMetals();
                 DrainMetal(flaringMetalCostMultiplier);
@@ -428,38 +429,20 @@ public class SteelPush : MonoBehaviour
         
         float closestDist = maxRange;
         
-        // Try registry first
-        var allMetals = AllomanticTarget.GetAllMetalObjects();
-        foreach (var metal in allMetals)
+        // Find all AllomanticTargets in scene
+        var allTargets = FindObjectsOfType<AllomanticTarget>();
+        
+        foreach (var metal in allTargets)
         {
             if (metal == null || !metal.canBePushed) continue;
-            TryUpdateTarget(metal, ref closestDist);
-        }
-        
-        // Fallback: find all AllomanticTargets in scene
-        if (!hasCurrentTarget)
-        {
-            var allTargets = FindObjectsOfType<AllomanticTarget>();
-            foreach (var metal in allTargets)
-            {
-                if (metal == null || !metal.canBePushed) continue;
-                TryUpdateTarget(metal, ref closestDist);
-            }
-        }
-    }
-    
-    void TryUpdateTarget(AllomanticTarget metal, ref float closestDist)
-    {
-        Rigidbody rb = metal.GetComponent<Rigidbody>();
-        if (rb == null || rb == playerRigidbody) return;
-        
-        Vector3 toTarget = rb.position - playerCamera.transform.position;
-        float dist = toTarget.magnitude;
-        
-        if (dist < closestDist && dist > 0.1f)
-        {
-            Vector3 forward = playerCamera.transform.forward;
-            if (Vector3.Dot(toTarget.normalized, forward) > 0.3f)
+            
+            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            
+            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
+            
+            // Just find closest metal within range - no angle requirement
+            if (dist < closestDist && dist > 0.1f)
             {
                 closestDist = dist;
                 currentTargetRigidbody = rb;
