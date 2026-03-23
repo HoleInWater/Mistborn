@@ -218,11 +218,11 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
     public float impulseCalibration = 0.000917f; // Calibrated for 22.22 m/s at 10m with 10g coin after referenceDistance change
     [Tooltip("Enable debug logging for impulse calibration")]
-    public bool debugCalibration = true;
+    public bool debugCalibration = false;
     [Tooltip("Enable debug logging for push operations")]
-    public bool debugPushOperations = true;
+    public bool debugPushOperations = false;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = true;
+    public bool debugFlareState = false;
     
     private bool isBurning = false;
     private bool pushAppliedThisPress = false;
@@ -316,13 +316,7 @@ public class SteelPush : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
         
-        // Debug: E key state
-        if (Input.GetKeyDown(KeyCode.E) && debugPushOperations)
-            Debug.Log("[STEEL PUSH] E key pressed");
-        if (Input.GetKeyUp(KeyCode.E) && debugPushOperations)
-            Debug.Log("[STEEL PUSH] E key released");
-        if (Input.GetKeyDown(KeyCode.F) && debugPushOperations)
-            Debug.Log("[STEEL PUSH] F key pressed (bubble)");
+
         
         // Update targeted metal detection
         UpdateTargetedMetal();
@@ -426,22 +420,15 @@ public class SteelPush : MonoBehaviour
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
-        if (debugPushOperations) Debug.Log($"[STEEL PUSH] UpdateTargetedMetal() - Found {allTargets.Length} AllomanticTargets in scene");
-        
         foreach (var metal in allTargets)
         {
-            if (metal == null || !metal.canBePushed)
-            {
-                if (debugPushOperations) Debug.Log($"[STEEL PUSH] Skipping {metal?.name} - canBePushed: {metal?.canBePushed}");
-                continue;
-            }
+            if (metal == null || !metal.canBePushed) continue;
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
             
-            // Just find closest metal within range - no angle requirement
             if (dist < closestDist && dist > 0.1f)
             {
                 closestDist = dist;
@@ -450,8 +437,6 @@ public class SteelPush : MonoBehaviour
                 hasCurrentTarget = true;
                 currentTargetHit.distance = dist;
                 currentTargetHit.point = rb.position;
-                
-                if (debugPushOperations) Debug.Log($"[STEEL PUSH] Target acquired: {metal.name} at {dist:F2}m");
             }
         }
     }
@@ -568,13 +553,7 @@ public class SteelPush : MonoBehaviour
     void PushMetals()
     {
         if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            if (debugPushOperations) Debug.Log("[STEEL PUSH] PushMetals() - No target!");
-            return;
-        }
-        
-        if (debugPushOperations) Debug.Log("[STEEL PUSH] PushMetals() - Executing push!");
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Vector3 pushOrigin = playerRigidbody.position;
         Rigidbody targetRigidbody = currentTargetRigidbody;
@@ -659,8 +638,6 @@ public class SteelPush : MonoBehaviour
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
         if (IsFlaring) drainAmount *= 3f;
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
-        
-        if (debugPushOperations) Debug.Log($"[STEEL PUSH] DrainMetal() - draining {drainAmount + actionDrain} (multiplier: {multiplier}, flaring: {IsFlaring})");
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount + actionDrain);
     }
