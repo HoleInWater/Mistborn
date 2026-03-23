@@ -428,22 +428,13 @@ public class SteelPush : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null)
-        {
-            if (debugPushOperations) Debug.Log("[PUSH] No camera!");
-            return;
-        }
-        if (metalLayer.value == 0)
-        {
-            if (debugPushOperations) Debug.Log($"[PUSH] No metal layer! metalLayer={metalLayer.value}");
-            return;
-        }
+        if (playerCamera == null) return;
+        if (metalLayer.value == 0) return;
         
         // Raycast from camera center to find specific metal target
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
         {
-            if (debugPushOperations) Debug.Log($"[PUSH] Hit: {currentTargetHit.collider.name}");
             currentTargetRigidbody = currentTargetHit.rigidbody;
             if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
             {
@@ -565,6 +556,7 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
+        if (debugPushOperations) Debug.Log($"[PUSH] PushMetals called - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
         if (playerRigidbody == null) return;
         if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         

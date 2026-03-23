@@ -327,16 +327,8 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null)
-        {
-            if (debugPullOperations) Debug.Log("[PULL] No camera!");
-            return;
-        }
-        if (metalLayer.value == 0)
-        {
-            if (debugPullOperations) Debug.Log($"[PULL] No metal layer! metalLayer={metalLayer.value}");
-            return;
-        }
+        if (playerCamera == null) return;
+        if (metalLayer.value == 0) return;
         
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
@@ -344,7 +336,6 @@ public class IronPull : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
-            if (debugPullOperations) Debug.Log($"[PULL] Hit: {hit.collider.name} layer={LayerMask.LayerToName(hit.collider.gameObject.layer)}");
             int hitLayer = hit.collider.gameObject.layer;
             if ((metalLayer.value & (1 << hitLayer)) != 0)
             {
@@ -353,12 +344,7 @@ public class IronPull : MonoBehaviour
                 {
                     currentTarget = hit.collider.GetComponent<AllomanticTarget>();
                     hasCurrentTarget = true;
-                    if (debugPullOperations) Debug.Log($"[PULL] Found target: {currentTargetRigidbody.name}");
                 }
-            }
-            else if (debugPullOperations)
-            {
-                Debug.Log($"[PULL] Hit non-metal layer: {LayerMask.LayerToName(hitLayer)} metalLayer={metalLayer.value}");
             }
         }
     }
@@ -414,6 +400,7 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
+        if (debugPullOperations) Debug.Log($"[PULL] PullMetals called - playerRB={playerRigidbody != null}, target={currentTargetRigidbody?.name ?? "null"}, hasTarget={hasCurrentTarget}");
         if (playerRigidbody == null) return;
         if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
