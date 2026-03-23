@@ -234,6 +234,8 @@ public class IronPull : MonoBehaviour
     
     void Update()
     {
+        if (debugPullOperations) Debug.Log($"[PULL] Update - canBurn={allomancer?.canBurnMetal ?? true}, Q={Input.GetKeyDown(KeyCode.Q)}");
+        
         // EARLY EXIT: Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {

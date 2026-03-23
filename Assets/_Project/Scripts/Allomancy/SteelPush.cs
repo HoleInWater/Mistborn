@@ -312,6 +312,8 @@ public class SteelPush : MonoBehaviour
     
     void Update()
     {
+        if (debugPushOperations) Debug.Log($"[PUSH] Update - canBurn={allomancer?.canBurnMetal ?? true}, E={Input.GetKeyDown(KeyCode.E)}, Q={Input.GetKeyDown(KeyCode.Q)}, F={Input.GetKeyDown(KeyCode.F)}");
+        
         // Check if Allomancer says we can't burn metal (out of metal)
         if (allomancer != null && !allomancer.canBurnMetal)
         {
@@ -376,12 +378,12 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // Steel Bubble: F key (one per press, requires flaring)
+        // Steel Bubble: F key (one per press, requires burning)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (IsFlaring && steelBubbleCooldownTimer <= 0f)
+            if (steelBubbleCooldownTimer <= 0f)
             {
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble! Flaring={IsFlaring}");
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble!");
                 if (!isBurning) StartBurning();
                 if (!bubbleAppliedThisPress)
                 {
@@ -390,10 +392,6 @@ public class SteelPush : MonoBehaviour
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
                 }
-            }
-            else if (debugPushOperations && !IsFlaring)
-            {
-                Debug.Log($"[BUBBLE] Blocked - not flaring! IsFlaring={IsFlaring}");
             }
         }
         
