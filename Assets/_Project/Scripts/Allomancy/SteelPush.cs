@@ -297,8 +297,8 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection (always update for prediction line)
         UpdateTargetedMetal();
         
-        // Steel Bubble defensive ability (F key - works standalone)
-        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && cooldownTimer <= 0f)
+        // Steel Bubble defensive ability (F key - requires flaring)
+        if (enableSteelBubble && Input.GetKey(steelBubbleKey) && isFlaring && cooldownTimer <= 0f)
         {
             if (!isBurning)
             {
