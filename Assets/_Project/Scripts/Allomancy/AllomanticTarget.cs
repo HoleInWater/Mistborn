@@ -21,9 +21,13 @@
  */
 
 using UnityEngine;
+using System.Collections.Generic;
 
 public class AllomanticTarget : MonoBehaviour
 {
+    // Static registry of all metal objects for efficient lookup
+    private static HashSet<AllomanticTarget> allMetalObjects = new HashSet<AllomanticTarget>();
+    
     [Header("Metal Properties")]
     [Tooltip("Type of metal this object is made of")]
     public AllomancySkill.MetalType metalType = AllomancySkill.MetalType.Steel;
@@ -45,10 +49,25 @@ public class AllomanticTarget : MonoBehaviour
             rigidbody = GetComponent<Rigidbody>();
         }
         
+        // Ensure gravity is enabled for realistic physics
+        if (rigidbody != null && !rigidbody.useGravity)
+        {
+            rigidbody.useGravity = true;
+        }
+        
         if (mass <= 0f && rigidbody != null)
         {
             mass = rigidbody.mass;
         }
+        
+        // Register this metal object
+        allMetalObjects.Add(this);
+    }
+    
+    void OnDestroy()
+    {
+        // Unregister when destroyed
+        allMetalObjects.Remove(this);
     }
     
     // Returns the effective mass for push/pull calculations
@@ -62,5 +81,25 @@ public class AllomanticTarget : MonoBehaviour
                 return 1f; // default mass
         }
         return mass;
+    }
+    
+    // Static helper to check if a collider is a metal object
+    public static bool IsMetal(Collider collider)
+    {
+        if (collider == null) return false;
+        return collider.GetComponent<AllomanticTarget>() != null;
+    }
+    
+    // Static helper to get AllomanticTarget from collider (null if not metal)
+    public static AllomanticTarget GetMetalObject(Collider collider)
+    {
+        if (collider == null) return null;
+        return collider.GetComponent<AllomanticTarget>();
+    }
+    
+    // Get all registered metal objects (for debugging or special abilities)
+    public static HashSet<AllomanticTarget> GetAllMetalObjects()
+    {
+        return new HashSet<AllomanticTarget>(allMetalObjects);
     }
 }
