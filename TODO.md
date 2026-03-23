@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (22/400+):**
+**✅ Completed (42/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -24,7 +24,7 @@
 6. Out-of-metal UI feedback - Added warning display when metal reserves hit 0
 7. Repository clean-up - Removed duplicate utility scripts, reorganized folders
 8. Added comprehensive comments to all new code
-9. Weight-proportional force for Steel Push - F = playerMass / targetMass × baseForce
+9. Weight-proportional force for Steel Push - F = playerMass / referenceMass × baseForce
 10. Weight-proportional force for Iron Pull - Same physics as Steel Push
 11. Anchor detection for Steel Push - pushes player when target is heavy/kinematic
 12. Anchor detection for Iron Pull - pulls player when target is heavy/kinematic
@@ -38,6 +38,26 @@
 20. Changed detection to OverlapSphere for metal-through-walls (lore accurate)
 21. Added tooltips to force settings for calibration clarity
 22. Added optional visual effect when pushing metal
+23. Added flight mechanics: extra upward boost when pushing off anchored objects below
+24. Added impulse mode for light objects (coins) to achieve realistic velocities
+25. Added camera shake and placeholder audio system for push feedback
+26. Added flaring visual vignette effect (screen tint when flaring)
+27. Added debug logging for impulse calibration
+28. Added crosshair color change when metal is in range
+29. Added push cooldown after releasing button to prevent spam
+30. Added physics with gravity and drag for metal objects (realistic projectile motion)
+31. Added static metal registry and tagging system for efficient metal detection
+32. Researched blue lines (Spiritual Realm) from Reddit and Coppermind, updated docs
+33. Added aluminum filtering: aluminum alloys cannot be pushed/pulled (lore accurate)
+34. Added real-time debug display for calibration in editor
+35. Fixed weight-proportional force to use referenceMass instead of targetMass (lore accurate)
+36. Added steel bubble defensive ability (pushes all nearby metal away)
+37. Improved blue lines with pulsing/shimmering effect and chest-origin as per lore
+38. Implemented object pooling for blue lines to improve performance
+39. Added targeted metal detection with enhanced debug display showing specific target info
+40. Added visual differentiation in blue lines for non-pushable and anchored metals
+41. Added push prediction line showing trajectory when targeting metal objects
+42. Added push force visual feedback with color-coded screen tint and prediction line velocity coloring
 
 ---
 
@@ -169,23 +189,23 @@
 *Make Push/Pull feel like the books*
 
 ### Physics Polish
-- [ ] Implement weight-proportional force: `F = playerMass / targetMass × basePushForce`
-- [ ] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
-- [ ] Implement anchor detection: if target mass > playerMass × 3 → push player
-- [ ] Add Zenith Point: maximum force at 5m, falls off beyond
-- [ ] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
-- [ ] Implement flight mechanics: pushing off floor brackets launches player upward
+- [x] Implement weight-proportional force: `F = playerMass / targetMass × basePushForce`
+- [x] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
+- [x] Implement anchor detection: if target mass > playerMass × 3 → push player
+- [x] Add Zenith Point: maximum force at 5m, falls off beyond
+- [x] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
+- [x] Implement flight mechanics: pushing off floor brackets launches player upward
 
 ### Allomantic Sight Polish
 - [ ] Line thickness reflects mass (thicker = heavier)
 - [ ] Set max detection range: 80-100m
 - [ ] Add pulse/shimmer animation on line width
-- [ ] Add slow-motion effect on Tab press (0.5x time for 0.3s)
+- [x] Add slow-motion effect on Tab press (0.5x time for 0.3s)
 
 ### Metal Flaring
-- [ ] Add flaring input: Shift + Push/Pull = burn faster
-- [ ] Implement flaring: force × 2, reserve drain × 3
-- [ ] Add screen vignette/pulse VFX when flaring
+- [x] Add flaring input: Shift + Push/Pull = burn faster
+- [x] Implement flaring: force × 2, reserve drain × 3
+- [x] Add screen vignette/pulse VFX when flaring
 
 ### Metal Wheel UI
 - [ ] Create radial menu with 16 metal slots

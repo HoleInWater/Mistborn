@@ -21,9 +21,13 @@
  */
 
 using UnityEngine;
+using System.Collections.Generic;
 
 public class AllomanticTarget : MonoBehaviour
 {
+    // Static registry of all metal objects for efficient lookup
+    private static HashSet<AllomanticTarget> allMetalObjects = new HashSet<AllomanticTarget>();
+    
     [Header("Metal Properties")]
     [Tooltip("Type of metal this object is made of")]
     public AllomancySkill.MetalType metalType = AllomancySkill.MetalType.Steel;
@@ -31,8 +35,18 @@ public class AllomanticTarget : MonoBehaviour
     [Tooltip("If true, this object is anchored (fixed) and will pull the player instead of moving")]
     public bool isAnchored = false;
     
+    [Tooltip("Can this object be pushed by Steel? (False for aluminum, etc.)")]
+    public bool canBePushed = true;
+    
+    [Tooltip("Can this object be pulled by Iron? (False for aluminum, etc.)")]
+    public bool canBePulled = true;
+    
     [Tooltip("Mass of the metal (used for push/pull calculations). If 0, uses Rigidbody mass.")]
     public float mass = 0f;
+    
+    [Header("Physics Settings")]
+    [Tooltip("Air drag for this metal object (0 = no drag, higher = more resistance)")]
+    public float drag = 0.1f;
     
     [Header("References")]
     [Tooltip("Reference to the Rigidbody (if any). Automatically assigned if left empty.")]
@@ -45,10 +59,40 @@ public class AllomanticTarget : MonoBehaviour
             rigidbody = GetComponent<Rigidbody>();
         }
         
+        if (rigidbody != null)
+        {
+            // Ensure gravity is enabled for realistic physics
+            if (!rigidbody.useGravity)
+            {
+                rigidbody.useGravity = true;
+            }
+            
+            // Apply air drag for more realistic projectile motion
+            rigidbody.drag = drag;
+            rigidbody.angularDrag = drag * 2f; // More angular drag for stability
+        }
+        
         if (mass <= 0f && rigidbody != null)
         {
             mass = rigidbody.mass;
         }
+        
+        // Set push/pull flags based on metal type (aluminum alloys are not pushable)
+        if (metalType == AllomancySkill.MetalType.Aluminum || 
+            metalType == AllomancySkill.MetalType.Duralumin)
+        {
+            canBePushed = false;
+            canBePulled = false;
+        }
+        
+        // Register this metal object
+        allMetalObjects.Add(this);
+    }
+    
+    void OnDestroy()
+    {
+        // Unregister when destroyed
+        allMetalObjects.Remove(this);
     }
     
     // Returns the effective mass for push/pull calculations
@@ -62,5 +106,25 @@ public class AllomanticTarget : MonoBehaviour
                 return 1f; // default mass
         }
         return mass;
+    }
+    
+    // Static helper to check if a collider is a metal object
+    public static bool IsMetal(Collider collider)
+    {
+        if (collider == null) return false;
+        return collider.GetComponent<AllomanticTarget>() != null;
+    }
+    
+    // Static helper to get AllomanticTarget from collider (null if not metal)
+    public static AllomanticTarget GetMetalObject(Collider collider)
+    {
+        if (collider == null) return null;
+        return collider.GetComponent<AllomanticTarget>();
+    }
+    
+    // Get all registered metal objects (for debugging or special abilities)
+    public static HashSet<AllomanticTarget> GetAllMetalObjects()
+    {
+        return new HashSet<AllomanticTarget>(allMetalObjects);
     }
 }
