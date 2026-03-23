@@ -16,7 +16,7 @@ public class MetalSelector : MonoBehaviour
     
     [Header("References")]
     public Allomancer allomancer;
-    public MetalHUD metalHUD;
+    public MetalReserve metalReserve;
     
     // Track both selected metals
     private AllomancySkill.MetalType primaryMetal;
@@ -28,8 +28,8 @@ public class MetalSelector : MonoBehaviour
         if (allomancer == null)
             allomancer = GetComponent<Allomancer>();
         
-        if (metalHUD == null)
-            metalHUD = FindObjectOfType<MetalHUD>();
+        if (metalReserve == null)
+            metalReserve = FindObjectOfType<MetalReserve>();
         
         // Initialize with default metals (Steel primary, Iron secondary)
         primaryMetal = AllomancySkill.MetalType.Steel;
