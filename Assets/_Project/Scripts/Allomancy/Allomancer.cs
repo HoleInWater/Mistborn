@@ -45,24 +45,42 @@ public class Allomancer : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("[ALLOMANCER] Start() called on " + gameObject.name);
+        
         for (int i = 0; i < metalReserves.Length; i++)
         {
             metalReserves[i] = 100f;
         }
         
         EnsureAllomancyComponents();
+        Debug.Log("[ALLOMANCER] Start() complete - Steel reserve: " + metalReserves[6]); // Steel is index 6
     }
     
     void EnsureAllomancyComponents()
     {
+        Debug.Log("[ALLOMANCER] Ensuring components...");
+        
         if (GetComponent<SteelPush>() == null)
+        {
             gameObject.AddComponent<SteelPush>();
+            Debug.Log("[ALLOMANCER] Added SteelPush component");
+        }
+        else
+        {
+            Debug.Log("[ALLOMANCER] SteelPush already exists");
+        }
         
         if (GetComponent<IronPull>() == null)
+        {
             gameObject.AddComponent<IronPull>();
+            Debug.Log("[ALLOMANCER] Added IronPull component");
+        }
         
         if (GetComponent<FlareManager>() == null)
+        {
             gameObject.AddComponent<FlareManager>();
+            Debug.Log("[ALLOMANCER] Added FlareManager component");
+        }
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)

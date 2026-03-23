@@ -171,19 +171,24 @@ public class IronPull : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("[IRON PULL] Start() called");
+        
         if (playerRigidbody == null)
         {
             playerRigidbody = GetComponentInParent<Rigidbody>();
+            Debug.Log($"[IRON PULL] playerRigidbody auto-assigned: {playerRigidbody}");
         }
         
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
+            Debug.Log($"[IRON PULL] playerCamera auto-assigned: {playerCamera}");
         }
         
         if (allomancer == null)
         {
             allomancer = GetComponentInParent<Allomancer>();
+            Debug.Log($"[IRON PULL] allomancer auto-assigned: {allomancer}");
         }
         
         if (metalLayer.value == 0)
@@ -193,11 +198,11 @@ public class IronPull : MonoBehaviour
         
         if (chestTransform == null)
         {
-            // Use player rigidbody position as chest (center of body)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
         }
         
         CreatePredictionLine();
+        Debug.Log("[IRON PULL] Start() complete");
     }
     
     void CreatePredictionLine()
