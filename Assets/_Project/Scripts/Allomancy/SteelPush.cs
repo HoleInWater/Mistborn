@@ -31,6 +31,7 @@
 
 // NOTE: Lines 39 and 45 contain Debug.Log which should be removed for production
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -80,6 +81,14 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Maximum alpha of vignette during pulse")]
     public float vignetteMaxAlpha = 0.3f;
     
+    [Header("UI Feedback")]
+    [Tooltip("Crosshair UI Image that changes color when metal is in range (optional)")]
+    public UnityEngine.UI.Image crosshairImage;
+    [Tooltip("Color when metal is within push range")]
+    public Color metalInRangeColor = Color.green;
+    [Tooltip("Color when no metal in range")]
+    public Color noMetalColor = Color.white;
+    
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
     public float flightLaunchMultiplier = 1.5f;
@@ -98,6 +107,7 @@ public class SteelPush : MonoBehaviour
     private bool isFlaring = false;
     private bool wasFlaring = false;
     private Coroutine vignetteCoroutine;
+    private bool metalInRange = false;
     
     void Start()
     {
@@ -176,6 +186,8 @@ public class SteelPush : MonoBehaviour
         // Detect all metal objects within maxRange radius, ignoring line-of-sight
         // LORE: Steel Push works through walls (blue lines in Spiritual Realm)
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        metalInRange = colliders.Length > 0;
+        UpdateCrosshairColor();
         
         float playerMass = playerRigidbody.mass;
         
@@ -352,5 +364,11 @@ public class SteelPush : MonoBehaviour
         }
         vignetteImage.gameObject.SetActive(false);
         vignetteCoroutine = null;
+    }
+    
+    void UpdateCrosshairColor()
+    {
+        if (crosshairImage == null) return;
+        crosshairImage.color = metalInRange ? metalInRangeColor : noMetalColor;
     }
 }
