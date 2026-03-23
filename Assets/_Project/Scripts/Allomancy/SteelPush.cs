@@ -286,6 +286,7 @@ public class SteelPush : MonoBehaviour
         bool pushKeyUp = Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.E);
         if (pushKeyUp)
         {
+            if (debugPushOperations) Debug.Log("E/Q released - stopping push");
             StopBurning();
         }
         
@@ -307,6 +308,7 @@ public class SteelPush : MonoBehaviour
     {
         if (!isBurning) return;
         isBurning = false;
+        isFlaring = false; // Reset flaring when stopping
         cooldownTimer = pushCooldown;
         if (allomancer != null)
         {
@@ -446,18 +448,22 @@ public class SteelPush : MonoBehaviour
     
     void PushMetals()
     {
-        if (playerRigidbody == null) return;
+        Debug.Log("PushMetals() called!");
+        
+        if (playerRigidbody == null)
+        {
+            Debug.Log("PushMetals: playerRigidbody is null!");
+            return;
+        }
         
         // Detect all metal objects within maxRange radius, ignoring line-of-sight
-        // LORE: Steel Push works through walls (blue lines in Spiritual Realm)
         Collider[] colliders = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
         metalInRange = colliders.Length > 0;
         UpdateCrosshairColor();
         
-        if (debugPushOperations)
-        {
-            Debug.Log($"PushMetals: {colliders.Length} metals found, range={maxRange}, pos={playerRigidbody.position}");
-        }
+        Debug.Log($"PushMetals: {colliders.Length} metals found, range={maxRange}");
+        
+        if (colliders.Length == 0) return;
         
         float playerMass = playerRigidbody.mass;
         
@@ -466,7 +472,7 @@ public class SteelPush : MonoBehaviour
             Rigidbody targetRigidbody = collider.attachedRigidbody;
             if (targetRigidbody == null)
             {
-                if (debugPushOperations) Debug.Log($"PushMetals: {collider.gameObject.name} has no rigidbody");
+                Debug.Log($"PushMetals: {collider.gameObject.name} has no rigidbody");
                 continue;
             }
             if (targetRigidbody == playerRigidbody) continue; // Skip player's own rigidbody
@@ -479,7 +485,7 @@ public class SteelPush : MonoBehaviour
                 // Skip if target cannot be pushed (e.g., aluminum)
                 if (!target.canBePushed)
                 {
-                    if (debugPushOperations) Debug.Log($"PushMetals: {collider.gameObject.name} cannot be pushed");
+                    Debug.Log($"PushMetals: {collider.gameObject.name} cannot be pushed");
                     continue;
                 }
                 targetMass = target.GetEffectiveMass();
@@ -489,7 +495,7 @@ public class SteelPush : MonoBehaviour
                 targetMass = targetRigidbody.mass;
             }
             
-            if (debugPushOperations) Debug.Log($"PushMetals: Processing {collider.gameObject.name}, mass={targetMass}, pos={targetRigidbody.position}");
+            Debug.Log($"PushMetals: Processing {collider.gameObject.name}, mass={targetMass}, distance={Vector3.Distance(playerRigidbody.position, targetRigidbody.position):F2}m");
             
             // Weight-proportional force: F = pushForce * (playerMass / referenceMass)
             float weightFactor = playerMass / referenceMass;
