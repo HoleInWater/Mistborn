@@ -44,6 +44,13 @@ public class Tin : MonoBehaviour
     private ColorAdjustments colorAdjustments;
     private Vignette vignette;
 
+    // Components & State
+    private BasicPlayerMove playerMove;
+    private Vector3 originalCameraLocalPos;
+    private float shakeIntensity;
+    private AudioLowPassFilter lowPass;
+    private AudioHighPassFilter highPass;
+
     void Start()
     {
         if (playerCamera == null) playerCamera = Camera.main;
@@ -59,6 +66,22 @@ public class Tin : MonoBehaviour
             globalVolume.profile.TryGet(out fog);
             globalVolume.profile.TryGet(out colorAdjustments);
             globalVolume.profile.TryGet(out vignette);
+        }
+
+        // Initialize Components
+        playerMove = GetComponentInParent<BasicPlayerMove>();
+        
+        if (playerCamera != null)
+        {
+            lowPass = playerCamera.GetComponent<AudioLowPassFilter>();
+            if (lowPass == null) lowPass = playerCamera.gameObject.AddComponent<AudioLowPassFilter>();
+            lowPass.enabled = false;
+
+            highPass = playerCamera.GetComponent<AudioHighPassFilter>();
+            if (highPass == null) highPass = playerCamera.gameObject.AddComponent<AudioHighPassFilter>();
+            highPass.enabled = false;
+
+            originalCameraLocalPos = playerCamera.transform.localPosition;
         }
     }
 
@@ -183,14 +206,13 @@ public class Tin : MonoBehaviour
         if (currentOverloadVisual > 0.5f || currentOverloadAudio > 0.5f)
         {
             shakeIntensity = Mathf.Max(currentOverloadVisual, currentOverloadAudio) * 0.1f;
-            if (playerCamera != null)
-            {
-                playerCamera.transform.localPosition = originalCameraLocalPos + Random.insideUnitSphere * shakeIntensity;
-            }
+            CameraShakeManager.Instance?.Shake(0.1f, shakeIntensity);
         }
         else if (playerCamera != null)
         {
-            playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, originalCameraLocalPos, Time.deltaTime * 5f);
+            // The manager handles returning to original pos, but we ensure it's lerped back if manager is missing
+            if (CameraShakeManager.Instance == null)
+                playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, originalCameraLocalPos, Time.deltaTime * 5f);
         }
     }
 
