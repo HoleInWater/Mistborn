@@ -40,6 +40,8 @@ public class SteelPush : MonoBehaviour
     [Header("Settings")]
     [Tooltip("Base force applied when pushing. Needs calibration for desired coin velocities.")]
     public float pushForce = 800f;
+    [Tooltip("Reference mass for force calculation (average human = 80kg).")]
+    public float referenceMass = 80f;
     [Tooltip("Reference distance where force factor = 1. Force = baseForce * (zenithDistance / distance).")]
     public float zenithDistance = 5f;
     [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
@@ -221,8 +223,8 @@ public class SteelPush : MonoBehaviour
                 targetMass = targetRigidbody.mass;
             }
             
-            // Weight-proportional force: F = pushForce * (playerMass / targetMass)
-            float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
+            // Weight-proportional force: F = pushForce * (playerMass / referenceMass)
+            float weightFactor = playerMass / referenceMass;
             float force = pushForce * weightFactor;
             
             // Distance from player to target
@@ -442,7 +444,7 @@ public class SteelPush : MonoBehaviour
     float CalculateExpectedVelocity(float distance, float coinMass)
     {
         float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
-        float weightFactor = playerMass / coinMass;
+        float weightFactor = playerMass / referenceMass;
         float force = pushForce * weightFactor;
         
         float effectiveDistance = Mathf.Max(distance, minDistance);
