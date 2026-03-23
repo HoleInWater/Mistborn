@@ -51,21 +51,28 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Cooldown time in seconds after releasing push button")]
     public float pushCooldown = 0.2f;
     
-    [Header("Allomancy Physics (Lore-Based)")]
-    [Tooltip("Maximum force multiplier when flaring (lore: there's a cap to how hard you can flare)")]
+    [Header("Allomancy Physics (Lore-Accurate Model)")]
+    [Tooltip("Base allomantic strength (determines max force AND max velocity)")]
+    public float allomanticStrength = 1000f;
+    [Tooltip("Maximum velocity an allomancer can impart (lore: coins have terminal velocity based on strength)")]
+    public float maxCoinVelocity = 400f;
+    [Tooltip("Distance exponent (lore: 1 = inverse, 2 = inverse square)")]
+    [Range(1f, 2f)]
+    public float distanceExponent = 1f;
+    [Tooltip("Velocity damping (lore: force decreases as target moves away faster)")]
+    [Range(0f, 1f)]
+    public float velocityDamping = 0.5f;
+    
+    [Header("Legacy Settings")]
+    [Tooltip("Maximum force multiplier when flaring")]
     [Range(1.5f, 3f)]
     public float maxFlareMultiplier = 2f;
-    [Tooltip("Metal cost multiplier when flaring (lore: flaring wastes energy, ~3x metal for ~2x power)")]
+    [Tooltip("Metal cost multiplier when flaring")]
     [Range(1f, 5f)]
     public float flaringMetalCostMultiplier = 3f;
-    [Tooltip("Power efficiency when flaring (lore: higher burn = less efficient energy transfer)")]
-    [Range(0.5f, 1f)]
-    public float flaringEfficiency = 0.66f; // ~2x power for 3x metal = 66% efficiency
-    [Tooltip("Skill mastery bonus (lore: masters can push beyond natural limits with practice)")]
+    [Tooltip("Skill mastery bonus")]
     [Range(1f, 2f)]
     public float masteryBonus = 1f;
-    [Tooltip("Maximum push force cap regardless of flaring or mastery")]
-    public float maxPushForce = 2000f;
     
     [Header("References")]
     public Camera playerCamera;
@@ -513,70 +520,85 @@ public class SteelPush : MonoBehaviour
             
             float targetMass = target != null ? target.GetEffectiveMass() : targetRigidbody.mass;
             float distance = Vector3.Distance(pushOrigin, targetRigidbody.position);
-            
-            Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F1}kg, dist={distance:F1}m");
-            
-            // Calculate base force with weight proportionality
-            float weightFactor = playerMass / referenceMass;
-            float force = pushForce * weightFactor;
-            
-            // Direction from chest to target (lore: push originates from center of body)
             Vector3 directionToTarget = targetRigidbody.position - pushOrigin;
             
             bool isAnchored = (target != null && target.isAnchored) || targetRigidbody.isKinematic;
             
-            // Calculate force with distance falloff (lore: 1/r inverse proportional)
+            Debug.Log($"[PUSH] {collider.name}: mass={targetMass:F2}kg, dist={distance:F1}m, anchored={isAnchored}");
+            
+            // LORE-ACCURATE PHYSICS MODEL:
+            // 1. Base allomantic strength (determines max force AND max velocity)
+            // 2. Distance falloff (1/r or 1/r²)
+            // 3. Velocity damping (force decreases as target moves away faster)
+            // 4. Anchor quality (stationary objects = full force, moving = reduced)
+            
+            // Weight-proportional factor (lore: larger allomancers push harder)
+            float weightFactor = playerMass / referenceMass;
+            
+            // Calculate allomantic strength with flaring
+            float strength = allomanticStrength * weightFactor * masteryBonus;
+            if (isFlaring) strength *= maxFlareMultiplier;
+            
+            // Distance falloff (lore: harder to push at range)
+            float distanceFactor = 1f;
             if (distance > 0.01f && distance <= maxRange)
             {
                 float effectiveDistance = Mathf.Max(distance, minDistance);
-                float distanceFactor = Mathf.Min(referenceDistance / effectiveDistance, 2f);
-                force *= distanceFactor;
+                distanceFactor = Mathf.Pow(referenceDistance / effectiveDistance, distanceExponent);
             }
-            else
+            else if (distance > maxRange)
             {
-                force = 0f;
+                distanceFactor = 0f;
             }
             
-            // Apply mastery bonus (lore: practice makes masters stronger)
-            force *= masteryBonus;
-            
-            // Apply flaring with efficiency penalty (lore: flaring wastes energy)
-            float metalCost = metalCostPerSecond;
-            if (isFlaring)
+            // Velocity damping (lore: force decreases as target moves away faster)
+            // When target is stationary: full force
+            // When target is at max velocity: minimal force
+            Vector3 targetVelocity = targetRigidbody.velocity;
+            float velocityAwayFromPlayer = Vector3.Dot(targetVelocity, directionToTarget.normalized);
+            float velocityDampingFactor = 1f;
+            if (velocityAwayFromPlayer > 0)
             {
-                // Flaring has diminishing returns - cap at maxFlareMultiplier but costs more metal
-                float flareMultiplier = Mathf.Min(maxFlareMultiplier, flaringEfficiency * maxFlareMultiplier);
-                force *= flareMultiplier;
-                metalCost *= flaringMetalCostMultiplier;
+                // Target is moving away - reduce force based on velocity
+                float velocityRatio = Mathf.Clamp01(velocityAwayFromPlayer / maxCoinVelocity);
+                velocityDampingFactor = 1f - (velocityRatio * velocityDamping);
             }
             
-            // Final force cap
-            force = Mathf.Clamp(force, 0f, maxPushForce);
+            // Calculate final force
+            float force = strength * distanceFactor * velocityDampingFactor;
             
-            Debug.Log($"[PUSH] Force: base={pushForce}, distFalloff=applied, mastery={masteryBonus:F2}x, flaring={isFlaring}, final={force:F0f}N");
+            Debug.Log($"[PUSH] Strength={strength:F0f}, distFactor={distanceFactor:F2}, velDamp={velocityDampingFactor:F2}, force={force:F0f}N");
             
-            Vector3 pushDirection = directionToTarget.normalized;
-            
-            if (force <= 0f)
-            {
-                Debug.Log($"[PUSH] Skipped {collider.name} - force is 0");
-                continue;
-            }
-            
+            // Anchor handling (lore: if target is anchored, push player instead)
             if (isAnchored)
             {
-                Vector3 pushForceVector = -pushDirection * force;
+                // Full force on player when pushing against anchored objects
+                Vector3 pushForceVector = -directionToTarget.normalized * force;
                 playerRigidbody.AddForce(pushForceVector);
-                Debug.Log($"[PUSH] Pushed PLAYER with {force:F0f}N!");
+                Debug.Log($"[PUSH] Pushed PLAYER with {force:F0f}N (anchored target)");
                 pushedCount++;
+            }
+            else if (force > 1f)
+            {
+                // Push the target with terminal velocity cap (lore: coins have max speed)
+                float currentVelocity = targetVelocity.magnitude;
+                if (currentVelocity < maxCoinVelocity)
+                {
+                    targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
+                    Debug.Log($"[PUSH] Pushed {collider.name} with {force:F0f}N");
+                    pushedCount++;
+                }
+                else
+                {
+                    Debug.Log($"[PUSH] {collider.name} at terminal velocity ({currentVelocity:F0f} m/s), no force applied");
+                }
             }
             else
             {
-                targetRigidbody.AddForce(pushDirection * force, ForceMode.Impulse);
-                Debug.Log($"[PUSH] Pushed {collider.name} with {force:F0f}N!");
-                pushedCount++;
+                Debug.Log($"[PUSH] {collider.name} - force too low ({force:F1}N)");
             }
             
+            // Visual feedback
             if (force > shakeForceThreshold)
             {
                 ShakeCamera(shakeMagnitude);
