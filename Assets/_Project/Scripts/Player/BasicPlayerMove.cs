@@ -154,8 +154,6 @@ public class BasicPlayerMove : MonoBehaviour
             // This calculates where the player SHOULD be next frame and moves them there physically
             Vector3 nextPosition = transform.position + moveDirection * currentActiveSpeed * Time.deltaTime;
             rb.MovePosition(nextPosition);
-    
-            Debug.Log("Forcing Position Move: " + nextPosition);
         }
     }
     
