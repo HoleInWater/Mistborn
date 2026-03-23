@@ -51,6 +51,10 @@ public class SteelPush : MonoBehaviour
     public Allomancer allomancer;
     public Rigidbody playerRigidbody;
     
+    [Header("Visual Effects")]
+    [Tooltip("Particle effect prefab to spawn when pushing metal (optional)")]
+    public GameObject pushEffectPrefab;
+    
     private bool isBurning = false;
     private bool isFlaring = false;
     
@@ -181,6 +185,13 @@ public class SteelPush : MonoBehaviour
             {
                 // Normal push on target
                 targetRigidbody.AddForce(pushDirection * force * Time.deltaTime);
+                
+                // Spawn visual effect at target position
+                if (pushEffectPrefab != null && force > 50f)
+                {
+                    GameObject effect = Instantiate(pushEffectPrefab, targetRigidbody.position, Quaternion.identity);
+                    Destroy(effect, 2f); // Auto-destroy after 2 seconds
+                }
             }
         }
     }
