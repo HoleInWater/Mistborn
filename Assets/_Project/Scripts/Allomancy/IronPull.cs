@@ -303,7 +303,6 @@ public class IronPull : MonoBehaviour
             allomancer.StartBurning(AllomancySkill.MetalType.Iron);
         }
     }
-    }
     
     void StopBurning()
     {
