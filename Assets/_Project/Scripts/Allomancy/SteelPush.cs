@@ -236,8 +236,8 @@ public class SteelPush : MonoBehaviour
             cooldownTimer -= Time.deltaTime;
         }
         
-        // Start burning: Right Mouse Button OR E key
-        bool pushKeyDown = Input.GetMouseButtonDown(1) || (enableEKeyPush && Input.GetKeyDown(KeyCode.E));
+        // Start burning: Q key OR E key
+        bool pushKeyDown = Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E);
         if (pushKeyDown && cooldownTimer <= 0f)
         {
             StartBurning();
@@ -270,8 +270,8 @@ public class SteelPush : MonoBehaviour
         {
             isSteelBubbleActive = false;
             
-            // Push while holding Right Mouse Button OR E key
-            bool pushKeyHeld = Input.GetMouseButton(1) || (enableEKeyPush && Input.GetKey(KeyCode.E));
+            // Push while holding Q key OR E key
+            bool pushKeyHeld = Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E);
             if (pushKeyHeld && isBurning)
             {
                 PushMetals();
@@ -279,8 +279,8 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Stop burning when releasing Right Mouse Button OR E key
-        bool pushKeyUp = Input.GetMouseButtonUp(1) || (enableEKeyPush && Input.GetKeyUp(KeyCode.E));
+        // Stop burning when releasing Q key OR E key
+        bool pushKeyUp = Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.E);
         if (pushKeyUp)
         {
             StopBurning();
@@ -334,7 +334,7 @@ public class SteelPush : MonoBehaviour
     
     void UpdatePrediction()
     {
-        bool isPushing = Input.GetMouseButton(1) || (enableEKeyPush && Input.GetKey(KeyCode.E));
+        bool isPushing = Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E);
         
         bool shouldShowPrediction = enablePushPrediction && 
                                    showPredictionOnHold && 
