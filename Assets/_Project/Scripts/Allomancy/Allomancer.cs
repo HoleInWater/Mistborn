@@ -39,6 +39,7 @@ public class Allomancer : MonoBehaviour
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
     public bool canBurnMetal = true;
+
     [Header("HUD")]
     public MetalHUD metalHUD;
     
@@ -82,7 +83,6 @@ public class Allomancer : MonoBehaviour
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
         UpdateHUD(metal);
         
-        // Update canBurnMetal if this metal is currently being burned
         if (metal == currentMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;
@@ -98,7 +98,6 @@ public class Allomancer : MonoBehaviour
         metalReserves[(int)metal] = Mathf.Min(100f, metalReserves[(int)metal] + amount);
         UpdateHUD(metal);
         
-        // Update canBurnMetal if this metal is currently being burned
         if (metal == currentMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;
