@@ -169,22 +169,22 @@
 *Make Push/Pull feel like the books*
 
 ### Physics Polish
-- [ ] Implement weight-proportional force: `F = playerMass / targetMass × basePushForce`
-- [ ] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
-- [ ] Implement anchor detection: if target mass > playerMass × 3 → push player
-- [ ] Add Zenith Point: maximum force at 5m, falls off beyond
+- [x] Implement weight-proportional force: `F = playerMass / targetMass × basePushForce`
+- [x] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
+- [x] Implement anchor detection: if target mass > playerMass × 3 → push player
+- [x] Add Zenith Point: maximum force at 5m, falls off beyond
 - [ ] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
-- [ ] Implement flight mechanics: pushing off floor brackets launches player upward
+- [x] Implement flight mechanics: pushing off floor brackets launches player upward
 
 ### Allomantic Sight Polish
 - [ ] Line thickness reflects mass (thicker = heavier)
 - [ ] Set max detection range: 80-100m
 - [ ] Add pulse/shimmer animation on line width
-- [ ] Add slow-motion effect on Tab press (0.5x time for 0.3s)
+- [x] Add slow-motion effect on Tab press (0.5x time for 0.3s)
 
 ### Metal Flaring
-- [ ] Add flaring input: Shift + Push/Pull = burn faster
-- [ ] Implement flaring: force × 2, reserve drain × 3
+- [x] Add flaring input: Shift + Push/Pull = burn faster
+- [x] Implement flaring: force × 2, reserve drain × 3
 - [ ] Add screen vignette/pulse VFX when flaring
 
 ### Metal Wheel UI
