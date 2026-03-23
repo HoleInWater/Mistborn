@@ -66,6 +66,15 @@ public class Allomancer : MonoBehaviour
         
         if (GetComponent<FlareManager>() == null)
             gameObject.AddComponent<FlareManager>();
+        
+        if (GetComponent<MetalSelector>() == null)
+            gameObject.AddComponent<MetalSelector>();
+        
+        if (GetComponent<MetalReserveBars>() == null)
+            gameObject.AddComponent<MetalReserveBars>();
+        
+        if (GetComponent<MetalBurnEffect>() == null)
+            gameObject.AddComponent<MetalBurnEffect>();
     }
     
     public void StartBurning(AllomancySkill.MetalType metal)
