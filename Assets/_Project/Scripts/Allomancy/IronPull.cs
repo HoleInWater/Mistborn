@@ -420,7 +420,9 @@ public class IronPull : MonoBehaviour
         
         float force = strength * distanceFactor;
         
-        if (force > 1f)
+        Debug.Log($"[PULL] Force={force}, distance={distance}");
+        
+        if (force > 0.1f)
         {
             if (isAnchored)
                 playerRigidbody.AddForce(directionToTarget.normalized * force);
