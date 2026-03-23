@@ -15,7 +15,7 @@
 | 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
 | 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
 
-**✅ Completed (32/400+):**
+**✅ Completed (33/400+):**
 1. PlayerSetup.cs - Runtime script to add missing components
 2. AllomanticTarget.cs - Metal object component
 3. Allomancer.cs updated - Wired MetalHUD references
@@ -48,6 +48,7 @@
 30. Added physics with gravity and drag for metal objects (realistic projectile motion)
 31. Added static metal registry and tagging system for efficient metal detection
 32. Researched blue lines (Spiritual Realm) from Reddit and Coppermind, updated docs
+33. Added aluminum filtering: aluminum alloys cannot be pushed/pulled (lore accurate)
 
 ---
 
