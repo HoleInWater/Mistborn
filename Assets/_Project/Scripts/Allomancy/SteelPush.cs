@@ -48,6 +48,7 @@ public class SteelPush : MonoBehaviour
     
     private float metalReserve = 100f;
     private bool isBurning = false;
+    private bool isFlaring = false;
     
     void Start()
     {
@@ -70,6 +71,9 @@ public class SteelPush : MonoBehaviour
         {
             StartBurning();
         }
+        
+        // Flaring: holding Shift while burning increases force
+        isFlaring = Input.GetKey(KeyCode.LeftShift) && isBurning;
         
         if (Input.GetMouseButton(1) && isBurning)
         {
