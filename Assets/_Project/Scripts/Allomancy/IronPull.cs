@@ -420,8 +420,6 @@ public class IronPull : MonoBehaviour
         
         float force = strength * distanceFactor;
         
-        Debug.Log($"[PULL] Force={force}, distance={distance}");
-        
         if (force > 0.1f)
         {
             if (isAnchored)

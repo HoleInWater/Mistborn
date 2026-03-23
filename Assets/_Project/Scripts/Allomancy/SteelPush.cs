@@ -340,7 +340,6 @@ public class SteelPush : MonoBehaviour
             // Execute push (always, regardless of flare state)
             if (isBurning && !pushAppliedThisPress)
             {
-                Debug.Log($"[PUSH] hasTarget={hasCurrentTarget}, target={currentTargetRigidbody?.name}");
                 if (debugPushOperations) Debug.Log($"[PUSH] Executing push! Flaring={IsFlaring}");
                 PushMetals();
                 DrainMetal(flaringMetalCostMultiplier);
@@ -590,8 +589,6 @@ public class SteelPush : MonoBehaviour
         }
         
         float force = strength * distanceFactor;
-        
-        Debug.Log($"[PUSH] Force={force}, targetMass={targetMass}, distance={distance}");
         
         if (isAnchored)
         {
