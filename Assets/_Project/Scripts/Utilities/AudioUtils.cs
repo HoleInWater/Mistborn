@@ -73,7 +73,8 @@ namespace MistbornGame.Utilities
         /// </summary>
         public static void UnPauseSound(AudioSource source)
         {
-            if (source != null && source.isPaused)
+            // Remove '&& source.isPaused' as it doesn't exist in Unity
+            if (source != null)
             {
                 source.UnPause();
             }
