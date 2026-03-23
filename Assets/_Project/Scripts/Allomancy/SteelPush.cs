@@ -243,8 +243,8 @@ public class SteelPush : MonoBehaviour
             StartBurning();
         }
         
-        // Flaring: holding Shift while burning increases force
-        isFlaring = Input.GetKey(KeyCode.LeftShift) && isBurning;
+        // Flaring: holding Ctrl while burning increases force
+        isFlaring = Input.GetKey(KeyCode.LeftControl) && isBurning;
         
         // Detect flaring start for visual effect
         if (isFlaring && !wasFlaring)
