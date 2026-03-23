@@ -125,18 +125,21 @@ public class BasicPlayerMove : MonoBehaviour
 
     void HandleMovement()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        // 1. Get raw input (Standard Unity Input)
+        float x = Input.GetAxisRaw("Horizontal");
+        float z = Input.GetAxisRaw("Vertical");
     
-        // Calculate direction based on camera
+        // 2. Calculate direction
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
-        forward.y = 0; right.y = 0;
-        forward.Normalize(); right.Normalize();
+        forward.y = 0; 
+        right.y = 0;
+        forward.Normalize(); 
+        right.Normalize();
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
     
-        // Movement Logic
+        // 3. Movement Logic
         if (moveDirection.magnitude >= 0.1f)
         {
             float currentActiveSpeed = moveSpeed;
@@ -148,16 +151,19 @@ public class BasicPlayerMove : MonoBehaviour
                 staminaSystem.DrainStamina(drainRate);
             }
     
-            // Apply movement velocity while KEEPING current Y velocity
-            rb.velocity = new Vector3(moveDirection.x * currentActiveSpeed, rb.velocity.y, moveDirection.z * currentActiveSpeed);
+            // Apply velocity: We keep rb.velocity.y so jumping/gravity still works
+            Vector3 newVelocity = moveDirection * currentActiveSpeed;
+            rb.velocity = new Vector3(newVelocity.x, rb.velocity.y, newVelocity.z);
     
-            // Rotate to face movement
+            // Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            
+            Debug.Log("Moving! Direction: " + moveDirection + " Speed: " + currentActiveSpeed);
         }
         else
         {
-            // If no keys are pressed, stop horizontal movement but keep gravity falling
+            // Stop horizontal movement when keys are released
             rb.velocity = new Vector3(0, rb.velocity.y, 0);
         }
     }
