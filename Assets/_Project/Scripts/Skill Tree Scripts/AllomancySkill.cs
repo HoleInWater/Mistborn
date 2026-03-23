@@ -47,7 +47,7 @@ public class AllomancySkill : ScriptableObject
         Cadmium
     }
 
-    public bool CanUnlock(int availablePoints, int[] metalReserves)
+    public bool CanUnlock(int availablePoints, float[] metalReserves)
     {
         if (isUnlocked) return false;
         if (skillPointCost > availablePoints) return false;

@@ -68,8 +68,8 @@ public class AllomanticTarget : MonoBehaviour
             }
             
             // Apply air drag for more realistic projectile motion
-            rigidbody.linearDamping = drag;
-            rigidbody.angularDamping = drag * 2f; // More angular drag for stability
+            rigidbody.drag = drag;
+            rigidbody.angularDrag = drag * 2f; // More angular drag for stability
         }
         
         if (mass <= 0f && rigidbody != null)

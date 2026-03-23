@@ -52,7 +52,7 @@ public class MetalSpawner : MonoBehaviour
             if (rb == null) rb = metal.AddComponent<Rigidbody>();
             rb.mass = 0.01f;
             rb.useGravity = true;
-            rb.linearDamping = 0.1f;
+            rb.drag = 0.1f;
         }
         
             Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos} with AllomanticTarget");
