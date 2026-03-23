@@ -397,4 +397,59 @@ public class SteelPush : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(playerRigidbody.position, zenithDistance);
     }
+    
+    // Real-time debug display for calibration
+    void OnGUI()
+    {
+        if (!debugCalibration || !isBurning) return;
+        
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = Color.yellow;
+        style.fontSize = 14;
+        
+        float y = 100f;
+        GUI.Label(new Rect(10, y, 400, 20), $"Steel Push Debug", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Push Force: {pushForce}", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Zenith Distance: {zenithDistance}m", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Min Distance: {minDistance}m", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Impulse Calibration: {impulseCalibration}", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Metal in Range: {metalInRange}", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Flaring: {isFlaring}", style);
+        y += 20;
+        GUI.Label(new Rect(10, y, 400, 20), $"Cooldown: {cooldownTimer:F2}s", style);
+        y += 30;
+        
+        // Show expected coin velocity calculation
+        if (metalInRange)
+        {
+            GUI.Label(new Rect(10, y, 400, 20), $"Expected Coin Velocity:", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"At 10m: {CalculateExpectedVelocity(10f, 0.01f):F2} m/s", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"At 5m:  {CalculateExpectedVelocity(5f, 0.01f):F2} m/s", style);
+            y += 20;
+            GUI.Label(new Rect(20, y, 400, 20), $"At 1m:  {CalculateExpectedVelocity(1f, 0.01f):F2} m/s", style);
+        }
+    }
+    
+    // Calculate expected velocity for a coin at given distance and mass
+    float CalculateExpectedVelocity(float distance, float coinMass)
+    {
+        float playerMass = playerRigidbody != null ? playerRigidbody.mass : 80f;
+        float weightFactor = playerMass / coinMass;
+        float force = pushForce * weightFactor;
+        
+        float effectiveDistance = Mathf.Max(distance, minDistance);
+        float distanceFactor = zenithDistance / effectiveDistance;
+        force *= distanceFactor;
+        
+        float impulseForce = force * impulseCalibration;
+        return impulseForce / coinMass; // deltaV = impulse / mass
+    }
 }
