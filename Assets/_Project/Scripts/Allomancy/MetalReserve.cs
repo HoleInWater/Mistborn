@@ -73,4 +73,10 @@ public class MetalReserve : MonoBehaviour
     {
         currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
     }
+    
+    // Add this so MetalSelector can talk to it
+    public void SetCurrentMetal(float amount)
+    {
+        currentMetal = Mathf.Clamp(amount, 0, maxMetal);
+    }
 }
