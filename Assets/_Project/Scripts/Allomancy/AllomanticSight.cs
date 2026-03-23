@@ -43,6 +43,9 @@ public class AllomanticSight : MonoBehaviour
     [Tooltip("Reference to player's chest transform (if null, uses camera)")]
     public Transform chestTransform;
     
+    [Tooltip("Tag of player object to auto-find chest (if chestTransform is null)")]
+    public string playerTag = "Player";
+    
     // ===== REFERENCES =====
     [Header("References")]
     [Tooltip("Reference to the player's camera for line rendering origin")]
@@ -66,6 +69,27 @@ public class AllomanticSight : MonoBehaviour
             if (playerCamera == null)
             {
                 Debug.LogError("AllomanticSight: No main camera found! Please assign playerCamera in Inspector.");
+            }
+        }
+        
+        // Try to auto-find chest transform if not assigned
+        if (chestTransform == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag(playerTag);
+            if (player != null)
+            {
+                // Try to find a child named "Chest" or "ChestBone" or similar
+                Transform chest = player.transform.Find("Chest");
+                if (chest == null) chest = player.transform.Find("ChestBone");
+                if (chest == null) chest = player.transform.Find("Spine2"); // Common bone name
+                if (chest == null) chest = player.transform; // Fallback to player transform
+                
+                chestTransform = chest;
+                Debug.Log($"AllomanticSight: Auto-found chest transform: {chest.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"AllomanticSight: No GameObject found with tag '{playerTag}'. Chest will default to camera position.");
             }
         }
         
@@ -213,21 +237,27 @@ public class AllomanticSight : MonoBehaviour
         // This checks all colliders on the metalLayer within metalRange of this object
         Collider[] metals = Physics.OverlapSphere(transform.position, metalRange, metalLayer);
         
+        // Track processed GameObjects to avoid duplicates
+        HashSet<GameObject> processedObjects = new HashSet<GameObject>();
+        
         // Loop through each metal object found
         foreach (Collider metal in metals)
         {
-            // Calculate direction and distance for line properties
-            Vector3 direction = (metal.transform.position - originPoint).normalized;
-            float distance = Vector3.Distance(originPoint, metal.transform.position);
+            // Skip if we've already processed this GameObject
+            GameObject metalObject = metal.gameObject;
+            if (processedObjects.Contains(metalObject))
+                continue;
+            processedObjects.Add(metalObject);
             
             // Get a line renderer from pool
             LineRenderer line = GetLineFromPool();
+            if (line == null) continue;
             
             // Set line start and end positions
             // Start: origin point (chest or camera)
-            // End: at the metal object's position
+            // End: at the metal object's center (transform.position)
             line.SetPosition(0, originPoint);
-            line.SetPosition(1, metal.transform.position);
+            line.SetPosition(1, metalObject.transform.position);
             
             // Get AllomanticTarget component for additional info
             AllomanticTarget target = metal.GetComponent<AllomanticTarget>();
@@ -260,6 +290,9 @@ public class AllomanticSight : MonoBehaviour
                 baseColor = mass > 10f ? heavyMetalColor : metalColor;
             }
             
+            // Calculate distance for width calculation
+            float distance = Vector3.Distance(originPoint, metalObject.transform.position);
+            
             // Add pulsing alpha for shimmer effect
             if (enableLinePulse)
             {
@@ -267,7 +300,7 @@ public class AllomanticSight : MonoBehaviour
                 baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
             }
             
-            // Also make width based on distance (closer = thicker)
+            // Make width based on distance (closer = thicker)
             float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
             float currentLineWidth = lineWidth * (0.5f + distanceFactor * 0.5f);
             
