@@ -14,7 +14,7 @@ VFXManager:
   m_MaxDeltaTime: 0.05
   m_MaxScrubTime: 30
   m_MaxCapacity: 100000000
-  m_CompiledVersion: 0
-  m_RuntimeVersion: 0
+  m_CompiledVersion: 7
+  m_RuntimeVersion: 39
   m_RuntimeResources: {fileID: 0}
   m_BatchEmptyLifetime: 300
