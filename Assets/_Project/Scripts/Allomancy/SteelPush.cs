@@ -538,12 +538,8 @@ public class SteelPush : MonoBehaviour
         }
         else if (force > 1f)
         {
-            float currentVelocity = targetVelocity.magnitude;
-            if (currentVelocity < maxCoinVelocity)
-            {
-                targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
-                if (debugPushOperations) Debug.Log($"[PUSH] Pushed {targetRigidbody.name}: {force:F0f}N");
-            }
+            targetRigidbody.AddForce(directionToTarget.normalized * force, ForceMode.Impulse);
+            if (debugPushOperations) Debug.Log($"[PUSH] Pushed {targetRigidbody.name}: {force:F0f}N");
         }
         
         if (force > shakeForceThreshold)
