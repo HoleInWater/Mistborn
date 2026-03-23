@@ -77,7 +77,7 @@ public class Bendalloy : MonoBehaviour
     {
         if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
         {
-            return FlareManager.Instance.flareIntensity;
+            return FlareManager.Instance.FlareIntensity;
         }
         return 1.0f;
     }

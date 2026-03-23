@@ -24,16 +24,6 @@ public class SteelPush : MonoBehaviour
 {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private float FlareLevel =>
-        FlareManager.Instance != null && FlareManager.Instance.IsBurning
-            ? (float)(FlareManager.Instance.Intensity - 1) / (FlareManager.Instance.maxIntensitySteps - 1)
-            : 0f;
-
-    private float CurrentFlareMultiplier =>
-        FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
-
-    private bool IsFlaring =>
-        FlareManager.Instance != null && FlareManager.Instance.IsBurning;
 
     // ── Inspector ─────────────────────────────────────────────────────────────
 
@@ -123,6 +113,18 @@ public class SteelPush : MonoBehaviour
         }
         set { _isBurning = value; }
     }
+
+    private bool IsFlaring =>
+        FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
+
+    private float FlareLevel =>
+        FlareManager.Instance != null
+            ? (float)(FlareManager.Instance.Intensity - 1) / (FlareManager.Instance.maxIntensitySteps - 1)
+            : 0f;
+
+    private float CurrentFlareMultiplier =>
+        FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+
     private bool  eKeyWasPressed         = false;
     private bool  bubbleAppliedThisPress = false;
     private float cooldownTimer          = 0f;

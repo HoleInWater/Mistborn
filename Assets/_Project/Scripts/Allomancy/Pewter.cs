@@ -64,7 +64,7 @@ public class Pewter : MonoBehaviour
     {
         if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
         {
-            return FlareManager.Instance.flareIntensity;
+            return FlareManager.Instance.FlareIntensity;
         }
         return 1.0f;
     }
@@ -73,7 +73,7 @@ public class Pewter : MonoBehaviour
     {
         if (playerMove == null) return;
 
-        // Scale multipliers based on flare intensity (1.0 to flareIntensity)
+        // Scale multipliers based on flare intensity (1.0 to FlareIntensity)
         float currentMassMult = Mathf.Lerp(massMultiplierBase, massMultiplierMax, (flareMult - 1f) / 1.5f);
         float currentSpeedMult = Mathf.Lerp(speedMultiplierBase, speedMultiplierMax, (flareMult - 1f) / 1.5f);
 
