@@ -9,7 +9,7 @@
  * - currentMetal: Currently selected metal type for burning
  * - isBurningMetal: Whether the player is actively burning metal
  * - canBurnMetal: Whether the player can burn the current metal (false when reserve hits 0)
- * - metalHUD: Reference to UI display for metal reserves
+ * - MetalReserve: Reference to UI display for metal reserves
  * 
  * HOW IT WORKS:
  * - StartBurning/StopBurning: Control metal burning state
@@ -41,7 +41,7 @@ public class Allomancer : MonoBehaviour
     public bool canBurnMetal = true;
     
     [Header("HUD")]
-    public MetalHUD metalHUD;
+    public MetalReserve metalReserve;
     
     // Reference to metal selector for getting current metal
     private MetalSelector metalSelector;
@@ -154,12 +154,12 @@ public class Allomancer : MonoBehaviour
 
     private void UpdateHUD(AllomancySkill.MetalType metal)
     {
-        if (metalHUD != null)
+        if (metalReserve != null)
         {
-            metalHUD.UpdateReserve(metalReserves[(int)metal]);
+            metalReserve.UpdateReserve(metalReserves[(int)metal]);
             if (metal == GetCurrentMetal())
             {
-                metalHUD.SetCurrentMetal(metal);
+                metalReserve.SetCurrentMetal(metal);
             }
         }
     }
