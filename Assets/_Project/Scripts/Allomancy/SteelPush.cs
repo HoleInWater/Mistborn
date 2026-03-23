@@ -46,6 +46,8 @@ public class SteelPush : MonoBehaviour
     public float minDistance = 0.5f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
+    [Tooltip("Cooldown time in seconds after releasing push button")]
+    public float pushCooldown = 0.2f;
     
     [Header("References")]
     public Camera playerCamera;
@@ -108,6 +110,7 @@ public class SteelPush : MonoBehaviour
     private bool wasFlaring = false;
     private Coroutine vignetteCoroutine;
     private bool metalInRange = false;
+    private float cooldownTimer = 0f;
     
     void Start()
     {
@@ -126,7 +129,13 @@ public class SteelPush : MonoBehaviour
             return;
         }
         
-        if (Input.GetMouseButtonDown(1))
+        // Update cooldown timer
+        if (cooldownTimer > 0f)
+        {
+            cooldownTimer -= Time.deltaTime;
+        }
+        
+        if (Input.GetMouseButtonDown(1) && cooldownTimer <= 0f)
         {
             StartBurning();
         }
@@ -170,6 +179,7 @@ public class SteelPush : MonoBehaviour
     {
         if (!isBurning) return;
         isBurning = false;
+        cooldownTimer = pushCooldown; // Start cooldown after releasing
         if (allomancer != null)
         {
             allomancer.StopBurning();
