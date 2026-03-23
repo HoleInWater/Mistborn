@@ -156,9 +156,11 @@ public class Allomancer : MonoBehaviour
     {
         if (metalReserve != null)
         {
+            // Only update the HUD if the metal being changed is the one we are currently looking at
             if (metal == GetCurrentMetal())
             {
-                metalReserve.SetCurrentMetal(100f);
+                // Set the bar to the ACTUAL remaining amount in the array
+                metalReserve.currentMetal = metalReserves[(int)metal];
             }
         }
     }
