@@ -309,13 +309,14 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Normal push: E key held (one per press)
-        if (Input.GetKey(KeyCode.E) && isBurning && !pushAppliedThisPress)
+        // Normal push: E key (requires flaring)
+        if (Input.GetKeyDown(KeyCode.E) && isFlaring && !pushAppliedThisPress)
         {
-            Debug.Log($"[PUSH] E pressed - burning={isBurning}, flaring={isFlaring}");
-            if (isFlaring) StartFlaringVignette();
+            if (!isBurning) StartBurning();
+            Debug.Log($"[PUSH] E pressed - flaring={isFlaring}");
+            StartFlaringVignette();
             PushMetals();
-            DrainMetal(isFlaring ? flaringMetalCostMultiplier : 1f);
+            DrainMetal(flaringMetalCostMultiplier);
             pushAppliedThisPress = true;
         }
         
