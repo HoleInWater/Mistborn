@@ -1,31 +1,14 @@
 /* Allomancer.cs
- * 
+ *
  * PURPOSE:
  * Core Allomancy system that manages metal reserves, burning state, and coordination
- * with other Allomancy abilities (SteelPush, IronPull, etc.).
- * 
- * KEY FIELDS:
- * - metalReserves: Array of 16 floats representing metal reserves (one per metal type)
- * - currentMetal: Currently selected metal type for burning
- * - isBurningMetal: Whether the player is actively burning metal
- * - canBurnMetal: Whether the player can burn the current metal (false when reserve hits 0)
- * - MetalReserve: Reference to UI display for metal reserves
- * 
- * HOW IT WORKS:
- * - StartBurning/StopBurning: Control metal burning state
- * - DrainMetal/RefillMetal: Adjust metal reserves (called by abilities)
- * - Updates metal HUD when reserves change
- * - Automatically disables burning when metal reserve hits 0
- * 
- * IMPORTANT NOTES:
- * - Metal reserves start at 100% and deplete when burning
- * - canBurnMetal becomes false when current metal reserve <= 0
- * - Triggers UI warning when metal runs out
- * - Must be attached to the Player GameObject
- * 
- * LORE ACCURACY:
- * Allomancers burn metals to gain powers. Each metal type has different abilities.
- * Running out of metal disables allomancy until metal is replenished.
+ * with metal-specific scripts and FlareManager.
+ *
+ * FEATURES:
+ * - Manages 16 metal reserves.
+ * - Handles 2-metal selection (Primary/Secondary) via MetalSelector.
+ * - High-speed HUD updates for all 16 bars.
+ * - Standardized Burn/Flare drain logic.
  */
 
 using UnityEngine;
@@ -33,125 +16,96 @@ using UnityEngine;
 public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]
-    bool isBurningMetal = false;
-    private AllomancySkill.MetalType currentMetal; // Set by MetalSelector via SetCurrentMetal()
+    private bool isBurningMetal = false;
+    private AllomancySkill.MetalType currentMetal;
 
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
     public bool canBurnMetal = true;
-    
+
     [Header("HUD")]
     public MetalReserve metalReserve;
 
-    [Header("Intensity Settings")]
-    [Range(1, 10)]
-    public int flareIntensity = 1; // 1 = Weak, 10 = Max Flare
+    [Header("Burn Settings")]
     public float baseBurnRate = 1f;
-    
-    // Reference to metal selector for getting current metal
+
+    // Private references
     private MetalSelector metalSelector;
-    
+
     void Start()
     {
-        Debug.Log("[ALLOMANCER] Start() called");
-        
         for (int i = 0; i < metalReserves.Length; i++)
-        {
             metalReserves[i] = 100f;
-        }
-        
+
         EnsureAllomancyComponents();
-        
-        // Get reference to MetalSelector
         metalSelector = GetComponent<MetalSelector>();
-        
-        Debug.Log("[ALLOMANCER] Ready - canBurnMetal=" + canBurnMetal);
-    }
-    
-    void EnsureAllomancyComponents()
-    {
-        if (GetComponent<SteelPush>() == null)
-            gameObject.AddComponent<SteelPush>();
-        
-        if (GetComponent<IronPull>() == null)
-            gameObject.AddComponent<IronPull>();
-        
-        if (GetComponent<FlareManager>() == null)
-            gameObject.AddComponent<FlareManager>();
-        
-        if (GetComponent<MetalSelector>() == null)
-            gameObject.AddComponent<MetalSelector>();
-        
-        if (GetComponent<MetalReserve>() == null)
-            gameObject.AddComponent<MetalReserve>();
-        
-        if (GetComponent<MetalBurnEffect>() == null)
-            gameObject.AddComponent<MetalBurnEffect>();
-        
-        if (GetComponent<Tin>() == null)
-            gameObject.AddComponent<Tin>();
-        
-        if (GetComponent<Pewter>() == null)
-            gameObject.AddComponent<Pewter>();
-        
-        if (GetComponent<Zinc>() == null)
-            gameObject.AddComponent<Zinc>();
-        
-        if (GetComponent<Brass>() == null)
-            gameObject.AddComponent<Brass>();
-        
-        if (GetComponent<Copper>() == null)
-            gameObject.AddComponent<Copper>();
-        
-        if (GetComponent<Bronze>() == null)
-            gameObject.AddComponent<Bronze>();
-        
-        if (GetComponent<Atium>() == null)
-            gameObject.AddComponent<Atium>();
-            
-        if (GetComponent<Malatium>() == null)
-            gameObject.AddComponent<Malatium>();
-            
-        if (GetComponent<Gold>() == null)
-            gameObject.AddComponent<Gold>();
-            
-        if (GetComponent<Electrum>() == null)
-            gameObject.AddComponent<Electrum>();
-            
-        if (GetComponent<Aluminum>() == null)
-            gameObject.AddComponent<Aluminum>();
-            
-        if (GetComponent<Duralumin>() == null)
-            gameObject.AddComponent<Duralumin>();
-            
-        if (GetComponent<Bendalloy>() == null)
-            gameObject.AddComponent<Bendalloy>();
-            
-        if (GetComponent<Cadmium>() == null)
-            gameObject.AddComponent<Cadmium>();
-    }
-    
-    public void StartBurning(AllomancySkill.MetalType metal)
-    {
-        Debug.Log($"[ALLOMANCER] StartBurning({metal}) - reserve={(int)metal}=" + metalReserves[(int)metal]);
-        isBurningMetal = true;
-        canBurnMetal = metalReserves[(int)metal] > 0;
-        Debug.Log($"[ALLOMANCER] canBurnMetal={canBurnMetal}");
-    }
-    
-    public void StopBurning()
-    {
-        isBurningMetal = false;
-    }
-    
-    public bool IsBurning()
-    {
-        return isBurningMetal;
     }
 
-    /// <summary>
-    /// Called by MetalSelector to update the active metal.
-    /// </summary>
+    void EnsureAllomancyComponents()
+    {
+        if (GetComponent<SteelPush>() == null) gameObject.AddComponent<SteelPush>();
+        if (GetComponent<IronPull>() == null) gameObject.AddComponent<IronPull>();
+        if (GetComponent<FlareManager>() == null) gameObject.AddComponent<FlareManager>();
+        if (GetComponent<MetalSelector>() == null) gameObject.AddComponent<MetalSelector>();
+        if (GetComponent<MetalReserve>() == null) gameObject.AddComponent<MetalReserve>();
+        if (GetComponent<MetalBurnEffect>() == null) gameObject.AddComponent<MetalBurnEffect>();
+        
+        // Add all 16 metal components
+        if (GetComponent<Tin>() == null) gameObject.AddComponent<Tin>();
+        if (GetComponent<Pewter>() == null) gameObject.AddComponent<Pewter>();
+        if (GetComponent<Zinc>() == null) gameObject.AddComponent<Zinc>();
+        if (GetComponent<Brass>() == null) gameObject.AddComponent<Brass>();
+        if (GetComponent<Copper>() == null) gameObject.AddComponent<Copper>();
+        if (GetComponent<Bronze>() == null) gameObject.AddComponent<Bronze>();
+        if (GetComponent<Atium>() == null) gameObject.AddComponent<Atium>();
+        if (GetComponent<Malatium>() == null) gameObject.AddComponent<Malatium>();
+        if (GetComponent<Gold>() == null) gameObject.AddComponent<Gold>();
+        if (GetComponent<Electrum>() == null) gameObject.AddComponent<Electrum>();
+        if (GetComponent<Aluminum>() == null) gameObject.AddComponent<Aluminum>();
+        if (GetComponent<Duralumin>() == null) gameObject.AddComponent<Duralumin>();
+        if (GetComponent<Bendalloy>() == null) gameObject.AddComponent<Bendalloy>();
+        if (GetComponent<Cadmium>() == null) gameObject.AddComponent<Cadmium>();
+    }
+
+    void Update()
+    {
+        // Toggle burn with B key
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (isBurningMetal) StopBurning();
+            else StartBurning(GetCurrentMetal());
+        }
+
+        // Determine active states
+        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
+        bool isUsingMetal = isBurningMetal || isFlaring;
+
+        if (isUsingMetal && canBurnMetal)
+        {
+            float drainRate = baseBurnRate;
+            if (isFlaring && FlareManager.Instance != null)
+                drainRate += FlareManager.Instance.flareBurnRate;
+
+            DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
+        }
+        else if (!isUsingMetal && metalReserve != null)
+        {
+            // Passive recovery only when idle
+            RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
+    }
+
+    public void StartBurning(AllomancySkill.MetalType metal)
+    {
+        isBurningMetal = true;
+        canBurnMetal = metalReserves[(int)metal] > 0;
+    }
+
+    public void StopBurning() => isBurningMetal = false;
+    public bool IsBurning() => isBurningMetal;
+
     public void SetCurrentMetal(AllomancySkill.MetalType metal)
     {
         currentMetal = metal;
@@ -160,92 +114,25 @@ public class Allomancer : MonoBehaviour
 
     public AllomancySkill.MetalType GetCurrentMetal()
     {
-        // Get current metal from MetalSelector if available
-        if (metalSelector != null)
-            return metalSelector.GetActiveMetal();
-        
-        // Fallback to stored currentMetal
+        if (metalSelector != null) return metalSelector.GetActiveMetal();
         return currentMetal;
     }
-    
-    public float GetMetalReserve(AllomancySkill.MetalType metal)
-    {
-        return metalReserves[(int)metal];
-    }
-    
+
+    public float GetMetalReserve(AllomancySkill.MetalType metal) => metalReserves[(int)metal];
+
     public void DrainMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
-        if (Time.frameCount % 60 == 0)
-            Debug.Log($"[ALLOMANCER] DrainMetal({metal}, {amount:F2}) - reserve now: {metalReserves[(int)metal]:F1}");
         UpdateHUD(metal);
         
-        AllomancySkill.MetalType activeMetal = GetCurrentMetal();
-        if (metal == activeMetal)
-        {
+        if (metal == GetCurrentMetal())
             canBurnMetal = metalReserves[(int)metal] > 0;
-        }
     }
-    
+
     public void RefillMetal(AllomancySkill.MetalType metal, float amount)
     {
         metalReserves[(int)metal] = Mathf.Min(100f, metalReserves[(int)metal] + amount);
         UpdateHUD(metal);
-        
-        AllomancySkill.MetalType activeMetal = GetCurrentMetal();
-        if (metal == activeMetal)
-        {
-            canBurnMetal = metalReserves[(int)metal] > 0;
-        }
-    }
-
-    private void UpdateHUD(AllomancySkill.MetalType metal)
-    {
-        if (metalReserve != null)
-        {
-            // Update all bars in the HUD
-            metalReserve.UpdateAllBars(metalReserves);
-            
-            // Also ensure we update selection highlights in case they haven't been set
-            if (metalSelector != null)
-            {
-                metalReserve.HighlightSelection(
-                    metalSelector.GetPrimaryMetal(), 
-                    metalSelector.GetSecondaryMetal(), 
-                    metalSelector.IsPrimaryActive()
-                );
-            }
-        }
-    }
-    
-    void Update()
-    {
-        // TOGGLE BURN WITH 'B' KEY
-        if (Input.GetKeyDown(KeyCode.B)) 
-        {
-            if (isBurningMetal) StopBurning();
-            else StartBurning(GetCurrentMetal());
-        }
-    
-        // Check if we are currently using any metal
-        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
-        bool isUsingMetal = isBurningMetal || isFlaring;
-    
-        if (isUsingMetal && canBurnMetal)
-        {
-            // Calculate total drain: 1 (base) + flare cost if active
-            float currentBurnRate = 1f;
-            if (isFlaring) currentBurnRate += FlareManager.Instance.flareBurnRate;
-    
-            DrainMetal(GetCurrentMetal(), currentBurnRate * Time.deltaTime);
-        }
-        else if (!isUsingMetal)
-        {
-            // Regenerate only when neither burning nor flaring
-            RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
-        }
-    
-        if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
     }
 
     public void RefillAllMetals()
@@ -256,6 +143,22 @@ public class Allomancer : MonoBehaviour
             UpdateHUD((AllomancySkill.MetalType)i);
         }
         canBurnMetal = true;
-        Debug.Log("[ALLOMANCER] All metal reserves refilled!");
+        Debug.Log("[ALLOMANCER] All metal reserves refilled.");
+    }
+
+    private void UpdateHUD(AllomancySkill.MetalType metal)
+    {
+        if (metalReserve != null)
+        {
+            metalReserve.UpdateAllBars(metalReserves);
+            if (metalSelector != null)
+            {
+                metalReserve.HighlightSelection(
+                    metalSelector.GetPrimaryMetal(),
+                    metalSelector.GetSecondaryMetal(),
+                    metalSelector.IsPrimaryActive()
+                );
+            }
+        }
     }
 }
