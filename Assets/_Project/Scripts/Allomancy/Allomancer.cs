@@ -34,14 +34,16 @@ public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]
     bool isBurningMetal = false;
-    public AllomancySkill.MetalType currentMetal = AllomancySkill.MetalType.Steel;
-    
+    // currentMetal is now controlled by MetalSelector
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[16];
     public bool canBurnMetal = true;
-
+    
     [Header("HUD")]
     public MetalHUD metalHUD;
+    
+    // Reference to metal selector for getting current metal
+    private MetalSelector metalSelector;
     
     void Start()
     {
@@ -53,6 +55,10 @@ public class Allomancer : MonoBehaviour
         }
         
         EnsureAllomancyComponents();
+        
+        // Get reference to MetalSelector
+        metalSelector = GetComponent<MetalSelector>();
+        
         Debug.Log("[ALLOMANCER] Ready - canBurnMetal=" + canBurnMetal);
     }
     
@@ -80,7 +86,6 @@ public class Allomancer : MonoBehaviour
     public void StartBurning(AllomancySkill.MetalType metal)
     {
         Debug.Log($"[ALLOMANCER] StartBurning({metal}) - reserve={(int)metal}=" + metalReserves[(int)metal]);
-        currentMetal = metal;
         isBurningMetal = true;
         canBurnMetal = metalReserves[(int)metal] > 0;
         Debug.Log($"[ALLOMANCER] canBurnMetal={canBurnMetal}");
@@ -98,6 +103,11 @@ public class Allomancer : MonoBehaviour
     
     public AllomancySkill.MetalType GetCurrentMetal()
     {
+        // Get current metal from MetalSelector if available
+        if (metalSelector != null)
+            return metalSelector.GetActiveMetal();
+        
+        // Fallback to stored currentMetal (should rarely happen)
         return currentMetal;
     }
     
@@ -113,6 +123,7 @@ public class Allomancer : MonoBehaviour
             Debug.Log($"[ALLOMANCER] DrainMetal({metal}, {amount:F2}) - reserve now: {metalReserves[(int)metal]:F1}");
         UpdateHUD(metal);
         
+        AllomancySkill.MetalType currentMetal = GetCurrentMetal();
         if (metal == currentMetal)
         {
             canBurnMetal = metalReserves[(int)metal] > 0;

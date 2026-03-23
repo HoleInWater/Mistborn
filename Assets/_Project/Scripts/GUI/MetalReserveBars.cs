@@ -4,17 +4,24 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Extended MetalHUD that shows all metal reserves as bars
+/// Highlights the currently selected primary and secondary metals
 /// </summary>
 public class MetalReserveBars : MonoBehaviour
 {
     [Header("References")]
     public Allomancer allomancer;
+    public MetalSelector metalSelector;
     public MetalHUD metalHUD;
     
     [Header("Bar Template")]
     public GameObject barTemplate;
     public Transform barsContainer;
     public Color[] metalColors; // Optional: assign colors per metal type
+    
+    [Header("Highlight Colors")]
+    public Color primaryActiveColor = Color.yellow; // Color for active primary metal bar
+    public Color secondaryActiveColor = Color.cyan; // Color for active secondary metal bar
+    public Color normalColor = Color.white; // Color for inactive metals
     
     [Header("Layout")]
     public float barHeight = 20f;
@@ -23,6 +30,7 @@ public class MetalReserveBars : MonoBehaviour
     
     private Dictionary<AllomancySkill.MetalType, Slider> metalBars = new Dictionary<AllomancySkill.MetalType, Slider>();
     private Dictionary<AllomancySkill.MetalType, Text> metalLabels = new Dictionary<AllomancySkill.MetalType, Text>();
+    private Dictionary<AllomancySkill.MetalType, Image> barImages = new Dictionary<AllomancySkill.MetalType, Image>();
     
     void Start()
     {
@@ -31,6 +39,9 @@ public class MetalReserveBars : MonoBehaviour
         
         if (metalHUD == null)
             metalHUD = FindObjectOfType<MetalHUD>();
+        
+        if (metalSelector == null)
+            metalSelector = FindObjectOfType<MetalSelector>();
         
         CreateMetalBars();
         UpdateAllReserves();
@@ -51,6 +62,7 @@ public class MetalReserveBars : MonoBehaviour
         }
         metalBars.Clear();
         metalLabels.Clear();
+        barImages.Clear();
         
         // Create bar for each metal type
         System.Array metalTypes = System.Enum.GetValues(typeof(AllomancySkill.MetalType));
@@ -70,9 +82,10 @@ public class MetalReserveBars : MonoBehaviour
                 rect.sizeDelta = new Vector2(barWidth, barHeight);
             }
             
-            // Find slider and label components
+            // Find slider, label, and background image components
             Slider slider = barObj.GetComponentInChildren<Slider>();
             Text label = barObj.GetComponentInChildren<Text>();
+            Image bgImage = barObj.GetComponent<Image>();
             
             if (slider != null)
             {
@@ -86,6 +99,10 @@ public class MetalReserveBars : MonoBehaviour
                     Color barColor = metalColors[(int)metal];
                     slider.fillRect.GetComponent<Image>().color = barColor;
                 }
+                
+                // Store background image for highlighting
+                if (bgImage != null)
+                    barImages[metal] = bgImage;
             }
             
             if (label != null)
@@ -101,6 +118,7 @@ public class MetalReserveBars : MonoBehaviour
     void Update()
     {
         UpdateAllReserves();
+        UpdateBarHighlights();
     }
     
     void UpdateAllReserves()
@@ -112,6 +130,34 @@ public class MetalReserveBars : MonoBehaviour
             if (metalBars.TryGetValue(metal, out Slider slider) && slider != null)
             {
                 slider.value = allomancer.GetMetalReserve(metal);
+            }
+        }
+    }
+    
+    void UpdateBarHighlights()
+    {
+        if (metalSelector == null) return;
+        
+        AllomancySkill.MetalType primary = metalSelector.GetPrimaryMetal();
+        AllomancySkill.MetalType secondary = metalSelector.GetSecondaryMetal();
+        bool isPrimaryActive = metalSelector.IsPrimaryActive();
+        
+        foreach (var metal in barImages.Keys)
+        {
+            if (barImages.TryGetValue(metal, out Image img) && img != null)
+            {
+                // Reset to normal color first
+                img.color = normalColor;
+                
+                // Then apply highlights if active
+                if (metal == primary && isPrimaryActive)
+                {
+                    img.color = primaryActiveColor;
+                }
+                else if (metal == secondary && !isPrimaryActive)
+                {
+                    img.color = secondaryActiveColor;
+                }
             }
         }
     }
