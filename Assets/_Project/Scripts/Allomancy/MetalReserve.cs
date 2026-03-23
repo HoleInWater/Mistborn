@@ -1,21 +1,21 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 public class MetalReserve : MonoBehaviour
 {
     [Header("UI Settings")]
     public UIDocument uiDocument;
-    public string metalProgressBarName = "Metal";
+    public string metalProgressBarPrefix = "Metal_";
 
     [Header("Metal Settings")]
-    public float currentMetal = 100f;
     public float maxMetal = 100f;
     
     [Header("Recovery Settings")]
     public float passiveRecoveryRate = 0.5f;
 
-    private ProgressBar _metalBar;
-    private float _lastDisplayedMetal = -1f;
+    private Dictionary<AllomancySkill.MetalType, ProgressBar> _metalBars = new Dictionary<AllomancySkill.MetalType, ProgressBar>();
+    private float[] _lastDisplayedReserves = new float[16];
 
     void Start()
     {
@@ -24,53 +24,76 @@ public class MetalReserve : MonoBehaviour
 
     private void SetupUI()
     {
-        if (uiDocument != null)
-        {
-            var root = uiDocument.rootVisualElement;
-            _metalBar = root.Q<ProgressBar>(metalProgressBarName);
+        if (uiDocument == null) return;
+        
+        var root = uiDocument.rootVisualElement;
+        _metalBars.Clear();
 
-            if (_metalBar != null)
+        foreach (AllomancySkill.MetalType metal in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
+        {
+            string barName = metalProgressBarPrefix + metal.ToString();
+            ProgressBar bar = root.Q<ProgressBar>(barName);
+
+            if (bar != null)
             {
-                _metalBar.lowValue = 0;
-                _metalBar.highValue = maxMetal;
+                bar.lowValue = 0;
+                bar.highValue = maxMetal;
+                _metalBars.Add(metal, bar);
+            }
+            else
+            {
+                Debug.LogWarning($"[MetalReserve] Could not find ProgressBar named {barName} in UI.");
             }
         }
     }
 
-    void Update()
-    { 
-        UpdateHUD();
-    }
-
-    private void UpdateHUD()
+    /// <summary>
+    /// Updates all metal bars based on the provided reserves array.
+    /// </summary>
+    public void UpdateAllBars(float[] reserves)
     {
-        if (_metalBar == null) SetupUI();
+        if (_metalBars.Count == 0) SetupUI();
 
-        if (_metalBar != null)
+        foreach (var kvp in _metalBars)
         {
-            if (!Mathf.Approximately(_lastDisplayedMetal, currentMetal))
+            int index = (int)kvp.Key;
+            float currentValue = reserves[index];
+
+            if (!Mathf.Approximately(_lastDisplayedReserves[index], currentValue))
             {
-                _metalBar.value = currentMetal;
-                _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
-                _lastDisplayedMetal = currentMetal;
+                kvp.Value.value = currentValue;
+                kvp.Value.title = $"{kvp.Key}: {Mathf.FloorToInt(currentValue)}";
+                _lastDisplayedReserves[index] = currentValue;
             }
         }
     }
 
-    // THESE ARE THE METHODS THE ERROR SAYS ARE MISSING
-    public void Drain(float amount)
+    /// <summary>
+    /// Highlights the primary and secondary selected metals in the HUD.
+    /// </summary>
+    public void HighlightSelection(AllomancySkill.MetalType primary, AllomancySkill.MetalType secondary, bool isPrimaryActive)
     {
-        currentMetal = Mathf.Max(0, currentMetal - amount);
+        if (_metalBars.Count == 0) SetupUI();
+
+        foreach (var kvp in _metalBars)
+        {
+            kvp.Value.RemoveFromClassList("active-metal");
+            kvp.Value.RemoveFromClassList("secondary-metal");
+
+            if (kvp.Key == (isPrimaryActive ? primary : secondary))
+            {
+                kvp.Value.AddToClassList("active-metal");
+            }
+            else if (kvp.Key == (isPrimaryActive ? secondary : primary))
+            {
+                kvp.Value.AddToClassList("secondary-metal");
+            }
+        }
     }
 
-    public void Refill(float amount)
-    {
-        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
-    }
-    
-    // Add this so MetalSelector can talk to it
-    public void SetCurrentMetal(float amount)
-    {
-        currentMetal = Mathf.Clamp(amount, 0, maxMetal);
-    }
+    // Obsolete but kept for simple compatibility
+    public float currentMetal { get; set; }
+    public void Drain(float amount) { }
+    public void Refill(float amount) { }
+    public void SetCurrentMetal(float amount) { }
 }

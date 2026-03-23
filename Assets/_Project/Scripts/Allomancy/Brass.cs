@@ -1,25 +1,25 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Implements the Brass Allomancy ability (Soothe emotions).
+/// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
 public class Brass : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Base metal burn rate per second")]
-    public float metalCostPerSecond = 1f;
-    [Tooltip("Radius of emotional soothe effect (meters)")]
-    public float effectRadius = 10f;
-    [Tooltip("Intensity of the soothe effect (0-1)")]
-    public float sootheIntensity = 0.5f;
-    [Tooltip("Cooldown time in seconds after stopping burn")]
-    public float burnCooldown = 0.1f;
+    public float baseEmotionRange = 15f;
+    public float baseSootheStrength = 0.8f; // Lower = more soothing
+    public LayerMask enemyLayer;
     
+    [Header("Flare Boosts")]
+    public float maxEmotionRange = 40f;
+    public float maxSootheStrength = 0.2f; // Very low = extremely calm
+
     [Header("References")]
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private float cooldownTimer = 0f;
     
     void Start()
     {
@@ -29,57 +29,53 @@ public class Brass : MonoBehaviour
     
     void Update()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
-        
-        // Check if we can burn brass
-        if (allomancer != null && !allomancer.canBurnMetal)
-        {
-            if (isBurning) StopBurning();
-            return;
-        }
-        
-        // X key to burn Brass (as per common Allomancy key bindings)
-        if (Input.GetKeyDown(KeyCode.X) && cooldownTimer <= 0f)
-        {
-            if (!isBurning) StartBurning();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.X))
-        {
-            if (isBurning) StopBurning();
-        }
-        
-        // Continuous metal drain while burning
+        // Check if we are currently burning Brass according to the central Allomancer
+        isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Brass;
+
         if (isBurning)
         {
-            DrainMetal();
+            float flareMult = GetFlareMultiplier();
+            SootheEmotions(flareMult);
         }
     }
     
-    void StartBurning()
+    float GetFlareMultiplier()
     {
-        if (isBurning) return;
-        isBurning = true;
-        cooldownTimer = burnCooldown;
-        allomancer.StartBurning(AllomancySkill.MetalType.Brass);
-        // Note: The actual soothe effect would be implemented by affecting nearby NPCs or players.
-        // For now, we just log that we are burning brass.
-        Debug.Log("[Brass] Burning Brass - Soothing emotions");
+        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
+        {
+            return FlareManager.Instance.flareIntensity;
+        }
+        return 1.0f;
     }
-    
-    void StopBurning()
+
+    void SootheEmotions(float flareMult)
     {
-        if (!isBurning) return;
-        isBurning = false;
-        cooldownTimer = burnCooldown;
-        allomancer.StopBurning();
-        Debug.Log("[Brass] Stopped burning Brass");
+        // Scale values based on flare intensity
+        float currentRange = Mathf.Lerp(baseEmotionRange, maxEmotionRange, (flareMult - 1f) / 1.5f);
+        float currentStrength = Mathf.Lerp(baseSootheStrength, maxSootheStrength, (flareMult - 1f) / 1.5f);
+
+        Collider[] enemies = Physics.OverlapSphere(transform.position, currentRange, enemyLayer);
+        
+        foreach (Collider enemy in enemies)
+        {
+            AIController ai = enemy.GetComponent<AIController>();
+            if (ai != null)
+            {
+                // Soothing makes enemies calm and less aggressive
+                ai.SetEmotionState(AIController.EmotionState.Calm);
+                ai.SetAggressionMultiplier(currentStrength);
+            }
+        }
     }
-    
-    void DrainMetal()
+
+    void OnDrawGizmosSelected()
     {
-        if (allomancer == null) return;
-        allomancer.DrainMetal(AllomancySkill.MetalType.Brass, metalCostPerSecond * Time.deltaTime);
+        if (isBurning)
+        {
+            Gizmos.color = new Color(0f, 0.5f, 1f, 0.2f);
+            float flareMult = GetFlareMultiplier();
+            float currentRange = Mathf.Lerp(baseEmotionRange, maxEmotionRange, (flareMult - 1f) / 1.5f);
+            Gizmos.DrawWireSphere(transform.position, currentRange);
+        }
     }
 }

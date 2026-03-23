@@ -1,25 +1,25 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Implements the Zinc Allomancy ability (Riot emotions).
+/// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
 public class Zinc : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Base metal burn rate per second")]
-    public float metalCostPerSecond = 1f;
-    [Tooltip("Radius of emotional riot effect (meters)")]
-    public float effectRadius = 10f;
-    [Tooltip("Intensity of the riot effect (0-1)")]
-    public float riotIntensity = 0.5f;
-    [Tooltip("Cooldown time in seconds after stopping burn")]
-    public float burnCooldown = 0.1f;
+    public float baseEmotionRange = 15f;
+    public float baseRiotStrength = 1.2f;
+    public LayerMask enemyLayer;
     
+    [Header("Flare Boosts")]
+    public float maxEmotionRange = 40f;
+    public float maxRiotStrength = 3.0f;
+
     [Header("References")]
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private float cooldownTimer = 0f;
     
     void Start()
     {
@@ -29,57 +29,53 @@ public class Zinc : MonoBehaviour
     
     void Update()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
-        
-        // Check if we can burn zinc
-        if (allomancer != null && !allomancer.canBurnMetal)
-        {
-            if (isBurning) StopBurning();
-            return;
-        }
-        
-        // Z key to burn Zinc (as per common Allomancy key bindings)
-        if (Input.GetKeyDown(KeyCode.Z) && cooldownTimer <= 0f)
-        {
-            if (!isBurning) StartBurning();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.Z))
-        {
-            if (isBurning) StopBurning();
-        }
-        
-        // Continuous metal drain while burning
+        // Check if we are currently burning Zinc according to the central Allomancer
+        isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Zinc;
+
         if (isBurning)
         {
-            DrainMetal();
+            float flareMult = GetFlareMultiplier();
+            RiotEmotions(flareMult);
         }
     }
     
-    void StartBurning()
+    float GetFlareMultiplier()
     {
-        if (isBurning) return;
-        isBurning = true;
-        cooldownTimer = burnCooldown;
-        allomancer.StartBurning(AllomancySkill.MetalType.Zinc);
-        // Note: The actual riot effect would be implemented by affecting nearby NPCs or players.
-        // For now, we just log that we are burning zinc.
-        Debug.Log("[Zinc] Burning Zinc - Rioting emotions");
+        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
+        {
+            return FlareManager.Instance.flareIntensity;
+        }
+        return 1.0f;
     }
-    
-    void StopBurning()
+
+    void RiotEmotions(float flareMult)
     {
-        if (!isBurning) return;
-        isBurning = false;
-        cooldownTimer = burnCooldown;
-        allomancer.StopBurning();
-        Debug.Log("[Zinc] Stopped burning Zinc");
+        // Scale values based on flare intensity
+        float currentRange = Mathf.Lerp(baseEmotionRange, maxEmotionRange, (flareMult - 1f) / 1.5f);
+        float currentStrength = Mathf.Lerp(baseRiotStrength, maxRiotStrength, (flareMult - 1f) / 1.5f);
+
+        Collider[] enemies = Physics.OverlapSphere(transform.position, currentRange, enemyLayer);
+        
+        foreach (Collider enemy in enemies)
+        {
+            AIController ai = enemy.GetComponent<AIController>();
+            if (ai != null)
+            {
+                // Rioting makes enemies enraged and more aggressive
+                ai.SetEmotionState(AIController.EmotionState.Enraged);
+                ai.SetAggressionMultiplier(currentStrength);
+            }
+        }
     }
-    
-    void DrainMetal()
+
+    void OnDrawGizmosSelected()
     {
-        if (allomancer == null) return;
-        allomancer.DrainMetal(AllomancySkill.MetalType.Zinc, metalCostPerSecond * Time.deltaTime);
+        if (isBurning)
+        {
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+            float flareMult = GetFlareMultiplier();
+            float currentRange = Mathf.Lerp(baseEmotionRange, maxEmotionRange, (flareMult - 1f) / 1.5f);
+            Gizmos.DrawWireSphere(transform.position, currentRange);
+        }
     }
 }

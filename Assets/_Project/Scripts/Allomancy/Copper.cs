@@ -1,24 +1,34 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
-/// Implements the Copper Allomancy ability (hides Allomantic pulses).
+/// Implements the Copper Allomancy ability (Smoker).
+/// Hides Allomantic pulses of the user and others within the cloud from Seekers (Bronze).
 /// </summary>
 public class Copper : MonoBehaviour
 {
+    // Static registry of all active copper clouds for Seeker (Bronze) to check
+    public static List<Copper> ActiveClouds = new List<Copper>();
+
     [Header("Settings")]
-    [Tooltip("Base metal burn rate per second")]
-    public float metalCostPerSecond = 1f;
-    [Tooltip("Radius of copper cloud that hides pulses (meters)")]
-    public float cloudRadius = 5f;
-    [Tooltip("Cooldown time in seconds after stopping burn")]
-    public float burnCooldown = 0.1f;
+    public float baseCloudRadius = 10f;
     
+    [Header("Flare Boosts")]
+    public float maxCloudRadius = 25f;
+
     [Header("References")]
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private float cooldownTimer = 0f;
-    
+    private float currentRadius;
+
+    void OnEnable() => ActiveClouds.Add(this);
+    void OnDisable()
+    {
+        ActiveClouds.Remove(this);
+        ResetEffects();
+    }
+
     void Start()
     {
         if (allomancer == null)
@@ -27,57 +37,63 @@ public class Copper : MonoBehaviour
     
     void Update()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
-        
-        // Check if we can burn copper
-        if (allomancer != null && !allomancer.canBurnMetal)
-        {
-            if (isBurning) StopBurning();
-            return;
-        }
-        
-        // C key to burn Copper (as per common Allomancy key bindings)
-        if (Input.GetKeyDown(KeyCode.C) && cooldownTimer <= 0f)
-        {
-            if (!isBurning) StartBurning();
-        }
-        
-        if (Input.GetKeyUp(KeyCode.C))
-        {
-            if (isBurning) StopBurning();
-        }
-        
-        // Continuous metal drain while burning
+        bool wasBurning = isBurning;
+        // Check if we are currently burning Copper according to the central Allomancer
+        isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Copper;
+
         if (isBurning)
         {
-            DrainMetal();
+            float flareMult = GetFlareMultiplier();
+            currentRadius = Mathf.Lerp(baseCloudRadius, maxCloudRadius, (flareMult - 1f) / 1.5f);
+            // The actual effect is passive for the user, but ActiveClouds lets Bronze check.
+        }
+        else if (wasBurning)
+        {
+            ResetEffects();
         }
     }
     
-    void StartBurning()
+    float GetFlareMultiplier()
     {
-        if (isBurning) return;
-        isBurning = true;
-        cooldownTimer = burnCooldown;
-        allomancer.StartBurning(AllomancySkill.MetalType.Copper);
-        // Note: The actual copper cloud effect would hide the Allomancer's pulses from Seekers (Bronze users).
-        // For now, we just log that we are burning copper.
-        Debug.Log("[Copper] Burning Copper - hiding Allomantic pulses");
+        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
+        {
+            return FlareManager.Instance.flareIntensity;
+        }
+        return 1.0f;
     }
-    
-    void StopBurning()
+
+    void ResetEffects()
     {
-        if (!isBurning) return;
-        isBurning = false;
-        cooldownTimer = burnCooldown;
-        allomancer.StopBurning();
-        Debug.Log("[Copper] Stopped burning Copper");
+        currentRadius = 0f;
     }
-    
-    void DrainMetal()
+
+    /// <summary>
+    /// Checks if a specific position is hidden within this copper cloud.
+    /// </summary>
+    public bool IsPositionHidden(Vector3 position)
     {
-        if (allomancer == null) return;
-        allomancer.DrainMetal(AllomancySkill.MetalType.Copper, metalCostPerSecond * Time.deltaTime);
+        if (!isBurning) return false;
+        return Vector3.Distance(transform.position, position) <= currentRadius;
+    }
+
+    /// <summary>
+    /// Static helper to check if any active copper cloud covers a position.
+    /// </summary>
+    public static bool IsPulseHidden(Vector3 position)
+    {
+        foreach (var cloud in ActiveClouds)
+        {
+            if (cloud.IsPositionHidden(position)) return true;
+        }
+        return false;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (isBurning)
+        {
+            Gizmos.color = new Color(0.5f, 0.4f, 0.2f, 0.3f);
+            Gizmos.DrawWireSphere(transform.position, currentRadius);
+        }
     }
 }

@@ -43,6 +43,9 @@ public class BasicPlayerMove : MonoBehaviour
  
     [Header("Smoothness Settings")]
     public float acceleration = 50f;        // Raised: 10 was too slow to feel responsive
+
+    [Header("External Modifiers")]
+    public float externalSpeedMultiplier = 1f; // Applied to moveSpeed and sprintSpeed
  
     // ── Internal state ──────────────────────────────────────────────────────────
  
@@ -197,7 +200,7 @@ public class BasicPlayerMove : MonoBehaviour
  
         // Store for use at the top of FixedUpdate on the same physics step
         _moveDirection = moveDirection;
-        _currentActiveSpeed = currentActiveSpeed;
+        _currentActiveSpeed = currentActiveSpeed * externalSpeedMultiplier;
  
         // Rotate the player model to face the direction of travel
         if (moveDirection.magnitude >= 0.1f)

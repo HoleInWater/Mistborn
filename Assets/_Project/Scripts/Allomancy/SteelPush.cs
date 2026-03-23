@@ -219,7 +219,16 @@ public class SteelPush : MonoBehaviour
     public bool debugPushOperations = true;
 
     // Private state
-    private bool isBurning = false;
+    private bool _isBurning = false;
+    private bool isBurning 
+    {
+        get 
+        {
+            bool globalBurn = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Steel;
+            return _isBurning || globalBurn;
+        }
+        set { _isBurning = value; }
+    }
     private bool IsFlaring => FlareManager.Instance != null ? FlareManager.Instance.IsSteelFlaring : false;
     private bool pushAppliedThisPress = false;
     private bool bubbleAppliedThisPress = false;

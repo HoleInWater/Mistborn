@@ -66,18 +66,20 @@ public class MetalBurnEffect : MonoBehaviour
     
     void UpdateBurnEffect()
     {
-        bool isBurning = allomancer != null && allomancer.IsBurning();
-        
+        if (allomancer == null) return;
+
+        bool isBurning = allomancer.IsBurning();
         var main = burnParticles.main;
+
         if (isBurning != burnParticles.isPlaying)
         {
             if (isBurning)
             {
                 burnParticles.Play();
                 // Set color based on current metal
-                if (allomancer != null && burnColorGradient != null)
+                if (burnColorGradient != null)
                 {
-                    float t = (float)allomancer.GetCurrentMetal() / 15f; // 16 metals = 0-15 range
+                    float t = (float)allomancer.GetCurrentMetal() / 15f; 
                     main.startColor = burnColorGradient.Evaluate(t);
                 }
             }
@@ -87,27 +89,21 @@ public class MetalBurnEffect : MonoBehaviour
             }
         }
         
-        // Adjust size based on burn intensity
-        if (isBurning && allomancer != null)
+        // Adjust size based on reserve
+        if (isBurning)
         {
             float reserve = allomancer.GetMetalReserve(allomancer.GetCurrentMetal());
             float intensity = Mathf.Clamp01(reserve / 100f);
-            main.startSize = baseSize * (0.5f + intensity * 0.5f); // 0.5x to 1x size
+            main.startSize = baseSize * (0.5f + intensity * 0.5f);
         }
     }
     
     void UpdateFlareEffect()
     {
-        bool isFlaring = false;
-        if (allomancer != null)
-        {
-            // Check if either iron or steel is flaring
-            var flareMan = FindObjectOfType<FlareManager>();
-            if (flareMan != null)
-            {
-                isFlaring = flareMan.IsIronFlaring || flareMan.IsSteelFlaring;
-            }
-        }
+        if (allomancer == null) return;
+
+        // Check global flare state from FlareManager
+        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
         
         var main = flareParticles.main;
         if (isFlaring != flareParticles.isPlaying)
@@ -115,28 +111,26 @@ public class MetalBurnEffect : MonoBehaviour
             if (isFlaring)
             {
                 flareParticles.Play();
-                // Set color based on which metal is flaring
-                if (allomancer != null && flareColorGradient != null)
+                // Set color based on active metal (assuming flaring corresponds to active metal)
+                if (flareColorGradient != null)
                 {
-                    float t = 0f;
-                    var flareMan = FindObjectOfType<FlareManager>();
-                    if (flareMan != null)
-                    {
-                        if (flareMan.IsIronFlaring)
-                            t = (float)AllomancySkill.MetalType.Iron / 15f;
-                        else if (flareMan.IsSteelFlaring)
-                            t = (float)AllomancySkill.MetalType.Steel / 15f;
-                    }
+                    float t = (float)allomancer.GetCurrentMetal() / 15f;
                     main.startColor = flareColorGradient.Evaluate(t);
                 }
                 
-                // Increase size when flaring
                 main.startSize = baseSize * flareSizeMultiplier;
             }
             else
             {
                 flareParticles.Stop();
             }
+        }
+
+        // Pulse size or intensity based on flare intensity if active
+        if (isFlaring && FlareManager.Instance != null)
+        {
+            float pulse = 0.8f + Mathf.PingPong(Time.time * 2f, 0.4f);
+            main.startSize = baseSize * flareSizeMultiplier * pulse * FlareManager.Instance.flareIntensity;
         }
     }
     
