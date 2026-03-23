@@ -158,7 +158,7 @@ public class Allomancer : MonoBehaviour
         {
             if (metal == GetCurrentMetal())
             {
-                metalReserve.SetCurrentMetal(metal);
+                metalReserve.SetCurrentMetal(100f);
             }
         }
     }
