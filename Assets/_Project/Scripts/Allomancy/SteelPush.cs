@@ -419,15 +419,25 @@ public class SteelPush : MonoBehaviour
         
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
+        Debug.Log($"[STEEL PUSH] Searching for metals... Found {allTargets.Length} AllomanticTargets");
+        
+        if (allTargets.Length == 0)
+        {
+            Debug.LogWarning("[STEEL PUSH] NO AllomanticTarget components found! Spawn metals with T key.");
+            return;
+        }
         
         foreach (var metal in allTargets)
         {
+            Debug.Log($"[STEEL PUSH] Checking: {metal.name}, canBePushed={metal.canBePushed}, hasRB={metal.GetComponent<Rigidbody>() != null}");
+            
             if (metal == null || !metal.canBePushed) continue;
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
+            Debug.Log($"[STEEL PUSH] Target: {metal.name}, dist={dist:F2}m");
             
             if (dist < closestDist && dist > 0.1f)
             {
@@ -439,6 +449,9 @@ public class SteelPush : MonoBehaviour
                 currentTargetHit.point = rb.position;
             }
         }
+        
+        if (hasCurrentTarget)
+            Debug.Log($"[STEEL PUSH] TARGET ACQUIRED: {currentTarget.name} at {closestDist:F2}m");
     }
     
     void UpdatePrediction()
