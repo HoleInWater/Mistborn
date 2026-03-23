@@ -77,7 +77,7 @@ public class Allomancer : MonoBehaviour
             target.canBePulled = true;
             target.isAnchored = false;
             target.metalType = AllomancySkill.MetalType.Steel;
-            target.effectiveMass = 0.005f;
+            target.mass = 0.005f;
             
             Renderer renderer = coin.GetComponent<Renderer>();
             if (renderer != null)

@@ -39,7 +39,7 @@ public class CoinSpawner : MonoBehaviour
             target.canBePulled = true;
             target.isAnchored = false;
             target.metalType = AllomancySkill.MetalType.Steel;
-            target.effectiveMass = 0.01f;
+            target.mass = 0.01f;
             
             Renderer renderer = coin.GetComponent<Renderer>();
             if (renderer != null)
