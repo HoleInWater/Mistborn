@@ -338,28 +338,24 @@ public class SteelPush : MonoBehaviour
         {
             eKeyWasPressed = true;
             
-            // Start burning (if not on cooldown) - requires FLARING
-            if (cooldownTimer <= 0f && IsFlaring)
+            // Start burning (if not on cooldown)
+            if (cooldownTimer <= 0f)
             {
                 StartBurning();
                 pushAppliedThisPress = false;
                 bubbleAppliedThisPress = false;
-                
-                // Execute push
-                if (isBurning && !pushAppliedThisPress)
-                {
-                    if (debugPushOperations) Debug.Log($"[PUSH] Executing push with flare!");
-                    PushMetals();
-                    DrainMetal(flaringMetalCostMultiplier);
-                    pushAppliedThisPress = true;
-                    
-                    // Play vignette
-                    StartFlaringVignette();
-                }
             }
-            else if (debugPushOperations && !IsFlaring)
+            
+            // Execute push (always, regardless of flare state)
+            if (isBurning && !pushAppliedThisPress)
             {
-                Debug.Log("[PUSH] Failed - not flaring!");
+                if (debugPushOperations) Debug.Log($"[PUSH] Executing push! Flaring={IsFlaring}");
+                PushMetals();
+                DrainMetal(flaringMetalCostMultiplier);
+                pushAppliedThisPress = true;
+                
+                // Play vignette if flared
+                if (IsFlaring) StartFlaringVignette();
             }
         }
         
@@ -382,12 +378,12 @@ public class SteelPush : MonoBehaviour
         // Update targeted metal detection
         UpdateTargetedMetal();
         
-        // Steel Bubble: F key (one per press, requires FLARING)
+        // Steel Bubble: F key (one per press)
         if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (steelBubbleCooldownTimer <= 0f && IsFlaring)
+            if (steelBubbleCooldownTimer <= 0f)
             {
-                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble with flare!");
+                if (debugPushOperations) Debug.Log($"[BUBBLE] Executing bubble!");
                 if (!isBurning) StartBurning();
                 if (!bubbleAppliedThisPress)
                 {
@@ -396,10 +392,6 @@ public class SteelPush : MonoBehaviour
                     steelBubbleCooldownTimer = steelBubbleCooldown;
                     bubbleAppliedThisPress = true;
                 }
-            }
-            else if (debugPushOperations && !IsFlaring)
-            {
-                Debug.Log("[BUBBLE] Failed - not flaring!");
             }
         }
         

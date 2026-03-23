@@ -327,11 +327,7 @@ public class IronPull : MonoBehaviour
         currentTarget = null;
         currentTargetRigidbody = null;
         
-        if (playerCamera == null) 
-        {
-            Debug.LogWarning("[IRON] No camera!");
-            return;
-        }
+        if (playerCamera == null) return;
         
         Vector3 rayOrigin = playerCamera.transform.position;
         Vector3 rayDirection = playerCamera.transform.forward;
@@ -339,7 +335,6 @@ public class IronPull : MonoBehaviour
         
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
         {
-            Debug.Log($"[IRON] Ray hit: {hit.collider.name}");
             AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
             if (target != null && target.canBePulled)
             {
@@ -348,17 +343,8 @@ public class IronPull : MonoBehaviour
                 {
                     currentTarget = target;
                     hasCurrentTarget = true;
-                    Debug.Log($"[IRON] Target found: {hit.collider.name}");
                 }
             }
-            else
-            {
-                Debug.Log($"[IRON] Hit {hit.collider.name} but no valid AllomanticTarget");
-            }
-        }
-        else
-        {
-            Debug.Log("[IRON] Raycast missed all objects");
         }
     }
     
@@ -413,7 +399,7 @@ public class IronPull : MonoBehaviour
     
     void PullMetals()
     {
-        Debug.Log($"[PULL] PullMetals: playerRB={playerRigidbody != null}, hasTarget={hasCurrentTarget}, targetRB={currentTargetRigidbody?.name ?? "null"}");
+        if (debugPullOperations) Debug.Log($"[PULL] PullMetals: playerRB={playerRigidbody != null}, hasTarget={hasCurrentTarget}, targetRB={currentTargetRigidbody?.name ?? "null"}");
         if (playerRigidbody == null) return;
         if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
@@ -462,7 +448,6 @@ public class IronPull : MonoBehaviour
         // Also drain extra per action (pull)
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
         
-        Debug.Log($"[IRON] Drain: {drainAmount + actionDrain}, allomancer={allomancer != null}");
         allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }
     
