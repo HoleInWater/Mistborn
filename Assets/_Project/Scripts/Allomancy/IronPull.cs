@@ -71,8 +71,6 @@ using System.Collections.Generic;
 public class IronPull : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Base force applied when pulling. Needs calibration for desired velocities.")]
-    public float pullForce = 800f;
     [Tooltip("Reference mass for force calculation (average human = 80kg).")]
     public float referenceMass = 80f;
     [Tooltip("Reference distance where force factor = 1.")]
@@ -82,28 +80,25 @@ public class IronPull : MonoBehaviour
     public float maxRange = 30f;
     public float metalCostPerSecond = 2f;
     
-    [Header("Allomancy Physics (Lore-Accurate Model)")]
-    [Tooltip("Base allomantic strength (determines max force AND max velocity)")]
-    public float allomanticStrength = 1000f;
-    [Tooltip("Maximum velocity an allomancer can impart (lore: metals have terminal velocity based on strength)")]
-    public float maxCoinVelocity = 400f;
-    [Tooltip("Distance exponent (lore: 1 = inverse, 2 = inverse square)")]
+    [Header("Allomancy Physics (Lore-Accurate)")]
+    [Tooltip("Base allomantic strength - keeps force reasonable for gameplay")]
+    public float allomanticStrength = 150f;
+    [Tooltip("Maximum velocity for coins (lore: terminal velocity based on strength)")]
+    public float maxCoinVelocity = 30f;
+    [Tooltip("Distance exponent (lore: force decreases with distance)")]
     [Range(1f, 2f)]
     public float distanceExponent = 1f;
-    [Tooltip("Velocity damping (lore: force decreases as target moves toward you faster)")]
+    [Tooltip("Velocity damping (lore: coins slow down as they fly)")]
     [Range(0f, 1f)]
     public float velocityDamping = 0.5f;
     
-    [Header("Legacy Settings")]
-    [Tooltip("Maximum force multiplier when flaring")]
-    [Range(1.5f, 3f)]
-    public float maxFlareMultiplier = 2f;
+    [Header("Flaring")]
+    [Tooltip("Maximum force multiplier when flaring - flaring = max power")]
+    [Range(1.5f, 4f)]
+    public float maxFlareMultiplier = 2.5f;
     [Tooltip("Metal cost multiplier when flaring")]
     [Range(1f, 5f)]
     public float flaringMetalCostMultiplier = 3f;
-    [Tooltip("Skill mastery bonus")]
-    [Range(1f, 2f)]
-    public float masteryBonus = 1f;
     
     [Header("References")]
     public Camera playerCamera;
@@ -142,9 +137,7 @@ public class IronPull : MonoBehaviour
     public int predictionPoints = 20;
     
     [Header("Debug")]
-    [Tooltip("Enable debug logging for pull operations")]
     public bool debugPullOperations = false;
-    [Tooltip("Enable debug logging for flare state")]
     public bool debugFlareState = false;
     
     private bool isBurning = false;

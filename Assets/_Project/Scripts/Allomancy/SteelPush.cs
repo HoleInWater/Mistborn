@@ -38,11 +38,9 @@ using System.Collections.Generic;
 public class SteelPush : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Base force applied when pushing. Needs calibration for desired coin velocities.")]
-    public float pushForce = 800f;
     [Tooltip("Reference mass for force calculation (average human = 80kg).")]
     public float referenceMass = 80f;
-    [Tooltip("Reference distance where force factor = 1. Force = baseForce * (referenceDistance / distance).")]
+    [Tooltip("Reference distance where force factor = 1.")]
     public float referenceDistance = 3f;
     [Tooltip("Minimum distance to prevent unrealistic forces at close range.")]
     public float minDistance = 1f;
@@ -51,22 +49,22 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Cooldown time in seconds after releasing push button")]
     public float pushCooldown = 0.2f;
     
-    [Header("Allomancy Physics (Lore-Accurate Model)")]
-    [Tooltip("Base allomantic strength (determines max force AND max velocity)")]
-    public float allomanticStrength = 1000f;
-    [Tooltip("Maximum velocity an allomancer can impart (lore: coins have terminal velocity based on strength)")]
-    public float maxCoinVelocity = 400f;
-    [Tooltip("Distance exponent (lore: 1 = inverse, 2 = inverse square)")]
+    [Header("Allomancy Physics (Lore-Accurate)")]
+    [Tooltip("Base allomantic strength - keeps force reasonable for gameplay")]
+    public float allomanticStrength = 150f;
+    [Tooltip("Maximum velocity for coins (lore: terminal velocity based on strength)")]
+    public float maxCoinVelocity = 30f;
+    [Tooltip("Distance exponent (lore: force decreases with distance)")]
     [Range(1f, 2f)]
     public float distanceExponent = 1f;
-    [Tooltip("Velocity damping (lore: force decreases as target moves away faster)")]
+    [Tooltip("Velocity damping (lore: coins slow down as they fly)")]
     [Range(0f, 1f)]
     public float velocityDamping = 0.5f;
     
-    [Header("Legacy Settings")]
-    [Tooltip("Maximum force multiplier when flaring")]
-    [Range(1.5f, 3f)]
-    public float maxFlareMultiplier = 2f;
+    [Header("Flaring")]
+    [Tooltip("Maximum force multiplier when flaring - flaring = max power")]
+    [Range(1.5f, 4f)]
+    public float maxFlareMultiplier = 2.5f;
     [Tooltip("Metal cost multiplier when flaring")]
     [Range(1f, 5f)]
     public float flaringMetalCostMultiplier = 3f;
@@ -168,15 +166,10 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Angle threshold (degrees) from downward to consider 'below' for flight boost")]
     public float flightAngleThreshold = 45f;
     
-    [Header("Impulse Mode")]
-    [Tooltip("Mass threshold (kg) below which objects receive impulse instead of continuous force")]
-    public float impulseMassThreshold = 5f;
-    [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
-    public float impulseCalibration = 0.000917f; // Calibrated for 22.22 m/s at 10m with 10g coin after referenceDistance change
-    [Tooltip("Enable debug logging for impulse calibration")]
+    [Header("Debug")]
+    [Tooltip("Enable debug logging")]
     public bool debugCalibration = false;
-    [Tooltip("Enable debug logging for push operations")]
-    public bool debugPushOperations = true;
+    public bool debugPushOperations = false;
     
     private bool isBurning = false;
     private bool isFlaring = false;
