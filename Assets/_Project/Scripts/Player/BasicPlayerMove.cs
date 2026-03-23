@@ -29,7 +29,7 @@ public class BasicPlayerMove : MonoBehaviour
     public float minDistance = 0.5f;
 
     [Header("Smoothness Settings")]
-    public float acceleration = 10f;
+    public float acceleration = 50f; // Raised: 10 was too slow to feel responsive
 
     private Rigidbody rb;
     private bool isGrounded;
@@ -44,11 +44,10 @@ public class BasicPlayerMove : MonoBehaviour
 
     private PlayerStamina staminaSystem;
 
-    // Cached inputs — read in Update, consumed in FixedUpdate
     private float inputX;
     private float inputZ;
     private bool sprintHeld;
-    private bool spaceHeld; // Separate from sprint — needed for low-jump gravity
+    private bool spaceHeld;
 
     void Start()
     {
@@ -56,35 +55,45 @@ public class BasicPlayerMove : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.isKinematic = false; // Safety: must be false for velocity to work
+        rb.isKinematic = false;
+        rb.sleepThreshold = 0.0f;
 
-        dollyDir = cameraTransform.localPosition.normalized;
-        maxDistance = cameraTransform.localPosition.magnitude;
-        currentDistance = maxDistance;
+        // If cameraPivot isn't assigned in Inspector, fall back to this transform
+        // so movement doesn't silently break
+        if (cameraPivot == null)
+        {
+            Debug.LogWarning("cameraPivot is not assigned! Falling back to player transform. Assign it in the Inspector.");
+            cameraPivot = this.transform;
+        }
+
+        if (cameraTransform != null)
+        {
+            dollyDir = cameraTransform.localPosition.normalized;
+            maxDistance = cameraTransform.localPosition.magnitude;
+            currentDistance = maxDistance;
+        }
+        else
+        {
+            Debug.LogWarning("cameraTransform is not assigned! Camera dolly will not work.");
+        }
 
         staminaSystem = GetComponent<PlayerStamina>();
-        rb.sleepThreshold = 0.0f;
     }
 
     void Update()
     {
-        // Ground check stays in Update for instant responsiveness
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, groundLayer);
 
-        // Cache ALL inputs here — FixedUpdate reads these, never calls Input directly
         inputX = Input.GetAxisRaw("Horizontal");
         inputZ = Input.GetAxisRaw("Vertical");
         sprintHeld = Input.GetKey(KeyCode.LeftShift);
-        spaceHeld = Input.GetKey(KeyCode.Space); // For low-jump gravity check in FixedUpdate
+        spaceHeld = Input.GetKey(KeyCode.Space);
 
-        // Jump buffer — GetKeyDown MUST be in Update or it gets missed
         if (Input.GetKeyDown(KeyCode.Space))
             jumpBufferCounter = jumpBufferTime;
         else
             jumpBufferCounter -= Time.deltaTime;
 
-        // Set jump flag here in Update where input is reliable
-        // FixedUpdate will execute the actual velocity change
         if (jumpBufferCounter > 0f && isGrounded)
         {
             float jumpCost = 15f;
@@ -110,6 +119,9 @@ public class BasicPlayerMove : MonoBehaviour
 
     void HandleMovement()
     {
+        // Defensive: if cameraPivot is somehow still null, skip to avoid exception
+        if (cameraPivot == null) return;
+
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
         forward.y = 0;
@@ -117,23 +129,21 @@ public class BasicPlayerMove : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        // Use cached inputs — never call Input.GetAxis inside FixedUpdate
         Vector3 moveDirection = (forward * inputZ + right * inputX).normalized;
 
         float targetSpeed = 0f;
         if (moveDirection.magnitude > 0.1f)
         {
-            bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
+            bool hasStamina = staminaSystem == null || staminaSystem.currentStamina > 1f;
             targetSpeed = (sprintHeld && hasStamina) ? sprintSpeed : moveSpeed;
 
-            if (targetSpeed == sprintSpeed)
+            if (staminaSystem != null && targetSpeed == sprintSpeed)
                 staminaSystem.DrainStamina(drainRate * Time.fixedDeltaTime);
 
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
 
-        // Preserve Y entirely — jump and gravity are never overwritten here
         Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         Vector3 targetHorizontalVel = moveDirection * targetSpeed;
         Vector3 smoothedVel = Vector3.MoveTowards(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
@@ -147,8 +157,6 @@ public class BasicPlayerMove : MonoBehaviour
     void HandleJump()
     {
         if (!jumpRequested) return;
-
-        // Set Y velocity directly — horizontal momentum is completely preserved
         rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
         jumpRequested = false;
     }
@@ -157,18 +165,18 @@ public class BasicPlayerMove : MonoBehaviour
     {
         if (rb.velocity.y < 0)
         {
-            // Falling — apply fast-fall multiplier
             rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
         }
-        else if (rb.velocity.y > 0 && !spaceHeld) // BUG FIX: was !sprintHeld before
+        else if (rb.velocity.y > 0 && !spaceHeld)
         {
-            // Rising but Space released — apply low-jump cut
             rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
         }
     }
 
     void HandleCamera()
     {
+        if (cameraPivot == null) return;
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
@@ -181,6 +189,8 @@ public class BasicPlayerMove : MonoBehaviour
 
     void LateUpdate()
     {
+        if (cameraTransform == null || cameraPivot == null) return;
+
         Vector3 desiredPos = cameraPivot.TransformPoint(dollyDir * maxDistance);
         RaycastHit hit;
         float targetDistance = maxDistance;
