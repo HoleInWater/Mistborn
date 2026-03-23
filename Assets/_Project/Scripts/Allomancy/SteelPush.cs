@@ -294,15 +294,19 @@ public class SteelPush : MonoBehaviour
         UpdateTargetedMetal();
         
         // Steel Bubble: F key (one per press, requires flaring)
-        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey) && isFlaring && steelBubbleCooldownTimer <= 0f)
+        if (enableSteelBubble && Input.GetKeyDown(steelBubbleKey))
         {
-            if (!isBurning) StartBurning();
-            if (!bubbleAppliedThisPress)
+            Debug.Log($"[BUBBLE] Key pressed: enable={enableSteelBubble}, flaring={isFlaring}, cooldown={steelBubbleCooldownTimer:F2}");
+            if (isFlaring && steelBubbleCooldownTimer <= 0f)
             {
-                PushMetalsInBubble();
-                DrainMetal(steelBubbleMetalCostMultiplier);
-                steelBubbleCooldownTimer = steelBubbleCooldown;
-                bubbleAppliedThisPress = true;
+                if (!isBurning) StartBurning();
+                if (!bubbleAppliedThisPress)
+                {
+                    PushMetalsInBubble();
+                    DrainMetal(steelBubbleMetalCostMultiplier);
+                    steelBubbleCooldownTimer = steelBubbleCooldown;
+                    bubbleAppliedThisPress = true;
+                }
             }
         }
         
