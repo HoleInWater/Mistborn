@@ -1,114 +1,187 @@
 /* FlareManager.cs
- * 
+ *
  * PURPOSE:
- * Centralized manager for Allomantic flaring. Tracks flare state for each metal independently.
- * This allows the player to flare Iron without flaring Steel, and vice versa.
- * 
- * USAGE:
- * =====
- * From any script, check or set flare state for a specific metal:
- *   - FlareManager.Instance.IsIronFlaring
- *   - FlareManager.Instance.IsSteelFlaring
- *   - FlareManager.Instance.ToggleIronFlare()
- *   - FlareManager.Instance.ToggleSteelFlare()
- * 
- * CONTROL SCHEME:
- * ===============
- * Each metal (Iron/Steel) has its own independent flare toggle:
- * 
- * IRON (Q key):
- *   - Q press while NOT burning → Start burning Iron
- *   - Q press while burning, NOT flared → Toggle flare ON
- *   - Q press while burning, flared → Execute pull
- *   - Q release → Stop burning (preserve flare state)
- * 
- * STEEL (E key):
- *   - E press while NOT burning → Start burning Steel  
- *   - E press while burning, NOT flared → Toggle flare ON
- *   - E press while burning, flared → Execute push
- *   - E release → Stop burning (preserve flare state)
- * 
- * CTRL KEY:
- *   - Ctrl press → Toggles BOTH Iron and Steel flare at the same time
- *   - This is for when you want to flare everything (emergency situation)
- * 
- * EVENTS:
- * =======
- * Subscribe to flare changes:
- *   FlareManager.Instance.OnIronFlareChanged += (isFlaring) => { ... };
- *   FlareManager.Instance.OnSteelFlareChanged += (isFlaring) => { ... };
- * 
- *   Or all flares at once:
- *   FlareManager.Instance.OnAnyFlareChanged += (metal, isFlaring) => { ... };
+ * Centralized manager for Allomantic flaring. Tracks flare state and intensity,
+ * controlled via the scroll wheel. Intensity affects burn rate and ability force
+ * in SteelPush and IronPull.
+ *
+ * SCROLL WHEEL CONTROL:
+ * =====================
+ * - Scroll UP   → Increase flare intensity (toward max flare / "burning bright")
+ * - Scroll DOWN → Decrease flare intensity (toward normal burn)
+ * - Intensity 0 = not flaring at all (normal burn if burning is active)
+ * - Intensity 1–10 = flaring, scaling force and drain accordingly
+ *
+ * LEFT CTRL KEY:
+ * - Instantly toggles flare ON (max intensity) or OFF (intensity 0)
+ *
+ * USAGE FROM OTHER SCRIPTS:
+ * =========================
+ *   FlareManager.Instance.IsFlaring           // true if intensity > 0
+ *   FlareManager.Instance.IsIronFlaring       // same (unified flare)
+ *   FlareManager.Instance.IsSteelFlaring      // same (unified flare)
+ *   FlareManager.Instance.FlareIntensity      // 0–10 int
+ *   FlareManager.Instance.FlareMultiplier     // 1.0–maxFlareMultiplier float, for force scaling
+ *   FlareManager.Instance.flareBurnRate       // current drain rate per second
  */
 
 using UnityEngine;
 
 public class FlareManager : MonoBehaviour
 {
-    [Header("Dependencies")]
-    public MetalReserve metalReserve; // Drag your MetalReserve object here!
-
-    [Header("Flare Settings")]
-    public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
-    public bool IsFlaring { get; private set; }
+    // ── Singleton ────────────────────────────────────────────────────────────
     public static FlareManager Instance { get; private set; }
-    public bool IsIronFlaring => IsFlaring;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(this); return; }
+        Instance = this;
+    }
+
+    // ── Inspector ─────────────────────────────────────────────────────────────
+    [Header("Dependencies")]
+    [Tooltip("Reference to the MetalReserve UI/data component.")]
+    public MetalReserve metalReserve;
+
+    [Header("Flare Intensity Settings")]
+    [Tooltip("How many scroll steps to go from 0 → max intensity.")]
+    public int maxIntensitySteps = 10;
+
+    [Tooltip("How much the scroll wheel changes intensity per tick.")]
+    public int scrollStepSize = 1;
+
+    [Tooltip("Base burn rate at intensity 0 (normal burn, not flaring).")]
+    public float baseBurnRate = 1f;
+
+    [Tooltip("Additional burn rate added per intensity step on top of baseBurnRate.")]
+    public float burnRatePerStep = 1.5f;
+
+    [Tooltip("Force multiplier at max intensity (intensity 10 → this value).")]
+    [Range(1.5f, 4f)]
+    public float maxFlareMultiplier = 2.5f;
+
+    [Header("Debug")]
+    public bool showDebugGUI = true;
+
+    // ── Public Read-Only State ────────────────────────────────────────────────
+
+    /// <summary>Current flare intensity step (0 = off, maxIntensitySteps = full flare).</summary>
+    public int FlareIntensity { get; private set; } = 0;
+
+    /// <summary>True when the player is actively flaring (intensity > 0).</summary>
+    public bool IsFlaring => FlareIntensity > 0;
+
+    /// <summary>Compatibility aliases used by IronPull / SteelPush.</summary>
+    public bool IsIronFlaring  => IsFlaring;
     public bool IsSteelFlaring => IsFlaring;
 
+    /// <summary>
+    /// Normalised force multiplier in range [1.0, maxFlareMultiplier].
+    /// At intensity 0 → 1.0x  |  At max intensity → maxFlareMultiplier.
+    /// </summary>
+    public float FlareMultiplier =>
+        Mathf.Lerp(1f, maxFlareMultiplier, (float)FlareIntensity / maxIntensitySteps);
+
+    /// <summary>
+    /// Current total burn rate per second (base + intensity contribution).
+    /// Allomancer reads this to know how fast to drain metal.
+    /// </summary>
+    public float flareBurnRate =>
+        baseBurnRate + burnRatePerStep * FlareIntensity;
+
+    // ── Private ───────────────────────────────────────────────────────────────
+    private bool wasCtrlToggleOn = false; // tracks toggle state for Ctrl key
+
+    // ── Unity Loop ────────────────────────────────────────────────────────────
     void Update()
     {
-        // Example logic: Toggle flare with the 'F' key
-    if (Input.GetKeyDown(KeyCode.LeftControl))
+        HandleScrollWheel();
+        HandleCtrlToggle();
+        HandleMetalDrain();
+    }
+
+    // ── Input Handlers ────────────────────────────────────────────────────────
+
+    /// <summary>Scroll wheel adjusts flare intensity up or down.</summary>
+    void HandleScrollWheel()
+    {
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+
+        if (scroll > 0f)
         {
-            ToggleFlare();
+            // Scroll up → more flare
+            FlareIntensity = Mathf.Min(FlareIntensity + scrollStepSize, maxIntensitySteps);
         }
-
-        // DRAIN LOGIC
-        if (IsFlaring && metalReserve != null)
+        else if (scroll < 0f)
         {
-            // Drain the reserve over time
-            metalReserve.Drain(flareBurnRate * Time.deltaTime);
-
-            // Auto-stop flaring if we run out of metal
-            if (metalReserve.currentMetal <= 0)
-            {
-                StopFlaring();
-            }
+            // Scroll down → less flare
+            FlareIntensity = Mathf.Max(FlareIntensity - scrollStepSize, 0);
         }
     }
 
-    public void ToggleFlare()
+    /// <summary>Left Ctrl instantly toggles between max flare and no flare.</summary>
+    void HandleCtrlToggle()
     {
-        if (IsFlaring) StopFlaring();
-        else StartFlaring();
-    }
-
-    private void StartFlaring()
-    {
-        if (metalReserve != null && metalReserve.currentMetal > 0)
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            IsFlaring = true;
-            Debug.Log("Metal Flare Started!");
+            if (IsFlaring)
+                FlareIntensity = 0;
+            else
+                FlareIntensity = maxIntensitySteps;
         }
     }
 
-    private void StopFlaring()
+    /// <summary>Drain the metal reserve while flaring; auto-stop if empty.</summary>
+    void HandleMetalDrain()
     {
-        IsFlaring = false;
-        Debug.Log("Metal Flare Stopped.");
+        if (!IsFlaring) return;
+        if (metalReserve == null) return;
+
+        metalReserve.Drain(flareBurnRate * Time.deltaTime);
+
+        if (metalReserve.currentMetal <= 0)
+        {
+            FlareIntensity = 0;
+            Debug.Log("[FLARE] Metal exhausted – flare extinguished.");
+        }
     }
 
-    private void Awake()
+    // ── Public API ────────────────────────────────────────────────────────────
+
+    /// <summary>Force flare intensity to a specific step (0–max).</summary>
+    public void SetFlareIntensity(int step)
     {
-        // If there is an instance, and it's not me, delete myself.
-        if (Instance != null && Instance != this) 
-        { 
-            Destroy(this); 
-        } 
-        else 
-        { 
-            Instance = this; 
-        }
+        FlareIntensity = Mathf.Clamp(step, 0, maxIntensitySteps);
+    }
+
+    /// <summary>Kill the flare immediately.</summary>
+    public void StopFlaring()
+    {
+        FlareIntensity = 0;
+    }
+
+    // ── Debug GUI ─────────────────────────────────────────────────────────────
+    void OnGUI()
+    {
+        if (!showDebugGUI) return;
+
+        GUIStyle style = new GUIStyle();
+        style.normal.textColor = IsFlaring ? new Color(1f, 0.6f, 0f) : Color.white;
+        style.fontSize = 13;
+
+        float y = 10f;
+        float x = Screen.width - 220f;
+
+        GUI.Label(new Rect(x, y, 210, 20), "═══ FLARE MANAGER ═══", style); y += 20;
+        GUI.Label(new Rect(x, y, 210, 20),
+            $"Intensity : {FlareIntensity} / {maxIntensitySteps}", style); y += 18;
+        GUI.Label(new Rect(x, y, 210, 20),
+            $"Multiplier: {FlareMultiplier:F2}x", style); y += 18;
+        GUI.Label(new Rect(x, y, 210, 20),
+            $"Burn Rate : {flareBurnRate:F1} /s", style); y += 18;
+        GUI.Label(new Rect(x, y, 210, 20),
+            $"State     : {(IsFlaring ? "FLARING 🔥" : "Normal")}", style); y += 18;
+        GUI.Label(new Rect(x, y, 210, 20), "Scroll ↑↓ to adjust", style); y += 18;
+        GUI.Label(new Rect(x, y, 210, 20), "L-Ctrl = toggle max/off", style);
     }
 }
