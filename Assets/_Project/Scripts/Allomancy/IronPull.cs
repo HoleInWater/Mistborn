@@ -36,6 +36,7 @@ public class IronPull : MonoBehaviour
 {
     [Header("Settings")]
     public float pullForce = 800f;
+    public float zenithDistance = 5f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
     
@@ -121,11 +122,20 @@ public class IronPull : MonoBehaviour
                 float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
                 float force = pullForce * weightFactor;
                 
-                // Distance falloff: F = force * (1 / distance), capped at maxRange
+                // Distance falloff with zenith point at zenithDistance meters
                 float distance = hit.distance;
                 if (distance > 0.1f) // Avoid division by zero
                 {
-                    force *= (1f / distance);
+                    float distanceFactor;
+                    if (distance <= zenithDistance)
+                    {
+                        distanceFactor = distance / zenithDistance; // Linear increase up to zenith
+                    }
+                    else
+                    {
+                        distanceFactor = zenithDistance / distance; // Inverse falloff beyond zenith
+                    }
+                    force *= distanceFactor;
                 }
                 
                 // Clamp force to reasonable values
