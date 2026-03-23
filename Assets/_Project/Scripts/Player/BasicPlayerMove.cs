@@ -136,9 +136,9 @@ public class BasicPlayerMove : MonoBehaviour
     
         Vector3 forward = cameraPivot.forward;
         Vector3 right = cameraPivot.right;
-        forward.y = 0; 
+        forward.y = 0;
         right.y = 0;
-        forward.Normalize(); 
+        forward.Normalize();
         right.Normalize();
     
         Vector3 moveDirection = (forward * z + right * x).normalized;
@@ -157,30 +157,17 @@ public class BasicPlayerMove : MonoBehaviour
             rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
     
-        // THE FIX: Use MoveTowards and FixedUpdate
-        // We only care about horizontal velocity for the 'blend'
+        // Only care about horizontal velocity so Y (gravity/jumping) is never touched
         Vector3 currentHorizontalVel = new Vector3(rb.velocity.x, 0, rb.velocity.z);
         Vector3 targetHorizontalVel = moveDirection * targetSpeed;
     
-        // Use MoveTowards for consistent acceleration (Lerp is frame-rate dependent)
+        // MoveTowards gives consistent acceleration regardless of frame rate
         Vector3 smoothedVel = Vector3.MoveTowards(currentHorizontalVel, targetHorizontalVel, acceleration * Time.fixedDeltaTime);
     
-        // APPLY: We MUST keep rb.velocity.y untouched so gravity and jumps work!
+        // Preserve rb.velocity.y so jumps and gravity are unaffected
         rb.velocity = new Vector3(smoothedVel.x, rb.velocity.y, smoothedVel.z);
     
         if (moveDirection.magnitude > 0.1f && rb.IsSleeping()) rb.WakeUp();
-    }
-    
-        // 2. THE FIX: Linear Velocity Calculation
-        // We get our current horizontal velocity
-        Vector3 currentVel = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-        Vector3 targetVel = moveDirection * targetSpeed;
-    
-        // We blend them smoothly
-        Vector3 smoothedVel = Vector3.Lerp(currentVel, targetVel, acceleration * Time.deltaTime);
-    
-        // 3. Apply (KEEPING Y for jumping/gravity)
-        rb.velocity = new Vector3(smoothedVel.x, rb.velocity.y, smoothedVel.z);
     }
     
     void HandleCamera()
