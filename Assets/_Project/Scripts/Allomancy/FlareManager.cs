@@ -52,6 +52,7 @@ public class FlareManager : MonoBehaviour
     [Header("Flare Settings")]
     public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
     public bool IsFlaring { get; private set; }
+    public static FlareManager Instance { get; private set; }
 
     void Update()
     {
@@ -94,5 +95,18 @@ public class FlareManager : MonoBehaviour
     {
         IsFlaring = false;
         Debug.Log("Metal Flare Stopped.");
+    }
+
+    private void Awake()
+    {
+        // If there is an instance, and it's not me, delete myself.
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(this); 
+        } 
+        else 
+        { 
+            Instance = this; 
+        }
     }
 }
