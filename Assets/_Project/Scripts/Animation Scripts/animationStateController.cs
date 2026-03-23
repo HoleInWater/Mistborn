@@ -45,13 +45,13 @@ public class AnimationStateController : MonoBehaviour
         }
         
         // JUMP START: If grounded and space is pressed, start jump
-        if (!isJumping && isGrounded && jumpPressed)
+        if (!isJumping && (!forwardPressed && jumpPressed))
         {
             animator.SetBool("isJumping", true);
         }
 
         // JUMP END: If we were jumping but are now touching the ground, STOP
-        if (isJumping && isGrounded)
+        if (isJumping && (forwardPressed && !jumpPressed))
         {
             animator.SetBool("isJumping", false);
         }
