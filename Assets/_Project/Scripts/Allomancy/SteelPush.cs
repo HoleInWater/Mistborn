@@ -103,7 +103,7 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Mass threshold (kg) below which objects receive impulse instead of continuous force")]
     public float impulseMassThreshold = 5f;
     [Tooltip("Calibration factor for impulse force (adjust to achieve target coin velocities)")]
-    public float impulseCalibration = 0.001f;
+    public float impulseCalibration = 0.00055f; // Calibrated for 22.22 m/s at 10m with 10g coin
     [Tooltip("Enable debug logging for impulse calibration")]
     public bool debugCalibration = false;
     
