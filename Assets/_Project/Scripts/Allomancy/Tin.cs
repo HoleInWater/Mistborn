@@ -17,7 +17,7 @@ public class Tin : MonoBehaviour
     
     [Header("References")]
     public Camera playerCamera;
-    public AudioListener audioListener;
+    // Removed the audioListener variable as it's not needed for static volume
     public Allomancer allomancer;
     
     private bool isBurning = false;
@@ -30,14 +30,12 @@ public class Tin : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
         
-        if (audioListener == null)
-            audioListener = FindObjectOfType<AudioListener>();
-        
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
         
         originalFOV = playerCamera.fieldOfView;
-        originalAudioVolume = audioListener.volume;
+        // Accessing the static class directly
+        originalAudioVolume = AudioListener.volume;
     }
     
     void Update()
@@ -45,14 +43,12 @@ public class Tin : MonoBehaviour
         if (cooldownTimer > 0f)
             cooldownTimer -= Time.deltaTime;
         
-        // Check if we can burn tin
         if (allomancer != null && !allomancer.canBurnMetal)
         {
             if (isBurning) StopBurning();
             return;
         }
         
-        // T key to burn Tin (as per common Allomancy key bindings)
         if (Input.GetKeyDown(KeyCode.T) && cooldownTimer <= 0f)
         {
             if (!isBurning) StartBurning();
@@ -63,7 +59,6 @@ public class Tin : MonoBehaviour
             if (isBurning) StopBurning();
         }
         
-        // Continuous metal drain while burning
         if (isBurning)
         {
             DrainMetal();
@@ -93,8 +88,8 @@ public class Tin : MonoBehaviour
         if (playerCamera != null)
             playerCamera.fieldOfView = originalFOV + fovIncrease;
         
-        if (audioListener != null)
-            audioListener.volume = originalAudioVolume * audioVolumeMultiplier;
+        // Fix: Use the Class name "AudioListener" instead of the variable
+        AudioListener.volume = originalAudioVolume * audioVolumeMultiplier;
     }
     
     void ResetTinEffects()
@@ -102,8 +97,8 @@ public class Tin : MonoBehaviour
         if (playerCamera != null)
             playerCamera.fieldOfView = originalFOV;
         
-        if (audioListener != null)
-            audioListener.volume = originalAudioVolume;
+        // Fix: Use the Class name "AudioListener" instead of the variable
+        AudioListener.volume = originalAudioVolume;
     }
     
     void DrainMetal()
