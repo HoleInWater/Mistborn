@@ -35,7 +35,7 @@ public class MetalBurnEffect : MonoBehaviour
             var main = burnParticles.main;
             var flareMain = flareParticles.main;
             flareMain.duration = main.duration;
-            flareMain.looping = main.looping;
+            flareMain.loop = main.loop;
             flareMain.startLifetime = main.startLifetime;
             flareMain.startSpeed = main.startSpeed;
             flareMain.startSize = main.startSize;
@@ -52,10 +52,10 @@ public class MetalBurnEffect : MonoBehaviour
         
         // Start with burn particles off
         var burnMain = burnParticles.main;
-        burnMain.looping = false;
+        burnMain.loop = false;
         
         var flareMain = flareParticles.main;
-        flareMain.looping = false;
+        flareMain.loop = false;
     }
     
     void Update()
