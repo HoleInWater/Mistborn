@@ -426,33 +426,47 @@ public class SteelPush : MonoBehaviour
         
         if (playerCamera == null) return;
         
-        // Find all metal objects and pick closest one in front of camera
-        var allMetals = AllomanticTarget.GetAllMetalObjects();
         float closestDist = maxRange;
         
+        // Try registry first
+        var allMetals = AllomanticTarget.GetAllMetalObjects();
         foreach (var metal in allMetals)
         {
             if (metal == null || !metal.canBePushed) continue;
-            
-            Rigidbody rb = metal.GetComponent<Rigidbody>();
-            if (rb == null || rb == playerRigidbody) continue;
-            
-            Vector3 toTarget = rb.position - playerCamera.transform.position;
-            float dist = toTarget.magnitude;
-            
-            // Check if in front of camera and within range
-            if (dist < closestDist && dist > 0.1f)
+            TryUpdateTarget(metal, ref closestDist);
+        }
+        
+        // Fallback: find all AllomanticTargets in scene
+        if (!hasCurrentTarget)
+        {
+            var allTargets = FindObjectsOfType<AllomanticTarget>();
+            foreach (var metal in allTargets)
             {
-                Vector3 forward = playerCamera.transform.forward;
-                if (Vector3.Dot(toTarget.normalized, forward) > 0.5f)
-                {
-                    closestDist = dist;
-                    currentTargetRigidbody = rb;
-                    currentTarget = metal;
-                    hasCurrentTarget = true;
-                    currentTargetHit.distance = dist;
-                    currentTargetHit.point = rb.position;
-                }
+                if (metal == null || !metal.canBePushed) continue;
+                TryUpdateTarget(metal, ref closestDist);
+            }
+        }
+    }
+    
+    void TryUpdateTarget(AllomanticTarget metal, ref float closestDist)
+    {
+        Rigidbody rb = metal.GetComponent<Rigidbody>();
+        if (rb == null || rb == playerRigidbody) return;
+        
+        Vector3 toTarget = rb.position - playerCamera.transform.position;
+        float dist = toTarget.magnitude;
+        
+        if (dist < closestDist && dist > 0.1f)
+        {
+            Vector3 forward = playerCamera.transform.forward;
+            if (Vector3.Dot(toTarget.normalized, forward) > 0.3f)
+            {
+                closestDist = dist;
+                currentTargetRigidbody = rb;
+                currentTarget = metal;
+                hasCurrentTarget = true;
+                currentTargetHit.distance = dist;
+                currentTargetHit.point = rb.position;
             }
         }
     }

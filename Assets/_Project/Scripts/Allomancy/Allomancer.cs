@@ -50,7 +50,20 @@ public class Allomancer : MonoBehaviour
             metalReserves[i] = 100f;
         }
         
+        EnsureAllomancyComponents();
         SpawnTestCoins();
+    }
+    
+    void EnsureAllomancyComponents()
+    {
+        if (GetComponent<SteelPush>() == null)
+            gameObject.AddComponent<SteelPush>();
+        
+        if (GetComponent<IronPull>() == null)
+            gameObject.AddComponent<IronPull>();
+        
+        if (GetComponent<FlareManager>() == null)
+            gameObject.AddComponent<FlareManager>();
     }
     
     void SpawnTestCoins()
