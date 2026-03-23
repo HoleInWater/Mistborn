@@ -90,8 +90,6 @@ public class SteelPush : MonoBehaviour
     public KeyCode focusKey = KeyCode.LeftControl;
     [Tooltip("Color for focused push crosshair")]
     public Color focusedPushColor = Color.red;
-    [Tooltip("Enable E key for pushing (alternative to right mouse button)")]
-    public bool enableEKeyPush = true;
     
     [Header("Audio")]
     [Tooltip("AudioSource for push sounds (optional)")]
@@ -267,8 +265,8 @@ public class SteelPush : MonoBehaviour
             cooldownTimer -= Time.deltaTime;
         }
         
-        // Start burning: Q key OR E key
-        bool pushKeyDown = Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E);
+        // Start burning: E key
+        bool pushKeyDown = Input.GetKeyDown(KeyCode.E);
         if (pushKeyDown && cooldownTimer <= 0f)
         {
             StartBurning();
@@ -307,7 +305,7 @@ public class SteelPush : MonoBehaviour
             isSteelBubbleActive = false;
             
             // Push ONCE per key press (not continuously while held)
-            bool pushKeyHeld = Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E);
+            bool pushKeyHeld = Input.GetKey(KeyCode.E);
             if (pushKeyHeld && isBurning && !pushAppliedThisPress)
             {
                 PushMetals();
@@ -318,11 +316,10 @@ public class SteelPush : MonoBehaviour
             }
         }
         
-        // Stop burning when releasing Q key OR E key
-        bool pushKeyUp = Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.E);
+        // Stop burning when releasing E key
+        bool pushKeyUp = Input.GetKeyUp(KeyCode.E);
         if (pushKeyUp)
         {
-            if (debugPushOperations) Debug.Log("E/Q released - stopping push");
             StopBurning();
         }
         
@@ -375,7 +372,7 @@ public class SteelPush : MonoBehaviour
     
     void UpdatePrediction()
     {
-        bool isPushing = Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.E);
+        bool isPushing = Input.GetKey(KeyCode.E);
         
         bool shouldShowPrediction = enablePushPrediction && 
                                    showPredictionOnHold && 
