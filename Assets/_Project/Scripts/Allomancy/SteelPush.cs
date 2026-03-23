@@ -37,6 +37,7 @@ public class SteelPush : MonoBehaviour
     [Header("Settings")]
     public float pushForce = 800f;
     public float zenithDistance = 5f;
+    public float minDistance = 0.5f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
     
@@ -46,7 +47,6 @@ public class SteelPush : MonoBehaviour
     public Allomancer allomancer;
     public Rigidbody playerRigidbody;
     
-    private float metalReserve = 100f;
     private bool isBurning = false;
     private bool isFlaring = false;
     
@@ -89,7 +89,12 @@ public class SteelPush : MonoBehaviour
     
     void StartBurning()
     {
+        if (isBurning) return;
         isBurning = true;
+        if (allomancer != null)
+        {
+            allomancer.StartBurning(AllomancySkill.MetalType.Steel);
+        }
 #if UNITY_EDITOR
         Debug.Log("Burning Steel - Push ready");
 #endif
@@ -97,7 +102,12 @@ public class SteelPush : MonoBehaviour
     
     void StopBurning()
     {
+        if (!isBurning) return;
         isBurning = false;
+        if (allomancer != null)
+        {
+            allomancer.StopBurning();
+        }
 #if UNITY_EDITOR
         Debug.Log("Stopped burning Steel");
 #endif
@@ -130,21 +140,14 @@ public class SteelPush : MonoBehaviour
                 float weightFactor = playerMass / Mathf.Max(targetMass, 0.001f);
                 float force = pushForce * weightFactor;
                 
-                // Distance falloff with zenith point at zenithDistance meters
+                // Distance falloff: force inversely proportional to distance
                 // LORE: From Coppermind - "The force of the Push is inversely proportional to distance"
-                // Our model: Linear increase to zenith (5m), then inverse (1/r) beyond
                 float distance = hit.distance;
-                if (distance > 0.1f) // Avoid division by zero
+                if (distance > 0.01f) // Avoid division by zero
                 {
-                    float distanceFactor;
-                    if (distance <= zenithDistance)
-                    {
-                        distanceFactor = distance / zenithDistance; // Linear increase up to zenith
-                    }
-                    else
-                    {
-                        distanceFactor = zenithDistance / distance; // Inverse falloff beyond zenith
-                    }
+                    // Use minDistance to prevent unrealistic forces at very close range
+                    float effectiveDistance = Mathf.Max(distance, minDistance);
+                    float distanceFactor = zenithDistance / effectiveDistance;
                     force *= distanceFactor;
                 }
                 
@@ -154,8 +157,8 @@ public class SteelPush : MonoBehaviour
                 // Flaring doubles the force
                 if (isFlaring) force *= 2f;
                 
-                // Anchor detection: if target is heavy or kinematic, push player instead
-                bool isAnchored = (targetMass > playerMass * 3) || hit.rigidbody.isKinematic;
+                // Anchor detection: if target is anchored (fixed) or kinematic, push player instead
+                bool isAnchored = (target != null && target.isAnchored) || hit.rigidbody.isKinematic;
                 Vector3 pushDirection = (hit.point - playerCamera.transform.position).normalized;
                 
                 if (isAnchored && playerRigidbody != null)
@@ -174,14 +177,11 @@ public class SteelPush : MonoBehaviour
     
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
-        {
-            metalReserve = 0;
-            StopBurning();
-        }
+        if (allomancer == null) return;
+        
+        float drainAmount = metalCostPerSecond * Time.deltaTime;
+        if (isFlaring) drainAmount *= 3f; // Flaring drains 3x faster
+        
+        allomancer.DrainMetal(AllomancySkill.MetalType.Steel, drainAmount);
     }
-    
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
 }
