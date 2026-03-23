@@ -318,10 +318,16 @@ public class IronPull : MonoBehaviour
         float strength = allomanticStrength * (playerMass / referenceMass) * masteryBonus;
         if (isFlaring) strength *= maxFlareMultiplier;
         
+        // Linear distance falloff: force = strength × (1 - distance/maxRange)
+        // This matches lore: "thinner lines at distance" = weaker force
         float distanceFactor = 1f;
         if (distance > 0.01f && distance <= maxRange)
         {
-            distanceFactor = Mathf.Pow(referenceDistance / Mathf.Max(distance, minDistance), distanceExponent);
+            distanceFactor = 1f - (distance / maxRange);
+        }
+        else if (distance > maxRange)
+        {
+            distanceFactor = 0f;
         }
         
         float force = strength * distanceFactor;
