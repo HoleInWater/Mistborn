@@ -143,9 +143,9 @@ public class IronPull : MonoBehaviour
     
     [Header("Debug")]
     [Tooltip("Enable debug logging for pull operations")]
-    public bool debugPullOperations = true;
+    public bool debugPullOperations = false;
     [Tooltip("Enable debug logging for flare state")]
-    public bool debugFlareState = true;
+    public bool debugFlareState = false;
     
     private bool isBurning = false;
     private bool pullAppliedThisPress = false;
@@ -243,12 +243,6 @@ public class IronPull : MonoBehaviour
         // DETECTION: Update targeted metal detection (raycast from camera)
         UpdateTargetedMetal();
         
-        // Debug: Q key state
-        if (Input.GetKeyDown(KeyCode.Q) && debugPullOperations)
-            Debug.Log("[IRON PULL] Q key pressed");
-        if (Input.GetKeyUp(KeyCode.Q) && debugPullOperations)
-            Debug.Log("[IRON PULL] Q key released");
-        
         // Q KEY HANDLING - Pull mechanics
         bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
         bool qKeyUp = Input.GetKeyUp(KeyCode.Q);
@@ -329,30 +323,21 @@ public class IronPull : MonoBehaviour
         // Find all AllomanticTargets in scene
         var allTargets = FindObjectsOfType<AllomanticTarget>();
         
-        if (debugPullOperations) Debug.Log($"[IRON PULL] UpdateTargetedMetal() - Found {allTargets.Length} AllomanticTargets in scene");
-        
         foreach (var metal in allTargets)
         {
-            if (metal == null || !metal.canBePulled)
-            {
-                if (debugPullOperations) Debug.Log($"[IRON PULL] Skipping {metal?.name} - canBePulled: {metal?.canBePulled}");
-                continue;
-            }
+            if (metal == null || !metal.canBePulled) continue;
             
             Rigidbody rb = metal.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
             
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
             
-            // Just find closest metal within range - no angle requirement
             if (dist < closestDist && dist > 0.1f)
             {
                 closestDist = dist;
                 currentTargetRigidbody = rb;
                 currentTarget = metal;
                 hasCurrentTarget = true;
-                
-                if (debugPullOperations) Debug.Log($"[IRON PULL] Target acquired: {metal.name} at {dist:F2}m");
             }
         }
     }
@@ -409,13 +394,7 @@ public class IronPull : MonoBehaviour
     void PullMetals()
     {
         if (playerRigidbody == null) return;
-        if (!hasCurrentTarget || currentTargetRigidbody == null)
-        {
-            if (debugPullOperations) Debug.Log("[IRON PULL] PullMetals() - No target!");
-            return;
-        }
-        
-        if (debugPullOperations) Debug.Log("[IRON PULL] PullMetals() - Executing pull!");
+        if (!hasCurrentTarget || currentTargetRigidbody == null) return;
         
         Rigidbody targetRigidbody = currentTargetRigidbody;
         AllomanticTarget target = currentTarget;
@@ -458,8 +437,6 @@ public class IronPull : MonoBehaviour
         float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
         if (IsFlaring) drainAmount *= 3f;
         float actionDrain = metalCostPerSecond * 0.5f * multiplier;
-        
-        if (debugPullOperations) Debug.Log($"[IRON PULL] DrainMetal() - draining {drainAmount + actionDrain} (multiplier: {multiplier}, flaring: {IsFlaring})");
         
         allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }
