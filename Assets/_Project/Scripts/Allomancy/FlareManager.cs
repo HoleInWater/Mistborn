@@ -43,56 +43,78 @@
  */
 
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class FlareManager : MonoBehaviour
+public class MetalReserve : MonoBehaviour
 {
-    [Header("Dependencies")]
-    public MetalReserve metalReserve; // Drag your MetalReserve object here!
+    [Header("UI Settings")]
+    public UIDocument uiDocument;
+    public string metalProgressBarName = "Metal";
 
-    [Header("Flare Settings")]
-    public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
-    public bool IsFlaring { get; private set; }
+    [Header("Metal Settings")]
+    public float currentMetal = 100f;
+    public float maxMetal = 100f;
+    
+    [Header("Recovery Settings")]
+    public float passiveRecoveryRate = 0.5f;
 
-    void Update()
+    private ProgressBar _metalBar;
+    private float _lastDisplayedMetal = -1f;
+
+    void Start()
     {
-        // Example logic: Toggle flare with the 'F' key
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            ToggleFlare();
-        }
+        SetupUI();
+    }
 
-        // DRAIN LOGIC
-        if (IsFlaring && metalReserve != null)
+    private void SetupUI()
+    {
+        if (uiDocument != null)
         {
-            // Drain the reserve over time
-            metalReserve.Drain(flareBurnRate * Time.deltaTime);
+            var root = uiDocument.rootVisualElement;
+            _metalBar = root.Q<ProgressBar>(metalProgressBarName);
 
-            // Auto-stop flaring if we run out of metal
-            if (metalReserve.currentMetal <= 0)
+            if (_metalBar != null)
             {
-                StopFlaring();
+                _metalBar.lowValue = 0;
+                _metalBar.highValue = maxMetal;
             }
         }
     }
 
-    public void ToggleFlare()
+    void Update()
     {
-        if (IsFlaring) StopFlaring();
-        else StartFlaring();
+        // Passive recovery
+        if (currentMetal < maxMetal)
+        {
+            currentMetal = Mathf.MoveTowards(currentMetal, maxMetal, passiveRecoveryRate * Time.deltaTime);
+        }
+        
+        UpdateHUD();
     }
 
-    private void StartFlaring()
+    private void UpdateHUD()
     {
-        if (metalReserve != null && metalReserve.currentMetal > 0)
+        if (_metalBar == null) SetupUI();
+
+        if (_metalBar != null)
         {
-            IsFlaring = true;
-            Debug.Log("Metal Flare Started!");
+            if (!Mathf.Approximately(_lastDisplayedMetal, currentMetal))
+            {
+                _metalBar.value = currentMetal;
+                _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
+                _lastDisplayedMetal = currentMetal;
+            }
         }
     }
 
-    private void StopFlaring()
+    // THESE ARE THE METHODS THE ERROR SAYS ARE MISSING
+    public void Drain(float amount)
     {
-        IsFlaring = false;
-        Debug.Log("Metal Flare Stopped.");
+        currentMetal = Mathf.Max(0, currentMetal - amount);
+    }
+
+    public void Refill(float amount)
+    {
+        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
     }
 }
