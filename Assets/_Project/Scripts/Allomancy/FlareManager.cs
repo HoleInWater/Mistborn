@@ -43,108 +43,56 @@
  */
 
 using UnityEngine;
-using System;
 
 public class FlareManager : MonoBehaviour
 {
-    public static FlareManager Instance { get; private set; }
+    [Header("Dependencies")]
+    public MetalReserve metalReserve; // Drag your MetalReserve object here!
 
-    // Events for when flare state changes
-    public event Action<bool> OnIronFlareChanged;
-    public event Action<bool> OnSteelFlareChanged;
-    public event Action<MetalType, bool> OnAnyFlareChanged;
-    
-    public enum MetalType { Iron, Steel }
-
-    [Header("Settings")]
-    [Tooltip("Key to toggle flaring for both metals at once")]
-    public KeyCode globalFlareKey = KeyCode.LeftControl;
-    [Tooltip("Enable debug logging")]
-    public bool debugMode = true;
-
-    // Per-metal flare states
-    private bool _isIronFlaring = false;
-    public bool IsIronFlaring
-    {
-        get => _isIronFlaring;
-        private set
-        {
-            if (_isIronFlaring != value)
-            {
-                _isIronFlaring = value;
-                OnIronFlareChanged?.Invoke(_isIronFlaring);
-                OnAnyFlareChanged?.Invoke(MetalType.Iron, _isIronFlaring);
-                if (debugMode) Debug.Log($"[FLARE] Iron: {(_isIronFlaring ? "FLARED" : "OFF")}");
-            }
-        }
-    }
-
-    private bool _isSteelFlaring = false;
-    public bool IsSteelFlaring
-    {
-        get => _isSteelFlaring;
-        private set
-        {
-            if (_isSteelFlaring != value)
-            {
-                _isSteelFlaring = value;
-                OnSteelFlareChanged?.Invoke(_isSteelFlaring);
-                OnAnyFlareChanged?.Invoke(MetalType.Steel, _isSteelFlaring);
-                if (debugMode) Debug.Log($"[FLARE] Steel: {(_isSteelFlaring ? "FLARED" : "OFF")}");
-            }
-        }
-    }
-
-    void Awake()
-    {
-        // Singleton pattern - only one FlareManager allowed
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-    }
+    [Header("Flare Settings")]
+    public float flareBurnRate = 10f; // Amount of metal drained per second while flaring
+    public bool IsFlaring { get; private set; }
 
     void Update()
     {
-        // GLOBAL FLARE: Ctrl toggles BOTH Iron and Steel flares
-        // This is for "flare everything" moments in combat
-        if (Input.GetKeyDown(globalFlareKey))
+        // Example logic: Toggle flare with the 'F' key
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            bool newState = !IsIronFlaring;
-            IsIronFlaring = newState;
-            IsSteelFlaring = newState;
-            if (debugMode) Debug.Log($"[FLARE] GLOBAL: {(newState ? "ON" : "OFF")}");
+            ToggleFlare();
+        }
+
+        // DRAIN LOGIC
+        if (IsFlaring && metalReserve != null)
+        {
+            // Drain the reserve over time
+            metalReserve.Drain(flareBurnRate * Time.deltaTime);
+
+            // Auto-stop flaring if we run out of metal
+            if (metalReserve.currentMetal <= 0)
+            {
+                StopFlaring();
+            }
         }
     }
 
-    // Public methods for scripts to toggle individual metal flares
-    public void ToggleIronFlare()
+    public void ToggleFlare()
     {
-        IsIronFlaring = !IsIronFlaring;
+        if (IsFlaring) StopFlaring();
+        else StartFlaring();
     }
 
-    public void ToggleSteelFlare()
+    private void StartFlaring()
     {
-        IsSteelFlaring = !IsSteelFlaring;
-    }
-
-    public void SetIronFlare(bool value)
-    {
-        IsIronFlaring = value;
-    }
-
-    public void SetSteelFlare(bool value)
-    {
-        IsSteelFlaring = value;
-    }
-
-    void OnDestroy()
-    {
-        if (Instance == this)
+        if (metalReserve != null && metalReserve.currentMetal > 0)
         {
-            Instance = null;
+            IsFlaring = true;
+            Debug.Log("Metal Flare Started!");
         }
+    }
+
+    private void StopFlaring()
+    {
+        IsFlaring = false;
+        Debug.Log("Metal Flare Stopped.");
     }
 }
