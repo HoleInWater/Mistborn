@@ -428,18 +428,32 @@ public class SteelPush : MonoBehaviour
         
         if (playerCamera == null) return;
         
-        // Raycast from camera center to find specific metal target
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out currentTargetHit, maxRange))
+        // Find all metal objects and pick closest one in front of camera
+        var allMetals = AllomanticTarget.GetAllMetalObjects();
+        float closestDist = maxRange;
+        
+        foreach (var metal in allMetals)
         {
-            AllomanticTarget target = currentTargetHit.collider.GetComponent<AllomanticTarget>();
-            if (target != null && target.canBePushed)
+            if (metal == null || !metal.canBePushed) continue;
+            
+            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            
+            Vector3 toTarget = rb.position - playerCamera.transform.position;
+            float dist = toTarget.magnitude;
+            
+            // Check if in front of camera and within range
+            if (dist < closestDist && dist > 0.1f)
             {
-                currentTargetRigidbody = currentTargetHit.rigidbody;
-                if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+                Vector3 forward = playerCamera.transform.forward;
+                if (Vector3.Dot(toTarget.normalized, forward) > 0.5f)
                 {
-                    currentTarget = target;
+                    closestDist = dist;
+                    currentTargetRigidbody = rb;
+                    currentTarget = metal;
                     hasCurrentTarget = true;
+                    currentTargetHit.distance = dist;
+                    currentTargetHit.point = rb.position;
                 }
             }
         }

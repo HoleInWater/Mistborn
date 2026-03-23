@@ -329,19 +329,29 @@ public class IronPull : MonoBehaviour
         
         if (playerCamera == null) return;
         
-        Vector3 rayOrigin = playerCamera.transform.position;
-        Vector3 rayDirection = playerCamera.transform.forward;
-        Ray ray = new Ray(rayOrigin, rayDirection);
+        // Find all metal objects and pick closest one in front of camera
+        var allMetals = AllomanticTarget.GetAllMetalObjects();
+        float closestDist = maxRange;
         
-        if (Physics.Raycast(ray, out RaycastHit hit, maxRange))
+        foreach (var metal in allMetals)
         {
-            AllomanticTarget target = hit.collider.GetComponent<AllomanticTarget>();
-            if (target != null && target.canBePulled)
+            if (metal == null || !metal.canBePulled) continue;
+            
+            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            if (rb == null || rb == playerRigidbody) continue;
+            
+            Vector3 toTarget = rb.position - playerCamera.transform.position;
+            float dist = toTarget.magnitude;
+            
+            // Check if in front of camera and within range
+            if (dist < closestDist && dist > 0.1f)
             {
-                currentTargetRigidbody = hit.rigidbody;
-                if (currentTargetRigidbody != null && currentTargetRigidbody != playerRigidbody)
+                Vector3 forward = playerCamera.transform.forward;
+                if (Vector3.Dot(toTarget.normalized, forward) > 0.5f)
                 {
-                    currentTarget = target;
+                    closestDist = dist;
+                    currentTargetRigidbody = rb;
+                    currentTarget = metal;
                     hasCurrentTarget = true;
                 }
             }
