@@ -13,11 +13,16 @@ public class MetalReserve : MonoBehaviour
     
     [Header("Recovery Settings")]
     public float passiveRecoveryRate = 0.5f;
-    public float metalFlareRecovery = 25f;
 
     private ProgressBar _metalBar;
+    private float _lastDisplayedMetal = -1f;
 
-    void OnEnable()
+    void Start()
+    {
+        SetupUI();
+    }
+
+    private void SetupUI()
     {
         if (uiDocument != null)
         {
@@ -29,45 +34,41 @@ public class MetalReserve : MonoBehaviour
                 _metalBar.lowValue = 0;
                 _metalBar.highValue = maxMetal;
             }
+            else
+            {
+                Debug.LogWarning($"MetalReserve: ProgressBar named '{metalProgressBarName}' not found in UIDocument.");
+            }
         }
     }
 
     void Update()
     {
-        // Passive recovery over time
-        currentMetal = Mathf.Min(maxMetal, currentMetal + passiveRecoveryRate * Time.deltaTime);
+        // Passive recovery
+        if (currentMetal < maxMetal)
+        {
+            currentMetal = Mathf.MoveTowards(currentMetal, maxMetal, passiveRecoveryRate * Time.deltaTime);
+        }
         
         UpdateHUD();
     }
 
     private void UpdateHUD()
     {
+        // If the bar wasn't found at start, try to find it again (lazy initialization)
+        if (_metalBar == null) SetupUI();
+
         if (_metalBar != null)
         {
-            _metalBar.value = currentMetal;
-            // Display as "Metal: 75 / 100"
-            _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
+            // Only update the UI if the value has changed significantly to save performance
+            if (!Mathf.Approximately(_lastDisplayedMetal, currentMetal))
+            {
+                _metalBar.value = currentMetal;
+                _metalBar.title = $"Metal: {Mathf.FloorToInt(currentMetal)} / {maxMetal}";
+                _lastDisplayedMetal = currentMetal;
+            }
         }
     }
 
-    // Public methods for other scripts to call
-    public void Drain(float amount)
-    {
-        currentMetal = Mathf.Max(0, currentMetal - amount);
-    }
-
-    public void Refill(float amount)
-    {
-        currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
-    }
-
-    public void MetalFlare()
-    {
-        Refill(metalFlareRecovery);
-    }
-
-    public void PurgeAll()
-    {
-        currentMetal = 0f;
-    }
+    public void Drain(float amount) => currentMetal = Mathf.Max(0, currentMetal - amount);
+    public void Refill(float amount) => currentMetal = Mathf.Min(maxMetal, currentMetal + amount);
 }
