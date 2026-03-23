@@ -191,11 +191,9 @@ public class IronPull : MonoBehaviour
             Debug.Log($"[IRON PULL] allomancer: {(allomancer != null ? "FOUND" : "NOT FOUND")}");
         }
         
-        if (metalLayer.value == 0)
-        {
-            metalLayer = LayerMask.GetMask("Metal");
-            Debug.Log($"[IRON PULL] metalLayer set to: {metalLayer.value}");
-        }
+        // Always try to get Metal layer
+        metalLayer = LayerMask.GetMask("Metal");
+        Debug.Log($"[IRON PULL] metalLayer = {metalLayer} (Metal layer bit)");
         
         if (chestTransform == null)
         {
