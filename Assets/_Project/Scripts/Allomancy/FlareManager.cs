@@ -60,7 +60,7 @@ public class FlareManager : MonoBehaviour
     [Tooltip("Key to toggle flaring for both metals at once")]
     public KeyCode globalFlareKey = KeyCode.LeftControl;
     [Tooltip("Enable debug logging")]
-    public bool debugMode = true;
+    public bool debugMode = false;
 
     // Per-metal flare states
     private bool _isIronFlaring = false;
@@ -112,10 +112,10 @@ public class FlareManager : MonoBehaviour
         // This is for "flare everything" moments in combat
         if (Input.GetKeyDown(globalFlareKey))
         {
-            bool newState = !IsIronFlaring; // Toggle based on Iron state
+            bool newState = !IsIronFlaring;
             IsIronFlaring = newState;
             IsSteelFlaring = newState;
-            Debug.Log($"[FLARE] GLOBAL FLARE: {(newState ? "ON" : "OFF")}");
+            if (debugMode) Debug.Log($"[FLARE] GLOBAL: {(newState ? "ON" : "OFF")}");
         }
     }
 

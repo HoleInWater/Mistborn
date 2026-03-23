@@ -1,0 +1,20 @@
+# Core ML / Audio
+torch>=2.0.0
+torchaudio>=2.0.0
+demucs>=4.0.0
+basic-pitch>=0.3.0
+pretty_midi>=0.2.10
+librosa>=0.10.0
+
+# Music notation
+music21>=9.0.0
+
+# Config / CLI / UI
+pyyaml>=6.0
+click>=8.1.0
+rich>=13.0.0
+
+# Dev / test
+pytest>=7.4.0
+pytest-cov>=4.1.0
+ruff>=0.1.0

@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Data — never commit audio, stems, MIDI, or scores
+data/input/
+data/stems/
+data/midi/
+data/midi_quantized/
+data/scores/
+
+# Model weights — stored in ~/.cache/music-transcriber/ instead
+models/
+*.pt
+*.pth
+*.ckpt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env vars
+.env
+.env.*
