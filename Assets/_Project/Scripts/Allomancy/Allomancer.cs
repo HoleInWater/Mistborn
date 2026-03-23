@@ -167,21 +167,31 @@ public class Allomancer : MonoBehaviour
     
     void Update()
     {
+        // TOGGLE BURN WITH 'B' KEY
+        if (Input.GetKeyDown(KeyCode.B)) 
+        {
+            if (isBurningMetal) StopBurning();
+            else StartBurning(GetCurrentMetal());
+        }
+    
         // Check if we are currently using any metal
-        bool isUsingMetal = isBurningMetal || (FlareManager.Instance != null && FlareManager.Instance.IsFlaring);
+        bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
+        bool isUsingMetal = isBurningMetal || isFlaring;
     
         if (isUsingMetal && canBurnMetal)
         {
-            // ... (your existing drain logic from the previous step)
+            // Calculate total drain: 1 (base) + flare cost if active
+            float currentBurnRate = 1f;
+            if (isFlaring) currentBurnRate += FlareManager.Instance.flareBurnRate;
+    
+            DrainMetal(GetCurrentMetal(), currentBurnRate * Time.deltaTime);
         }
-        else
+        else if (!isUsingMetal)
         {
-            // REGENERATION LOGIC
-            // If we aren't using metal, refill the current reserve over time
+            // Regenerate only when neither burning nor flaring
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
     
-        // Refill key for testing
         if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
     }
     
