@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class TinEnhance : MonoBehaviour
 {
-    [Header("Settings")]
-    public float focusedFOV = 45f;
-    public float transitionSpeed = 8f;
-    public float metalCostPerSecond = 2f;
-    public float hearingRange = 50f;
-    public float sightRange = 100f;
-
     [Header("References")]
     public Camera playerCamera;
+    public MetalReserve metalReserve;
 
-    private float metalReserve = 100f;
+    [Header("FOV Settings")]
+    public float focusedFOV = 45f;
+    public float transitionSpeed = 8f;
+
+    [Header("Burn Settings")]
+    public float metalCostPerSecond = 5f;
+
     private bool isBurning = false;
     private float originalFOV;
 
@@ -24,13 +24,18 @@ public class TinEnhance : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && metalReserve > 0f)
+        if (Input.GetKeyDown(KeyCode.E) && metalReserve.currentMetal > 0f)
             StartBurning();
 
         if (Input.GetKey(KeyCode.E) && isBurning)
+        {
             EnhanceSenses();
+            DrainMetal();
+        }
         else
+        {
             RestoreSenses();
+        }
 
         if (Input.GetKeyUp(KeyCode.E))
             StopBurning();
@@ -38,37 +43,31 @@ public class TinEnhance : MonoBehaviour
 
     void StartBurning() => isBurning = true;
 
-    void StopBurning()
-    {
-        isBurning = false;
-    }
+    void StopBurning() => isBurning = false;
 
     void EnhanceSenses()
     {
         if (playerCamera != null)
             playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView, focusedFOV, transitionSpeed * Time.deltaTime);
-
-        DrainMetal();
+                playerCamera.fieldOfView,
+                focusedFOV,
+                transitionSpeed * Time.deltaTime);
     }
 
     void RestoreSenses()
     {
         if (playerCamera != null)
             playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView, originalFOV, transitionSpeed * Time.deltaTime);
+                playerCamera.fieldOfView,
+                originalFOV,
+                transitionSpeed * Time.deltaTime);
     }
 
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
-        {
-            metalReserve = 0;
-            StopBurning();
-        }
-    }
+        metalReserve.Drain(metalCostPerSecond * Time.deltaTime);
 
-    public float GetMetalReserve() => metalReserve;
-    public void RefillMetal(float amount) => metalReserve = Mathf.Min(metalReserve + amount, 100f);
+        if (metalReserve.currentMetal <= 0f)
+            StopBurning();
+    }
 }
