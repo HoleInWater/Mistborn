@@ -299,6 +299,12 @@ public class IronPull : MonoBehaviour
         // NOTE: Ctrl key flare toggling is now handled centrally in FlareManager
         // Press Ctrl to toggle BOTH Iron and Steel flares at once
         
+        // Continuous metal drain while burning
+        if (isBurning)
+        {
+            DrainMetal(1f);
+        }
+        
         // PREDICTION: Update pull trajectory prediction line
         UpdatePrediction();
     }
@@ -443,8 +449,14 @@ public class IronPull : MonoBehaviour
     {
         if (allomancer == null) return;
         
-        float drainAmount = metalCostPerSecond * multiplier;
-        allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount);
+        // Continuous drain while burning
+        float drainAmount = metalCostPerSecond * Time.deltaTime * multiplier;
+        if (IsFlaring) drainAmount *= 3f; // Flaring drains 3x faster
+        
+        // Also drain extra per action (pull)
+        float actionDrain = metalCostPerSecond * 0.5f * multiplier;
+        
+        allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
     }
     
     void ShakeCamera(float magnitude)
