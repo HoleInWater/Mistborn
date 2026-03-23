@@ -35,7 +35,7 @@ using UnityEngine;
 public class IronPull : MonoBehaviour
 {
     [Header("Settings")]
-    public float pullForce = 500f;
+    public float pullForce = 800f;
     public float maxRange = 50f;
     public float metalCostPerSecond = 2f;
     
