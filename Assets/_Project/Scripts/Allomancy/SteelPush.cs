@@ -70,6 +70,16 @@ public class SteelPush : MonoBehaviour
     [Tooltip("Volume multiplier for push sounds")]
     public float soundVolume = 0.5f;
     
+    [Header("Flaring Visual Effect")]
+    [Tooltip("UI Image for vignette effect when flaring (optional)")]
+    public UnityEngine.UI.Image vignetteImage;
+    [Tooltip("Color of vignette when flaring")]
+    public Color flaringColor = new Color(1f, 0.2f, 0f, 0.3f); // Orange tint
+    [Tooltip("Duration of vignette pulse in seconds")]
+    public float vignettePulseDuration = 0.5f;
+    [Tooltip("Maximum alpha of vignette during pulse")]
+    public float vignetteMaxAlpha = 0.3f;
+    
     [Header("Flight Mechanics")]
     [Tooltip("Extra upward force multiplier when pushing off anchored objects below (1 = normal)")]
     public float flightLaunchMultiplier = 1.5f;
@@ -84,6 +94,8 @@ public class SteelPush : MonoBehaviour
     
     private bool isBurning = false;
     private bool isFlaring = false;
+    private bool wasFlaring = false;
+    private Coroutine vignetteCoroutine;
     
     void Start()
     {
@@ -109,6 +121,13 @@ public class SteelPush : MonoBehaviour
         
         // Flaring: holding Shift while burning increases force
         isFlaring = Input.GetKey(KeyCode.LeftShift) && isBurning;
+        
+        // Detect flaring start for visual effect
+        if (isFlaring && !wasFlaring)
+        {
+            StartFlaringVignette();
+        }
+        wasFlaring = isFlaring;
         
         if (Input.GetMouseButton(1) && isBurning)
         {
@@ -299,5 +318,31 @@ public class SteelPush : MonoBehaviour
         }
         
         playerCamera.transform.localPosition = originalPos;
+    }
+    
+    void StartFlaringVignette()
+    {
+        if (vignetteImage == null) return;
+        if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
+        vignetteCoroutine = StartCoroutine(VignettePulseCoroutine());
+    }
+    
+    IEnumerator VignettePulseCoroutine()
+    {
+        vignetteImage.gameObject.SetActive(true);
+        vignetteImage.color = flaringColor;
+        float elapsed = 0f;
+        while (elapsed < vignettePulseDuration)
+        {
+            float t = elapsed / vignettePulseDuration;
+            float alpha = Mathf.Sin(t * Mathf.PI) * vignetteMaxAlpha;
+            Color c = flaringColor;
+            c.a = alpha;
+            vignetteImage.color = c;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        vignetteImage.gameObject.SetActive(false);
+        vignetteCoroutine = null;
     }
 }
