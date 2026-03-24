@@ -55,6 +55,11 @@ public class MetalSpawner : MonoBehaviour
             rb.linearDamping = 0.1f;
         }
         
-            Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos} with AllomanticTarget");
+        if (metal != null)
+        {
+            // CRITICAL: assign to 'Metal' physics layer so Iron/Steel raycasts detect it
+            metal.layer = LayerMask.NameToLayer("Metal");
+            Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos}");
+        }
     }
 }
