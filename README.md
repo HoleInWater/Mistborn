@@ -422,5 +422,5 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in th
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ## Security
-// gay monkeys
+
 See [SECURITY.md](SECURITY.md) for our security policy.
