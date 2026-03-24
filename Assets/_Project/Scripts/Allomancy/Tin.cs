@@ -202,8 +202,8 @@ public class Tin : MonoBehaviour
         
         if (exposure != null)
         {
-            // Blinding light effect
-            exposure.compensation.value += currentOverloadVisual * 8f;
+            // Set overload exposure — NOT additive (would accumulate infinitely)
+            exposure.compensation.value = currentOverloadVisual * 8f;
         }
 
         // Camera Shake for intense overload
@@ -214,7 +214,6 @@ public class Tin : MonoBehaviour
         }
         else if (playerCamera != null)
         {
-            // The manager handles returning to original pos, but we ensure it's lerped back if manager is missing
             if (CameraShakeManager.Instance == null)
                 playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, originalCameraLocalPos, Time.deltaTime * 5f);
         }
@@ -228,11 +227,7 @@ public class Tin : MonoBehaviour
         {
             lowPass.enabled = true;
             highPass.enabled = true;
-
-            // Muffle sounds (Low Pass drops)
             lowPass.cutoffFrequency = Mathf.Lerp(22000, 800, currentOverloadAudio);
-            
-            // High pitched ringing simulation (High Pass rises)
             highPass.cutoffFrequency = Mathf.Lerp(10, 4000, currentOverloadAudio);
         }
         else
@@ -249,10 +244,8 @@ public class Tin : MonoBehaviour
         float totalOverload = Mathf.Clamp01(currentOverloadVisual + currentOverloadAudio);
         if (totalOverload > 0.3f)
         {
-            // Slow down the player as they are disoriented
             playerMove.externalSpeedMultiplier = Mathf.Lerp(reflexSpeedBoost, 0.4f, (totalOverload - 0.3f) / 0.7f);
-            
-            // Apply a "drunk" camera tilt if heavily overloaded
+
             if (totalOverload > 0.7f && playerCamera != null)
             {
                 float tilt = Mathf.Sin(Time.time * 2f) * (totalOverload * 5f);
@@ -261,12 +254,9 @@ public class Tin : MonoBehaviour
 
             if (totalOverload > 0.9f)
             {
-                // Severe stagger: nearly stop movement intermittently
+                // Severe stagger: intermittent near-stop (no Debug.Log in production)
                 if (Mathf.Sin(Time.time * 8f) > 0.5f)
-                {
                     playerMove.externalSpeedMultiplier *= 0.1f;
-                    Debug.Log("[TIN] STAGGERING!");
-                }
             }
         }
         else if (playerCamera != null)
