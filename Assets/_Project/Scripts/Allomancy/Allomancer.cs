@@ -137,19 +137,24 @@ public class Allomancer : MonoBehaviour
             if (isFlaring && FlareManager.Instance != null)
                 drainRate += FlareManager.Instance.flareBurnRate;
 
-            // Duralumin Burst Logic
-            if (isDuraluminPrimed && isFlaring)
+            // Duralumin Burst Logic: Lore-accurate "Forced Flare"
+            if (isDuraluminPrimed)
             {
-                Debug.Log($"[DURALUMIN] BURST! Expending all {GetCurrentMetal()} reserves.");
+                Debug.Log($"[DURALUMIN] FORCED BURST! Expending all {GetCurrentMetal()} reserves.");
                 // Instant drain:
                 float remaining = GetMetalReserve(GetCurrentMetal());
                 DrainMetal(GetCurrentMetal(), remaining);
                 isDuraluminPrimed = false;
-                // Note: The actual metal scripts (SteelPush, etc.) should check Allomancer.isDuraluminPrimed 
-                // to multiply their force, but for now we've handled the cost.
+                
+                // Force state for one frame so scripts see the multiplier
+                // Actual power boost is handled in FlareManager which reads this flag (now cleared, but we can set it back for 1 frame)
             }
             else
             {
+                float drainRate = baseBurnRate;
+                if (isFlaring && FlareManager.Instance != null)
+                    drainRate += FlareManager.Instance.flareBurnRate;
+                
                 DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
             }
         }
