@@ -10,23 +10,30 @@ public class SazedAI : MonoBehaviour
 
     void Start()
     {
-        var _po = GameObject.FindGameObjectWithTag("Player"); if (_po != null) player = _po.transform;
-        playerHealth = player.GetComponent<PlayerHealth>();
+        var _po = GameObject.FindGameObjectWithTag("Player");
+        if (_po != null)
+        {
+            player = _po.transform;
+            playerHealth = _po.GetComponent<PlayerHealth>();
+        }
         if (CompanionManager.Instance != null) CompanionManager.Instance.RegisterCompanion(gameObject);
     }
 
+    private float healCooldown = 0f;
+
     void Update()
     {
+        healCooldown -= Time.deltaTime;
         // Sazed watches player health
-        if (playerHealth != null && playerHealth.currentHealth < 50f)
+        if (healCooldown <= 0f && playerHealth != null && playerHealth.currentHealth < 50f)
         {
             HealPlayer();
+            healCooldown = 1f; // Heal once per second, not 60x/sec
         }
     }
 
     private void HealPlayer()
     {
-        Debug.Log("[SAZED] Tapping Gold... healing you, Master Elend.");
-        playerHealth.Heal(0.1f); // Passive trickle heal
+        playerHealth.Heal(2f); // 2 HP/sec while Sazed is active
     }
 }

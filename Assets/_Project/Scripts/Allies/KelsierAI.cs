@@ -31,11 +31,11 @@ public class KelsierAI : MonoBehaviour
         float dist = Vector3.Distance(transform.position, player.position);
         if (dist > 3f)
         {
-            agent.SetDestination(player.position);
+            if (agent != null) agent.SetDestination(player.position);
         }
         else
         {
-            agent.ResetPath();
+            if (agent != null) agent.ResetPath();
         }
     }
 
