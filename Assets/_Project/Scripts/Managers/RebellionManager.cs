@@ -35,11 +35,12 @@ public class RebellionManager : MonoBehaviour
 
     private void InitializeEmpire()
     {
+        // Guard against duplicate initialization on scene reload
+        if (dominances.Count > 0) return;
+
         string[] names = { "Central", "Northern", "Southern", "East", "West", "Venture", "Terris", "Remote" };
         foreach (var n in names)
-        {
             dominances.Add(new DominanceState { name = n });
-        }
     }
 
     /// <summary>
@@ -48,7 +49,7 @@ public class RebellionManager : MonoBehaviour
     public void IncreaseHeat(float amount)
     {
         empireHeat = Mathf.Clamp(empireHeat + amount, 0f, 100f);
-        Debug.Log($"[REBELLION] Empire Heat rising: {empireHeat}");
+        // No debug log: this fires on every Allomancy action
     }
 
     /// <summary>
