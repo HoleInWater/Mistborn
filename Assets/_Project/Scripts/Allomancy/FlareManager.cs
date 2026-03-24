@@ -32,10 +32,13 @@ public class FlareManager : MonoBehaviour
     // ── Singleton ─────────────────────────────────────────────────────────────
     public static FlareManager Instance { get; private set; }
 
+    private Allomancer _cachedAllomancer;
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        _cachedAllomancer = GetComponentInParent<Allomancer>();
     }
 
     // ── Inspector ─────────────────────────────────────────────────────────────
@@ -89,21 +92,13 @@ public class FlareManager : MonoBehaviour
                 ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
                 : 1f;
 
-            // Apply Nicroburst and Duralumin boosts from the player's Allomancer
-            Allomancer a = GetComponentInParent<Allomancer>();
-            if (a != null && IsBurning)
+            // Apply Nicroburst and Duralumin boosts from the cached Allomancer
+            if (_cachedAllomancer != null && IsBurning)
             {
-                if (a.isDuraluminPrimed)
-                {
-                    // Duralumin: 10x burst. The Allomancer.cs handles clearing the state.
-                    mult *= 10f;
-                }
-                if (a.isNicrobursting)
-                {
-                    // Nicroburst: 3x boost.
-                    mult *= 3f;
-                    // Note: isNicrobursting should probably decay or be cleared by the burner.
-                }
+                if (_cachedAllomancer.isDuraluminPrimed)
+                    mult *= 10f; // Duralumin: 10x burst
+                if (_cachedAllomancer.isNicrobursting)
+                    mult *= 3f;  // Nicroburst: 3x boost
             }
             return mult;
         }

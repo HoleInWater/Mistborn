@@ -259,8 +259,7 @@ public class IronPull : MonoBehaviour
         Vector3 forceDir = dirToTarget.normalized * force;
 
         // Clamp impulse to prevent physics tunneling on very small objects
-        // during Duralumin-boosted pulls.
-        float maxCoinVelocity = 10f; // This variable was previously defined locally, assuming it's now a class member or defined elsewhere.
+        // during Duralumin-boosted pulls. Uses inspector-tunable maxCoinVelocity.
         float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
         if (forceDir.magnitude > maxAllowedImpulse)
         {

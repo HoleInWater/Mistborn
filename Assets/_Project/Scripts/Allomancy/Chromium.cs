@@ -19,6 +19,10 @@ public class Chromium : MonoBehaviour
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
+
+        // Auto-init the target layer if not set in the Inspector.
+        if (targetLayer == 0)
+            targetLayer = LayerMask.GetMask("Character");
     }
 
     void Update()
@@ -49,12 +53,12 @@ public class Chromium : MonoBehaviour
             if (hitColliders.Length > 0) target = hitColliders[0].GetComponentInParent<Allomancer>();
         }
 
-        if (target != null)
+        // Guard: never leech self
+        if (target != null && target != allomancer)
         {
             target.ClearAllReserves();
             Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}");
-            // Reset burning to avoid multiple wipes per frame
-            allomancer.StopBurning();
+            allomancer.StopBurning(); // Reset burning to avoid multiple wipes per frame
         }
     }
 }

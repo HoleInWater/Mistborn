@@ -85,16 +85,15 @@ public class Pewter : MonoBehaviour
     {
         if (playerMove == null) return;
 
-        // Scale factors: flareMult is 1.0 to max (e.g. 10.0 for Duralumin)
-        float currentMassMult = massMultiplierBase * flareMult;
-        float currentSpeedMult = speedMultiplierBase * flareMult;
+        // Scale factors: flareMult is 1.0 to max (e.g. 10.0 for Duralumin).
+        // Clamped to inspector maximums to prevent physics instability.
+        float currentMassMult  = Mathf.Clamp(massMultiplierBase  * flareMult, 1f, massMultiplierMax);
+        float currentSpeedMult = Mathf.Clamp(speedMultiplierBase * flareMult, 1f, speedMultiplierMax);
 
         // Apply Mass
         if (playerRigidbody != null)
-        {
             playerRigidbody.mass = originalMass * currentMassMult;
-        }
-        
+
         // Apply Move Speed
         playerMove.moveSpeed = originalSpeed * currentSpeedMult;
     }
