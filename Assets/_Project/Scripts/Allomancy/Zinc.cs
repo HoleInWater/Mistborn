@@ -61,12 +61,19 @@ public class Zinc : MonoBehaviour
             AIController ai = enemy.GetComponent<AIController>();
             if (ai != null)
             {
+                float dist = Vector3.Distance(transform.position, enemy.transform.position);
+                float distScale = 1f - (dist / currentRange);
+                float appliedStrength = Mathf.Lerp(baseRiotStrength, currentStrength, distScale);
+
                 // Rioting makes enemies enraged and more aggressive
                 ai.SetEmotionState(AIController.EmotionState.Enraged);
-                ai.SetAggressionMultiplier(currentStrength);
-                ai.SetEmotionalAura(new Color(1f, 0.2f, 0f, 0.8f), flareMult);
+                ai.SetAggressionMultiplier(appliedStrength);
+
+                // Red/Orange aura for rioting
+                ai.SetEmotionalAura(new Color(1f, 0.2f, 0f, 0.8f * distScale), flareMult * distScale);
             }
         }
+
     }
 
     void OnDrawGizmosSelected()

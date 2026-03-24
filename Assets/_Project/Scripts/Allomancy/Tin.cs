@@ -248,13 +248,29 @@ public class Tin : MonoBehaviour
             // Slow down the player as they are disoriented
             playerMove.externalSpeedMultiplier = Mathf.Lerp(reflexSpeedBoost, 0.4f, (totalOverload - 0.3f) / 0.7f);
             
-            if (totalOverload > 0.9f && Random.value < 0.01f)
+            // Apply a "drunk" camera tilt if heavily overloaded
+            if (totalOverload > 0.7f && playerCamera != null)
             {
-                Debug.Log("[TIN] Stumbling from sensory overload!");
-                // Future: Add actual stumble animation or forced crouch
+                float tilt = Mathf.Sin(Time.time * 2f) * (totalOverload * 5f);
+                playerCamera.transform.localRotation = Quaternion.Euler(0, 0, tilt);
+            }
+
+            if (totalOverload > 0.9f)
+            {
+                // Severe stagger: nearly stop movement intermittently
+                if (Mathf.Sin(Time.time * 8f) > 0.5f)
+                {
+                    playerMove.externalSpeedMultiplier *= 0.1f;
+                    Debug.Log("[TIN] STAGGERING!");
+                }
             }
         }
+        else if (playerCamera != null)
+        {
+             playerCamera.transform.localRotation = Quaternion.Lerp(playerCamera.transform.localRotation, Quaternion.identity, Time.deltaTime * 3f);
+        }
     }
+
 
     void DrainMetal(float flareMult)
     {

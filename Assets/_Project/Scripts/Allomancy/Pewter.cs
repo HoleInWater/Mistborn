@@ -27,6 +27,12 @@ public class Pewter : MonoBehaviour
     private float originalSpeed;
     private Rigidbody playerRigidbody;
     
+    [Header("Pewter Mend")]
+    [Tooltip("Health restored per second while burning Pewter")]
+    public float baseHealRate = 0.5f;
+
+    private PlayerHealth healthSystem;
+
     void Start()
     {
         if (allomancer == null)
@@ -35,6 +41,8 @@ public class Pewter : MonoBehaviour
         if (playerMove == null)
             playerMove = GetComponentInParent<BasicPlayerMove>();
         
+        healthSystem = GetComponentInParent<PlayerHealth>();
+
         if (playerMove != null)
         {
             playerRigidbody = playerMove.GetComponent<Rigidbody>();
@@ -52,7 +60,17 @@ public class Pewter : MonoBehaviour
         if (isBurning)
         {
             float flareMult = GetFlareMultiplier();
+            
+            // Check for Duralumin Burst
+            if (DuraluminBurstHandler.Instance != null && DuraluminBurstHandler.Instance.IsPrimed())
+            {
+                flareMult *= DuraluminBurstHandler.Instance.GetBurstMultiplierAndReset();
+                Debug.Log("[PEWTER] DURALUMIN BURST! UNSTOPPBLE FORCE!");
+                // Future: Add momentary invincibility during burst
+            }
+
             ApplyPewterEffects(flareMult);
+            HandleHealing(flareMult);
         }
         else if (wasBurning)
         {
@@ -60,6 +78,14 @@ public class Pewter : MonoBehaviour
         }
     }
     
+    private void HandleHealing(float flareMult)
+    {
+        if (healthSystem != null && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
+        {
+            healthSystem.Heal(baseHealRate * flareMult * Time.deltaTime);
+        }
+    }
+
     float GetFlareMultiplier()
     {
         if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
