@@ -33,10 +33,11 @@ public class MistbornTimeManager : MonoBehaviour
             targetTimeScale *= mod;
         }
 
-        // Apply with lerp for smoothness
-        Time.timeScale = Mathf.Lerp(Time.timeScale, targetTimeScale, Time.unscaledDeltaTime * 5f);
+        // Apply with lerp for smoothness, clamped for physics stability
+        float nextTimeScale = Mathf.Lerp(Time.timeScale, targetTimeScale, Time.unscaledDeltaTime * 5f);
+        Time.timeScale = Mathf.Clamp(nextTimeScale, 0.01f, 10f);
         
-        // Ensure fixedDeltaTime stays in sync with physics
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        // Ensure fixedDeltaTime stays in sync with physics (Never zero)
+        Time.fixedDeltaTime = Mathf.Max(0.0002f, 0.02f * Time.timeScale);
     }
 }
