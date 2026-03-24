@@ -20,6 +20,7 @@ public class Malatium : MonoBehaviour
     public Allomancer allomancer;
     
     private Dictionary<GameObject, GhostRenderer> activeGhosts = new Dictionary<GameObject, GhostRenderer>();
+    private bool isBurning = false;
 
     void Start()
     {
@@ -34,7 +35,7 @@ public class Malatium : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             RevealTrueNature(flareMult);
         }
         else if (wasBurning)
@@ -108,7 +109,7 @@ public class Malatium : MonoBehaviour
         if (isBurning)
         {
             Gizmos.color = new Color(0.8f, 0.4f, 0.2f, 0.3f);
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             float currentRange = Mathf.Lerp(baseRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
             Gizmos.DrawWireSphere(transform.position, currentRange);
         }
