@@ -20,8 +20,8 @@ public class Allomancer : MonoBehaviour
     private AllomancySkill.MetalType currentMetal;
 
     [Header("Metal Reserves")]
-    public float[] metalReserves = new float[18];
-    public bool[] unlockedMetals = new bool[18];
+    public float[] metalReserves = new float[20]; // Expanded for complete 18-metal suite + buffer
+    public bool[] unlockedMetals = new bool[20];
 
     public bool canBurnMetal = true;
 
@@ -246,17 +246,10 @@ public class Allomancer : MonoBehaviour
 
     private void UpdateHUD(AllomancySkill.MetalType metal)
     {
+        // HUD Refresh
         if (metalReserve != null)
         {
             metalReserve.UpdateAllBars(metalReserves);
-            if (metalSelector != null)
-            {
-                metalReserve.HighlightSelection(
-                    metalSelector.GetPrimaryMetal(),
-                    metalSelector.GetSecondaryMetal(),
-                    metalSelector.IsPrimaryActive()
-                );
-            }
         }
     }
 }
