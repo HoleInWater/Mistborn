@@ -133,14 +133,8 @@ public class MetalSelector : MonoBehaviour
         AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         allomancer.SetCurrentMetal(activeMetal);
         
-        // Update selection highlights in the HUD
-        if (metalReserve != null)
-        {
-            metalReserve.HighlightSelection(primaryMetal, secondaryMetal, isPrimaryActive);
-            
-            // Also trigger a full HUD update to ensure values are refreshed
-            allomancer.DrainMetal(activeMetal, 0); 
-        }
+        // HUD updates are now handled globally in Allomancer.Update() every frame
+        // ensuring absolute synchronization between selection and visuals.
     }
     
     // Public methods for other scripts to query selected metals
