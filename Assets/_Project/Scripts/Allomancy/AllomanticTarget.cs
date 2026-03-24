@@ -55,7 +55,7 @@ public class AllomanticTarget : MonoBehaviour
     {
         if (rigidbody == null)
         {
-            rigidbody = GetComponent<Rigidbody>();
+            rigidbody = GetComponentInParent<Rigidbody>();
         }
         
         if (rigidbody != null)
