@@ -282,6 +282,14 @@ public class SteelPush : MonoBehaviour
         float forceMag      = strength / Mathf.Pow(eff, distanceExponent);
         Vector3 forceVector = dir.normalized * forceMag;
 
+        // Clamp impulse to prevent physics tunneling on very small objects (e.g. coins) 
+        // during Duralumin-boosted pushes.
+        float maxAllowedImpulse = targetRb.mass * maxCoinVelocity;
+        if (forceVector.magnitude > maxAllowedImpulse)
+        {
+            forceVector = forceVector.normalized * maxAllowedImpulse;
+        }
+
         // Apply force
         if (!isAnchored)
         {
