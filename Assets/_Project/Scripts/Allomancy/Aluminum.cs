@@ -34,13 +34,7 @@ public class Aluminum : MonoBehaviour
         if (allomancer == null) return;
         
         Debug.Log("[ALUMINUM] Purging all metal reserves!");
-        for (int i = 0; i < 16; i++)
-        {
-            AllomancySkill.MetalType metal = (AllomancySkill.MetalType)i;
-            if (metal == AllomancySkill.MetalType.Aluminum) continue; // Keep aluminum? Or drain it too? 
-            // Lore: It drains everything.
-            allomancer.DrainMetal(metal, allomancer.GetMetalReserve(metal));
-        }
+        allomancer.ClearAllReserves();
         
         // Stop burning immediately after purge
         allomancer.StopBurning();

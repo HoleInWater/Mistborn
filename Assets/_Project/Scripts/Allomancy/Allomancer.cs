@@ -28,6 +28,10 @@ public class Allomancer : MonoBehaviour
     [Header("HUD")]
     public MetalReserve metalReserve;
 
+    [Header("Burst State")]
+    public bool isDuraluminPrimed = false;
+    public bool isNicrobursting = false;
+
     void Awake()
     {
         MistbornRegistry.RegisterAllomancer(this);
@@ -133,7 +137,21 @@ public class Allomancer : MonoBehaviour
             if (isFlaring && FlareManager.Instance != null)
                 drainRate += FlareManager.Instance.flareBurnRate;
 
-            DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
+            // Duralumin Burst Logic
+            if (isDuraluminPrimed && isFlaring)
+            {
+                Debug.Log($"[DURALUMIN] BURST! Expending all {GetCurrentMetal()} reserves.");
+                // Instant drain:
+                float remaining = GetMetalReserve(GetCurrentMetal());
+                DrainMetal(GetCurrentMetal(), remaining);
+                isDuraluminPrimed = false;
+                // Note: The actual metal scripts (SteelPush, etc.) should check Allomancer.isDuraluminPrimed 
+                // to multiply their force, but for now we've handled the cost.
+            }
+            else
+            {
+                DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
+            }
         }
         else if (!isUsingMetal && metalReserve != null)
         {
