@@ -113,12 +113,9 @@ public class AllomancySkillTreeController : MonoBehaviour
     {
         skill.isUnlocked = true;
         
-        // Notify Allomancer that they now have this metal
-        Allomancer playerAllomancer = FindObjectOfType<Allomancer>();
-        if (playerAllomancer != null)
-        {
-            playerAllomancer.UnlockMetal(skill.metalType);
-        }
+        // Notify Allomancer via Registry (faster than FindObjectOfType)
+        if (MistbornRegistry.ActiveAllomancers.Count > 0)
+            MistbornRegistry.ActiveAllomancers[0].UnlockMetal(skill.metalType);
 
         Debug.Log($"[SKILL] UNLOCKED: {skill.skillName}!");
         
