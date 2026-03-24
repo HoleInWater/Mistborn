@@ -14,7 +14,7 @@ public class Electrum : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private GameObject futureGhost;
+    private GhostRenderer ghostRenderer;
     
     void Start()
     {
@@ -29,7 +29,7 @@ public class Electrum : MonoBehaviour
 
         if (isBurning)
         {
-            if (futureGhost == null) CreateFutureGhost();
+            if (ghostRenderer == null) CreateFutureGhost();
             UpdateFutureGhost();
         }
         else if (wasBurning)
@@ -40,29 +40,24 @@ public class Electrum : MonoBehaviour
     
     void CreateFutureGhost()
     {
-        futureGhost = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        futureGhost.name = "ElectrumShadow";
-        
-        Renderer r = futureGhost.GetComponent<Renderer>();
-        r.material = new Material(Shader.Find("Standard"));
-        r.material.color = new Color(1f, 1f, 1f, ghostAlpha);
-        
-        // Disable collider
-        Destroy(futureGhost.GetComponent<Collider>());
+        ghostRenderer = gameObject.AddComponent<GhostRenderer>();
+        // Lore: Electrum shadows flit around you.
+        ghostRenderer.SetupGhost(gameObject, new Color(1f, 1f, 1f), ghostAlpha);
     }
 
     void UpdateFutureGhost()
     {
-        if (futureGhost == null) return;
+        if (ghostRenderer == null) return;
         // Lore: Electrum shadows flit around you.
-        Vector3 offset = new Vector3(Mathf.Sin(Time.time * 5f), 0, Mathf.Cos(Time.time * 5f)) * 1.0f;
-        futureGhost.transform.position = transform.position + offset;
+        Vector3 offset = new Vector3(Mathf.Sin(Time.time * 5f), 0, Mathf.Cos(Time.time * 5f)) * 1.5f;
+        ghostRenderer.UpdateTransform(transform.position + offset, transform.rotation);
     }
 
     void ClearGhost()
     {
-        if (futureGhost != null) Destroy(futureGhost);
+        if (ghostRenderer != null) Destroy(ghostRenderer);
     }
+
 
     void OnDestroy() => ClearGhost();
 }

@@ -14,7 +14,7 @@ public class Gold : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private GameObject pastGhost;
+    private GhostRenderer ghostRenderer;
     
     void Start()
     {
@@ -29,7 +29,7 @@ public class Gold : MonoBehaviour
 
         if (isBurning)
         {
-            if (pastGhost == null) CreatePastGhost();
+            if (ghostRenderer == null) CreatePastGhost();
             UpdatePastGhost();
         }
         else if (wasBurning)
@@ -40,30 +40,24 @@ public class Gold : MonoBehaviour
     
     void CreatePastGhost()
     {
-        pastGhost = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        pastGhost.name = "GoldShadow";
-        
-        Renderer r = pastGhost.GetComponent<Renderer>();
-        r.material = new Material(Shader.Find("Standard"));
-        r.material.color = new Color(1f, 0.8f, 0.2f, ghostAlpha);
-        
-        // Disable collider
-        Destroy(pastGhost.GetComponent<Collider>());
+        ghostRenderer = gameObject.AddComponent<GhostRenderer>();
+        // Lore: Gold shadow looks like you.
+        ghostRenderer.SetupGhost(gameObject, new Color(1f, 0.8f, 0.2f), ghostAlpha);
     }
 
     void UpdatePastGhost()
     {
-        if (pastGhost == null) return;
-        // Lore: Gold shadow stands next to you, looking like you used to be.
-        // For simplicity, it follows just behind.
-        pastGhost.transform.position = Vector3.Lerp(pastGhost.transform.position, transform.position - transform.forward * 1.5f, Time.deltaTime * 2f);
-        pastGhost.transform.rotation = Quaternion.Slerp(pastGhost.transform.rotation, transform.rotation, Time.deltaTime * 2f);
+        if (ghostRenderer == null) return;
+        // Follows slightly behind at the "past" position
+        Vector3 pastPos = transform.position - transform.forward * 1.5f + Vector3.right * 0.5f;
+        ghostRenderer.UpdateTransform(pastPos, transform.rotation);
     }
 
     void ClearGhost()
     {
-        if (pastGhost != null) Destroy(pastGhost);
+        if (ghostRenderer != null) Destroy(ghostRenderer);
     }
+
 
     void OnDestroy() => ClearGhost();
 }
