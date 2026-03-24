@@ -15,12 +15,22 @@ public class LordRulerBoss : MonoBehaviour
 
     private NavMeshAgent agent;
     private Transform player;
+    private Rigidbody playerRigidbody; // Cached to avoid repeated GetComponent
     private bool isExecutingBurst = false;
+    private float originalAgentSpeed;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        if (agent != null) originalAgentSpeed = agent.speed;
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+            playerRigidbody = playerObj.GetComponent<Rigidbody>();
+        }
+        else Debug.LogWarning("[LordRulerBoss] No 'Player' tag found in scene.");
     }
 
     void Update()
@@ -43,13 +53,12 @@ public class LordRulerBoss : MonoBehaviour
         {
             case BossPhase.Physical:
                 // Heavy Steel/Pewter aggression
-                agent.SetDestination(player.position);
+                if (agent != null) agent.SetDestination(player.position);
                 if (Random.value < 0.05f) PerformSteelPush();
                 break;
             case BossPhase.Spiritual:
-                // Zinc/Brass aura manipulation (Slow player / Reverse inputs)
-                agent.speed = 10f;
-                // [NARRATIVE] "SOOTHE!"
+                // Zinc/Brass aura manipulation
+                if (agent != null) agent.speed = originalAgentSpeed * 3f;
                 break;
             case BossPhase.Godlike:
                 // Simultaneous 16-metal flare
@@ -60,9 +69,9 @@ public class LordRulerBoss : MonoBehaviour
 
     private void PerformSteelPush()
     {
-        // God-tier force application
+        if (playerRigidbody == null) return;
         Vector3 dir = player.position - transform.position;
-        player.GetComponent<Rigidbody>()?.AddForce(dir.normalized * 200f, ForceMode.Impulse);
+        playerRigidbody.AddForce(dir.normalized * 200f, ForceMode.Impulse);
     }
 
     private System.Collections.IEnumerator PerformOmniBurst()
