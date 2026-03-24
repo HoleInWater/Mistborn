@@ -19,6 +19,10 @@ public class Atium : MonoBehaviour
     [Tooltip("How fast time transitions")]
     public float dilationLerpSpeed = 5f;
 
+    [Header("References")]
+    public Allomancer allomancer;
+
+    private bool isBurning = false;
     private Dictionary<GameObject, GhostRenderer> activeGhosts = new Dictionary<GameObject, GhostRenderer>();
     private float originalTimeScale = 1f;
 
@@ -107,7 +111,7 @@ public class Atium : MonoBehaviour
         Vector3 futurePos = target.transform.position;
         if (rb != null)
         {
-            futurePos += rb.velocity * 0.4f; // Look 400ms into the future
+            futurePos += rb.linearVelocity * 0.4f; // Look 400ms into the future
         }
         else
         {

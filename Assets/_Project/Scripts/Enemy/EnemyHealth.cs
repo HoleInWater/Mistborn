@@ -2,7 +2,7 @@
 // NOTE: Consider adding [RequireComponent(typeof(Collider))] attribute for trigger detection
 using UnityEngine;
 
-public class EnemyHealth : MonoBehaviour
+public class EnemyHealth : MonoBehaviour, IDamageable
 {
     [Header("Health Settings")]
     // NOTE: Consider adding [Range(1f, 1000f)] attribute for maxHealth
@@ -17,7 +17,7 @@ public class EnemyHealth : MonoBehaviour
     public float lootDropChance = 0.5f;
     public GameObject deathEffect;
     
-    private bool isDead = false;
+    public bool isDead { get; private set; } = false;
     
     public void TakeDamage(float amount)
     {
@@ -60,4 +60,7 @@ public class EnemyHealth : MonoBehaviour
     {
         return currentHealth / maxHealth;
     }
+
+    public float GetCurrentHealth() => currentHealth;
+    public float GetMaxHealth() => maxHealth;
 }

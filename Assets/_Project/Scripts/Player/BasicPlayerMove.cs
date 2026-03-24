@@ -169,6 +169,11 @@ public class BasicPlayerMove : MonoBehaviour
  
     // ── Movement ─────────────────────────────────────────────────────────────────
  
+    public Vector3 GetInputDirection()
+    {
+        return _moveDirection;
+    }
+
     void HandleMovement()
     {
         // Use GetAxis (smoothed) rather than GetAxisRaw for analogue-feel movement

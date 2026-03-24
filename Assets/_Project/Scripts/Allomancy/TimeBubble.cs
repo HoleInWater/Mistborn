@@ -50,7 +50,7 @@ public class TimeBubble : MonoBehaviour
         if (rb != null && !affectedRigidbodies.Contains(rb))
         {
             affectedRigidbodies.Add(rb);
-            rb.velocity *= timeScaleMultiplier;
+            rb.linearVelocity *= timeScaleMultiplier;
         }
 
         AIController ai = other.GetComponent<AIController>();
@@ -73,7 +73,7 @@ public class TimeBubble : MonoBehaviour
         Rigidbody rb = other.GetComponent<Rigidbody>();
         if (rb != null && affectedRigidbodies.Contains(rb))
         {
-            rb.velocity /= timeScaleMultiplier;
+            rb.linearVelocity /= timeScaleMultiplier;
             affectedRigidbodies.Remove(rb);
         }
 
@@ -98,7 +98,7 @@ public class TimeBubble : MonoBehaviour
         
         foreach (var rb in affectedRigidbodies)
         {
-            if (rb != null) rb.velocity /= timeScaleMultiplier;
+            if (rb != null) rb.linearVelocity /= timeScaleMultiplier;
         }
         foreach (var ai in affectedAI)
         {
