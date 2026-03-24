@@ -30,7 +30,8 @@ public class Allomancer : MonoBehaviour
 
     [Header("Burst State")]
     public bool isDuraluminPrimed = false;
-    public bool isNicrobursting = false;
+    private float nicroburstTimer = 0f; // Moved here as per instruction's implied placement
+    public bool isNicrobursting = false; // This field is not removed by the instruction, only the duplicate is.
 
     private MetalSelector metalSelector;
 
