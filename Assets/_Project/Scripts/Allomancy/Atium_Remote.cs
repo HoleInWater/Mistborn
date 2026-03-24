@@ -40,6 +40,11 @@ public class Atium : MonoBehaviour
             float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             UpdateFutureVision(flareMult);
         }
+        else if (wasBurning)
+        {
+            ClearFutures();
+        }
+    }
 
     void UpdateFutureVision(float flareMult)
     {
