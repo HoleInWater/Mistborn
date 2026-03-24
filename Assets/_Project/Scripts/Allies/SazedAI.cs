@@ -6,7 +6,7 @@ using UnityEngine;
 public class SazedAI : MonoBehaviour
 {
     private Transform player;
-    private PlayerHealth playerHealth;
+    private HealthBarTransitions playerHealth;
 
     void Start()
     {
