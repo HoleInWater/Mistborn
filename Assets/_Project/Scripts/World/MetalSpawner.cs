@@ -18,8 +18,8 @@ public class MetalSpawner : MonoBehaviour
     
     public void SpawnMetal()
     {
-        // Count existing metals
-        int metalCount = FindObjectsOfType<AllomanticTarget>().Length;
+        // Optimized high-performance count via Registry
+        int metalCount = MistbornRegistry.ActiveMetalTargets.Count;
         if (metalCount >= maxMetals) return;
         
         // Random position around spawner
