@@ -28,6 +28,9 @@ public class TimeBubble : MonoBehaviour
 
         Renderer r = GetComponent<Renderer>();
         if (r != null) bubbleMaterial = r.material;
+
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.RegisterBubbleModifier(timeScaleMultiplier);
     }
 
     void Update()
@@ -106,6 +109,15 @@ public class TimeBubble : MonoBehaviour
             if (player != null) player.externalSpeedMultiplier /= timeScaleMultiplier;
         }
         
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.UnregisterBubbleModifier(timeScaleMultiplier);
+            
         Destroy(gameObject, 0.5f);
+    }
+
+    void OnDestroy()
+    {
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.UnregisterBubbleModifier(timeScaleMultiplier);
     }
 }
