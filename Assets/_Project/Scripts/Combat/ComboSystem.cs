@@ -16,18 +16,32 @@ public class ComboSystem : MonoBehaviour
     // NOTE: Consider adding [Range(0f, 1f)] attribute for metalCostReduction
     public float metalCostReduction = 0.05f;
     
+    [Header("Rage Settings")]
+    public float ragePerHit = 0.1f;
+    public float rageDecayRate = 0.05f;
+    
     private int currentCombo = 0;
     private float lastHitTime = 0f;
     private float currentDamageMultiplier = 1f;
+    private float rageMeter = 0f;
+    private bool isRaging = false;
     
     public int CurrentCombo => currentCombo;
     public float DamageMultiplier => currentDamageMultiplier;
+    public float Rage => rageMeter;
     
     void Update()
     {
-        if (currentCombo > 0 && Time.time - lastHitTime > comboWindow)
+        if (Time.time - lastHitTime > comboWindow)
         {
-            ResetCombo();
+            if (currentCombo > 0) ResetCombo();
+            
+            // Decay rage when out of combat
+            if (rageMeter > 0)
+            {
+                rageMeter = Mathf.Max(0, rageMeter - rageDecayRate * Time.deltaTime);
+                if (isRaging && rageMeter < 0.2f) EndRage();
+            }
         }
     }
     
@@ -45,7 +59,33 @@ public class ComboSystem : MonoBehaviour
         lastHitTime = Time.time;
         currentDamageMultiplier = 1f + (currentCombo * damageMultiplierPerHit);
         
-        Debug.Log($"Combo: {currentCombo}x - Damage: {currentDamageMultiplier:F1}x");
+        // Build rage
+        if (!isRaging)
+        {
+            rageMeter = Mathf.Min(1f, rageMeter + ragePerHit);
+            if (rageMeter >= 1f) StartRage();
+        }
+        
+        Debug.Log($"Combo: {currentCombo}x - Rage: {rageMeter:P0}");
+    }
+
+    private void StartRage()
+    {
+        isRaging = true;
+        // Lore: Rage causes an automatic Flare boost
+        if (FlareManager.Instance != null)
+        {
+            FlareManager.Instance.SetIntensity(10);
+            // We don't force IsBurning = true here to respect player control, 
+            // but it's an option if we want "Auto-Burn".
+        }
+        Debug.Log("<color=red>[RAGE MODE ACTIVE]</color>");
+    }
+
+    private void EndRage()
+    {
+        isRaging = false;
+        Debug.Log("[Rage Mode Ended]");
     }
     
     public void ResetCombo()
@@ -53,6 +93,7 @@ public class ComboSystem : MonoBehaviour
         currentCombo = 0;
         currentDamageMultiplier = 1f;
     }
+
     
     public float GetMetalCostReduction()
     {
