@@ -8,7 +8,7 @@ public class TimeBubble : MonoBehaviour
 {
     [Header("Settings")]
     public float timeScaleMultiplier = 1.0f;
-    public float fadeSpeed = 5f;
+    public float fadeSpeed = AllomancyConstants.BubbleFadeSpeed;
 
     private List<Rigidbody> affectedRigidbodies = new List<Rigidbody>();
     private List<AIController> affectedAI = new List<AIController>();
@@ -16,7 +16,8 @@ public class TimeBubble : MonoBehaviour
 
     private SphereCollider bubbleCollider;
     private Material bubbleMaterial;
-    private float targetAlpha = 0.15f;
+    private float targetAlpha = AllomancyConstants.BubbleAlpha;
+
     private float currentAlpha = 0f;
 
     void Awake()

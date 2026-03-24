@@ -45,7 +45,7 @@ public class Malatium : MonoBehaviour
 
     void RevealTrueNature(float flareMult)
     {
-        float currentRange = Mathf.Lerp(baseRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
+        float currentRange = Mathf.Lerp(AllomancyConstants.MalatiumRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
         
         // Find nearby AI or potential targets
         AIController[] enemies = FindObjectsOfType<AIController>();
@@ -81,16 +81,17 @@ public class Malatium : MonoBehaviour
         if (!activeGhosts.ContainsKey(target))
         {
             GhostRenderer gr = gameObject.AddComponent<GhostRenderer>();
-            // Malatium shadows use a distinct color (orange/brown)
-            gr.SetupGhost(target, malatiumColor, malatiumColor.a);
+            // Malatium shadows use a distinct color
+            gr.SetupGhost(target, AllomancyConstants.MalatiumGhostColor, AllomancyConstants.MalatiumGhostColor.a);
             activeGhosts.Add(target, gr);
         }
 
         GhostRenderer ghost = activeGhosts[target];
         // Shadow stands slightly to the side/behind to show the "other" person
-        Vector3 offset = target.transform.right * 0.8f - target.transform.forward * 0.4f;
+        Vector3 offset = target.transform.right * AllomancyConstants.MalatiumShadowOffset.x + target.transform.forward * AllomancyConstants.MalatiumShadowOffset.z;
         ghost.UpdateTransform(target.transform.position + offset, target.transform.rotation);
     }
+
 
     void ResetReveals()
     {
