@@ -20,7 +20,10 @@ public class KolossArmyManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+        else Debug.LogWarning("[KolossArmyManager] No 'Player' tag found in scene.");
     }
 
     void Start()
@@ -30,11 +33,17 @@ public class KolossArmyManager : MonoBehaviour
 
     private void SpawnSwarm()
     {
+        if (kolossPrefab == null)
+        {
+            Debug.LogError("[KolossArmyManager] kolossPrefab is not assigned! Cannot spawn Koloss swarm.");
+            return;
+        }
+
         for (int i = 0; i < spawnCount; i++)
         {
             Vector3 spawnPos = transform.position + Random.insideUnitSphere * swarmRadius;
             spawnPos.y = 0; // Ground level
-            
+
             GameObject k = Instantiate(kolossPrefab, spawnPos, Quaternion.identity);
             KolossAI ai = k.GetComponent<KolossAI>();
             if (ai != null) activeArmy.Add(ai);
@@ -48,7 +57,7 @@ public class KolossArmyManager : MonoBehaviour
     {
         foreach (var k in activeArmy)
         {
-            // Simple messaging for performance
+            if (k == null) continue; // Dead koloss could have been Destroyed
             k.SendMessage("SetTacticalTarget", target, SendMessageOptions.DontRequireReceiver);
         }
     }
