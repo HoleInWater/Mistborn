@@ -59,16 +59,9 @@ public class Pewter : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            // Use the unified FlareMultiplier from FlareManager (includes Duralumin 10x / Nicro 3x boosts)
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             
-            // Check for Duralumin Burst
-            if (DuraluminBurstHandler.Instance != null && DuraluminBurstHandler.Instance.IsPrimed())
-            {
-                flareMult *= DuraluminBurstHandler.Instance.GetBurstMultiplierAndReset();
-                Debug.Log("[PEWTER] DURALUMIN BURST! UNSTOPPBLE FORCE!");
-                // Future: Add momentary invincibility during burst
-            }
-
             ApplyPewterEffects(flareMult);
             HandleHealing(flareMult);
         }
@@ -86,22 +79,15 @@ public class Pewter : MonoBehaviour
         }
     }
 
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
-    }
-
+    // Pewter effects scale relative to the base multipliers (1.5x mass, 1.2x speed)
+    // Multiplied by the flare multiplier which is 1.0 at base and 10.0 during burst.
     void ApplyPewterEffects(float flareMult)
     {
         if (playerMove == null) return;
 
-        // Scale multipliers based on flare intensity (1.0 to FlareIntensity)
-        float currentMassMult = Mathf.Lerp(massMultiplierBase, massMultiplierMax, (flareMult - 1f) / 1.5f);
-        float currentSpeedMult = Mathf.Lerp(speedMultiplierBase, speedMultiplierMax, (flareMult - 1f) / 1.5f);
+        // Scale factors: flareMult is 1.0 to max (e.g. 10.0 for Duralumin)
+        float currentMassMult = massMultiplierBase * flareMult;
+        float currentSpeedMult = speedMultiplierBase * flareMult;
 
         // Apply Mass
         if (playerRigidbody != null)
