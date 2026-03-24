@@ -61,12 +61,19 @@ public class Brass : MonoBehaviour
             AIController ai = enemy.GetComponent<AIController>();
             if (ai != null)
             {
+                float dist = Vector3.Distance(transform.position, enemy.transform.position);
+                float distScale = 1f - (dist / currentRange);
+                float appliedStrength = Mathf.Lerp(baseSootheStrength, currentStrength, distScale);
+
                 // Soothing makes enemies calm and less aggressive
                 ai.SetEmotionState(AIController.EmotionState.Calm);
-                ai.SetAggressionMultiplier(currentStrength);
-                ai.SetEmotionalAura(new Color(0f, 0.8f, 1f, 0.8f), flareMult);
+                ai.SetAggressionMultiplier(appliedStrength);
+                
+                // Blue/Cyan aura for soothing
+                ai.SetEmotionalAura(new Color(0f, 0.8f, 1f, 0.8f * distScale), flareMult * distScale);
             }
         }
+
     }
 
     void OnDrawGizmosSelected()
