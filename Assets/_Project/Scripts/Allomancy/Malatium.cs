@@ -19,19 +19,17 @@ public class Malatium : MonoBehaviour
     [Header("References")]
     public Allomancer allomancer;
     
-    private bool isBurning = false;
-    private Dictionary<Renderer, Material> originalMaterials = new Dictionary<Renderer, Material>();
-    
+    private Dictionary<GameObject, GhostRenderer> activeGhosts = new Dictionary<GameObject, GhostRenderer>();
+
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
     }
-    
+
     void Update()
     {
         bool wasBurning = isBurning;
-        // Check if we are currently burning Malatium according to the central Allomancer
         isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Malatium;
 
         if (isBurning)
@@ -44,63 +42,65 @@ public class Malatium : MonoBehaviour
             ResetReveals();
         }
     }
-    
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
-    }
 
     void RevealTrueNature(float flareMult)
     {
         float currentRange = Mathf.Lerp(baseRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
-        Collider[] nearby = Physics.OverlapSphere(transform.position, currentRange);
         
-        foreach (Collider col in nearby)
-        {
-            if (col.gameObject == gameObject) continue;
+        // Find nearby AI or potential targets
+        AIController[] enemies = FindObjectsOfType<AIController>();
+        HashSet<GameObject> currentTargets = new HashSet<GameObject>();
 
-            Renderer targetRenderer = col.GetComponent<Renderer>();
-            if (targetRenderer != null && !originalMaterials.ContainsKey(targetRenderer))
+        foreach (var enemy in enemies)
+        {
+            if (enemy.gameObject == gameObject) continue;
+
+            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            if (dist <= currentRange)
             {
-                // Store original and apply spectral shift
-                originalMaterials.Add(targetRenderer, targetRenderer.material);
-                
-                Material malatMat = new Material(targetRenderer.material);
-                malatMat.color = malatiumColor;
-                malatMat.name += " (Malatium)";
-                targetRenderer.material = malatMat;
-                
-                // Start a decay coroutine to restore if they leave range or we stop
-                StartCoroutine(TimedRestore(targetRenderer, 2.0f));
+                currentTargets.Add(enemy.gameObject);
+                UpdateShadow(enemy.gameObject);
             }
+        }
+
+        // Cleanup out-of-range ghosts
+        List<GameObject> toRemove = new List<GameObject>();
+        foreach (var pair in activeGhosts)
+        {
+            if (!currentTargets.Contains(pair.Key)) toRemove.Add(pair.Key);
+        }
+        foreach (var key in toRemove)
+        {
+            Destroy(activeGhosts[key]);
+            activeGhosts.Remove(key);
         }
     }
 
-    IEnumerator TimedRestore(Renderer r, float delay)
+    void UpdateShadow(GameObject target)
     {
-        yield return new WaitForSeconds(delay);
-        if (r != null && originalMaterials.ContainsKey(r))
+        if (!activeGhosts.ContainsKey(target))
         {
-            if (!isBurning) // Only restore if we stopped burning or pulse finished
-            {
-                r.material = originalMaterials[r];
-                originalMaterials.Remove(r);
-            }
+            GhostRenderer gr = gameObject.AddComponent<GhostRenderer>();
+            // Malatium shadows use a distinct color (orange/brown)
+            gr.SetupGhost(target, malatiumColor, malatiumColor.a);
+            activeGhosts.Add(target, gr);
         }
+
+        GhostRenderer ghost = activeGhosts[target];
+        // Shadow stands slightly to the side/behind to show the "other" person
+        Vector3 offset = target.transform.right * 0.8f - target.transform.forward * 0.4f;
+        ghost.UpdateTransform(target.transform.position + offset, target.transform.rotation);
     }
 
     void ResetReveals()
     {
-        foreach (var kvp in originalMaterials)
+        foreach (var ghost in activeGhosts.Values)
         {
-            if (kvp.Key != null) kvp.Key.material = kvp.Value;
+            if (ghost != null) Destroy(ghost);
         }
-        originalMaterials.Clear();
+        activeGhosts.Clear();
     }
+
 
     void OnDrawGizmosSelected()
     {
