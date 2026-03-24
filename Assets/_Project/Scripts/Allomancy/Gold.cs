@@ -1,63 +1,84 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Implements the Gold Allomancy ability (Augur).
-/// Shows a "Gold Shadow" (past self) of the user.
-/// Standardized to follow the Allomancer-centric burn system.
+/// Lore: Shows a "Gold Shadow" (potential past/alternate self) of the player.
 /// </summary>
 public class Gold : MonoBehaviour
 {
     [Header("Settings")]
     public float ghostAlpha = 0.4f;
+    public Color goldShadowColor = new Color(1f, 0.8f, 0f, 1f);
 
-    [Header("References")]
-    public Allomancer allomancer;
-    
+    private Allomancer allomancer;
+    private GhostRenderer goldShadow;
     private bool isBurning = false;
-    private GhostRenderer ghostRenderer;
-    
+
+    // Buffer for past states
+    private struct PlayerState
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public float time;
+    }
+    private Queue<PlayerState> stateBuffer = new Queue<PlayerState>();
+    public float delayInSeconds = 2f;
+
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponentInParent<Allomancer>();
+        allomancer = GetComponentInParent<Allomancer>();
     }
-    
+
     void Update()
     {
+        // Record state
+        stateBuffer.Enqueue(new PlayerState { position = transform.position, rotation = transform.rotation, time = Time.time });
+
+        // Maintain buffer size (keep approx 2 seconds of state)
+        while (stateBuffer.Count > 0 && Time.time - stateBuffer.Peek().time > delayInSeconds)
+        {
+            stateBuffer.Dequeue();
+        }
+
         bool wasBurning = isBurning;
         isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Gold;
 
         if (isBurning)
         {
-            if (ghostRenderer == null) CreatePastGhost();
-            UpdatePastGhost();
+            if (goldShadow == null) CreateShadow();
+            UpdateShadow();
         }
         else if (wasBurning)
         {
-            ClearGhost();
+            DestroyShadow();
         }
     }
-    
-    void CreatePastGhost()
+
+    void CreateShadow()
     {
-        ghostRenderer = gameObject.AddComponent<GhostRenderer>();
-        // Lore: Gold shadow looks like you.
-        ghostRenderer.SetupGhost(gameObject, new Color(1f, 0.8f, 0.2f), ghostAlpha);
+        GameObject go = new GameObject("GoldShadow");
+        goldShadow = go.AddComponent<GhostRenderer>();
+        goldShadow.SetupGhost(gameObject, goldShadowColor, ghostAlpha);
     }
 
-    void UpdatePastGhost()
+    void UpdateShadow()
     {
-        if (ghostRenderer == null) return;
-        // Follows slightly behind at the "past" position
-        Vector3 pastPos = transform.position - transform.forward * 1.5f + Vector3.right * 0.5f;
-        ghostRenderer.UpdateTransform(pastPos, transform.rotation);
+        if (goldShadow == null || stateBuffer.Count == 0) return;
+        
+        // Show the state from 2 seconds ago
+        var pastState = stateBuffer.Peek();
+        goldShadow.UpdateTransform(pastState.position, pastState.rotation);
     }
 
-    void ClearGhost()
+    void DestroyShadow()
     {
-        if (ghostRenderer != null) Destroy(ghostRenderer);
+        if (goldShadow != null)
+        {
+            Destroy(goldShadow.gameObject);
+            goldShadow = null;
+        }
     }
 
-
-    void OnDestroy() => ClearGhost();
+    void OnDestroy() => DestroyShadow();
 }
