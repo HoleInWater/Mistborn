@@ -31,7 +31,7 @@ public class Pewter : MonoBehaviour
     [Tooltip("Health restored per second while burning Pewter")]
     public float baseHealRate = 0.5f;
 
-    private PlayerHealth healthSystem;
+    private HealthBarTransitions healthSystem;
 
     void Start()
     {
