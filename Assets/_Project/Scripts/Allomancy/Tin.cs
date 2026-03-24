@@ -37,6 +37,12 @@ public class Tin : MonoBehaviour
     private float originalAudioVolume;
     private float currentOverloadVisual = 0f;
     private float currentOverloadAudio = 0f;
+    // References & Cache
+    private BasicPlayerMove playerMove;
+    private Vector3 originalCameraLocalPos;
+    private float shakeIntensity = 0f;
+    private AudioLowPassFilter lowPass;
+    private AudioHighPassFilter highPass;
 
     // HDRP Overrides
     private Exposure exposure;
@@ -44,20 +50,23 @@ public class Tin : MonoBehaviour
     private ColorAdjustments colorAdjustments;
     private Vignette vignette;
 
-    // Components & State
-    private BasicPlayerMove playerMove;
-    private Vector3 originalCameraLocalPos;
-    private float shakeIntensity;
-    private AudioLowPassFilter lowPass;
-    private AudioHighPassFilter highPass;
-
     void Start()
     {
         if (playerCamera == null) playerCamera = Camera.main;
         if (allomancer == null) allomancer = GetComponentInParent<Allomancer>();
+        if (playerMove == null) playerMove = GetComponentInParent<BasicPlayerMove>();
         
-        originalFOV = playerCamera.fieldOfView;
+        if (playerCamera != null)
+        {
+            originalFOV = playerCamera.fieldOfView;
+            originalCameraLocalPos = playerCamera.transform.localPosition;
+        }
+        
         originalAudioVolume = AudioListener.volume;
+        
+        // Audio filters (optional but used if they exist)
+        lowPass = GetComponent<AudioLowPassFilter>();
+        highPass = GetComponent<AudioHighPassFilter>();
 
         // Initialize HDRP Volume components
         if (globalVolume != null && globalVolume.profile != null)
