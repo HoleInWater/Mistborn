@@ -707,7 +707,7 @@ Animator:
   m_GameObject: {fileID: 641062182}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 68b66ba9e2239bb4980552208b30e25f, type: 2}
+  m_Controller: {fileID: 9100000, guid: 0b875d7744e506043aee0243f9793365, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -807,7 +807,7 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 10
   rotationSpeed: 10
-  mouseSensitivity: 200
+  mouseSensitivity: 100
   jumpVelocity: 5
   fallMultiplier: 5
   lowJumpMultiplier: 2
@@ -830,6 +830,7 @@ MonoBehaviour:
   zoomStep: 1
   zoomSmoothSpeed: 8
   acceleration: 8
+  externalSpeedMultiplier: 1
 --- !u!114 &641062194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1018,7 +1019,6 @@ MonoBehaviour:
   - 0
   canBurnMetal: 1
   metalReserve: {fileID: 641062200}
-  flareIntensity: 1
   baseBurnRate: 1
 --- !u!114 &641062200
 MonoBehaviour:
@@ -1033,8 +1033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetalReserveManager
   uiDocument: {fileID: 551459339}
-  metalProgressBarName: Metal
-  currentMetal: 100
+  metalProgressBarPrefix: Metal_
   maxMetal: 100
   passiveRecoveryRate: 5
 --- !u!114 &641062201
@@ -1104,7 +1103,6 @@ MonoBehaviour:
   maxCoinVelocity: 400
   distanceExponent: 1
   velocityDamping: 0.5
-  maxFlareMultiplier: 2
   flaringMetalCostMultiplier: 3
   masteryBonus: 1
   playerCamera: {fileID: 53509035}
@@ -1114,15 +1112,14 @@ MonoBehaviour:
   allomancer: {fileID: 641062198}
   playerRigidbody: {fileID: 641062184}
   chestTransform: {fileID: 1411527781}
-  pushEffectPrefab: {fileID: 0}
   shakeMagnitude: 0.1
   shakeDuration: 0.1
   shakeForceThreshold: 100
-  focusKey: 306
-  focusedPushColor: {r: 1, g: 0, b: 0, a: 1}
-  audioSource: {fileID: 0}
-  pushSound: {fileID: 0}
-  soundVolume: 0.5
+  enablePushScreenTint: 1
+  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
+  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
+  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
+  pushTintDuration: 0.2
   vignetteImage: {fileID: 0}
   flaringColor: {r: 1, g: 0.2, b: 0, a: 0.3}
   vignettePulseDuration: 0.5
@@ -1135,23 +1132,16 @@ MonoBehaviour:
   predictionPoints: 20
   predictionTimeStep: 0.1
   showPredictionOnHold: 1
-  enablePushScreenTint: 1
-  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
-  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
-  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
-  pushTintDuration: 0.2
   enableSteelBubble: 1
   steelBubbleKey: 102
   steelBubbleRadius: 15
   steelBubbleForce: 25
   steelBubbleCooldown: 0.5
   steelBubbleMetalCostMultiplier: 1.5
-  flightLaunchMultiplier: 1.5
-  flightAngleThreshold: 45
   impulseMassThreshold: 5
   impulseCalibration: 0.000917
-  debugCalibration: 0
   debugPushOperations: 1
+  debugCalibration: 0
 --- !u!114 &641062203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1164,8 +1154,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5ee6aa2e7631454fa42dd4a5cb5d8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlareManager
-  metalReserve: {fileID: 641062200}
-  flareBurnRate: 1
+  maxIntensitySteps: 10
+  scrollStepSize: 1
+  baseBurnRate: 1
+  burnRatePerStep: 1.5
+  maxFlareMultiplier: 2.5
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
