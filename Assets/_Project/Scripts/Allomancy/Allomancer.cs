@@ -20,7 +20,8 @@ public class Allomancer : MonoBehaviour
     private AllomancySkill.MetalType currentMetal;
 
     [Header("Metal Reserves")]
-    public float[] metalReserves = new float[16];
+    public float[] metalReserves = new float[18];
+
     public bool canBurnMetal = true;
 
     [Header("HUD")]
@@ -65,7 +66,13 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<Duralumin>() == null) gameObject.AddComponent<Duralumin>();
         if (GetComponent<Bendalloy>() == null) gameObject.AddComponent<Bendalloy>();
         if (GetComponent<Cadmium>() == null) gameObject.AddComponent<Cadmium>();
+        if (GetComponent<Chromium>() == null) gameObject.AddComponent<Chromium>();
+        if (GetComponent<Nicrosil>() == null) gameObject.AddComponent<Nicrosil>();
     }
+
+
+    public bool isNicrobursting = false;
+    private float nicroburstTimer = 0f;
 
     void Update()
     {
@@ -74,6 +81,25 @@ public class Allomancer : MonoBehaviour
         {
             if (isBurningMetal) StopBurning();
             else StartBurning(GetCurrentMetal());
+        }
+
+        // Handle Nicroburst consumption
+        if (isNicrobursting)
+        {
+            if (isBurningMetal)
+            {
+                nicroburstTimer += Time.deltaTime;
+                if (nicroburstTimer > 1.5f) // Consume after 1.5s of burning
+                {
+                    isNicrobursting = false;
+                    nicroburstTimer = 0f;
+                    Debug.Log("[NICROSIL] Burst exhausted.");
+                }
+            }
+        }
+        else
+        {
+            nicroburstTimer = 0f;
         }
 
         // Determine active states
@@ -146,6 +172,17 @@ public class Allomancer : MonoBehaviour
         Debug.Log("[ALLOMANCER] All metal reserves refilled.");
     }
 
+    public void ClearAllReserves()
+    {
+        for (int i = 0; i < metalReserves.Length; i++)
+        {
+            metalReserves[i] = 0f;
+            UpdateHUD((AllomancySkill.MetalType)i);
+        }
+        canBurnMetal = false;
+        Debug.Log("[ALLOMANCER] All metal reserves emptied by Chromium leeching.");
+    }
+
     private void UpdateHUD(AllomancySkill.MetalType metal)
     {
         if (metalReserve != null)
@@ -162,3 +199,4 @@ public class Allomancer : MonoBehaviour
         }
     }
 }
+
