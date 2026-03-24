@@ -18,9 +18,8 @@ public class Cadmium : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    private GameObject bubbleEffect;
-    private float currentRadius;
-
+    private TimeBubble currentBubble;
+    
     void Start()
     {
         if (allomancer == null)
@@ -34,8 +33,7 @@ public class Cadmium : MonoBehaviour
 
         if (isBurning)
         {
-            if (bubbleEffect == null) CreateBubble();
-            UpdateBubble();
+            if (currentBubble == null) CreateBubble();
         }
         else if (wasBurning)
         {
@@ -45,30 +43,42 @@ public class Cadmium : MonoBehaviour
     
     void CreateBubble()
     {
-        bubbleEffect = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        bubbleEffect.name = "CadmiumSlowBubble";
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        go.name = "CadmiumSlowBubble";
+        go.transform.position = transform.position;
         
-        Renderer r = bubbleEffect.GetComponent<Renderer>();
-        r.material = new Material(Shader.Find("Standard"));
-        r.material.color = new Color(0.2f, 0.4f, 1f, 0.15f);
-        
-        // Disable collider
-        Destroy(bubbleEffect.GetComponent<Collider>());
-
         float flareMult = GetFlareMultiplier();
         currentRadius = Mathf.Lerp(baseBubbleRadius, maxBubbleRadius, (flareMult - 1f) / 1.5f);
-        bubbleEffect.transform.localScale = Vector3.one * currentRadius * 2f;
+        go.transform.localScale = Vector3.one * currentRadius * 2f;
+
+        Renderer r = go.GetComponent<Renderer>();
+        r.material = new Material(Shader.Find("Standard")); 
+        r.material.color = new Color(0.2f, 0.4f, 1f, 0f); // Start invisible
+        SetupTransparentMaterial(r.material);
+
+        currentBubble = go.AddComponent<TimeBubble>();
+        currentBubble.timeScaleMultiplier = timeScaleMultiplier;
     }
 
-    void UpdateBubble()
+    private void SetupTransparentMaterial(Material m)
     {
-        if (bubbleEffect == null) return;
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        m.SetInt("_ZWrite", 0);
+        m.DisableKeyword("_ALPHATEST_ON");
+        m.EnableKeyword("_ALPHABLEND_ON");
+        m.renderQueue = 3000;
     }
 
     void DestroyBubble()
     {
-        if (bubbleEffect != null) Destroy(bubbleEffect);
+        if (currentBubble != null)
+        {
+            currentBubble.Shutdown();
+            currentBubble = null;
+        }
     }
+
 
     float GetFlareMultiplier()
     {

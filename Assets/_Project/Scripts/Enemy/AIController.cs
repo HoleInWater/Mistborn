@@ -23,17 +23,13 @@ public class AIController : MonoBehaviour
     
     [Header("State")]
     public EmotionState currentEmotion = EmotionState.Neutral;
-    // NOTE: Consider adding [Range(0.1f, 5f)] attribute for aggressionMultiplier
-    public float aggressionMultiplier = 1f;
+    [Header("Temporal Settings")]
+    public float externalTimeScaleMultiplier = 1f;
     
     private Transform player;
     private UnityEngine.AI.NavMeshAgent navAgent;
     private float originalSpeed;
 
-    [Header("Emotional Aura")]
-    private ParticleSystem auraParticles;
-    private float auraExpiryTimer = 0f;
-    
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
@@ -43,6 +39,9 @@ public class AIController : MonoBehaviour
     
     void Update()
     {
+        // Update moveSpeed every frame to account for external temporal changes
+        UpdateSpeed();
+
         if (auraExpiryTimer > 0f)
         {
             auraExpiryTimer -= Time.deltaTime;
@@ -66,6 +65,25 @@ public class AIController : MonoBehaviour
         {
             Patrol();
         }
+    }
+
+    private void UpdateSpeed()
+    {
+        // Combine aggression and external time factors
+        float targetSpeed = originalSpeed * aggressionMultiplier * externalTimeScaleMultiplier;
+        
+        // Handle specific emotion overrides if necessary
+        if (currentEmotion != EmotionState.Neutral)
+        {
+             // Emotional speed logic is already incorporated into aggressionMultiplier via SetAggressionMultiplier
+        }
+
+        if (navAgent != null)
+        {
+            navAgent.speed = targetSpeed;
+            // Also scale animation speed in future if an Animator is present
+        }
+        moveSpeed = targetSpeed;
     }
     
     void ChasePlayer()
@@ -99,7 +117,6 @@ public class AIController : MonoBehaviour
     public void SetAggressionMultiplier(float multiplier)
     {
         aggressionMultiplier = multiplier;
-        moveSpeed = originalSpeed * multiplier;
     }
     
     void UpdateBehavior()
@@ -107,23 +124,27 @@ public class AIController : MonoBehaviour
         switch (currentEmotion)
         {
             case EmotionState.Calm:
-                moveSpeed = originalSpeed * 0.5f;
+                SetAggressionMultiplier(0.5f);
                 detectionRange = 5f;
                 break;
             case EmotionState.Aggressive:
-                moveSpeed = originalSpeed * 1.5f;
+                SetAggressionMultiplier(1.5f);
                 detectionRange = 15f;
                 break;
             case EmotionState.Enraged:
-                moveSpeed = originalSpeed * 2f;
+                SetAggressionMultiplier(2.0f);
                 detectionRange = 25f;
                 break;
             case EmotionState.Fearful:
-                moveSpeed = originalSpeed * 1.5f;
+                SetAggressionMultiplier(1.5f);
                 detectionRange = 30f;
+                break;
+            default:
+                SetAggressionMultiplier(1.0f);
                 break;
         }
     }
+
 
     public void SetEmotionalAura(Color color, float intensity)
     {
