@@ -1,6 +1,6 @@
-# 🌑 MISTBORN ERA ONE — MASTER DEVELOPMENT TODO
+# MISTBORN ERA ONE — MASTER DEVELOPMENT TODO
 
-## 🎯 TODAY'S PRIORITIES (March 23rd 2026)
+## TODAY'S PRIORITIES (March 24th 2026)
 **MAKE THESE VISIBLE IN GITHUB - TEAM FOCUS:**
 1. **Scroll Wheel Metal Selection** - Implement mouse scroll wheel to cycle through all 16 metals
 2. **Metal Reserve Bars UI** - Create visual bars showing all metal reserves (not just current)
