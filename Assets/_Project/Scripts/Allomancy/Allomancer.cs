@@ -89,7 +89,7 @@ public class Allomancer : MonoBehaviour
             if (isBurningMetal)
             {
                 nicroburstTimer += Time.deltaTime;
-                if (nicroburstTimer > 1.5f) // Consume after 1.5s of burning
+                if (nicroburstTimer > AllomancyConstants.NicroburstDuration) // Consume after burst duration
                 {
                     isNicrobursting = false;
                     nicroburstTimer = 0f;
@@ -199,4 +199,3 @@ public class Allomancer : MonoBehaviour
         }
     }
 }
-

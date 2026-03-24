@@ -11,10 +11,10 @@ public class Atium : MonoBehaviour
     [Header("Settings")]
     public float baseVisionRange = 25f;
     public float ghostAlpha = 0.3f;
+    public float targetTimeScale = AllomancyConstants.AtiumTimeScale;
+    public float shadowLeadTime = AllomancyConstants.AtiumShadowLeadTime;
     
     [Header("Atium Dilation")]
-    [Tooltip("Time scale while burning Atium")]
-    public float targetTimeScale = 0.6f;
     [Tooltip("How fast time transitions")]
     public float dilationLerpSpeed = 5f;
 
