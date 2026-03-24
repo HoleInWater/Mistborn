@@ -32,6 +32,8 @@ public class Allomancer : MonoBehaviour
     public bool isDuraluminPrimed = false;
     public bool isNicrobursting = false;
 
+    private MetalSelector metalSelector;
+
     void Awake()
     {
         MistbornRegistry.RegisterAllomancer(this);
@@ -96,7 +98,6 @@ public class Allomancer : MonoBehaviour
     }
 
 
-    public bool isNicrobursting = false;
     private float nicroburstTimer = 0f;
 
     void Update()
@@ -170,6 +171,17 @@ public class Allomancer : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
+
+        // Ensure HUD selection highlights are up-to-date every frame
+        if (metalReserve != null && metalSelector != null)
+        {
+            metalReserve.HighlightSelection(
+                metalSelector.GetPrimaryMetal(),
+                metalSelector.GetSecondaryMetal(),
+                metalSelector.IsPrimaryActive()
+            );
+            metalReserve.VisualizePrimedState(GetCurrentMetal(), isDuraluminPrimed);
+        }
     }
 
     public void StartBurning(AllomancySkill.MetalType metal)
