@@ -44,8 +44,11 @@ public class AllomancySkill : ScriptableObject
         Aluminum,
         Duralumin,
         Bendalloy,
-        Cadmium
+        Cadmium,
+        Chromium,
+        Nicrosil
     }
+
 
     public bool CanUnlock(int availablePoints, float[] metalReserves)
     {

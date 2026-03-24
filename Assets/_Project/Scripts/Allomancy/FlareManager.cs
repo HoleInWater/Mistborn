@@ -80,10 +80,25 @@ public class FlareManager : MonoBehaviour
     /// Force multiplier: 1.0 at intensity 1, maxFlareMultiplier at intensity 10.
     /// Returns 1.0 when not burning.
     /// </summary>
-    public float FlareMultiplier =>
-        IsBurning
-            ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
-            : 1f;
+    public float FlareMultiplier
+    {
+        get
+        {
+            float mult = IsBurning
+                ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
+                : 1f;
+
+            // Apply Nicroburst boost if active on the player
+            Allomancer a = GetComponentInParent<Allomancer>();
+            if (a != null && a.isNicrobursting && IsBurning)
+            {
+                mult *= 3f; // Lore: Nicroburst is extremely powerful
+                // Consumption of the burst happens in the individual metal scripts or a separate check
+            }
+            return mult;
+        }
+    }
+
 
     /// <summary>
     /// Drain rate per second at current intensity.
