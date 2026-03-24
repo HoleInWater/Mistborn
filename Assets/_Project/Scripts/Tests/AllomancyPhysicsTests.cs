@@ -12,7 +12,7 @@ namespace Mistborn.Tests
         public void TestSteelPushForceCalculation()
         {
             float expected = 100f; // Simplified
-            float actual = AllomancyPhysicsFormulas.CalculatePushPullForce(1f, 1f, 1f);
+            float actual = AllomancyPhysicsFormulas.CalculateAllomanticForce(1f, 1f, 1f, 1f); // Added intensity arg
             Assert.AreEqual(expected, actual, "Steelpush force calculation mismatch.");
         }
 

@@ -52,7 +52,7 @@ public class Electrum : MonoBehaviour
     void UpdateShadows()
     {
         Rigidbody rb = GetComponentInParent<Rigidbody>();
-        Vector3 vel = rb != null ? rb.velocity : transform.forward * 2f;
+        Vector3 vel = rb != null ? rb.linearVelocity : transform.forward * 2f;
 
         for (int i = 0; i < shadows.Count; i++)
         {

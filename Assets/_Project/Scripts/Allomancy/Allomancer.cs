@@ -25,6 +25,9 @@ public class Allomancer : MonoBehaviour
 
     public bool canBurnMetal = true;
 
+    [Header("Burn Rate")]
+    public float baseBurnRate = 1f;
+
     [Header("HUD")]
     public MetalReserve metalReserve;
 
@@ -149,10 +152,6 @@ public class Allomancer : MonoBehaviour
             }
             else
             {
-                float drainRate = baseBurnRate;
-                if (isFlaring && FlareManager.Instance != null)
-                    drainRate += FlareManager.Instance.flareBurnRate;
-                
                 DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
                 
                 // If we were nicrobursting but not duralumin priming, clear it after some burn
