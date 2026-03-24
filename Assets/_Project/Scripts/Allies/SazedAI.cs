@@ -14,7 +14,7 @@ public class SazedAI : MonoBehaviour
         if (_po != null)
         {
             player = _po.transform;
-            playerHealth = _po.GetComponent<PlayerHealth>();
+            healthBarTransitions = _po.GetComponent<PlayerHealth>();
         }
         if (CompanionManager.Instance != null) CompanionManager.Instance.RegisterCompanion(gameObject);
     }
@@ -25,7 +25,7 @@ public class SazedAI : MonoBehaviour
     {
         healCooldown -= Time.deltaTime;
         // Sazed watches player health
-        if (healCooldown <= 0f && playerHealth != null && playerHealth.currentHealth < 50f)
+        if (healCooldown <= 0f && healthBarTransitions != null && healthBarTransitions.currentHealth < 50f)
         {
             HealPlayer();
             healCooldown = 1f; // Heal once per second, not 60x/sec
@@ -34,6 +34,6 @@ public class SazedAI : MonoBehaviour
 
     private void HealPlayer()
     {
-        playerHealth.Heal(2f); // 2 HP/sec while Sazed is active
+        healthBarTransitions.Heal(2f); // 2 HP/sec while Sazed is active
     }
 }
