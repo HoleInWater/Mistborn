@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -448,7 +448,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -660,7 +660,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -707,7 +707,7 @@ Animator:
   m_GameObject: {fileID: 641062182}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 68b66ba9e2239bb4980552208b30e25f, type: 2}
+  m_Controller: {fileID: 9100000, guid: 0b875d7744e506043aee0243f9793365, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -807,7 +807,7 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 10
   rotationSpeed: 10
-  mouseSensitivity: 200
+  mouseSensitivity: 100
   jumpVelocity: 5
   fallMultiplier: 5
   lowJumpMultiplier: 2
@@ -830,6 +830,7 @@ MonoBehaviour:
   zoomStep: 1
   zoomSmoothSpeed: 8
   acceleration: 8
+  externalSpeedMultiplier: 1
 --- !u!114 &641062194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1018,7 +1019,6 @@ MonoBehaviour:
   - 0
   canBurnMetal: 1
   metalReserve: {fileID: 641062200}
-  flareIntensity: 1
   baseBurnRate: 1
 --- !u!114 &641062200
 MonoBehaviour:
@@ -1033,8 +1033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetalReserveManager
   uiDocument: {fileID: 551459339}
-  metalProgressBarName: Metal
-  currentMetal: 100
+  metalProgressBarPrefix: Metal_
   maxMetal: 100
   passiveRecoveryRate: 5
 --- !u!114 &641062201
@@ -1104,7 +1103,6 @@ MonoBehaviour:
   maxCoinVelocity: 400
   distanceExponent: 1
   velocityDamping: 0.5
-  maxFlareMultiplier: 2
   flaringMetalCostMultiplier: 3
   masteryBonus: 1
   playerCamera: {fileID: 53509035}
@@ -1114,15 +1112,14 @@ MonoBehaviour:
   allomancer: {fileID: 641062198}
   playerRigidbody: {fileID: 641062184}
   chestTransform: {fileID: 1411527781}
-  pushEffectPrefab: {fileID: 0}
   shakeMagnitude: 0.1
   shakeDuration: 0.1
   shakeForceThreshold: 100
-  focusKey: 306
-  focusedPushColor: {r: 1, g: 0, b: 0, a: 1}
-  audioSource: {fileID: 0}
-  pushSound: {fileID: 0}
-  soundVolume: 0.5
+  enablePushScreenTint: 1
+  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
+  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
+  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
+  pushTintDuration: 0.2
   vignetteImage: {fileID: 0}
   flaringColor: {r: 1, g: 0.2, b: 0, a: 0.3}
   vignettePulseDuration: 0.5
@@ -1135,23 +1132,16 @@ MonoBehaviour:
   predictionPoints: 20
   predictionTimeStep: 0.1
   showPredictionOnHold: 1
-  enablePushScreenTint: 1
-  weakPushTint: {r: 0, g: 1, b: 0, a: 0.1}
-  mediumPushTint: {r: 1, g: 1, b: 0, a: 0.2}
-  strongPushTint: {r: 1, g: 0, b: 0, a: 0.3}
-  pushTintDuration: 0.2
   enableSteelBubble: 1
   steelBubbleKey: 102
   steelBubbleRadius: 15
   steelBubbleForce: 25
   steelBubbleCooldown: 0.5
   steelBubbleMetalCostMultiplier: 1.5
-  flightLaunchMultiplier: 1.5
-  flightAngleThreshold: 45
   impulseMassThreshold: 5
   impulseCalibration: 0.000917
-  debugCalibration: 0
   debugPushOperations: 1
+  debugCalibration: 0
 --- !u!114 &641062203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1164,8 +1154,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5ee6aa2e7631454fa42dd4a5cb5d8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlareManager
-  metalReserve: {fileID: 641062200}
-  flareBurnRate: 1
+  maxIntensitySteps: 10
+  scrollStepSize: 1
+  baseBurnRate: 1
+  burnRatePerStep: 1.5
+  maxFlareMultiplier: 2.5
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,7 +1227,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1373,7 +1366,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 98eee778e51435844ae13a18d073777b, type: 2}
+  - {fileID: 2100000, guid: fab65050e5d05864c9cc4f03e8b73292, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1430,6 +1423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 974303579}
   - component: {fileID: 974303578}
+  - component: {fileID: 974303580}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1448,7 +1442,7 @@ Light:
   serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Intensity: 100000
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1488,18 +1482,18 @@ Light:
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
+  m_LightShadowCasterMode: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseColorTemperature: 1
+  m_BoundingSphereOverride: {x: 9.317011e-25, y: 1.1673142e-10, z: -146.6951, w: 1.5368989e-25}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
   m_ShapeRadius: 0.025
   m_ShadowAngle: 0
-  m_LightUnit: 1
+  m_LightUnit: 2
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
 --- !u!4 &974303579
@@ -1517,6 +1511,147 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &974303580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974303577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.HDAdditionalLightData
+  m_PointlightHDType: 0
+  m_SpotLightShape: 0
+  m_AreaLightShape: 0
+  m_EnableSpotReflector: 1
+  m_LightUnit: 0
+  m_LuxAtDistance: 1
+  m_Intensity: 0
+  m_InnerSpotPercent: -1
+  m_ShapeWidth: -1
+  m_ShapeHeight: -1
+  m_AspectRatio: -1
+  m_ShapeRadius: -1
+  m_Version: 15
+  m_ObsoleteShadowResolutionTier: 1
+  m_ObsoleteUseShadowQualitySettings: 0
+  m_ObsoleteCustomShadowResolution: 512
+  m_ObsoleteContactShadows: 0
+  m_SpotIESCutoffPercent: 100
+  m_LightDimmer: 1
+  m_VolumetricDimmer: 1
+  m_FadeDistance: 10000
+  m_VolumetricFadeDistance: 10000
+  m_AffectDiffuse: 1
+  m_AffectSpecular: 1
+  m_NonLightmappedOnly: 0
+  m_SoftnessScale: 1
+  m_UseCustomSpotLightShadowCone: 0
+  m_CustomSpotLightShadowCone: 30
+  m_MaxSmoothness: 0.99
+  m_ApplyRangeAttenuation: 1
+  m_DisplayAreaLightEmissiveMesh: 0
+  m_AreaLightCookie: {fileID: 0}
+  m_IESPoint: {fileID: 0}
+  m_IESSpot: {fileID: 0}
+  m_IncludeForRayTracing: 1
+  m_IncludeForPathTracing: 1
+  m_AreaLightShadowCone: 120
+  m_UseScreenSpaceShadows: 0
+  m_InteractsWithSky: 1
+  m_AngularDiameter: 0.5
+  diameterMultiplerMode: 0
+  diameterMultiplier: 1
+  diameterOverride: 0.5
+  celestialBodyShadingSource: 1
+  sunLightOverride: {fileID: 0}
+  sunColor: {r: 1, g: 1, b: 1, a: 1}
+  sunIntensity: 130000
+  moonPhase: 0.2
+  moonPhaseRotation: 0
+  earthshine: 1
+  flareSize: 2
+  flareTint: {r: 1, g: 1, b: 1, a: 1}
+  flareFalloff: 4
+  flareMultiplier: 1
+  surfaceTexture: {fileID: 0}
+  surfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  m_Distance: 1.5e+11
+  m_UseRayTracedShadows: 0
+  m_NumRayTracingSamples: 4
+  m_FilterTracedShadow: 1
+  m_FilterSizeTraced: 16
+  m_SunLightConeAngle: 0.5
+  m_SemiTransparentShadow: 0
+  m_ColorShadow: 1
+  m_DistanceBasedFiltering: 0
+  m_EvsmExponent: 15
+  m_EvsmLightLeakBias: 0
+  m_EvsmVarianceBias: 0.00001
+  m_EvsmBlurPasses: 0
+  m_LightlayersMask: 1
+  m_LinkShadowLayers: 1
+  m_ShadowNearPlane: 0.1
+  m_BlockerSampleCount: 24
+  m_FilterSampleCount: 16
+  m_MinFilterSize: 0.1
+  m_DirLightPCSSBlockerSampleCount: 24
+  m_DirLightPCSSFilterSampleCount: 16
+  m_DirLightPCSSMaxPenumbraSize: 0.56
+  m_DirLightPCSSMaxSamplingDistance: 0.5
+  m_DirLightPCSSMinFilterSizeTexels: 1.5
+  m_DirLightPCSSMinFilterMaxAngularDiameter: 10
+  m_DirLightPCSSBlockerSearchAngularDiameter: 12
+  m_DirLightPCSSBlockerSamplingClumpExponent: 2
+  m_KernelSize: 5
+  m_LightAngle: 1
+  m_MaxDepthBias: 0.001
+  m_ShadowResolution:
+    m_Override: 512
+    m_UseOverride: 1
+    m_Level: 0
+  m_ShadowDimmer: 1
+  m_VolumetricShadowDimmer: 1
+  m_ShadowFadeDistance: 10000
+  m_UseContactShadow:
+    m_Override: 0
+    m_UseOverride: 1
+    m_Level: 0
+  m_RayTracedContactShadow: 0
+  m_ShadowTint: {r: 0, g: 0, b: 0, a: 1}
+  m_PenumbraTint: 0
+  m_NormalBias: 0.75
+  m_SlopeBias: 0.5
+  m_ShadowUpdateMode: 0
+  m_AlwaysDrawDynamicShadows: 0
+  m_UpdateShadowOnLightMovement: 0
+  m_CachedShadowTranslationThreshold: 0.01
+  m_CachedShadowAngularThreshold: 0.5
+  m_BarnDoorAngle: 90
+  m_BarnDoorLength: 0.05
+  m_preserveCachedShadow: 0
+  m_OnDemandShadowRenderOnPlacement: 1
+  m_ShadowCascadeRatios:
+  - 0.05
+  - 0.2
+  - 0.3
+  m_ShadowCascadeBorders:
+  - 0.2
+  - 0.2
+  - 0.2
+  - 0.2
+  m_ShadowAlgorithm: 0
+  m_ShadowVariant: 0
+  m_ShadowPrecision: 0
+  useOldInspector: 0
+  useVolumetric: 1
+  featuresFoldout: 1
+  m_AreaLightEmissiveMeshShadowCastingMode: 0
+  m_AreaLightEmissiveMeshMotionVectorGenerationMode: 0
+  m_AreaLightEmissiveMeshLayer: -1
 --- !u!1 &1001543087
 GameObject:
   m_ObjectHideFlags: 0
@@ -1659,7 +1794,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1815,7 +1950,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2022,7 +2157,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2135,7 +2270,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

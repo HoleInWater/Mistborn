@@ -160,7 +160,7 @@ public class BasicPlayerMove : MonoBehaviour
         // Build horizontal velocity from the cached move direction, while keeping
         // the current vertical velocity (preserves gravity and the jump arc)
         Vector3 horizontalVelocity = _moveDirection * _currentActiveSpeed;
-        rb.velocity = new Vector3(horizontalVelocity.x, rb.velocity.y, horizontalVelocity.z);
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, rb.linearVelocity.y, horizontalVelocity.z);
  
         HandleMovement(); // Recalculate move direction and speed from input
         HandleJump();     // Apply jump velocity if a jump was requested this frame
@@ -215,21 +215,21 @@ public class BasicPlayerMove : MonoBehaviour
         // jumpRequested is set in Update and consumed here on a FixedUpdate step
         // so the jump velocity is applied consistently regardless of frame rate
         if (!jumpRequested) return;
-        rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, rb.velocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpVelocity, rb.linearVelocity.z);
         jumpRequested = false;
     }
  
     void HandleGravity()
     {
         // Extra downward force while falling — makes the jump arc feel less floaty
-        if (rb.velocity.y < 0)
+        if (rb.linearVelocity.y < 0)
         {
-            rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
         }
         // If the player releases Space early, apply a stronger pull-down for a short hop
-        else if (rb.velocity.y > 0 && !spaceHeld)
+        else if (rb.linearVelocity.y > 0 && !spaceHeld)
         {
-            rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+            rb.linearVelocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
         }
     }
  
