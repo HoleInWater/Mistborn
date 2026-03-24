@@ -145,9 +145,7 @@ public class Allomancer : MonoBehaviour
                 float remaining = GetMetalReserve(GetCurrentMetal());
                 DrainMetal(GetCurrentMetal(), remaining);
                 isDuraluminPrimed = false;
-                
-                // Force state for one frame so scripts see the multiplier
-                // Actual power boost is handled in FlareManager which reads this flag (now cleared, but we can set it back for 1 frame)
+                isNicrobursting = false; // Nicroburst is also consumed by the burst
             }
             else
             {
@@ -156,6 +154,13 @@ public class Allomancer : MonoBehaviour
                     drainRate += FlareManager.Instance.flareBurnRate;
                 
                 DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
+                
+                // If we were nicrobursting but not duralumin priming, clear it after some burn
+                if (isNicrobursting && drainRate > baseBurnRate)
+                {
+                    // For now, nicroburst lasts for one "flare action" or until metal is stopped
+                    // We'll clear it when they stop burning in StopBurning()
+                }
             }
         }
         else if (!isUsingMetal && metalReserve != null)
@@ -181,7 +186,11 @@ public class Allomancer : MonoBehaviour
     }
 
 
-    public void StopBurning() => isBurningMetal = false;
+    public void StopBurning()
+    {
+        isBurningMetal = false;
+        isNicrobursting = false; // Clear nicroburst on stop
+    }
     public bool IsBurning() => isBurningMetal;
 
     public void SetCurrentMetal(AllomancySkill.MetalType metal)
