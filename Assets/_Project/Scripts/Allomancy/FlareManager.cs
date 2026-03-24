@@ -89,12 +89,21 @@ public class FlareManager : MonoBehaviour
                 ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
                 : 1f;
 
-            // Apply Nicroburst boost if active on the player
+            // Apply Nicroburst and Duralumin boosts from the player's Allomancer
             Allomancer a = GetComponentInParent<Allomancer>();
-            if (a != null && a.isNicrobursting && IsBurning)
+            if (a != null && IsBurning)
             {
-                mult *= 3f; // Lore: Nicroburst is extremely powerful
-                // Consumption of the burst happens in the individual metal scripts or a separate check
+                if (a.isDuraluminPrimed)
+                {
+                    // Duralumin: 10x burst. The Allomancer.cs handles clearing the state.
+                    mult *= 10f;
+                }
+                if (a.isNicrobursting)
+                {
+                    // Nicroburst: 3x boost.
+                    mult *= 3f;
+                    // Note: isNicrobursting should probably decay or be cleared by the burner.
+                }
             }
             return mult;
         }
