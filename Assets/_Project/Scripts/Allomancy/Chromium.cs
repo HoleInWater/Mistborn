@@ -34,18 +34,27 @@ public class Chromium : MonoBehaviour
 
     void Leech()
     {
-        // Lore: Leecher requires physical contact. Short range raycast/sphere handles this.
+        // Lore: Leecher requires physical contact. Short range raycast + sphere fallback handles this.
         RaycastHit hit;
+        Allomancer target = null;
+
         if (Physics.Raycast(transform.position, transform.forward, out hit, leechRange, targetLayer))
         {
-            Allomancer target = hit.collider.GetComponentInParent<Allomancer>();
-            if (target != null)
-            {
-                target.ClearAllReserves();
-                Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}");
-                
-                // Visual feedback (e.g. spark or flash) could be added here
-            }
+            target = hit.collider.GetComponentInParent<Allomancer>();
+        }
+        else
+        {
+            // Sphere check for "messy" contact
+            Collider[] hitColliders = Physics.OverlapSphere(transform.position, leechRange * 0.5f, targetLayer);
+            if (hitColliders.Length > 0) target = hitColliders[0].GetComponentInParent<Allomancer>();
+        }
+
+        if (target != null)
+        {
+            target.ClearAllReserves();
+            Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}");
+            // Reset burning to avoid multiple wipes per frame
+            allomancer.StopBurning();
         }
     }
 }
