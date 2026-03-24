@@ -188,42 +188,35 @@ public class IronPull : MonoBehaviour
         if (playerCamera == null) playerCamera = Camera.main;
         if (playerCamera == null) return;
 
-        float closestDist = maxRange;
+        float closestWeight = float.MaxValue;
 
-        foreach (var metal in FindObjectsOfType<AllomanticTarget>())
+        // Optimized Registry Scan
+        foreach (var metal in MistbornRegistry.ActiveMetalTargets)
         {
-            if (metal == null) continue;
+            if (metal == null || !metal.canBePulled) continue;
             Rigidbody rb = metal.GetComponent<Rigidbody>();
-            if (rb == null || rb == playerRigidbody || !metal.canBePulled) continue;
-
-            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            if (dist < closestDist && dist > 0.1f)
-            {
-                closestDist            = dist;
-                currentTargetRigidbody = rb;
-                currentTarget          = metal;
-                hasCurrentTarget       = true;
-                isAnchored             = metal.isAnchored || rb.isKinematic;
-            }
-        }
-
-        Collider[] colliders = Physics.OverlapSphere(
-            playerCamera.transform.position, maxRange, metalLayer);
-
-        foreach (Collider col in colliders)
-        {
-            if (col == null) continue;
-            Rigidbody rb = col.GetComponent<Rigidbody>();
             if (rb == null || rb == playerRigidbody) continue;
 
             float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            if (dist < closestDist && dist > 0.1f && dist <= maxRange)
+            if (dist > maxRange || dist < 0.1f) continue;
+
+            // Simple weight: distance from center of screen + distance to player
+            Vector3 viewportPos = playerCamera.WorldToViewportPoint(rb.position);
+            bool isOnScreen = viewportPos.z > 0 && viewportPos.x > 0 && viewportPos.x < 1 && viewportPos.y > 0 && viewportPos.y < 1;
+
+            if (isOnScreen)
             {
-                closestDist            = dist;
-                currentTargetRigidbody = rb;
-                currentTarget          = col.GetComponent<AllomanticTarget>();
-                hasCurrentTarget       = true;
-                isAnchored             = rb.isKinematic;
+                float centerDiff = Vector2.Distance(new Vector2(viewportPos.x, viewportPos.y), new Vector2(0.5f, 0.5f));
+                float weight = centerDiff * 10f + dist;
+
+                if (weight < closestWeight)
+                {
+                    closestWeight = weight;
+                    currentTargetRigidbody = rb;
+                    currentTarget = metal;
+                    hasCurrentTarget = true;
+                    isAnchored = metal.isAnchored || rb.isKinematic;
+                }
             }
         }
     }
