@@ -18,6 +18,7 @@ public class Cadmium : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
+    private float currentRadius;
     private TimeBubble currentBubble;
     
     void Start()

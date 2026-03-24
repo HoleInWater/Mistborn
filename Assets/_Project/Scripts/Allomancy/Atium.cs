@@ -11,6 +11,7 @@ public class Atium : MonoBehaviour
     [Header("Settings")]
     public float baseVisionRange = 25f;
     public float ghostAlpha = 0.3f;
+    public float maxVisionRange = 50f;
     public float targetTimeScale = AllomancyConstants.AtiumTimeScale;
     public float shadowLeadTime = AllomancyConstants.AtiumShadowLeadTime;
     
@@ -52,9 +53,10 @@ public class Atium : MonoBehaviour
     private void HandleTimeDilation(bool active)
     {
         float target = active ? targetTimeScale : 1f;
-        Time.timeScale = Mathf.Lerp(Time.timeScale, target, Time.unscaledDeltaTime * dilationLerpSpeed);
-        // fixedDeltaTime must be updated to keep physics stable
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.SetAtiumModifier(target);
+        else
+            Time.timeScale = target; // Fallback
     }
 
     void UpdateFutureVision(float flareMult)
