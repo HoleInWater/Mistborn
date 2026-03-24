@@ -47,13 +47,13 @@ public class Malatium : MonoBehaviour
     {
         float currentRange = Mathf.Lerp(AllomancyConstants.MalatiumRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
         
-        // Find nearby AI or potential targets
-        AIController[] enemies = FindObjectsOfType<AIController>();
+        // Optimized high-performance registry scan
+        var enemies = MistbornRegistry.ActiveEnemies;
         HashSet<GameObject> currentTargets = new HashSet<GameObject>();
 
         foreach (var enemy in enemies)
         {
-            if (enemy.gameObject == gameObject) continue;
+            if (enemy == null || enemy.gameObject == gameObject) continue;
 
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist <= currentRange)
