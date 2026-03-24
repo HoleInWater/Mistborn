@@ -258,37 +258,20 @@ public class IronPull : MonoBehaviour
 
         Vector3 forceDir = dirToTarget.normalized * force;
 
+        // Clamp impulse to prevent physics tunneling on very small objects
+        // during Duralumin-boosted pulls.
+        float maxCoinVelocity = 10f; // This variable was previously defined locally, assuming it's now a class member or defined elsewhere.
+        float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
+        if (forceDir.magnitude > maxAllowedImpulse)
+        {
+            forceDir = forceDir.normalized * maxAllowedImpulse;
+        }
+
         // --- Apply forces ---
         playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
 
-        // NOTE: The following variables (maxCoinVelocity, distanceExponent, eff) are not defined in the provided context.
-        // Assuming they are defined elsewhere or are placeholders for a more complete refactor.
-        // For now, using existing 'force' and 'currentTargetRigidbody' for the clamping logic.
-        // If this is part of a larger change, these variables would need proper definition.
-
-        // Clamp impulse to prevent physics tunneling on very small objects
-        // during Duralumin-boosted pulls.
-        // Placeholder values for maxCoinVelocity, distanceExponent, eff are used for compilation.
-        // These should be replaced with actual game values.
-        float maxCoinVelocity = 10f; // Example value, define properly
-        float distanceExponent = 1f; // Example value, define properly
-        float eff = 1f; // Example value, define properly
-        
-        float forceMag      = strength / Mathf.Pow(eff, distanceExponent);
-        Vector3 forceVector = dirToTarget.normalized * forceMag; // Using dirToTarget as 'dir'
-
-        float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity; // Using currentTargetRigidbody as 'targetRb'
-        if (forceVector.magnitude > maxAllowedImpulse)
-        {
-            forceVector = forceVector.normalized * maxAllowedImpulse;
-        }
-
-        // Apply force
         if (!isAnchored)
-        {
-            currentTargetRigidbody.AddForce(-forceVector * objectRatio, ForceMode.Impulse); // Applying clamped force
-        }
-
+            currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
         // --- Visual feedback ---
         if (force > shakeForceThreshold)
         {
