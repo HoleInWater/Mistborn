@@ -34,19 +34,12 @@ public class Brass : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             SootheEmotions(flareMult);
         }
     }
     
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
-    }
+    // Removed local GetFlareMultiplier
 
     void SootheEmotions(float flareMult)
     {
