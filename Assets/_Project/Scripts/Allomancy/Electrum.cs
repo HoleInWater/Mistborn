@@ -1,27 +1,27 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Implements the Electrum Allomancy ability (Oracle).
-/// Shows "Electrum Shadows" (future selves) of the user to protect against Atium.
-/// Standardized to follow the Allomancer-centric burn system.
+/// Lore: Shows multiple "Future Shadows" of the player to prevent Atium-strikes.
 /// </summary>
 public class Electrum : MonoBehaviour
 {
     [Header("Settings")]
-    public float ghostAlpha = 0.4f;
+    public int shadowCount = 3;
+    public float shadowSpread = 1.5f;
+    public float ghostAlpha = 0.3f;
+    public Color electrumShadowColor = new Color(0.8f, 1f, 1f, 1f);
 
-    [Header("References")]
-    public Allomancer allomancer;
-    
+    private Allomancer allomancer;
+    private List<GhostRenderer> shadows = new List<GhostRenderer>();
     private bool isBurning = false;
-    private GhostRenderer ghostRenderer;
-    
+
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponentInParent<Allomancer>();
+        allomancer = GetComponentInParent<Allomancer>();
     }
-    
+
     void Update()
     {
         bool wasBurning = isBurning;
@@ -29,35 +29,52 @@ public class Electrum : MonoBehaviour
 
         if (isBurning)
         {
-            if (ghostRenderer == null) CreateFutureGhost();
-            UpdateFutureGhost();
+            if (shadows.Count == 0) CreateShadows();
+            UpdateShadows();
         }
         else if (wasBurning)
         {
-            ClearGhost();
+            DestroyShadows();
         }
     }
-    
-    void CreateFutureGhost()
+
+    void CreateShadows()
     {
-        ghostRenderer = gameObject.AddComponent<GhostRenderer>();
-        // Lore: Electrum shadows flit around you.
-        ghostRenderer.SetupGhost(gameObject, new Color(1f, 1f, 1f), ghostAlpha);
+        for (int i = 0; i < shadowCount; i++)
+        {
+            GameObject go = new GameObject("ElectrumShadow_" + i);
+            GhostRenderer gr = go.AddComponent<GhostRenderer>();
+            gr.SetupGhost(gameObject, electrumShadowColor, ghostAlpha);
+            shadows.Add(gr);
+        }
     }
 
-    void UpdateFutureGhost()
+    void UpdateShadows()
     {
-        if (ghostRenderer == null) return;
-        // Lore: Electrum shadows flit around you.
-        Vector3 offset = new Vector3(Mathf.Sin(Time.time * 5f), 0, Mathf.Cos(Time.time * 5f)) * 1.5f;
-        ghostRenderer.UpdateTransform(transform.position + offset, transform.rotation);
+        Rigidbody rb = GetComponentInParent<Rigidbody>();
+        Vector3 vel = rb != null ? rb.velocity : transform.forward * 2f;
+
+        for (int i = 0; i < shadows.Count; i++)
+        {
+            // Each shadow predicts a slightly different movement path
+            float spreadTime = 0.3f + (i * 0.2f);
+            Vector3 predictedPos = transform.position + (vel * spreadTime);
+            
+            // Add some lateral spread for "multiple futures" effect
+            predictedPos += transform.right * Mathf.Sin(Time.time * 5f + i) * shadowSpread;
+
+            shadows[i].UpdateTransform(predictedPos, transform.rotation);
+        }
     }
 
-    void ClearGhost()
+    void DestroyShadows()
     {
-        if (ghostRenderer != null) Destroy(ghostRenderer);
+        foreach (var ghost in shadows)
+        {
+            if (ghost != null) Destroy(ghost);
+        }
+        shadows.Clear();
     }
 
-
-    void OnDestroy() => ClearGhost();
+    void OnDestroy() => DestroyShadows();
 }
