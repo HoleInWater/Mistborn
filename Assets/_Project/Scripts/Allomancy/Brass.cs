@@ -74,7 +74,7 @@ public class Brass : MonoBehaviour
         if (isBurning)
         {
             Gizmos.color = new Color(0f, 0.5f, 1f, 0.2f);
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             float currentRange = Mathf.Lerp(baseEmotionRange, maxEmotionRange, (flareMult - 1f) / 1.5f);
             Gizmos.DrawWireSphere(transform.position, currentRange);
         }
