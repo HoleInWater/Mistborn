@@ -29,7 +29,9 @@ public class NarrativeTimeline : MonoBehaviour
         {
             currentChapter++;
             OnChapterChanged?.Invoke(currentChapter);
-            Debug.Log($"[NARRATIVE] Story Advanced to Chapter {currentChapter}: {chapterSummaries[currentChapter-1].speakerName}");
+            var activeData = chapterSummaries[currentChapter - 1];
+            string speaker = activeData != null ? activeData.speakerName : "Unknown";
+            Debug.Log($"[NARRATIVE] Story Advanced to Chapter {currentChapter}: {speaker}");
         }
     }
 
