@@ -14,6 +14,7 @@ public class PlayerCombat : MonoBehaviour
     
     [Header("References")]
     public ComboSystem comboSystem;
+    public LockOnSystem lockOnSystem;
     // NOTE: Consider adding [Tooltip("Layer mask for enemies")] attribute for better inspector documentation
     public LayerMask enemyLayer;
     
@@ -23,21 +24,36 @@ public class PlayerCombat : MonoBehaviour
         if (Input.GetMouseButtonDown(0)) Attack();
     }
     
-    void Attack() {
+    public void Attack() {
         if (Time.time - lastAttackTime < attackCooldown) return;
         lastAttackTime = Time.time;
+
+        // Orient toward lock-on target if active
+        if (lockOnSystem != null && lockOnSystem.CurrentTarget != null)
+        {
+            Vector3 dir = (lockOnSystem.CurrentTarget.position - transform.position).normalized;
+            dir.y = 0;
+            transform.forward = dir;
+        }
         
         if (comboSystem != null) comboSystem.RegisterHit();
+
         float damage = baseDamage * (comboSystem != null ? comboSystem.DamageMultiplier : 1f);
         
-        Collider[] enemies = Physics.OverlapSphere(transform.position, attackRange, enemyLayer);
+        // Position and direction for attack
+        Vector3 attackPos = transform.position + transform.forward * 1f;
+        Collider[] enemies = Physics.OverlapSphere(attackPos, attackRange, enemyLayer);
+        
         foreach (Collider enemy in enemies) {
-            // Updated to find HealthBarTransitions
-            HealthBarTransitions health = enemy.GetComponent<HealthBarTransitions>();
-            if (health != null) {
-                health.TakeDamage(damage);
+            // Standardized to IDamageable
+            IDamageable damageable = enemy.GetComponentInParent<IDamageable>();
+            if (damageable != null) {
+                damageable.TakeDamage(damage);
                 Debug.Log($"Hit {enemy.name} for {damage} damage!");
+                
+                // Visual feedback could be added here
             }
         }
     }
+
 }

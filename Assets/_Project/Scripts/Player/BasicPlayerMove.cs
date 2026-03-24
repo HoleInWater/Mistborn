@@ -235,19 +235,37 @@ public class BasicPlayerMove : MonoBehaviour
  
     // ── Camera ───────────────────────────────────────────────────────────────────
  
+    [Header("Lock-On")]
+    public Transform lockOnTarget;
+
     void HandleCamera()
     {
         if (cameraPivot == null) return;
- 
-        // Scale by Time.deltaTime to keep sensitivity consistent across frame rates
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
- 
-        yRotation += mouseX;
-        xRotation -= mouseY; // Subtract so moving the mouse up tilts the camera upward
-        xRotation = Mathf.Clamp(xRotation, -80f, 80f); // Prevent flipping past vertical
- 
-        cameraPivot.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
+
+        if (lockOnTarget != null)
+        {
+            // Auto-rotate towards target
+            Vector3 dir = (lockOnTarget.position - cameraPivot.position).normalized;
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+            cameraPivot.rotation = Quaternion.Slerp(cameraPivot.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            
+            // Sync internal rotations to prevent jumping when unlocking
+            Vector3 euler = cameraPivot.rotation.eulerAngles;
+            xRotation = euler.x > 180 ? euler.x - 360 : euler.x;
+            yRotation = euler.y;
+        }
+        else
+        {
+            // Scaled by Time.deltaTime to keep sensitivity consistent across frame rates
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+            yRotation += mouseX;
+            xRotation -= mouseY; // Subtract so moving the mouse up tilts the camera upward
+            xRotation = Mathf.Clamp(xRotation, -80f, 80f); // Prevent flipping past vertical
+
+            cameraPivot.rotation = Quaternion.Euler(xRotation, yRotation, 0f);
+        }
     }
  
     void HandleZoom()
