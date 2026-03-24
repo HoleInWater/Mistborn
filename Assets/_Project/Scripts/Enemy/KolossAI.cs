@@ -17,13 +17,14 @@ public class KolossAI : MonoBehaviour
     {
         transform.localScale = Vector3.one * sizeMult;
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
         health = GetComponent<EnemyHealth>();
     }
 
     void Update()
     {
-        if (player == null || health.isDead) return;
+        if (player == null || health == null || health.isDead) return;
 
         agent.SetDestination(player.position);
         

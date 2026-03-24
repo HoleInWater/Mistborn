@@ -10,7 +10,7 @@ public class SazedAI : MonoBehaviour
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        var _po = GameObject.FindGameObjectWithTag("Player"); if (_po != null) player = _po.transform;
         playerHealth = player.GetComponent<PlayerHealth>();
         if (CompanionManager.Instance != null) CompanionManager.Instance.RegisterCompanion(gameObject);
     }

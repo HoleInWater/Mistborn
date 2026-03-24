@@ -19,7 +19,7 @@ public class SteelInquisitorAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        var _po = GameObject.FindGameObjectWithTag("Player"); if (_po != null) player = _po.transform;
         health = GetComponent<EnemyHealth>();
     }
 
