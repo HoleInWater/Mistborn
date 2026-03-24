@@ -25,10 +25,10 @@ public class SteelInquisitorAI : MonoBehaviour
 
     void Update()
     {
-        if (player == null || health.isDead) return;
+        if (player == null || health == null || health.isDead) return;
 
         // Inquisitors are aggressive stalkers
-        agent.SetDestination(player.position);
+        if (agent != null) agent.SetDestination(player.position);
 
         if (Vector3.Distance(transform.position, player.position) < 2f)
         {
@@ -44,7 +44,6 @@ public class SteelInquisitorAI : MonoBehaviour
     private void PerformMeleeAttack()
     {
         // Inquisitors use Pewter for massive damage
-        Debug.Log("[INQUISITOR] Crushing Melee Attack!");
         player.SendMessage("TakeDamage", 25f * pewterStrengthMult, SendMessageOptions.DontRequireReceiver);
     }
 
