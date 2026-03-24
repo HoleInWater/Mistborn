@@ -15,7 +15,7 @@ public class MetalReserve : MonoBehaviour
     public float passiveRecoveryRate = 0.5f;
 
     private Dictionary<AllomancySkill.MetalType, ProgressBar> _metalBars = new Dictionary<AllomancySkill.MetalType, ProgressBar>();
-    private float[] _lastDisplayedReserves = new float[16];
+    private float[] _lastDisplayedReserves = new float[20]; // Buffer for 18+ metals
 
     void Start()
     {
@@ -88,6 +88,18 @@ public class MetalReserve : MonoBehaviour
             {
                 kvp.Value.AddToClassList("secondary-metal");
             }
+        }
+    }
+
+    /// <summary>
+    /// visualizes the Duralumin/Nicrosil primed state.
+    /// </summary>
+    public void VisualizePrimedState(AllomancySkill.MetalType metal, bool isPrimed)
+    {
+        if (_metalBars.TryGetValue(metal, out ProgressBar bar))
+        {
+            if (isPrimed) bar.AddToClassList("burst-primed");
+            else bar.RemoveFromClassList("burst-primed");
         }
     }
 
