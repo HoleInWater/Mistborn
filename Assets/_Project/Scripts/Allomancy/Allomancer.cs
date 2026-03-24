@@ -99,8 +99,6 @@ public class Allomancer : MonoBehaviour
     }
 
 
-    private float nicroburstTimer = 0f;
-
     void Update()
     {
         // Toggle burn with B key
