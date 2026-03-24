@@ -46,7 +46,12 @@ public class AIController : MonoBehaviour
 
         MistbornRegistry.RegisterEnemy(this);
     }
-    
+
+    void OnDestroy()
+    {
+        MistbornRegistry.UnregisterEnemy(this);
+    }
+
     void Update()
     {
         // Update moveSpeed every frame to account for external temporal changes
