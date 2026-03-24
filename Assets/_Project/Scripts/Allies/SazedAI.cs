@@ -14,7 +14,7 @@ public class SazedAI : MonoBehaviour
         if (_po != null)
         {
             player = _po.transform;
-            healthBarTransitions = _po.GetComponent<PlayerHealth>();
+            healthBarTransitions = _po.GetComponent<HealthBarTransitions>();
         }
         if (CompanionManager.Instance != null) CompanionManager.Instance.RegisterCompanion(gameObject);
     }
