@@ -63,12 +63,13 @@ public class Atium : MonoBehaviour
     {
         float currentRange = Mathf.Lerp(baseVisionRange, maxVisionRange, (flareMult - 1f) / 1.5f);
         
-        // Use a non-allocating search in future for optimization
-        AIController[] enemies = FindObjectsOfType<AIController>();
+        // Optimized high-performance search via Registry
+        var enemies = MistbornRegistry.ActiveEnemies;
         HashSet<GameObject> currentTargets = new HashSet<GameObject>();
 
         foreach (var enemy in enemies)
         {
+            if (enemy == null) continue;
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist <= currentRange)
             {
