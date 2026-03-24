@@ -44,4 +44,10 @@ public static class MistbornRegistry
     {
         activeAllomancers.Remove(allomancer);
     }
+    public static void ClearAll()
+    {
+        activeEnemies.Clear();
+        activeMetalTargets.Clear();
+        activeAllomancers.Clear();
+    }
 }
