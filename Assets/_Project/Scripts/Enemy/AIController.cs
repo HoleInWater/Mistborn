@@ -29,12 +29,22 @@ public class AIController : MonoBehaviour
     private Transform player;
     private UnityEngine.AI.NavMeshAgent navAgent;
     private float originalSpeed;
+    private float aggressionMultiplier = 1f;  // Was never declared — compile error
+    private ParticleSystem auraParticles;      // Was never declared — compile error
+    private float auraExpiryTimer = 0f;        // Was never declared — compile error
+    private float originalDetectionRange;      // Store base range for reset
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+        else Debug.LogWarning($"[AIController] No GameObject with tag 'Player' found in scene.");
+
         navAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
         originalSpeed = moveSpeed;
+        originalDetectionRange = detectionRange;
+
+        MistbornRegistry.RegisterEnemy(this);
     }
     
     void Update()
@@ -47,6 +57,8 @@ public class AIController : MonoBehaviour
             auraExpiryTimer -= Time.deltaTime;
             if (auraExpiryTimer <= 0f) ResetAura();
         }
+
+        if (player == null) return; // Guard: player not found in scene
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         
@@ -96,7 +108,7 @@ public class AIController : MonoBehaviour
     
     void AttackPlayer()
     {
-        Debug.Log($"{gameObject.name} attacks player!");
+        // Attack logic placeholder — no Debug.Log in production builds
     }
     
     void Patrol()
@@ -141,6 +153,7 @@ public class AIController : MonoBehaviour
                 break;
             default:
                 SetAggressionMultiplier(1.0f);
+                detectionRange = originalDetectionRange; // Reset to inspector value
                 break;
         }
     }
