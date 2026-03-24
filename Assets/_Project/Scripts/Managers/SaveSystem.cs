@@ -15,24 +15,28 @@ public class SaveSystem : MonoBehaviour
         SaveData data = new SaveData();
         HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
         if (playerHealth != null) data.playerHealth = playerHealth.health;
-        
-        Allomancer allomancer = FindObjectOfType<Allomancer>();
-        if (allomancer != null) data.metalReserves = allomancer.metalReserves;
-        
+
+        // Use Registry for Allomancer lookup (more reliable than FindObjectOfType)
+        if (MistbornRegistry.ActiveAllomancers.Count > 0)
+            data.metalReserves = MistbornRegistry.ActiveAllomancers[0].metalReserves;
+
         PlayerPrefs.SetString(saveFileName, JsonUtility.ToJson(data));
         PlayerPrefs.Save();
-        Debug.Log("Game saved!");
     }
     
     public void LoadGame() {
-        if (PlayerPrefs.HasKey(saveFileName)) {
-            SaveData data = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(saveFileName));
-            HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
-            if (playerHealth != null) playerHealth.health = data.playerHealth;
-            
-            Allomancer allomancer = FindObjectOfType<Allomancer>();
-            if (allomancer != null) allomancer.metalReserves = data.metalReserves;
-            Debug.Log("Game loaded!");
+        if (!PlayerPrefs.HasKey(saveFileName)) return;
+
+        SaveData data = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(saveFileName));
+        HealthBarTransitions playerHealth = FindObjectOfType<HealthBarTransitions>();
+        if (playerHealth != null) playerHealth.health = data.playerHealth;
+
+        // Use Registry for Allomancer lookup
+        if (MistbornRegistry.ActiveAllomancers.Count > 0 && data.metalReserves != null)
+        {
+            var allomancer = MistbornRegistry.ActiveAllomancers[0];
+            int count = Mathf.Min(data.metalReserves.Length, allomancer.metalReserves.Length);
+            System.Array.Copy(data.metalReserves, allomancer.metalReserves, count);
         }
     }
 }
@@ -40,5 +44,5 @@ public class SaveSystem : MonoBehaviour
 [System.Serializable]
 public class SaveData {
     public float playerHealth;
-    public float[] metalReserves = new float[16];
+    public float[] metalReserves = new float[20]; // Matches Allomancer.metalReserves[20]
 }
