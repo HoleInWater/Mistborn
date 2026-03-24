@@ -87,7 +87,7 @@ public class Atium : MonoBehaviour
         Rigidbody rb = target.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            ghost.transform.position += rb.velocity * 0.5f; // 0.5s into future
+            ghost.transform.position += rb.linearVelocity * 0.5f; // 0.5s into future
         }
 
         // Make transparent

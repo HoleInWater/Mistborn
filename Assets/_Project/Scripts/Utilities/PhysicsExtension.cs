@@ -55,7 +55,7 @@ namespace MistbornGame.Utilities
             if (rb == null || target == null) return;
             
             Vector3 direction = (target.position - rb.position).normalized;
-            rb.velocity = direction * speed;
+            rb.linearVelocity = direction * speed;
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace MistbornGame.Utilities
         public static bool IsMovingFast(this Rigidbody rb, float speed)
         {
             if (rb == null) return false;
-            return rb.velocity.magnitude > speed;
+            return rb.linearVelocity.magnitude > speed;
         }
 
         /// </// <summary>
@@ -82,7 +82,7 @@ namespace MistbornGame.Utilities
         public static bool IsMovingSlow(this Rigidbody rb, float speed)
         {
             if (rb == null) return false;
-            return rb.velocity.magnitude < speed;
+            return rb.linearVelocity.magnitude < speed;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace MistbornGame.Utilities
         public static float GetSpeed(this Rigidbody rb)
         {
             if (rb == null) return 0f;
-            return rb.velocity.magnitude;
+            return rb.linearVelocity.magnitude;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace MistbornGame.Utilities
         public static void ResetVelocity(this Rigidbody rb)
         {
             if (rb == null) return;
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
 
@@ -197,7 +197,7 @@ namespace MistbornGame.Utilities
         public static void SetVelocityInDirection(this Rigidbody rb, Vector3 direction, float speed)
         {
             if (rb == null) return;
-            rb.velocity = direction.normalized * speed;
+            rb.linearVelocity = direction.normalized * speed;
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace MistbornGame.Utilities
         public static Vector3 GetMomentum(this Rigidbody rb)
         {
             if (rb == null) return Vector3.zero;
-            return rb.velocity * rb.mass;
+            return rb.linearVelocity * rb.mass;
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace MistbornGame.Utilities
         public static void AddForceToReachVelocity(this Rigidbody rb, Vector3 targetVelocity, float forceStrength)
         {
             if (rb == null) return;
-            Vector3 velocityDiff = targetVelocity - rb.velocity;
+            Vector3 velocityDiff = targetVelocity - rb.linearVelocity;
             rb.AddForce(velocityDiff * forceStrength, ForceMode.Force);
         }
     }
