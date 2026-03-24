@@ -33,9 +33,16 @@ public class LockOnSystem : MonoBehaviour
 
         if (currentTarget != null)
         {
+            // First check if the transform reference itself was nulled by Unity destruction
+            if (!currentTarget || currentTarget.gameObject == null)
+            {
+                ClearLockOn();
+                return;
+            }
+
             // Check if target is still valid/alive
             IDamageable d = currentTarget.GetComponentInParent<IDamageable>();
-            if (d == null || Vector3.Distance(transform.position, currentTarget.position) > searchRadius * 1.5f)
+            if (d == null || (d is MonoBehaviour mb && !mb.enabled) || Vector3.Distance(transform.position, currentTarget.position) > searchRadius * 1.5f)
             {
                 ClearLockOn();
             }
