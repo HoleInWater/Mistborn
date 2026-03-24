@@ -87,9 +87,45 @@ public class AllomancySkillTreeController : MonoBehaviour
 
     void OnSkillClicked(AllomancySkill skill)
     {
-        Debug.Log($"Attempting to unlock: {skill.skillName}");
-        // Here you will eventually call your 'Purchase' logic
+        if (skill.isUnlocked)
+        {
+            Debug.Log($"[SKILL] {skill.skillName} is already unlocked.");
+            return;
+        }
+
+        if (!CheckIfPrerequisitesMet(skill))
+        {
+            Debug.Log($"[SKILL] Prerequisites not met for {skill.skillName}.");
+            return;
+        }
+
+        if (PlayerExperience.Instance != null && PlayerExperience.Instance.SpendSkillPoints(skill.skillPointCost))
+        {
+            UnlockSkill(skill);
+        }
+        else
+        {
+            Debug.Log("[SKILL] Not enough skill points!");
+        }
     }
+
+    private void UnlockSkill(AllomancySkill skill)
+    {
+        skill.isUnlocked = true;
+        
+        // Notify Allomancer that they now have this metal
+        Allomancer playerAllomancer = FindObjectOfType<Allomancer>();
+        if (playerAllomancer != null)
+        {
+            playerAllomancer.UnlockMetal(skill.metalType);
+        }
+
+        Debug.Log($"[SKILL] UNLOCKED: {skill.skillName}!");
+        
+        // Refresh UI
+        GenerateSkillNodes();
+    }
+
     
     void Update()
     {

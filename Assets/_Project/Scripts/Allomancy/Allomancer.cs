@@ -21,26 +21,37 @@ public class Allomancer : MonoBehaviour
 
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[18];
+    public bool[] unlockedMetals = new bool[18];
 
     public bool canBurnMetal = true;
 
     [Header("HUD")]
     public MetalReserve metalReserve;
 
-    [Header("Burn Settings")]
-    public float baseBurnRate = 1f;
-
-    // Private references
-    private MetalSelector metalSelector;
-
     void Start()
     {
         for (int i = 0; i < metalReserves.Length; i++)
+        {
             metalReserves[i] = 100f;
+            // By default, only basic physical metals might be unlocked
+            // For now, let's say none are unlocked until purchased, 
+            // except maybe Steel/Iron for testing if no skill tree exists.
+        }
+
+        // Start with basic traversal unlocked
+        unlockedMetals[(int)AllomancySkill.MetalType.Steel] = true;
+        unlockedMetals[(int)AllomancySkill.MetalType.Iron] = true;
 
         EnsureAllomancyComponents();
         metalSelector = GetComponent<MetalSelector>();
     }
+
+    public void UnlockMetal(AllomancySkill.MetalType metal)
+    {
+        unlockedMetals[(int)metal] = true;
+        Debug.Log($"[ALLOMANCER] Metal Unlocked: {metal}");
+    }
+
 
     void EnsureAllomancyComponents()
     {
@@ -125,9 +136,17 @@ public class Allomancer : MonoBehaviour
 
     public void StartBurning(AllomancySkill.MetalType metal)
     {
+        if (!unlockedMetals[(int)metal])
+        {
+            Debug.Log($"[ALLOMANCER] Cannot burn {metal} - Not unlocked!");
+            isBurningMetal = false;
+            return;
+        }
+
         isBurningMetal = true;
         canBurnMetal = metalReserves[(int)metal] > 0;
     }
+
 
     public void StopBurning() => isBurningMetal = false;
     public bool IsBurning() => isBurningMetal;

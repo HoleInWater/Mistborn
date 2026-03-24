@@ -85,6 +85,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         }
     }
 
+    public void SetInvincible(bool val) => isInvulnerable = val;
+
     public float GetMaxHealth() => maxHealth;
     public float GetCurrentHealth() => currentHealth;
 }
+
