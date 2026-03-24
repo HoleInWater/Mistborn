@@ -37,11 +37,10 @@ public class Tin : MonoBehaviour
     private float originalAudioVolume;
     private float currentOverloadVisual = 0f;
     private float currentOverloadAudio = 0f;
-    private float shakeIntensity = 0f;
-
     // References & Cache
     private BasicPlayerMove playerMove;
     private Vector3 originalCameraLocalPos;
+    private float shakeIntensity = 0f;
     private AudioLowPassFilter lowPass;
     private AudioHighPassFilter highPass;
 
@@ -50,13 +49,6 @@ public class Tin : MonoBehaviour
     private Fog fog;
     private ColorAdjustments colorAdjustments;
     private Vignette vignette;
-
-    // Components & State
-    private BasicPlayerMove playerMove;
-    private Vector3 originalCameraLocalPos;
-    private float shakeIntensity;
-    private AudioLowPassFilter lowPass;
-    private AudioHighPassFilter highPass;
 
     void Start()
     {
