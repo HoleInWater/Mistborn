@@ -35,8 +35,8 @@ public class Duralumin : MonoBehaviour
     
     void PrimeBurst()
     {
-        if (isPrimed) return;
         isPrimed = true;
+        if (allomancer != null) allomancer.isDuraluminPrimed = true;
         Debug.Log("[DURALUMIN] Primed for burst! Next metal burned will be massive.");
         
         // In this implementation, Duralumin itself doesn't drain other metals until you switch.
