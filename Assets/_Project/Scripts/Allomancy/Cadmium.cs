@@ -48,7 +48,7 @@ public class Cadmium : MonoBehaviour
         go.name = "CadmiumSlowBubble";
         go.transform.position = transform.position;
         
-        float flareMult = GetFlareMultiplier();
+        float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
         currentRadius = Mathf.Lerp(baseBubbleRadius, maxBubbleRadius, (flareMult - 1f) / 1.5f);
         go.transform.localScale = Vector3.one * currentRadius * 2f;
 
@@ -58,7 +58,8 @@ public class Cadmium : MonoBehaviour
         SetupTransparentMaterial(r.material);
 
         currentBubble = go.AddComponent<TimeBubble>();
-        currentBubble.timeScaleMultiplier = timeScaleMultiplier;
+        // Lore: Duralumin-Cadmium is extremely slow.
+        currentBubble.timeScaleMultiplier = Mathf.Clamp(timeScaleMultiplier / flareMult, 0.01f, 1f);
     }
 
     private void SetupTransparentMaterial(Material m)
@@ -81,14 +82,7 @@ public class Cadmium : MonoBehaviour
     }
 
 
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
-    }
+    // Removed local GetFlareMultiplier
 
     void OnDestroy() => DestroyBubble();
 }
