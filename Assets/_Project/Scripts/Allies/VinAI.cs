@@ -12,7 +12,8 @@ public class VinAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
         if (CompanionManager.Instance != null) CompanionManager.Instance.RegisterCompanion(gameObject);
     }
 
