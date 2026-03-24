@@ -37,23 +37,9 @@ public class Atium : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             UpdateFutureVision(flareMult);
         }
-        else if (wasBurning)
-        {
-            ClearFutures();
-        }
-    }
-    
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
-    }
 
     void UpdateFutureVision(float flareMult)
     {
@@ -64,15 +50,13 @@ public class Atium : MonoBehaviour
 
         float currentRange = Mathf.Lerp(baseVisionRange, maxVisionRange, (flareMult - 1f) / 1.5f);
         
-        // Find potential targets (AI and other Allomancers)
-        AIController[] enemies = FindObjectsOfType<AIController>();
-        foreach (var enemy in enemies)
+        // Use high-performance MistbornRegistry instead of FindObjectsOfType
+        foreach (var enemy in MistbornRegistry.ActiveEnemies)
         {
+            if (enemy == null) continue;
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist <= currentRange)
-            {
                 CreateFutureGhost(enemy.gameObject);
-            }
         }
     }
 
@@ -135,7 +119,7 @@ public class Atium : MonoBehaviour
         if (isBurning)
         {
             Gizmos.color = new Color(0.1f, 0.1f, 0.1f, 0.4f);
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             float currentRange = Mathf.Lerp(baseVisionRange, maxVisionRange, (flareMult - 1f) / 1.5f);
             Gizmos.DrawWireSphere(transform.position, currentRange);
         }
