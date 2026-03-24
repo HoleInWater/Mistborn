@@ -101,7 +101,7 @@ public class Tin : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             ApplyTinEffects(flareMult);
             HandleSensoryOverload(flareMult);
             DrainMetal(flareMult);
@@ -121,12 +121,7 @@ public class Tin : MonoBehaviour
         ApplyPhysicalOverload();
     }
 
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-            return 2.5f; 
-        return 1.0f;
-    }
+    // Removed local GetFlareMultiplier in favor of unified FlareManager state
 
     void ApplyTinEffects(float flareMult)
     {
