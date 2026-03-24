@@ -41,7 +41,7 @@ public class Pewter : MonoBehaviour
         if (playerMove == null)
             playerMove = GetComponentInParent<BasicPlayerMove>();
         
-        healthSystem = GetComponentInParent<PlayerHealth>();
+        healthSystem = GetComponentInParent<HealthBarTransitions>();
 
         if (playerMove != null)
         {
