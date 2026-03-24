@@ -98,6 +98,12 @@ public class HealthBarTransitions : MonoBehaviour
         get { return _progressBar != null ? _progressBar.value : 100f; }
         set { if (_progressBar != null) _progressBar.value = value; }
     }
+
+    // Health API aliases for external scripts (SazedAI, Pewter, etc.)
+    public float currentHealth => health;
+    public float GetCurrentHealth() => health;
+    public float GetMaxHealth() => 100f; // UI bar is statically set to 100
+    public void Heal(float amount) => IncreaseHealth(amount);
     
     // Add this so the Combat script can damage the health bar
     public void TakeDamage(float damage)
