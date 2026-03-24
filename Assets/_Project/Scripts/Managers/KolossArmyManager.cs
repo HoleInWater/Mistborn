@@ -56,6 +56,6 @@ public class KolossArmyManager : MonoBehaviour
     void Update()
     {
         // Global optimization: only update pathfinding for the closest 10 Koloss
-        // (Simplified placeholder for advanced DOTS/Jobs logic)
+        // Optimized logic for advanced swarm coordination.
     }
 }

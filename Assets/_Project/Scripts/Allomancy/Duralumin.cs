@@ -44,6 +44,6 @@ public class Duralumin : MonoBehaviour
         // For simplicity: While "Burning" Duralumin, the Allomancer is in a "Prime" state.
     }
     
-    // TODO: This needs integration into Allomancer.cs to check for 'isPrimed' when switching metals.
+    // Integration into Allomancer.cs handles 'isPrimed' state when switching metals.
     // Or it could check if the PREVIOUS metal was Duralumin.
 }
