@@ -36,7 +36,7 @@ public class Atium : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             HandleTimeDilation(true);
             UpdateFutureVision(flareMult);
         }
@@ -135,7 +135,7 @@ public class Atium : MonoBehaviour
         if (isBurning)
         {
             Gizmos.color = new Color(0.1f, 0.1f, 0.1f, 0.4f);
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             float currentRange = Mathf.Lerp(baseVisionRange, maxVisionRange, (flareMult - 1f) / 1.5f);
             Gizmos.DrawWireSphere(transform.position, currentRange);
         }
