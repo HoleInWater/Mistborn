@@ -28,14 +28,13 @@ public class Allomancer : MonoBehaviour
     [Header("HUD")]
     public MetalReserve metalReserve;
 
-    void Start()
+    void Awake()
     {
+        MistbornRegistry.RegisterAllomancer(this);
+        
         for (int i = 0; i < metalReserves.Length; i++)
         {
             metalReserves[i] = 100f;
-            // By default, only basic physical metals might be unlocked
-            // For now, let's say none are unlocked until purchased, 
-            // except maybe Steel/Iron for testing if no skill tree exists.
         }
 
         // Start with basic traversal unlocked
@@ -44,6 +43,17 @@ public class Allomancer : MonoBehaviour
 
         EnsureAllomancyComponents();
         metalSelector = GetComponent<MetalSelector>();
+    }
+
+    void OnDestroy()
+    {
+        MistbornRegistry.UnregisterAllomancer(this);
+    }
+    
+    // Kept for scene-start safety if components are added at runtime
+    void Start()
+    {
+        if (metalSelector == null) metalSelector = GetComponent<MetalSelector>();
     }
 
     public void UnlockMetal(AllomancySkill.MetalType metal)

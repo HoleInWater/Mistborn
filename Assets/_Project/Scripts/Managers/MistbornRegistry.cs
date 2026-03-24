@@ -9,9 +9,11 @@ public static class MistbornRegistry
 {
     private static List<AIController> activeEnemies = new List<AIController>();
     private static List<AllomanticTarget> activeMetalTargets = new List<AllomanticTarget>();
+    private static List<Allomancer> activeAllomancers = new List<Allomancer>();
 
     public static IReadOnlyList<AIController> ActiveEnemies => activeEnemies;
     public static IReadOnlyList<AllomanticTarget> ActiveMetalTargets => activeMetalTargets;
+    public static IReadOnlyList<Allomancer> ActiveAllomancers => activeAllomancers;
 
     public static void RegisterEnemy(AIController ai)
     {
@@ -31,5 +33,15 @@ public static class MistbornRegistry
     public static void UnregisterMetalTarget(AllomanticTarget target)
     {
         activeMetalTargets.Remove(target);
+    }
+
+    public static void RegisterAllomancer(Allomancer allomancer)
+    {
+        if (!activeAllomancers.Contains(allomancer)) activeAllomancers.Add(allomancer);
+    }
+
+    public static void UnregisterAllomancer(Allomancer allomancer)
+    {
+        activeAllomancers.Remove(allomancer);
     }
 }
