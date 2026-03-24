@@ -25,8 +25,7 @@ using System.Collections.Generic;
 
 public class AllomanticTarget : MonoBehaviour
 {
-    // Static registry of all metal objects for efficient lookup
-    private static HashSet<AllomanticTarget> allMetalObjects = new HashSet<AllomanticTarget>();
+    // Connected to global MistbornRegistry for industrial performance
     
     [Header("Metal Properties")]
     [Tooltip("Type of metal this object is made of")]
@@ -85,14 +84,13 @@ public class AllomanticTarget : MonoBehaviour
             canBePulled = false;
         }
         
-        // Register this metal object
-        allMetalObjects.Add(this);
+        // Register with global registry
+        MistbornRegistry.RegisterMetalTarget(this);
     }
     
     void OnDestroy()
     {
-        // Unregister when destroyed
-        allMetalObjects.Remove(this);
+        MistbornRegistry.UnregisterMetalTarget(this);
     }
     
     // Returns the effective mass for push/pull calculations
@@ -122,9 +120,9 @@ public class AllomanticTarget : MonoBehaviour
         return collider.GetComponent<AllomanticTarget>();
     }
     
-    // Get all registered metal objects (for debugging or special abilities)
-    public static HashSet<AllomanticTarget> GetAllMetalObjects()
+    // Get all registered metal objects via global registry
+    public static IReadOnlyList<AllomanticTarget> GetAllMetalObjects()
     {
-        return new HashSet<AllomanticTarget>(allMetalObjects);
+        return MistbornRegistry.ActiveMetalTargets;
     }
 }
