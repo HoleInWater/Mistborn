@@ -42,18 +42,9 @@ public class Bronze : MonoBehaviour
 
         if (isBurning)
         {
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             DetectPulses(flareMult);
         }
-    }
-    
-    float GetFlareMultiplier()
-    {
-        if (FlareManager.Instance != null && FlareManager.Instance.IsFlaring)
-        {
-            return FlareManager.Instance.FlareIntensity;
-        }
-        return 1.0f;
     }
 
     void DetectPulses(float flareMult)
@@ -216,7 +207,7 @@ public class Bronze : MonoBehaviour
         if (isBurning)
         {
             Gizmos.color = new Color(0.8f, 0.4f, 0f, 0.2f);
-            float flareMult = GetFlareMultiplier();
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
             float currentRadius = Mathf.Lerp(baseDetectionRadius, maxDetectionRadius, (flareMult - 1f) / 1.5f);
             Gizmos.DrawWireSphere(transform.position, currentRadius);
         }
