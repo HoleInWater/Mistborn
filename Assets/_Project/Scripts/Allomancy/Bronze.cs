@@ -60,13 +60,13 @@ public class Bronze : MonoBehaviour
     {
         float currentRadius = Mathf.Lerp(baseDetectionRadius, maxDetectionRadius, (flareMult - 1f) / 1.5f);
         
-        // Optimize: Use a static list of allomancers if possible, or OverlapSphere and check components
-        Allomancer[] others = FindObjectsOfType<Allomancer>();
+        // Optimized: Use the high-performance MistbornRegistry
+        var others = MistbornRegistry.ActiveAllomancers;
         detectedAllomancers.Clear();
 
         foreach (var other in others)
         {
-            if (other == allomancer || !other.IsBurning()) continue;
+            if (other == null || other == allomancer || !other.IsBurning()) continue;
 
             float dist = Vector3.Distance(transform.position, other.transform.position);
             if (dist <= currentRadius && !Copper.IsPulseHidden(other.transform.position))
