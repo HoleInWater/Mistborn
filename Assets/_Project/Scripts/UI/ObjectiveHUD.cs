@@ -13,14 +13,8 @@ public class ObjectiveHUD : MonoBehaviour
     {
         if (ObjectiveManager.Instance != null)
         {
-            ObjectiveManager.Instance.OnObjectiveStarted += OnObjectiveChanged;
-            ObjectiveManager.Instance.OnObjectiveCompleted += OnObjectiveChanged;
+            ObjectiveManager.Instance.OnObjectivesChanged += RefreshUI;
         }
-        RefreshUI();
-    }
-
-    void OnObjectiveChanged(Objective obj)
-    {
         RefreshUI();
     }
 
@@ -37,7 +31,7 @@ public class ObjectiveHUD : MonoBehaviour
         string fullText = header;
         foreach (var obj in ObjectiveManager.Instance.GetActiveObjectives())
         {
-            fullText += $"- {obj.title}\n";
+            fullText += $"- {obj.description}\n";
         }
         objectiveText.text = fullText;
     }
@@ -46,8 +40,7 @@ public class ObjectiveHUD : MonoBehaviour
     {
         if (ObjectiveManager.Instance != null)
         {
-            ObjectiveManager.Instance.OnObjectiveStarted -= OnObjectiveChanged;
-            ObjectiveManager.Instance.OnObjectiveCompleted -= OnObjectiveChanged;
+            ObjectiveManager.Instance.OnObjectivesChanged -= RefreshUI;
         }
     }
 }

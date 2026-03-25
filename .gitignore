@@ -1,9 +1,3 @@
-# Ralph Wiggum (local agent loop)
-ralph.sh
-ralph_output.log
-plans.json
-progress.txt
-
 # Unity
 /[Ll]ibrary/
 /[Tt]emp/

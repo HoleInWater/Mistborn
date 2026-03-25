@@ -44,8 +44,8 @@ public class IronPull : MonoBehaviour
     public float metalCostPerSecond  = 2f;
 
     [Header("Allomancy Physics")]
-    public float allomanticStrength  = 1000f;
-    public float maxCoinVelocity     = 400f;
+    public float allomanticStrength  = 50f;
+    public float maxCoinVelocity     = 20f;
     [Range(1f, 2f)] public float distanceExponent = 1f;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
@@ -254,17 +254,17 @@ public class IronPull : MonoBehaviour
         if (!hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        // --- Direction and distance (pull = toward player) ---
+        // --- Direction and distance ---
         Vector3 dirToTarget = currentTargetRigidbody.position - playerRigidbody.position;
         float   distance    = dirToTarget.magnitude;
 
-        // --- Strength calculation (mirrors SteelPush inverse-distance model) ---
+        // --- Strength calculation ---
         float strength = allomanticStrength
                        * (playerRigidbody.mass / referenceMass)
                        * CurrentFlareMultiplier;
 
-        float eff      = Mathf.Max(distance, minDistance);
-        float forceMag = strength / Mathf.Pow(eff, distanceExponent);
+        float distanceFactor = Mathf.Clamp01(1f - (distance / maxRange));
+        float force          = strength * distanceFactor;
 
         // --- Mass setup ---
         float playerMass = playerRigidbody.mass;
@@ -277,31 +277,29 @@ public class IronPull : MonoBehaviour
         float playerRatio = objectMass / totalMass;
         float objectRatio = playerMass / totalMass;
 
-        // Pull direction: player toward target, object toward player
-        Vector3 pullForce = dirToTarget.normalized * forceMag * 250f;
+        // Multiplier amplified heavily for massive snappy impulse kick
+        Vector3 forceDir = dirToTarget.normalized * force * 250f;
 
-        // Clamp to prevent physics tunneling
+        // Clamp impulse to prevent physics tunneling
         float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
-        if (pullForce.magnitude > maxAllowedImpulse)
-            pullForce = pullForce.normalized * maxAllowedImpulse;
+        if (forceDir.magnitude > maxAllowedImpulse)
+            forceDir = forceDir.normalized * maxAllowedImpulse;
 
-        // --- Apply forces (continuous while held, not per-frame impulse) ---
-        // Player pulled toward target
-        playerRigidbody.AddForce(pullForce * playerRatio, ForceMode.Force);
+        // --- Apply impulses ---
+        playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
 
-        // Object pulled toward player (Newton's 3rd Law)
         if (!isAnchored)
-            currentTargetRigidbody.AddForce(-pullForce * objectRatio, ForceMode.Force);
+            currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
 
         // --- Visual feedback ---
-        if (forceMag > shakeForceThreshold)
+        if (force > shakeForceThreshold)
         {
             CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
-            TriggerPullTint(forceMag);
+            TriggerPullTint(force);
         }
 
         if (debugPullOperations)
-            Debug.Log($"[IRON PULL] force={forceMag:F0} playerRatio={playerRatio:F2} objectRatio={objectRatio:F2} anchored={isAnchored}");
+            Debug.Log($"[IRON PULL] force={force:F0} playerRatio={playerRatio:F2} objectRatio={objectRatio:F2} anchored={isAnchored}");
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────
