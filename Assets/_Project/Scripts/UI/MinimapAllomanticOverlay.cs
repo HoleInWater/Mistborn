@@ -94,10 +94,12 @@ public class MinimapAllomanticOverlay : MonoBehaviour
             ClearMetalMarkers();
         }
 
-        // Tin detection — reveal enemies via enhanced hearing
+        // Tin detection — reveal enemies (throttled to match bronze pulse)
         if (allomancer.IsMetalBurning(AllomancySkill.MetalType.Tin))
         {
-            ScanForEnemies();
+            // Reuse bronze timer to avoid a second expensive scan per frame
+            if (bronzePulseTimer <= 0.05f)
+                ScanForEnemies();
         }
         else
         {

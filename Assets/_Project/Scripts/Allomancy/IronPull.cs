@@ -44,9 +44,11 @@ public class IronPull : MonoBehaviour
     public float metalCostPerSecond  = 2f;
 
     [Header("Allomancy Physics")]
-    [Tooltip("Allomantic constant A. Handbook: A_vin=35316, conservative=1500")]
-    public float allomanticStrength  = 1500f;
-    public float maxCoinVelocity     = 500f;
+    [Header("Allomancy Physics — PHYSICS-MATH-BOOK.md Section 2")]
+    [Tooltip("Game-tuned A constant. Handbook A_conservative=1500. Lower = weaker pull.")]
+    public float allomanticStrength  = 50f;
+    [Tooltip("Max velocity for pulled objects")]
+    public float maxCoinVelocity     = 30f;
     [Range(1f, 2f)] public float distanceExponent = 1f;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
@@ -213,8 +215,16 @@ public class IronPull : MonoBehaviour
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
+    private float targetScanTimer = 0f;
+    private const float TARGET_SCAN_INTERVAL = 0.1f;
+
     void UpdateTargetedMetal()
     {
+        // Throttle expensive physics scan
+        targetScanTimer -= Time.deltaTime;
+        if (targetScanTimer > 0f) return;
+        targetScanTimer = TARGET_SCAN_INTERVAL;
+
         hasCurrentTarget       = false;
         currentTarget          = null;
         currentTargetRigidbody = null;
@@ -263,35 +273,29 @@ public class IronPull : MonoBehaviour
         // PHYSICS-MATH-BOOK.md Section 2 — same formula as Steel Push
         float playerMass = playerRigidbody.mass;
         float objectMass = currentTargetRigidbody.mass;
-
-        if (isAnchored)
-            objectMass = Mathf.Infinity;
-
         float eff = Mathf.Max(distance, minDistance);
-        float A = AllomancyPhysicsFormulas.GetAllomanticStrength(
-            allomanticStrength, CurrentFlareMultiplier);
-        float effectiveObjectMass = isAnchored ? playerMass * 10f : objectMass;
-        float forceMag = AllomancyPhysicsFormulas.CalculateAllomanticForce(
-            A, playerMass, effectiveObjectMass, eff);
 
-        // Newton's 3rd Law mass ratios
-        float playerRatio, objectRatio;
-        AllomancyPhysicsFormulas.CalculateMassRatios(
-            playerMass, objectMass, isAnchored, out playerRatio, out objectRatio);
+        // For anchored objects, use a large effective mass so player gets all the force
+        float effectiveObjectMass = isAnchored ? 1000f : objectMass;
+        float A = allomanticStrength * CurrentFlareMultiplier;
+        float forceMag = (A * playerMass * effectiveObjectMass) / (eff * eff);
 
-        // Pull direction: player toward target, object toward player
-        Vector3 pullForce = dirToTarget.normalized * forceMag;
+        // Game-tuning: cap force to prevent physics explosion
+        float maxForce = playerMass * maxCoinVelocity;
+        forceMag = Mathf.Min(forceMag, maxForce);
 
-        // Clamp to prevent physics tunneling
-        float maxForce = (isAnchored ? playerMass : objectMass) * maxCoinVelocity;
-        if (pullForce.magnitude > maxForce)
-            pullForce = pullForce.normalized * maxForce;
+        // Newton's 3rd Law: lighter party moves more
+        float playerRatio = isAnchored ? 1f : (objectMass / (playerMass + objectMass));
+        float objectRatio = isAnchored ? 0f : (playerMass / (playerMass + objectMass));
 
-        // Apply as continuous force (not impulse — pull is held)
-        playerRigidbody.AddForce(pullForce * playerRatio, ForceMode.Force);
+        // Pull: player toward target, object toward player
+        // Using ForceMode.Force (continuous) scaled by dt for smooth pull
+        Vector3 pullDir = dirToTarget.normalized * forceMag;
+
+        playerRigidbody.AddForce(pullDir * playerRatio, ForceMode.Force);
 
         if (!isAnchored)
-            currentTargetRigidbody.AddForce(-pullForce * objectRatio, ForceMode.Force);
+            currentTargetRigidbody.AddForce(-pullDir * objectRatio, ForceMode.Force);
 
         // --- Visual feedback ---
         if (forceMag > shakeForceThreshold)
