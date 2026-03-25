@@ -22,7 +22,6 @@ public class Allomancer : MonoBehaviour
     [Header("Metal Reserves")]
     public float[] metalReserves = new float[20]; // Expanded for complete 18-metal suite + buffer
     public bool[] unlockedMetals = new bool[20];
-
     public bool canBurnMetal = true;
 
     [Header("Burn Rate")]
@@ -41,7 +40,6 @@ public class Allomancer : MonoBehaviour
     void Awake()
     {
         MistbornRegistry.RegisterAllomancer(this);
-        
         for (int i = 0; i < metalReserves.Length; i++)
         {
             metalReserves[i] = 100f;
@@ -60,7 +58,7 @@ public class Allomancer : MonoBehaviour
     {
         MistbornRegistry.UnregisterAllomancer(this);
     }
-    
+
     // Kept for scene-start safety if components are added at runtime
     void Start()
     {
@@ -73,7 +71,6 @@ public class Allomancer : MonoBehaviour
         Debug.Log($"[ALLOMANCER] Metal Unlocked: {metal}");
     }
 
-
     void EnsureAllomancyComponents()
     {
         if (GetComponent<SteelPush>() == null) gameObject.AddComponent<SteelPush>();
@@ -82,7 +79,7 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<MetalSelector>() == null) gameObject.AddComponent<MetalSelector>();
         if (GetComponent<MetalReserve>() == null) gameObject.AddComponent<MetalReserve>();
         if (GetComponent<MetalBurnEffect>() == null) gameObject.AddComponent<MetalBurnEffect>();
-        
+
         // Add all 16 metal components
         if (GetComponent<Tin>() == null) gameObject.AddComponent<Tin>();
         if (GetComponent<Pewter>() == null) gameObject.AddComponent<Pewter>();
@@ -101,7 +98,6 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<Chromium>() == null) gameObject.AddComponent<Chromium>();
         if (GetComponent<Nicrosil>() == null) gameObject.AddComponent<Nicrosil>();
     }
-
 
     void Update()
     {
@@ -154,7 +150,7 @@ public class Allomancer : MonoBehaviour
             else
             {
                 DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
-                
+
                 // If we were nicrobursting but not duralumin priming, clear it after some burn
                 if (isNicrobursting && drainRate > baseBurnRate)
                 {
@@ -169,7 +165,7 @@ public class Allomancer : MonoBehaviour
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
 
-        if (Input.GetKeyDown(KeyCode.RightAlt)) RefillAllMetals();
+        if (Input.GetKeyDown(KeyCode.RightAlt) || Input.GetKeyDown(KeyCode.U)) RefillAllMetals();
 
         // Ensure HUD selection highlights are up-to-date every frame
         if (metalReserve != null && metalSelector != null)
@@ -196,12 +192,12 @@ public class Allomancer : MonoBehaviour
         canBurnMetal = metalReserves[(int)metal] > 0;
     }
 
-
     public void StopBurning()
     {
         isBurningMetal = false;
         isNicrobursting = false; // Clear nicroburst on stop
     }
+
     public bool IsBurning() => isBurningMetal;
 
     public void SetCurrentMetal(AllomancySkill.MetalType metal)
@@ -222,7 +218,6 @@ public class Allomancer : MonoBehaviour
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
         UpdateHUD(metal);
-        
         if (metal == GetCurrentMetal())
             canBurnMetal = metalReserves[(int)metal] > 0;
     }
