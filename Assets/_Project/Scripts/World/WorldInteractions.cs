@@ -123,12 +123,6 @@ public class WorldInteractions : MonoBehaviour
     public GameObject GetHeldObject() => heldObject;
 }
 
-public interface IInteractable
-{
-    void Interact(GameObject player);
-    string GetInteractionText();
-}
-
 public interface IPickupable
 {
     GameObject GetGameObject();
@@ -167,9 +161,14 @@ public class InteractableObject : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionPrompt()
     {
         return interactText;
+    }
+
+    public bool CanInteract()
+    {
+        return canInteract;
     }
 
     public void ShowHighlight()

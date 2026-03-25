@@ -36,7 +36,7 @@ public class EnemyAI : MonoBehaviour
     public Transform target;
     public AudioSource audioSource;
 
-    private enum State { Idle, Patrol, Chase, Attack, Flee, Investigate, Dead }
+    public enum State { Idle, Patrol, Chase, Attack, Flee, Investigate, Dead }
     private State currentState = State.Idle;
     private State previousState = State.Idle;
 

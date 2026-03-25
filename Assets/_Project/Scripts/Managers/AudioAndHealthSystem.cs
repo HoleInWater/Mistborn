@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour
@@ -9,7 +10,6 @@ public class AudioManager : MonoBehaviour
     public AudioSource musicSource;
     public AudioSource sfxSource;
     public AudioSource ambientSource;
-    public AudioMixer audioMixer;
 
     [Header("Settings")]
     public float masterVolume = 1f;
@@ -187,12 +187,6 @@ public class PlayerHealth : MonoBehaviour
     }
 
     public bool IsDead() => isDead;
-}
-
-public interface IDamageable
-{
-    void TakeDamage(float damage);
-    void ApplyKnockback(Vector3 direction);
 }
 
 public class DamageFlash : MonoBehaviour

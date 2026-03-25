@@ -300,9 +300,26 @@ public class ObjectiveManager : MonoBehaviour
         {
             activeObjectives.Add(objective);
             OnObjectiveStarted?.Invoke(objective);
-            
+
             Debug.Log($"[OBJECTIVE] Started: {objective.title}");
         }
+    }
+
+    /// <summary>
+    /// Convenience overload: creates an Objective from an ObjectiveData ScriptableObject.
+    /// </summary>
+    public void AddObjective(ObjectiveData data)
+    {
+        if (data == null) return;
+        Objective obj = new Objective
+        {
+            objectiveId = data.objectiveID,
+            title = data.description,
+            description = data.description,
+            targetProgress = 1,
+            currentProgress = 0
+        };
+        AddObjective(obj);
     }
 
     public void UpdateObjectiveProgress(string objectiveId, int progress)

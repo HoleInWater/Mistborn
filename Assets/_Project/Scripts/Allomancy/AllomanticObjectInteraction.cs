@@ -180,19 +180,19 @@ public class PlayerObjectCollision : MonoBehaviour
         Debug.Log($"[COLLISION] Player collided with {obj.name}, force: {impactForce:F1}");
     }
 
-    void OnCollisionStay(Contact contact)
+    void OnCollisionStay(Collision collision)
     {
-        AllomanticObjectInteraction obj = contact.gameObject.GetComponent<AllomanticObjectInteraction>();
+        AllomanticObjectInteraction obj = collision.gameObject.GetComponent<AllomanticObjectInteraction>();
         if (obj == null) return;
 
-        if (((1 << contact.gameObject.layer) & pushableLayer) == 0) return;
+        if (((1 << collision.gameObject.layer) & pushableLayer) == 0) return;
 
         float playerMass = playerRb != null ? playerRb.mass : 80f;
-        
-        if (obj.mass > playerMass * 3 && playerRb != null)
+
+        if (obj.mass > playerMass * 3 && playerRb != null && collision.contactCount > 0)
         {
             // Push player slowly when leaning against heavy object
-            Vector3 pushDir = -contact.normal;
+            Vector3 pushDir = -collision.GetContact(0).normal;
             playerRb.linearVelocity += pushDir * 0.5f * Time.fixedDeltaTime;
         }
     }
