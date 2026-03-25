@@ -11,11 +11,13 @@ public static class MistbornRegistry
     private static List<AllomanticTarget> activeMetalTargets = new List<AllomanticTarget>();
     private static List<Allomancer> activeAllomancers = new List<Allomancer>();
     private static List<Feruchemist> activeFeruchemists = new List<Feruchemist>();
+    private static List<Compounding> activeCompounders = new List<Compounding>();
 
     public static IReadOnlyList<AIController> ActiveEnemies => activeEnemies;
     public static IReadOnlyList<AllomanticTarget> ActiveMetalTargets => activeMetalTargets;
     public static IReadOnlyList<Allomancer> ActiveAllomancers => activeAllomancers;
     public static IReadOnlyList<Feruchemist> ActiveFeruchemists => activeFeruchemists;
+    public static IReadOnlyList<Compounding> ActiveCompounders => activeCompounders;
 
     public static void RegisterEnemy(AIController ai)
     {
@@ -57,11 +59,22 @@ public static class MistbornRegistry
         activeFeruchemists.Remove(feruchemist);
     }
 
+    public static void RegisterCompounder(Compounding compounder)
+    {
+        if (!activeCompounders.Contains(compounder)) activeCompounders.Add(compounder);
+    }
+
+    public static void UnregisterCompounder(Compounding compounder)
+    {
+        activeCompounders.Remove(compounder);
+    }
+
     public static void ClearAll()
     {
         activeEnemies.Clear();
         activeMetalTargets.Clear();
         activeAllomancers.Clear();
         activeFeruchemists.Clear();
+        activeCompounders.Clear();
     }
 }

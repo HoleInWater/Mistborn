@@ -1,0 +1,193 @@
+{
+  "project": "Mistborn Unity Game",
+  "description": "Remaining backlog items for the Mistborn Allomancy RPG",
+  "tasks": [
+    {
+      "id": 1,
+      "priority": 1,
+      "title": "Implement Feruchemy base system",
+      "description": "Create Feruchemist.cs with metalminds for all 16 metals. Each metalmind stores/taps a specific attribute (steel=speed, iron=weight, pewter=strength, tin=senses, zinc=mental speed, brass=warmth, copper=memories, bronze=wakefulness, gold=health, electrum=determination, cadmium=breath, bendalloy=energy, aluminum=identity, duralumin=connection, chromium=fortune, nicrosil=investiture). Implement store/tap mechanics with diminishing returns. Reference the physics handbook at docs/PHYSICS-MATH-BOOK.md for Feruchemy storage formulas.",
+      "acceptance_criteria": [
+        "Feruchemist.cs with store/tap for all 16 metalminds",
+        "FeruchemicalAttribute enum matching all metals",
+        "Storage rate and tap rate with diminishing returns",
+        "Metalmind capacity limits",
+        "Integration with existing Allomancer component for Compounding detection"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/"],
+      "passes": true
+    },
+    {
+      "id": 2,
+      "priority": 2,
+      "title": "Implement Compounding system",
+      "description": "Create Compounding.cs that detects when a character has both Allomancy and Feruchemy for the same metal. Burning a metalmind Allomantically should produce a massive burst of the Feruchemical attribute (10x normal tap rate). This is how the Lord Ruler achieved immortality (gold compounding = infinite health). Reference AllomancyPhysicsFormulas.cs for compounding calculations.",
+      "acceptance_criteria": [
+        "Compounding.cs that bridges Allomancer and Feruchemist",
+        "Detect dual-shard metals automatically",
+        "10x Feruchemical output when compounding",
+        "Metal reserve drain during compounding",
+        "Integration with LordRulerBoss.cs for boss compounding behavior"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/"],
+      "passes": true
+    },
+    {
+      "id": 3,
+      "priority": 3,
+      "title": "Add Hazekiller squad AI with formation tactics",
+      "description": "Expand HazekillerAI.cs with proper squad formations. Hazekillers use aluminum-lined helmets (immune to emotional Allomancy), carry non-metallic weapons, and work in coordinated squads. Implement triangle formation, flanking maneuvers, shield wall, and coordinated rush tactics. They should counter Allomancers specifically - spread out vs Coinshots, close range vs Lurchers.",
+      "acceptance_criteria": [
+        "Squad formation system (triangle, shield wall, rush)",
+        "Anti-Allomancy tactics (spread vs push, close vs pull)",
+        "Aluminum helmet immunity to Zinc/Brass",
+        "Non-metallic weapon flag (immune to Steel/Iron)",
+        "Squad leader designation and command relay"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Enemy/HazekillerAI.cs"],
+      "passes": false
+    },
+    {
+      "id": 4,
+      "priority": 4,
+      "title": "Implement Koloss rage scaling and sword mechanics",
+      "description": "Expand KolossAI.cs with lore-accurate Koloss behavior. Koloss grow larger as they age, their skin tears and is held by stakes. Implement rage mode that increases damage/speed but reduces defense. Koloss swords are massive and should have area-of-effect ground slam attacks. Add Hemalurgic spike vulnerability - removing spikes makes them docile.",
+      "acceptance_criteria": [
+        "Size scaling affects stats (larger = more damage, slower)",
+        "Rage mode with escalating aggression",
+        "Ground slam AOE attack",
+        "Hemalurgic spike system (removable, affects behavior)",
+        "Koloss sword pickup for player after kill"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Enemy/KolossAI.cs"],
+      "passes": false
+    },
+    {
+      "id": 5,
+      "priority": 5,
+      "title": "Add Steel Inquisitor multi-phase boss fight",
+      "description": "Expand SteelInquisitorAI.cs with a proper multi-phase boss fight. Phase 1: Uses Steel/Iron pushes and pulls aggressively. Phase 2 (below 60% HP): Burns Atium for future sight (dodge player attacks). Phase 3 (below 30% HP): Burns all metals simultaneously, extremely dangerous. Weakness: removing the linchpin spike from their back kills them instantly. Add spike-pulling mechanic when stunned.",
+      "acceptance_criteria": [
+        "Three distinct combat phases with transitions",
+        "Atium dodge mechanic in phase 2",
+        "All-metals-burning frenzy in phase 3",
+        "Linchpin spike vulnerability (QTE or interact when stunned)",
+        "Proper death animation when spike removed"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Enemy/SteelInquisitorAI.cs"],
+      "passes": false
+    },
+    {
+      "id": 6,
+      "priority": 6,
+      "title": "Create Lord Ruler final boss fight",
+      "description": "Expand LordRulerBoss.cs into a full multi-phase final boss. Phase 1: Physical combat with Pewter enhancement and Steel pushes. Phase 2: Emotional Allomancy (Soothing/Rioting the player). Phase 3: Full Compounding with regeneration (gold compounding heals). Phase 4: Atium burn with time dilation. The player must discover the weakness (removing his metalminds stops his compounding). Add dramatic cutscene triggers.",
+      "acceptance_criteria": [
+        "Four distinct boss phases",
+        "Gold compounding regeneration mechanic",
+        "Emotional Allomancy affecting player (screen effects, debuffs)",
+        "Atium phase with predicted player movements",
+        "Metalmind removal mechanic to disable compounding",
+        "Victory cutscene trigger"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Enemy/LordRulerBoss.cs"],
+      "passes": false
+    },
+    {
+      "id": 7,
+      "priority": 7,
+      "title": "Implement dialogue system with branching conversations",
+      "description": "Expand DialogueSystem.cs with proper branching dialogue trees. Support for speaker portraits, typing animation, response choices that affect story flags, skill checks (Allomancy-based dialogue options like 'Soothe the guard' requiring Brass), and quest trigger integration. Add dialogue for key NPCs: Kelsier, Breeze, Ham, Clubs, Sazed, Vin.",
+      "acceptance_criteria": [
+        "Branching dialogue tree with multiple response options",
+        "Allomancy skill checks in dialogue (Zinc/Brass options)",
+        "Story flag integration (choices affect game state)",
+        "Speaker portrait support",
+        "Dialogue content for 6 key NPCs",
+        "Quest trigger from dialogue responses"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Quests/DialogueSystem.cs", "Assets/_Project/Scripts/UI/DialogueManager.cs"],
+      "passes": false
+    },
+    {
+      "id": 8,
+      "priority": 8,
+      "title": "Add weather system integration with gameplay",
+      "description": "Connect WeatherSystem.cs to gameplay mechanics. Mist should affect visibility and Tin effectiveness. Ash storms should deal damage without cover. Rain should affect sound detection ranges. Weather should cycle on a day/night schedule. The mists should be thicker at night (lore-accurate). Add mist spirit random encounter during deep mist.",
+      "acceptance_criteria": [
+        "Weather affects Tin sight range and overload",
+        "Ash storm damage and screen effects",
+        "Rain affects hearing detection range",
+        "Day/night cycle with mist thickness",
+        "Mist spirit rare encounter spawner",
+        "Weather transitions with particle effects"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/World/"],
+      "passes": false
+    },
+    {
+      "id": 9,
+      "priority": 9,
+      "title": "Implement coin pouch and projectile system",
+      "description": "Create CoinPouch.cs for the Coinshot's primary weapon system. Players carry a pouch of coins that can be individually pushed. Implement coin throwing (aim + push), coin shotgun (multiple coins at once), coin bounce (push coin off ground for vertical launch), and coin trail (rapid-fire coins while moving). Each coin is a physics object with an AllomanticTarget component.",
+      "acceptance_criteria": [
+        "CoinPouch inventory with coin count",
+        "Individual coin spawning as physics objects",
+        "Coin throw + Steel Push combo",
+        "Coin shotgun spread pattern",
+        "Coin bounce off surfaces for repositioning",
+        "Coins recoverable after combat"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/", "Assets/_Project/Scripts/Player/"],
+      "passes": false
+    },
+    {
+      "id": 10,
+      "priority": 10,
+      "title": "Add minimap with Allomantic metal detection overlay",
+      "description": "Expand MinimapSystem.cs to show Allomantic metal sources when burning Bronze (Seeker ability). Metal sources should pulse on the minimap with color-coded indicators matching metal type. Add fog of war that clears as player explores. Show quest markers, checkpoint markers, and enemy positions (when using Tin enhanced hearing).",
+      "acceptance_criteria": [
+        "Bronze burning reveals metal sources on minimap",
+        "Color-coded metal type indicators",
+        "Fog of war system",
+        "Quest objective markers",
+        "Tin-enhanced enemy position markers",
+        "Minimap zoom and rotation"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/UI/"],
+      "passes": false
+    },
+    {
+      "id": 11,
+      "priority": 11,
+      "title": "Implement skill tree with Allomantic specializations",
+      "description": "Expand SkillTreeSystem.cs with proper skill trees for each metal. Each metal should have 3 tiers of upgrades: Efficiency (reduce metal drain), Power (increase effect strength), Mastery (unlock special abilities). Add passive skills for combat, movement, and survival. Skill points earned from leveling up via PlayerExperience.",
+      "acceptance_criteria": [
+        "16 metal skill trees with 3 tiers each",
+        "Efficiency, Power, Mastery upgrade categories",
+        "Passive skill branches (combat, movement, survival)",
+        "Skill point spending from PlayerExperience",
+        "Visual skill tree UI with node connections",
+        "Skill effects applied to corresponding metal scripts"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/UI/SkillTreeSystem.cs", "Assets/_Project/Scripts/Skill Tree Scripts/"],
+      "passes": false
+    },
+    {
+      "id": 12,
+      "priority": 12,
+      "title": "Add environmental storytelling and collectible lore books",
+      "description": "Create LoreCollectible.cs for finding books, notes, and journal entries throughout the world. Include excerpts from the Mistborn lore: the Deepness, the Lord Ruler's ascension, the Well of Ascension, Hemalurgy principles, skaa rebellion history. Each collectible unlocks an entry in a Lore Codex accessible from the pause menu.",
+      "acceptance_criteria": [
+        "LoreCollectible.cs with pickup interaction",
+        "Lore Codex UI in pause menu",
+        "15+ lore entries covering key Mistborn topics",
+        "Collectible tracking in save system",
+        "Visual indicator for undiscovered collectibles",
+        "Achievement for finding all lore entries"
+      ],
+      "files_to_modify": ["Assets/_Project/Scripts/World/", "Assets/_Project/Scripts/UI/"],
+      "passes": false
+    }
+  ]
+}
