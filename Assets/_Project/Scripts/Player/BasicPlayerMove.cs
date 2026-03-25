@@ -45,14 +45,14 @@ public class BasicPlayerMove : MonoBehaviour
     public float acceleration = 50f;        // Raised: 10 was too slow to feel responsive
 
     [Header("External Modifiers")]
-    public float externalSpeedMultiplier = 1f; // Applied to moveSpeed and sprintSpeed
- 
+    public float externalSpeedMultiplier = 1f;
+
     // ── Internal state ──────────────────────────────────────────────────────────
- 
+
     private Rigidbody rb;
     private bool isGrounded;
-    private float jumpBufferCounter;        // Counts down after jump is pressed; allows early jump input
-    private bool jumpRequested = false;     // Set in Update, consumed in FixedUpdate via HandleJump
+    private float jumpBufferCounter;
+    private bool jumpRequested = false;
  
     private float xRotation = 0f;          // Accumulated vertical mouse look (pitch)
     private float yRotation = 0f;          // Accumulated horizontal mouse look (yaw)
@@ -151,8 +151,8 @@ public class BasicPlayerMove : MonoBehaviour
             }
         }
  
-        HandleCamera();  // Mouse look runs in Update for maximum responsiveness
-        HandleZoom();    // Scroll wheel zoom runs in Update to catch every scroll event
+        HandleCamera();
+        HandleZoom();
     }
  
     void FixedUpdate()
@@ -319,5 +319,12 @@ public class BasicPlayerMove : MonoBehaviour
         // Apply the final distance along the dolly direction in local space
         cameraTransform.localPosition = dollyDir * currentDistance;
     }
+
+    // ── Public API ──────────────────────────────────────────────────────────────
+
+    public bool IsGrounded() => isGrounded;
+    public bool IsSprinting() => sprintHeld && isGrounded && _moveDirection.magnitude > 0.1f;
+    public float GetCurrentSpeed() => rb != null ? rb.linearVelocity.magnitude : 0f;
+    public Vector3 GetVelocity() => rb != null ? rb.linearVelocity : Vector3.zero;
 }
  
