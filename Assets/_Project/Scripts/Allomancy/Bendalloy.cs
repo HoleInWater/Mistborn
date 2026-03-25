@@ -7,9 +7,10 @@ using UnityEngine;
 /// </summary>
 public class Bendalloy : MonoBehaviour
 {
-    [Header("Settings")]
+    [Header("Settings — PHYSICS-MATH-BOOK.md Section 9")]
     public float baseBubbleRadius = 5f;
-    public float timeScaleMultiplier = 2.0f; // Speed up time inside
+    [Tooltip("Handbook: τ_fast ≈ 10 (10x faster inside). Game-tuned lower for playability.")]
+    public float timeScaleMultiplier = 8.0f; // Lore: ~10x faster inside bubble
     
     [Header("Flare Boosts")]
     public float maxBubbleRadius = 12f;

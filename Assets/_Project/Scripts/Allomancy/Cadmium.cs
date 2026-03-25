@@ -7,9 +7,10 @@ using UnityEngine;
 /// </summary>
 public class Cadmium : MonoBehaviour
 {
-    [Header("Settings")]
+    [Header("Settings — PHYSICS-MATH-BOOK.md Section 9")]
     public float baseBubbleRadius = 5f;
-    public float timeScaleMultiplier = 0.5f; // Slow down time inside
+    [Tooltip("Handbook: τ_slow ≈ 0.1 (10x slower inside). Game-tuned higher for playability.")]
+    public float timeScaleMultiplier = 0.15f; // Lore: ~10x slower inside bubble
     
     [Header("Flare Boosts")]
     public float maxBubbleRadius = 15f;
