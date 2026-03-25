@@ -36,9 +36,11 @@ public class SteelPush : MonoBehaviour
     public float metalCostPerSecond= 2f;
     public float pushCooldown      = 0.2f;
 
-    [Header("Allomancy Physics")]
-    public float allomanticStrength = 1000f;
-    public float maxCoinVelocity    = 400f;
+    [Header("Allomancy Physics — PHYSICS-MATH-BOOK.md Section 2")]
+    [Tooltip("Game-tuned A constant. Handbook A_conservative=1500. Lower = weaker push.")]
+    public float allomanticStrength = 50f;
+    [Tooltip("Max velocity a pushed object can reach (prevents physics explosion)")]
+    public float maxCoinVelocity    = 40f;
     [Range(1f, 2f)] public float distanceExponent = 1f;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
@@ -273,17 +275,24 @@ public class SteelPush : MonoBehaviour
     private Renderer lastHighlightedRenderer;
     private Color originalColor;
 
+    private float targetScanTimer = 0f;
+    private const float TARGET_SCAN_INTERVAL = 0.1f; // Scan 10x/sec instead of every frame
+
     void UpdateTargetedMetal()
     {
+        // Throttle expensive physics scan
+        targetScanTimer -= Time.deltaTime;
+        if (targetScanTimer > 0f) return;
+        targetScanTimer = TARGET_SCAN_INTERVAL;
+
         hasCurrentTarget = false; currentTarget = null;
         currentTargetRigidbody = null; metalInRange = false;
 
-        // Native physics layer scanner fully bypassing MistbornRegistry faults
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
         if (hits.Length == 0) return;
 
         float closestDist = float.MaxValue;
-        
+
         foreach (var hit in hits)
         {
             Rigidbody rb = hit.attachedRigidbody;
@@ -295,8 +304,7 @@ public class SteelPush : MonoBehaviour
                 closestDist = dist;
                 currentTargetRigidbody = rb;
                 currentTarget = hit.GetComponent<AllomanticTarget>();
-                
-                // Extra safety: only lock if pushable or lacks component entirely
+
                 if (currentTarget == null || currentTarget.canBePushed)
                 {
                     hasCurrentTarget = true;
@@ -324,32 +332,35 @@ public class SteelPush : MonoBehaviour
 
         // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
         // PHYSICS-MATH-BOOK.md Section 2
+        // A_CONSERVATIVE = 1500, game-tuned with allomanticStrength as a scaling factor
         float playerMass = playerRigidbody.mass;
         float targetMass = targetRb.mass;
         float eff = Mathf.Max(distance, minDistance);
 
-        float A = AllomancyPhysicsFormulas.GetAllomanticStrength(
-            allomanticStrength * masteryBonus, CurrentFlareMultiplier);
-        float forceMag = AllomancyPhysicsFormulas.CalculateAllomanticForce(
-            A, playerMass, targetMass, eff);
+        float A = allomanticStrength * masteryBonus * CurrentFlareMultiplier;
+        float forceMag = (A * playerMass * targetMass) / (eff * eff);
 
-        // Newton's 3rd Law mass ratios
-        float playerRatio, objectRatio;
-        AllomancyPhysicsFormulas.CalculateMassRatios(
-            playerMass, targetMass, isAnchored, out playerRatio, out objectRatio);
+        // Game-tuning: cap force to prevent physics explosion
+        // Max impulse = enough to accelerate target to maxCoinVelocity in one frame
+        float maxImpulse = targetMass * maxCoinVelocity;
+        forceMag = Mathf.Min(forceMag, maxImpulse);
 
-        Vector3 forceDir = dir.normalized * forceMag;
+        // Newton's 3rd Law: lighter party moves more
+        float totalMass = isAnchored ? playerMass : (playerMass + targetMass);
+        float playerRatio = isAnchored ? 1f : (targetMass / totalMass);
+        float objectRatio = isAnchored ? 0f : (playerMass / totalMass);
 
-        // Clamp to prevent physics tunneling
-        float maxForce = targetMass * maxCoinVelocity;
-        if (forceDir.magnitude > maxForce)
-            forceDir = forceDir.normalized * maxForce;
+        Vector3 forceVec = dir.normalized * forceMag;
 
-        // Apply push: object away, player recoils back
+        // Push: object flies away
         if (!isAnchored)
-            targetRb.AddForce(forceDir * objectRatio, ForceMode.Impulse);
+            targetRb.AddForce(forceVec * objectRatio, ForceMode.Impulse);
 
-        playerRigidbody.AddForce(-forceDir * playerRatio, ForceMode.Impulse);
+        // Player recoil — smooth velocity change instead of hard impulse
+        // This prevents the jarring snap-back feeling
+        Vector3 recoilVelocity = (-forceVec * playerRatio) / playerMass;
+        recoilVelocity = Vector3.ClampMagnitude(recoilVelocity, maxCoinVelocity * 0.5f);
+        playerRigidbody.AddForce(recoilVelocity, ForceMode.VelocityChange);
 
         if (debugPushOperations)
         {
