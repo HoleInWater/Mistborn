@@ -122,7 +122,7 @@
         "Assets/_Project/Scripts/Quests/DialogueSystem.cs",
         "Assets/_Project/Scripts/UI/DialogueManager.cs"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 8,
@@ -140,7 +140,7 @@
       "files_to_modify": [
         "Assets/_Project/Scripts/World/"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 9,
@@ -159,7 +159,7 @@
         "Assets/_Project/Scripts/Allomancy/",
         "Assets/_Project/Scripts/Player/"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 10,
@@ -177,7 +177,7 @@
       "files_to_modify": [
         "Assets/_Project/Scripts/UI/"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 11,
@@ -196,7 +196,7 @@
         "Assets/_Project/Scripts/UI/SkillTreeSystem.cs",
         "Assets/_Project/Scripts/Skill Tree Scripts/"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": 12,
@@ -215,7 +215,7 @@
         "Assets/_Project/Scripts/World/",
         "Assets/_Project/Scripts/UI/"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
