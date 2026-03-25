@@ -177,25 +177,29 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        bool eDown = Input.GetKeyDown(KeyCode.E);
-        bool eUp   = Input.GetKeyUp(KeyCode.E);
+        bool mouseDown = Input.GetMouseButtonDown(1);
+        bool mouseUp   = Input.GetMouseButtonUp(1);
+        bool mouseHeld = Input.GetMouseButton(1);
 
-        if (eDown && !eKeyWasPressed && cooldownTimer <= 0f && IsFlaring)
+        if (mouseDown && !eKeyWasPressed && cooldownTimer <= 0f)
         {
             eKeyWasPressed = true;
             if (!isBurning) StartBurning();
             PushMetals();
             DrainMetal(flaringMetalCostMultiplier);
-            StartFlaringVignette();
         }
 
-        if (eUp)
+        if (mouseUp)
         {
             eKeyWasPressed = false;
             StopBurning();
         }
 
-        if (isBurning) DrainMetal(1f);
+        if (mouseHeld && isBurning)
+        {
+            PushMetals();
+            DrainMetal(1f);
+        }
 
         if (enableSteelBubble)
         {

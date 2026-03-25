@@ -135,25 +135,29 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
-        bool qKeyUp   = Input.GetKeyUp(KeyCode.Q);
+        bool mouseDown = Input.GetMouseButtonDown(0);
+        bool mouseUp   = Input.GetMouseButtonUp(0);
+        bool mouseHeld = Input.GetMouseButton(0);
 
-        if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
+        if (mouseDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
-            if (IsFlaring)
-            {
-                qKeyWasPressed = true;
-                if (!isBurning) StartBurning();
+            qKeyWasPressed = true;
+            if (!isBurning) StartBurning();
 
-                PullMetals();
-                DrainMetal(flaringMetalCostMultiplier);
-            }
+            PullMetals();
+            DrainMetal(flaringMetalCostMultiplier);
         }
 
-        if (qKeyUp)
+        if (mouseUp)
         {
             qKeyWasPressed = false;
             StopBurning();
+        }
+
+        if (mouseHeld && isBurning)
+        {
+            PullMetals();
+            DrainMetal(1f);
         }
 
         UpdatePrediction();
