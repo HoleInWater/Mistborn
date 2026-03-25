@@ -111,11 +111,12 @@ public class MetalMagnet : MonoBehaviour
             return;
         }
 
-        // Try to add to inventory as metal pickup
+        // Metal pickup — refill reserves directly
         MetalPickup pickup = metalObj.GetComponent<MetalPickup>();
-        if (pickup != null && inventory != null)
+        if (pickup != null && allomancer != null)
         {
-            pickup.Pickup(gameObject);
+            allomancer.RefillMetal(pickup.metalType, pickup.metalAmount);
+            Destroy(metalObj);
             return;
         }
     }

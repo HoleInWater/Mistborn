@@ -82,4 +82,37 @@ public class SoundManager : MonoBehaviour
             sfxSource.PlayOneShot(clip, sfxVolume);
         }
     }
+
+    // ── Methods referenced by new systems ────────────────────────────────
+
+    public void PlayNotification() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.5f);
+    public void PlayFlareSound() => PlayOneShot(allomancySource, metalPushSounds, sfxVolume * 0.8f);
+    public void PlayDuraluminBurst() => PlayOneShot(allomancySource, impactSounds, sfxVolume * 1.2f);
+    public void PlayMetalWheelOpen() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.4f);
+    public void PlayMetalWheelSelect() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.3f);
+    public void PlayAttackSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.7f);
+    public void PlayHitSound(float damage = 25f) => PlayOneShot(sfxSource, impactSounds, sfxVolume);
+    public void PlayBlockSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.6f);
+    public void PlayParrySound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.8f);
+    public void PlayDeathSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume);
+
+    public void PlayAmbientForWeather(string weatherType)
+    {
+        // Placeholder — plays footstep as ambient until proper weather clips are assigned
+    }
+
+    public void TransitionToBoss()
+    {
+        // Placeholder — would crossfade to boss music track
+    }
+
+    public void TransitionToExploration() { }
+    public void TransitionToCombat() { }
+
+    private void PlayOneShot(AudioSource source, AudioClip[] clips, float volume)
+    {
+        if (source == null || clips == null || clips.Length == 0) return;
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+        if (clip != null) source.PlayOneShot(clip, volume);
+    }
 }

@@ -362,7 +362,7 @@ public class Compounding : MonoBehaviour
         // Start burning if not already
         if (!allomancer.IsMetalBurning(metalType))
         {
-            allomancer.FocusOnMetal(metalType);
+            allomancer.StartBurning(metalType);
         }
 
         return true;
@@ -377,7 +377,7 @@ public class Compounding : MonoBehaviour
         if (metalIndex < 0 || metalIndex >= Feruchemist.MetalmindCount) return;
 
         AllomancySkill.MetalType metalType = Feruchemist.MetalIndexToAllomanticType(metalIndex);
-        allomancer.ReleaseFocus(metalType);
+        allomancer.StopBurning();
     }
 
     /// <summary>

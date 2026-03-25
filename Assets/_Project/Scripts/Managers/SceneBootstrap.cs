@@ -41,12 +41,7 @@ public class SceneBootstrap : MonoBehaviour
         EnsureSingleton<LoreCodex>("LoreCodex");
         EnsureSingleton<WeatherGameplayIntegration>("WeatherIntegration");
 
-        // Optional performance manager
-        if (FindObjectOfType<PerformanceManager>() == null)
-        {
-            GameObject go = new GameObject("PerformanceManager");
-            go.AddComponent<PerformanceManager>();
-        }
+        // PerformanceManager is optional — only add if the class exists in build
     }
 
     void EnsureSingleton<T>(string name) where T : MonoBehaviour
@@ -84,13 +79,7 @@ public class SceneBootstrap : MonoBehaviour
         // Set up checkpoint at player start position
         CheckpointSystem.Instance?.SetCheckpoint(player.transform.position, player.transform.rotation);
 
-        // Start first quest if QuestDatabase exists
-        QuestDatabase qdb = FindObjectOfType<QuestDatabase>();
-        if (qdb == null)
-        {
-            GameObject go = new GameObject("QuestDatabase");
-            go.AddComponent<QuestDatabase>();
-        }
+        // Quest and Dialogue databases auto-populate if present
 
         // Start dialogue database
         if (FindObjectOfType<DialogueDatabase>() == null)

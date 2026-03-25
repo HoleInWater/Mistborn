@@ -20,36 +20,31 @@ public class NarrativeLogUI : MonoBehaviour
     public void ToggleLog()
     {
         if (logPanel == null) return;
-
         bool active = !logPanel.activeSelf;
         logPanel.SetActive(active);
-
         if (active) RefreshLog();
     }
 
     public void RefreshLog()
     {
-        if (NarrativeTimeline.Instance == null) return;
+        if (NarrativeTimeline.Instance == null || logContentText == null) return;
 
         string fullLog = "--- JOURNALS OF THE SURVIVOR ---\n\n";
-        int current = NarrativeTimeline.Instance.currentChapter;
+        int current = NarrativeTimeline.Instance.GetCurrentChapter();
 
         for (int i = 0; i < current; i++)
         {
-            var data = NarrativeTimeline.Instance.chapterSummaries[i];
-            if (data != null)
+            var beat = NarrativeTimeline.Instance.GetBeat(i);
+            if (beat != null)
             {
-                fullLog += $"Chapter {i + 1}: {data.speakerName}\n";
-                foreach (string line in data.lines)
-                {
-                    fullLog += $"{line}\n";
-                }
+                fullLog += $"Chapter {beat.chapter}: {beat.title}\n";
+                fullLog += $"{beat.description}\n";
                 fullLog += "\n--------------------------\n\n";
             }
         }
 
         logContentText.text = fullLog;
-        if (scrollRect != null) scrollRect.verticalNormalizedPosition = 0; // Scroll to bottom
+        if (scrollRect != null) scrollRect.verticalNormalizedPosition = 0;
     }
 
     void Update()
