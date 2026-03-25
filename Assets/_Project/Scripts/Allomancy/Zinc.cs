@@ -20,22 +20,28 @@ public class Zinc : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    
+    private float riotTimer = 0f;
+    private const float RIOT_INTERVAL = 0.3f; // Pulse 3x/sec instead of 60x/sec
+
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
     }
-    
+
     void Update()
     {
-        // Check if we are currently burning Zinc according to the central Allomancer
         isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Zinc;
 
         if (isBurning)
         {
-            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
-            RiotEmotions(flareMult);
+            riotTimer -= Time.deltaTime;
+            if (riotTimer <= 0f)
+            {
+                riotTimer = RIOT_INTERVAL;
+                float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
+                RiotEmotions(flareMult);
+            }
         }
     }
     

@@ -20,22 +20,28 @@ public class Brass : MonoBehaviour
     public Allomancer allomancer;
     
     private bool isBurning = false;
-    
+    private float sootheTimer = 0f;
+    private const float SOOTHE_INTERVAL = 0.3f;
+
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
     }
-    
+
     void Update()
     {
-        // Check if we are currently burning Brass according to the central Allomancer
         isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Brass;
 
         if (isBurning)
         {
-            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
-            SootheEmotions(flareMult);
+            sootheTimer -= Time.deltaTime;
+            if (sootheTimer <= 0f)
+            {
+                sootheTimer = SOOTHE_INTERVAL;
+                float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
+                SootheEmotions(flareMult);
+            }
         }
     }
     
