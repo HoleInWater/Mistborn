@@ -50,7 +50,7 @@ public class IronPull : MonoBehaviour
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
     [Header("Flare Scaling")]
-    [Range(1.5f, 4f)]  public float maxFlareMultiplier        = 2.5f;
+    [Range(1.5f, 4f)]  public float maxFlareMultiplier         = 2.5f;
     [Range(1f,   5f)]  public float flaringMetalCostMultiplier = 3f;
 
     [Header("References")]
@@ -78,19 +78,23 @@ public class IronPull : MonoBehaviour
 
     [Header("Debug")]
     public bool debugPullOperations = false;
-    public bool debugFlareState = false;
+    public bool debugFlareState     = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
+
     private bool _isBurning = false;
-    private bool isBurning 
+    private bool isBurning
     {
-        get 
+        get
         {
-            bool globalBurn = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Iron;
+            bool globalBurn = allomancer != null
+                           && allomancer.IsBurning()
+                           && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Iron;
             return _isBurning || globalBurn;
         }
         set { _isBurning = value; }
     }
+
     private bool  pullAppliedThisPress = false;
     private bool  qKeyWasPressed       = false;
     private float cooldownTimer        = 0f;
@@ -107,13 +111,15 @@ public class IronPull : MonoBehaviour
     private LineRenderer predictionLine;
     private bool         isPredictionActive = false;
 
+    // ── Keybind Helper ────────────────────────────────────────────────────────
+
     // [AGENT REVIEW] Dynamic primary/secondary keybind
     private KeyCode GetAbility1Key()
     {
-        if (allomancer == null) return KeyCode.Q; 
+        if (allomancer == null) return KeyCode.Q;
         var selector = allomancer.GetComponent<MetalSelector>();
         if (selector == null) return KeyCode.Q;
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron) return KeyCode.E;
+        if (selector.GetPrimaryMetal()   == AllomancySkill.MetalType.Iron) return KeyCode.E;
         if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) return KeyCode.Q;
         return KeyCode.None;
     }
@@ -146,28 +152,20 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        KeyCode pullKey = GetAbility1Key();
-        bool qKeyDown = pullKey != KeyCode.None && Input.GetKeyDown(pullKey);
-        bool qKeyHeld = pullKey != KeyCode.None && Input.GetKey(pullKey);
-        
+        KeyCode pullKey  = GetAbility1Key();
+        bool qKeyDown    = pullKey != KeyCode.None && Input.GetKeyDown(pullKey);
+        bool qKeyHeld    = pullKey != KeyCode.None && Input.GetKey(pullKey);
+
         // Safety Catch: If unequipped mid-use, definitively trigger the Up state to halt physics
-        bool qKeyUp   = (pullKey != KeyCode.None && Input.GetKeyUp(pullKey)) || (qKeyWasPressed && pullKey == KeyCode.None);
+        bool qKeyUp      = (pullKey != KeyCode.None && Input.GetKeyUp(pullKey))
+                        || (qKeyWasPressed && pullKey == KeyCode.None);
 
         if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
-<<<<<<< Updated upstream
-            qKeyWasPressed = true;
-            if (!isBurning) StartBurning();
-
-            PullMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-=======
-            Debug.LogError($"[IRON PULL] Clicked {pullKey}! Target Valid? {hasCurrentTarget}. Calling PullMetals.");
             qKeyWasPressed = true;
             AutoSwitchToThisMetal();
             if (!isBurning) StartBurning();
             PullMetals();
->>>>>>> Stashed changes
         }
 
         if (qKeyUp)
@@ -190,8 +188,8 @@ public class IronPull : MonoBehaviour
         if (allomancer == null) return;
         var selector = allomancer.GetComponent<MetalSelector>();
         if (selector == null) return;
-        
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(true);
+
+        if      (selector.GetPrimaryMetal()   == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(true);
         else if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(false);
     }
 
@@ -235,14 +233,14 @@ public class IronPull : MonoBehaviour
             float dist = Vector3.Distance(playerRigidbody.position, rb.position);
             if (dist < closestDist)
             {
-                closestDist = dist;
+                closestDist            = dist;
                 currentTargetRigidbody = rb;
-                currentTarget = hit.GetComponent<AllomanticTarget>();
-                
+                currentTarget          = hit.GetComponent<AllomanticTarget>();
+
                 if (currentTarget == null || currentTarget.canBePulled)
                 {
                     hasCurrentTarget = true;
-                    isAnchored = currentTarget != null ? currentTarget.isAnchored : rb.isKinematic;
+                    isAnchored       = currentTarget != null ? currentTarget.isAnchored : rb.isKinematic;
                 }
             }
         }
@@ -252,13 +250,9 @@ public class IronPull : MonoBehaviour
 
     void PullMetals()
     {
-        // --- Null checks ---
-        if (playerRigidbody == null || currentTargetRigidbody == null)
-            return;
-        if (!hasCurrentTarget)
-            return;
-        if (currentTarget != null && !currentTarget.canBePulled)
-            return;
+        if (playerRigidbody == null || currentTargetRigidbody == null) return;
+        if (!hasCurrentTarget) return;
+        if (currentTarget != null && !currentTarget.canBePulled) return;
 
         // --- Direction and distance ---
         Vector3 dirToTarget = currentTargetRigidbody.position - playerRigidbody.position;
@@ -283,22 +277,20 @@ public class IronPull : MonoBehaviour
         float playerRatio = objectMass / totalMass;
         float objectRatio = playerMass / totalMass;
 
-        Vector3 forceDir = dirToTarget.normalized * force * 250f; // Multiplier amplified heavily for massive snappy impulse kick!
+        // Multiplier amplified heavily for massive snappy impulse kick
+        Vector3 forceDir = dirToTarget.normalized * force * 250f;
 
         // Clamp impulse to prevent physics tunneling
         float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
         if (forceDir.magnitude > maxAllowedImpulse)
-        {
             forceDir = forceDir.normalized * maxAllowedImpulse;
-        }
 
         // --- Apply impulses ---
         playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
 
         if (!isAnchored)
             currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
-        
-        Debug.LogError($"[IRON PULL] Physics Applied! Force: {force}, Clamped Dir Magnitude: {forceDir.magnitude}");
+
         // --- Visual feedback ---
         if (force > shakeForceThreshold)
         {
@@ -346,7 +338,8 @@ public class IronPull : MonoBehaviour
         bool shouldShow = enablePullPrediction && hasCurrentTarget
                        && currentTarget != null && currentTarget.canBePulled;
 
-        if (shouldShow) DrawPredictionLine();
+        if (shouldShow)
+            DrawPredictionLine();
         else if (isPredictionActive)
         {
             predictionLine.gameObject.SetActive(false);
@@ -382,7 +375,6 @@ public class IronPull : MonoBehaviour
     }
 
     // ── Visual Helpers ────────────────────────────────────────────────────────
-
 
     void TriggerPullTint(float force)
     {
