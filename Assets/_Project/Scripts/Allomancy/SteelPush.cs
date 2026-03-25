@@ -28,21 +28,20 @@ public class SteelPush : MonoBehaviour
     // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Push Settings")]
-    public float pushForce         = 800f;
-    public float referenceMass     = 80f;
-    public float referenceDistance = 3f;
     public float minDistance       = 1f;
     public float maxRange          = 30f;
     public float metalCostPerSecond= 2f;
     public float pushCooldown      = 0.2f;
 
-    [Header("Allomancy Physics — PHYSICS-MATH-BOOK.md Section 2")]
-    [Tooltip("Game-tuned A constant. Handbook A_conservative=1500. Lower = weaker push.")]
-    public float allomanticStrength = 50f;
-    [Tooltip("Max velocity a pushed object can reach (prevents physics explosion)")]
-    public float maxCoinVelocity    = 40f;
-    [Range(1f, 2f)] public float distanceExponent = 1f;
-    [Range(0f, 1f)] public float velocityDamping  = 0.5f;
+    [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]
+    [Tooltip("Base push speed — how fast objects fly away")]
+    public float pushSpeed = 18f;
+    [Tooltip("Max recoil speed on player when pushing anchored metal")]
+    public float maxRecoilSpeed = 20f;
+    [Tooltip("Force applied to loose objects")]
+    public float loosePushForce = 20f;
+    [Tooltip("Stronger push at close range")]
+    public bool inverseDistanceScaling = true;
 
     [Header("Flare Scaling")]
     [Tooltip("Metal cost multiplier at full intensity.")]
@@ -308,55 +307,51 @@ public class SteelPush : MonoBehaviour
         if (targetRb == playerRigidbody)           return;
         if (target != null && !target.canBePushed) return;
 
-        float   distance   = Vector3.Distance(playerRigidbody.position, targetRb.position);
-        Vector3 dir        = targetRb.position - playerRigidbody.position;
-        bool    isAnchored = (target != null && target.isAnchored) || targetRb.isKinematic;
+        float distance = Vector3.Distance(playerRigidbody.position, targetRb.position);
+        Vector3 pushDirection = (targetRb.position - playerRigidbody.position).normalized;
+        bool isAnchored = (target != null && target.isAnchored) || targetRb.isKinematic;
 
-        // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
-        // PHYSICS-MATH-BOOK.md Section 2
-        // A_CONSERVATIVE = 1500, game-tuned with allomanticStrength as a scaling factor
-        float playerMass = playerRigidbody.mass;
-        float targetMass = targetRb.mass;
-        float eff = Mathf.Max(distance, minDistance);
+        // Flare multiplier
+        float flare = CurrentFlareMultiplier;
 
-        float A = allomanticStrength * masteryBonus * CurrentFlareMultiplier;
-        float forceMag = (A * playerMass * targetMass) / (eff * eff);
+        // Distance scaling: stronger push at close range
+        float distanceMult = inverseDistanceScaling
+            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f)
+            : 1f;
 
-        // Game-tuning: cap force to prevent physics explosion
-        // Max impulse = enough to accelerate target to maxCoinVelocity in one frame
-        float maxImpulse = targetMass * maxCoinVelocity;
-        forceMag = Mathf.Min(forceMag, maxImpulse);
-
-        // Newton's 3rd Law: lighter party moves more
-        float totalMass = isAnchored ? playerMass : (playerMass + targetMass);
-        float playerRatio = isAnchored ? 1f : (targetMass / totalMass);
-        float objectRatio = isAnchored ? 0f : (playerMass / totalMass);
-
-        // Single impulse push — one click = one shove
-        Vector3 forceVec = dir.normalized * forceMag;
-
-        // Object pushed away
-        if (!isAnchored)
+        if (isAnchored)
         {
-            Vector3 objVel = (forceVec * objectRatio) / targetMass;
-            objVel = Vector3.ClampMagnitude(objVel, maxCoinVelocity);
-            targetRb.AddForce(objVel, ForceMode.VelocityChange);
+            // ANCHORED: Player recoils backward (how Mistborn launch themselves)
+            float recoilSpeed = pushSpeed * flare * distanceMult;
+            Vector3 recoil = -pushDirection * Mathf.Min(recoilSpeed, maxRecoilSpeed);
+            playerRigidbody.AddForce(recoil, ForceMode.VelocityChange);
+        }
+        else
+        {
+            // LOOSE OBJECT: Newton's 3rd Law — lighter party moves more
+            float playerMass = playerRigidbody.mass;
+            float targetMass = targetRb.mass;
+            float totalMass = playerMass + targetMass;
+
+            float pushMag = loosePushForce * flare * distanceMult;
+
+            // Object pushed away
+            float objectSpeed = pushMag * (playerMass / totalMass);
+            objectSpeed = Mathf.Min(objectSpeed, loosePushForce * 3f);
+            targetRb.AddForce(pushDirection * objectSpeed, ForceMode.VelocityChange);
+
+            // Player recoils backward
+            float playerSpeed = pushMag * (targetMass / totalMass);
+            playerSpeed = Mathf.Min(playerSpeed, maxRecoilSpeed);
+            playerRigidbody.AddForce(-pushDirection * playerSpeed, ForceMode.VelocityChange);
         }
 
-        // Player recoil — smooth velocity change
-        Vector3 recoilVel = (-forceVec * playerRatio) / playerMass;
-        recoilVel = Vector3.ClampMagnitude(recoilVel, maxCoinVelocity * 0.5f);
-        playerRigidbody.AddForce(recoilVel, ForceMode.VelocityChange);
+        // Visual feedback
+        CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
+        SoundManager.Instance?.PlayPushSound();
 
         if (debugPushOperations)
-        {
-            Debug.Log($"[STEEL] Push on {targetRb.name}. Distance: {distance:F2}m. Force: {forceMag:F2}");
-        }
-
-        if (forceMag > shakeForceThreshold)
-        {
-            CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
-        }
+            Debug.Log($"[STEEL PUSH] dist={distance:F1} anchored={isAnchored} flare={flare:F1}");
     }
 
     void PushMetalsInBubble()
