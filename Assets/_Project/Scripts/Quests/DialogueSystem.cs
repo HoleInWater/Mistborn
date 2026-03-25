@@ -47,9 +47,9 @@ public class Dialogue : ScriptableObject
     }
 }
 
-public class DialogueManager : MonoBehaviour
+public class BranchingDialogueManager : MonoBehaviour
 {
-    public static DialogueManager Instance { get; private set; }
+    public static BranchingDialogueManager Instance { get; private set; }
 
     [Header("UI References")]
     public GameObject dialoguePanel;

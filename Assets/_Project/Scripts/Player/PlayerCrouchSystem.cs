@@ -2,7 +2,7 @@
 // NOTE: Consider adding [RequireComponent(typeof(CapsuleCollider))] attribute for crouching
 using UnityEngine;
 
-public class StealthSystem : MonoBehaviour
+public class PlayerCrouchSystem : MonoBehaviour
 {
     [Header("Stealth Settings")]
     // NOTE: Consider adding [Range(0.5f, 5f)] attribute for crouchSpeed

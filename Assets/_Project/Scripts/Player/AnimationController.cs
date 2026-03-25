@@ -6,7 +6,6 @@ using UnityEngine;
 /// </summary>
 public class AnimationConfig : MonoBehaviour
 {
-    [Header("Animation Parameters - Strings")]
     public static class Params
     {
         // Movement
@@ -48,26 +47,15 @@ public class AnimationConfig : MonoBehaviour
         public const string WaterDepth = "WaterDepth";
     }
 
-    [Header("Blend Tree Configurations")]
-    public BlendTree horizontalMovementTree;
-    public BlendTree verticalMovementTree;
-    public BlendTree combatTree;
-    public BlendTree allomancyTree;
+    // Blend tree configuration is done in the Unity Animator window.
+    // These parameter names (defined in Params above) should match the
+    // Animator Controller's blend tree parameters.
 
     void Start()
     {
-        CreateMovementBlendTrees();
-    }
-
-    void CreateMovementBlendTrees()
-    {
-        // Horizontal Movement Blend Tree
-        // Idle, Walk, Run, Sprint
-        AnimationBlendTree walkTree = new AnimationBlendTree();
-        
-        // Vertical Movement Blend Tree
-        // Fall, Jump, Mid-air
-        AnimationBlendTree jumpTree = new AnimationBlendTree();
+        // Blend trees are configured via the Animator Controller asset,
+        // not at runtime. Use Params constants when setting up blend trees
+        // in the Unity Editor.
     }
 
     /// <summary>
