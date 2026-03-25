@@ -115,9 +115,23 @@ public class MetalReserve : MonoBehaviour
         }
     }
 
-    // Obsolete but kept for simple compatibility
+    // Legacy API — delegates to Allomancer for actual reserve management
     public float currentMetal { get; set; }
-    public void Drain(float amount) { }
-    public void Refill(float amount) { }
-    public void SetCurrentMetal(float amount) { }
+
+    public void Drain(float amount)
+    {
+        Allomancer allo = GetComponent<Allomancer>();
+        if (allo != null) allo.DrainMetal(allo.GetCurrentMetal(), amount);
+    }
+
+    public void Refill(float amount)
+    {
+        Allomancer allo = GetComponent<Allomancer>();
+        if (allo != null) allo.RefillMetal(allo.GetCurrentMetal(), amount);
+    }
+
+    public void SetCurrentMetal(float amount)
+    {
+        currentMetal = amount;
+    }
 }
