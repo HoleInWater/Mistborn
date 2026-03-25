@@ -260,8 +260,7 @@ public class IronPull : MonoBehaviour
         float   distance    = dirToTarget.magnitude;
 
         // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
-        // From PHYSICS-MATH-BOOK.md Section 2: Steel & Iron Push/Pull
-        // Same formula as Steel Push — Iron Pull is the inverse application
+        // PHYSICS-MATH-BOOK.md Section 2 — same formula as Steel Push
         float playerMass = playerRigidbody.mass;
         float objectMass = currentTargetRigidbody.mass;
 
@@ -269,14 +268,16 @@ public class IronPull : MonoBehaviour
             objectMass = Mathf.Infinity;
 
         float eff = Mathf.Max(distance, minDistance);
-        float A = allomanticStrength * CurrentFlareMultiplier;
-        float effectiveObjectMass = isAnchored ? playerMass * 10f : objectMass; // Anchored acts as massive
-        float forceMag = A * playerMass * effectiveObjectMass / (eff * eff);
+        float A = AllomancyPhysicsFormulas.GetAllomanticStrength(
+            allomanticStrength, CurrentFlareMultiplier);
+        float effectiveObjectMass = isAnchored ? playerMass * 10f : objectMass;
+        float forceMag = AllomancyPhysicsFormulas.CalculateAllomanticForce(
+            A, playerMass, effectiveObjectMass, eff);
 
         // Newton's 3rd Law mass ratios
-        float totalMass   = playerMass + (isAnchored ? Mathf.Infinity : objectMass);
-        float playerRatio = isAnchored ? 1f : objectMass / totalMass;
-        float objectRatio = isAnchored ? 0f : playerMass / totalMass;
+        float playerRatio, objectRatio;
+        AllomancyPhysicsFormulas.CalculateMassRatios(
+            playerMass, objectMass, isAnchored, out playerRatio, out objectRatio);
 
         // Pull direction: player toward target, object toward player
         Vector3 pullForce = dirToTarget.normalized * forceMag;

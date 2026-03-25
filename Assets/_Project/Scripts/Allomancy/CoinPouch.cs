@@ -106,17 +106,25 @@ public class CoinPouch : MonoBehaviour
 
         GameObject coin = SpawnCoin(spawnPos);
         Rigidbody coinRb = coin.GetComponent<Rigidbody>();
-        if (coinRb != null)
+        if (coinRb != null && playerRigidbody != null)
         {
-            // Initial throw
-            coinRb.AddForce(dir * throwForce, ForceMode.Impulse);
-            // Steel Push
-            coinRb.AddForce(dir * pushForce, ForceMode.Impulse);
-        }
+            // Lore-accurate: F(a) = A × m1 × m2 / r² (PHYSICS-MATH-BOOK.md Section 2)
+            // At close range (r≈1m), this is essentially A × m1 × m2
+            float A = AllomancyPhysicsFormulas.A_CONSERVATIVE;
+            float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+            float force = AllomancyPhysicsFormulas.CalculateAllomanticForce(
+                A * flare, playerRigidbody.mass, coinMass, 1f);
 
-        // Newton's 3rd Law — player pushed backward
-        if (playerRigidbody != null)
-            playerRigidbody.AddForce(-dir * pushForce * 0.1f, ForceMode.Impulse);
+            // Coin velocity from handbook Section 3: v = √(2 × F × d / m₂)
+            float coinVel = AllomancyPhysicsFormulas.CalculateCoinVelocity(force, 2f, coinMass);
+            coinRb.AddForce(dir * coinVel * coinMass, ForceMode.Impulse);
+
+            // Newton's 3rd Law mass ratios
+            float playerRatio, objectRatio;
+            AllomancyPhysicsFormulas.CalculateMassRatios(
+                playerRigidbody.mass, coinMass, false, out playerRatio, out objectRatio);
+            playerRigidbody.AddForce(-dir * force * playerRatio * Time.fixedDeltaTime, ForceMode.Impulse);
+        }
 
         DrainMetal(1f);
         SoundManager.Instance?.PlayPushSound();

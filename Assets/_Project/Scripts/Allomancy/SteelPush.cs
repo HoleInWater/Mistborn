@@ -323,20 +323,20 @@ public class SteelPush : MonoBehaviour
         bool    isAnchored = (target != null && target.isAnchored) || targetRb.isKinematic;
 
         // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
-        // From PHYSICS-MATH-BOOK.md Section 2: Steel & Iron Push/Pull
-        // A = Allomantic strength constant (scaled by flaring)
-        // m1 = Allomancer mass, m2 = target metal mass, r = distance
+        // PHYSICS-MATH-BOOK.md Section 2
         float playerMass = playerRigidbody.mass;
         float targetMass = targetRb.mass;
         float eff = Mathf.Max(distance, minDistance);
 
-        float A = allomanticStrength * masteryBonus * CurrentFlareMultiplier;
-        float forceMag = A * playerMass * targetMass / (eff * eff);
+        float A = AllomancyPhysicsFormulas.GetAllomanticStrength(
+            allomanticStrength * masteryBonus, CurrentFlareMultiplier);
+        float forceMag = AllomancyPhysicsFormulas.CalculateAllomanticForce(
+            A, playerMass, targetMass, eff);
 
-        // Newton's 3rd Law mass ratios — whoever is lighter moves more
-        float totalMass = isAnchored ? playerMass : playerMass + targetMass;
-        float playerRatio = isAnchored ? 1f : targetMass / totalMass;
-        float objectRatio = isAnchored ? 0f : playerMass / totalMass;
+        // Newton's 3rd Law mass ratios
+        float playerRatio, objectRatio;
+        AllomancyPhysicsFormulas.CalculateMassRatios(
+            playerMass, targetMass, isAnchored, out playerRatio, out objectRatio);
 
         Vector3 forceDir = dir.normalized * forceMag;
 
