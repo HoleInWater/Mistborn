@@ -1,41 +1,389 @@
 using UnityEngine;
 
 /// <summary>
-/// Static utility class containing core physics formulas for Allomancy.
-/// Based on docs/PHYSICS-MATH-BOOK.md.
+/// Static utility class containing ALL core physics formulas from docs/PHYSICS-MATH-BOOK.md.
+/// Every formula is referenced by its handbook section number.
 /// </summary>
 public static class AllomancyPhysicsFormulas
 {
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 2: STEEL & IRON — PUSH/PULL FORCE
+    // ═══════════════════════════════════════════════════════════════════════════
+
     /// <summary>
-    /// Calculates the inverse-square force magnitude for a Push or Pull.
-    /// F = (G * m1 * m2) / r^2 (approximated for gameplay)
+    /// Lore-accurate Allomantic force (inverse-square, mass-product).
+    /// F(a) = A × m₁ × m₂ / r²
+    /// Handbook Section 2: A_vin ≈ 35,316 (without flaring), A_conservative ≈ 1,500
     /// </summary>
-    public static float CalculateAllomanticForce(float senderMass, float targetMass, float distance, float intensity)
+    public static float CalculateAllomanticForce(float A, float allomancerMass, float metalMass, float distance)
     {
-        // Prevent division by zero and near-zero distances
-        float r = Mathf.Max(0.5f, distance);
-        
-        // Gameplay formula: (Intensity * CombinedMass) / Distance^2
-        float baseForce = (intensity * (senderMass + targetMass)) / (r * r);
-        
-        return baseForce;
+        float r = Mathf.Max(0.5f, distance); // Prevent division by zero
+        return A * allomancerMass * metalMass / (r * r);
     }
 
     /// <summary>
-    /// Calculates the reaction force on the sender when pushing/pulling.
+    /// Allomantic strength constant A, scaled by flare intensity.
+    /// Base A = 1500 (conservative), flaring can multiply up to 2.5x.
     /// </summary>
-    public static Vector3 GetReactionForce(Vector3 forceVector, float senderMass, float targetMass)
+    public static float GetAllomanticStrength(float baseA, float flareMultiplier)
     {
-        // If target is much heavier, sender takes most of the force
-        float ratio = targetMass / (senderMass + targetMass);
-        return -forceVector * ratio;
+        return baseA * flareMultiplier;
     }
 
     /// <summary>
-    /// Predicts the trajectory of a coin throw or jump.
+    /// Linear force model for better game feel (Handbook Section 2 alternate).
+    /// F(a) = F_max × (r_max - r) / r_max, for 0 ≤ r ≤ r_max
+    /// </summary>
+    public static float CalculateLinearForce(float maxForce, float distance, float maxRange)
+    {
+        if (distance >= maxRange) return 0f;
+        return maxForce * (maxRange - distance) / maxRange;
+    }
+
+    /// <summary>
+    /// Newton's 3rd Law mass ratio — determines how much each party moves.
+    /// The lighter object moves more. Returns (playerRatio, objectRatio).
+    /// </summary>
+    public static void CalculateMassRatios(float playerMass, float objectMass, bool isAnchored,
+        out float playerRatio, out float objectRatio)
+    {
+        if (isAnchored)
+        {
+            playerRatio = 1f;
+            objectRatio = 0f;
+        }
+        else
+        {
+            float totalMass = playerMass + objectMass;
+            playerRatio = objectMass / totalMass; // Lighter player = more movement
+            objectRatio = playerMass / totalMass;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 3: COIN VELOCITY FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Coin velocity after being pushed a given distance, assuming constant force.
+    /// v(d) = √(2 × F(a) × d / m₂)
+    /// Handbook Section 3: Conservative v_max ≈ 490 m/s
+    /// </summary>
+    public static float CalculateCoinVelocity(float force, float distance, float coinMass)
+    {
+        if (coinMass <= 0f) return 0f;
+        float val = 2f * force * distance / coinMass;
+        return val > 0f ? Mathf.Sqrt(val) : 0f;
+    }
+
+    /// <summary>
+    /// Coin acceleration from Allomantic push.
+    /// a = F(a) / m₂
+    /// </summary>
+    public static float CalculateCoinAcceleration(float force, float coinMass)
+    {
+        if (coinMass <= 0f) return 0f;
+        return force / coinMass;
+    }
+
+    /// <summary>
+    /// Air drag correction for coin velocity (advanced, Handbook Section 3).
+    /// v(d) = v_terminal × (1 - e^(-d/τ))
+    /// For a coin: v_terminal ≈ 77.8 m/s with drag
+    /// </summary>
+    public static float CalculateCoinVelocityWithDrag(float distance, float coinMass,
+        float dragCoefficient = 0.47f, float crossSectionArea = 0.00045f, float airDensity = 1.225f)
+    {
+        float vTerminal = coinMass * 9.81f / (0.5f * airDensity * dragCoefficient * crossSectionArea);
+        float tau = vTerminal / 9.81f; // Drag time constant
+        return vTerminal * (1f - Mathf.Exp(-distance / tau));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 4: FERUCHEMY STORAGE FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Constant-rate Feruchemical storage.
+    /// S(t) = r₀ × t
+    /// </summary>
+    public static float CalculateConstantStorage(float rate, float time)
+    {
+        return rate * time;
+    }
+
+    /// <summary>
+    /// Variable-rate storage with diminishing returns (Handbook Section 4).
+    /// S(t) = (k/λ) × (1 - e^(-λt))
+    /// Where k = initial storage rate, λ = diminishing returns factor
+    /// </summary>
+    public static float CalculateVariableStorage(float initialRate, float diminishingFactor, float time)
+    {
+        if (diminishingFactor <= 0f) return initialRate * time;
+        return (initialRate / diminishingFactor) * (1f - Mathf.Exp(-diminishingFactor * time));
+    }
+
+    /// <summary>
+    /// Asymptotic storage approaching metalmind capacity (Handbook Section 4).
+    /// S = C_max × r / (C_max + r)
+    /// Approaches C_max but never reaches it.
+    /// </summary>
+    public static float CalculateAsymptoticStorage(float maxCapacity, float storedAmount)
+    {
+        return maxCapacity * storedAmount / (maxCapacity + storedAmount);
+    }
+
+    /// <summary>
+    /// Metalmind capacity based on volume and metal density (Handbook Section 4).
+    /// C_max = K × V × ρ_metal
+    /// Iron K≈1.0, Steel K≈1.1, Pewter K≈0.95
+    /// </summary>
+    public static float CalculateMetalmindCapacity(float capacityConstant, float volume, float metalDensity)
+    {
+        return capacityConstant * volume * metalDensity;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 5: COMPOUNDING EXPONENTIAL FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Basic compounding exponential (Handbook Section 5).
+    /// P(n) = P₀ × 10^n
+    /// Each cycle produces 10x the previous output.
+    /// </summary>
+    public static float CalculateCompoundingPower(float initialPower, int cycles)
+    {
+        return initialPower * Mathf.Pow(10f, cycles);
+    }
+
+    /// <summary>
+    /// Compounding with diminishing returns (Handbook Section 5).
+    /// P(n) = P₀ × 10^n × e^(-δn)
+    /// Where δ = diminishing returns constant (0 < δ < 1)
+    /// </summary>
+    public static float CalculateCompoundingWithDiminishingReturns(float initialPower, int cycles, float diminishingConstant)
+    {
+        return initialPower * Mathf.Pow(10f, cycles) * Mathf.Exp(-diminishingConstant * cycles);
+    }
+
+    /// <summary>
+    /// Net gain per compounding cycle (Handbook Section 5).
+    /// G(n) = P(n) - P(n-1) - C_cost
+    /// </summary>
+    public static float CalculateNetCompoundingGain(float power, float previousPower, float cost)
+    {
+        return power - previousPower - cost;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 6: SPEED COMPOUNDING (STEEL FERUCHEMY)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Compound speed function (Handbook Section 6).
+    /// v_compound(n) = v_base × 10^n × e^(-εn)
+    /// Maximum theoretical: ~50 km/s. Game-capped much lower.
+    /// </summary>
+    public static float CalculateCompoundSpeed(float baseSpeed, int cycles, float efficiencyDecay)
+    {
+        return baseSpeed * Mathf.Pow(10f, cycles) * Mathf.Exp(-efficiencyDecay * cycles);
+    }
+
+    /// <summary>
+    /// Heat generation from air resistance at high speed (Handbook Section 6).
+    /// P_heat = ½ × ρ × C_d × A × v³
+    /// Used to calculate damage at extreme compounded speeds.
+    /// </summary>
+    public static float CalculateSpeedHeatGeneration(float velocity, float dragCoefficient = 0.47f,
+        float crossSection = 0.7f, float airDensity = 1.225f)
+    {
+        return 0.5f * airDensity * dragCoefficient * crossSection * velocity * velocity * velocity;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 7: IRON COMPOUNDING MASS (IRON FERUCHEMY)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Compound mass function (Handbook Section 7).
+    /// m_compound(n) = m_base + m_stored × 10^n
+    /// </summary>
+    public static float CalculateCompoundMass(float baseMass, float storedMass, int cycles)
+    {
+        return baseMass + storedMass * Mathf.Pow(10f, cycles);
+    }
+
+    /// <summary>
+    /// Feruchemy weight factor (Handbook Section 7).
+    /// W = m × g × f, where f is the Feruchemy weight factor
+    /// f < 1 when storing (lighter), f > 1 when tapping (heavier)
+    /// </summary>
+    public static float CalculateFeruchemicalWeight(float mass, float gravityFactor)
+    {
+        return mass * 9.81f * gravityFactor;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 8: PEWTER STRENGTH FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Pewter strength multiplier (Handbook Section 8).
+    /// S_pewter = S_base × (1 + k × P)
+    /// Where k = efficiency constant, P = power level 0-1
+    /// </summary>
+    public static float CalculatePewterStrength(float baseStrength, float efficiencyK, float powerLevel)
+    {
+        return baseStrength * (1f + efficiencyK * powerLevel);
+    }
+
+    /// <summary>
+    /// Pewter muscle mass increase (Handbook Section 8).
+    /// m_muscle = m_base × (1 + α × P), α ≈ 0.5
+    /// </summary>
+    public static float CalculatePewterMuscleMass(float baseMass, float growthAlpha, float powerLevel)
+    {
+        return baseMass * (1f + growthAlpha * powerLevel);
+    }
+
+    /// <summary>
+    /// Maximum force from Pewter enhancement (Handbook Section 8).
+    /// F_max = m_total × a_max / η
+    /// </summary>
+    public static float CalculatePewterMaxForce(float totalMass, float maxAcceleration, float efficiency)
+    {
+        if (efficiency <= 0f) return 0f;
+        return totalMass * maxAcceleration / efficiency;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 9: TIME BUBBLE FUNCTIONS (BENDALLOY & CADMIUM)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Cadmium slow bubble: T_inside = T_outside × τ_slow (Handbook Section 9).
+    /// τ_slow ≈ 0.1 (10x slower inside). Game default: 0.15
+    /// </summary>
+    public static float CalculateCadmiumTimeInside(float outsideTime, float slowFactor)
+    {
+        return outsideTime * slowFactor;
+    }
+
+    /// <summary>
+    /// Bendalloy fast bubble: T_inside = T_outside × τ_fast (Handbook Section 9).
+    /// τ_fast ≈ 10 (10x faster inside). Game default: 8
+    /// </summary>
+    public static float CalculateBendalloyTimeInside(float outsideTime, float fastFactor)
+    {
+        return outsideTime * fastFactor;
+    }
+
+    /// <summary>
+    /// Combined bubble interaction (Handbook Section 9).
+    /// T_effective = T_outside × (τ_cadmium / τ_bendalloy)
+    /// </summary>
+    public static float CalculateCombinedBubbleTime(float outsideTime, float cadmiumFactor, float bendalloyFactor)
+    {
+        if (bendalloyFactor <= 0f) return outsideTime;
+        return outsideTime * (cadmiumFactor / bendalloyFactor);
+    }
+
+    /// <summary>
+    /// Bubble duration limit based on metal reserve (Handbook Section 9).
+    /// D_max = D_metal × E_efficiency
+    /// </summary>
+    public static float CalculateBubbleDuration(float metalReserve, float efficiency)
+    {
+        return metalReserve * efficiency;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 11: DIMINISHING RETURNS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// General diminishing returns curve (Handbook Section 11).
+    /// effectiveness = 1 - e^(-k × reserve)
+    /// At low reserve: near-linear. At high reserve: diminishing.
+    /// </summary>
+    public static float CalculateDiminishingReturns(float reserve, float diminishingK)
+    {
+        return 1f - Mathf.Exp(-diminishingK * reserve);
+    }
+
+    /// <summary>
+    /// Flaring multiplier with diminishing returns (Handbook Section 11).
+    /// Used by FlareManager to scale force from intensity.
+    /// </summary>
+    public static float CalculateFlareMultiplier(int intensity, int maxIntensity, float maxMultiplier)
+    {
+        float normalized = (float)intensity / maxIntensity;
+        float diminished = 1f - Mathf.Exp(-3f * normalized); // Steep initial, plateaus
+        return 1f + diminished * (maxMultiplier - 1f);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECTION 12: PRACTICAL APPLICATIONS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Anchor quality based on mass (Handbook Section 10 graph).
+    /// Higher mass = better anchor. Buildings/walls are quality 1.0.
+    /// Q = log10(mass) / log10(1000), clamped 0-1
+    /// </summary>
+    public static float CalculateAnchorQuality(float metalMass)
+    {
+        if (metalMass <= 0f) return 0f;
+        return Mathf.Clamp01(Mathf.Log10(metalMass) / 3f); // log10(1000) = 3
+    }
+
+    /// <summary>
+    /// Predict projectile position accounting for gravity (Section 1).
+    /// pos(t) = start + v×t + ½g×t²
     /// </summary>
     public static Vector3 PredictPosition(Vector3 startPos, Vector3 velocity, float time)
     {
         return startPos + (velocity * time) + (0.5f * Physics.gravity * time * time);
     }
+
+    /// <summary>
+    /// Kinetic energy of a moving object (Section 1).
+    /// KE = ½mv²
+    /// </summary>
+    public static float CalculateKineticEnergy(float mass, float velocity)
+    {
+        return 0.5f * mass * velocity * velocity;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CONSTANTS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>Vin's calculated Allomantic strength constant (unflared)</summary>
+    public const float A_VIN = 35316f;
+
+    /// <summary>Conservative A for game balance (book-consistent)</summary>
+    public const float A_CONSERVATIVE = 1500f;
+
+    /// <summary>Standard coin mass in kg (US quarter)</summary>
+    public const float COIN_MASS = 0.01f;
+
+    /// <summary>Coin cross-section area (radius ~12mm)</summary>
+    public const float COIN_CROSS_SECTION = 0.00045f;
+
+    /// <summary>Cadmium slow factor (10x slower, handbook τ≈0.1)</summary>
+    public const float CADMIUM_TAU = 0.1f;
+
+    /// <summary>Bendalloy fast factor (10x faster, handbook τ≈10)</summary>
+    public const float BENDALLOY_TAU = 10f;
+
+    /// <summary>Pewter muscle growth constant α (handbook ≈0.5)</summary>
+    public const float PEWTER_ALPHA = 0.5f;
+
+    /// <summary>Standard air density kg/m³</summary>
+    public const float AIR_DENSITY = 1.225f;
+
+    /// <summary>Coin drag coefficient (sphere approximation)</summary>
+    public const float COIN_DRAG_COEFFICIENT = 0.47f;
 }
