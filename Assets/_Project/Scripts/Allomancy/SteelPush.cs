@@ -322,33 +322,34 @@ public class SteelPush : MonoBehaviour
         Vector3 dir        = targetRb.position - playerRigidbody.position;
         bool    isAnchored = (target != null && target.isAnchored) || targetRb.isKinematic;
 
-        // Scale strength by shared intensity multiplier
-        float strength = allomanticStrength
-                       * (playerRigidbody.mass / referenceMass)
-                       * masteryBonus
-                       * CurrentFlareMultiplier;
+        // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
+        // From PHYSICS-MATH-BOOK.md Section 2: Steel & Iron Push/Pull
+        // A = Allomantic strength constant (scaled by flaring)
+        // m1 = Allomancer mass, m2 = target metal mass, r = distance
+        float playerMass = playerRigidbody.mass;
+        float targetMass = targetRb.mass;
+        float eff = Mathf.Max(distance, minDistance);
 
-        float eff           = Mathf.Max(distance, minDistance);
-        float forceMag      = strength / Mathf.Pow(eff, distanceExponent);
-        Vector3 forceVector = dir.normalized * forceMag * 250f; // Multiplier amplified heavily for massive snappy impulse kick!
+        float A = allomanticStrength * masteryBonus * CurrentFlareMultiplier;
+        float forceMag = A * playerMass * targetMass / (eff * eff);
 
-        // Clamp impulse to prevent physics tunneling
-        float maxAllowedImpulse = targetRb.mass * maxCoinVelocity;
-        if (forceVector.magnitude > maxAllowedImpulse)
-        {
-            forceVector = forceVector.normalized * maxAllowedImpulse;
-        }
+        // Newton's 3rd Law mass ratios — whoever is lighter moves more
+        float totalMass = isAnchored ? playerMass : playerMass + targetMass;
+        float playerRatio = isAnchored ? 1f : targetMass / totalMass;
+        float objectRatio = isAnchored ? 0f : playerMass / totalMass;
 
-        // Apply impulse
+        Vector3 forceDir = dir.normalized * forceMag;
+
+        // Clamp to prevent physics tunneling
+        float maxForce = targetMass * maxCoinVelocity;
+        if (forceDir.magnitude > maxForce)
+            forceDir = forceDir.normalized * maxForce;
+
+        // Apply push: object away, player recoils back
         if (!isAnchored)
-        {
-            targetRb.AddForce(forceVector, ForceMode.Impulse);
-        }
+            targetRb.AddForce(forceDir * objectRatio, ForceMode.Impulse);
 
-        // Newton's Third Law (Recoil)
-        playerRigidbody.AddForce(-forceVector, ForceMode.Impulse);
-        
-        Debug.LogError($"[STEEL PUSH] Physics Applied! ForceMag: {forceMag}, Clamped Magnitude: {forceVector.magnitude}");
+        playerRigidbody.AddForce(-forceDir * playerRatio, ForceMode.Impulse);
 
         if (debugPushOperations)
         {
