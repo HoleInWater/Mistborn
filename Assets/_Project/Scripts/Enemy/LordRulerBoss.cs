@@ -1,61 +1,110 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 /// <summary>
-/// Final Boss AI for the Lord Ruler. A multi-phase god-tier encounter.
-/// Uses Compounding (Gold for regeneration, Steel for speed) to be nearly invincible.
+/// Final Boss: The Lord Ruler — Rashek, the Sliver of Infinity.
+/// Four-phase fight with Compounding, emotional Allomancy, Atium, and time dilation.
+/// Phase 1: Physical (Pewter + Steel pushes)
+/// Phase 2: Emotional (Zinc Riots / Brass Soothes the player, screen effects)
+/// Phase 3: Compounding (Gold regen, virtually unkillable without removing metalminds)
+/// Phase 4: Atium Ascension (time dilation, predicted player movements)
+/// Weakness: Removing metalminds disables Compounding, making him mortal.
 /// </summary>
 public class LordRulerBoss : MonoBehaviour
 {
-    public enum BossPhase { Physical, Spiritual, Godlike }
-    public BossPhase currentPhase = BossPhase.Physical;
+    public enum BossPhase { Physical, Emotional, Compounding, AtiumAscension, Defeated }
+
+    [Header("Phase Thresholds (HP %)")]
+    public float phase2Threshold = 0.75f;
+    public float phase3Threshold = 0.50f;
+    public float phase4Threshold = 0.25f;
 
     [Header("Stats")]
-    public float health = 1000f;
     public float maxHealth = 1000f;
-    public bool atiumReflexes = true;
+    public float health = 1000f;
+    public float baseDamage = 50f;
+    public float attackRange = 3f;
+    public float detectionRange = 50f;
+    public float baseSpeed = 6f;
 
-    [Header("Compounding")]
-    [Tooltip("Gold compounding heal per second (base, scaled by compounding multiplier).")]
-    public float goldCompoundingHealRate = 15f;
-    [Tooltip("Steel compounding speed multiplier (base, scaled by compounding multiplier).")]
+    [Header("Allomantic Powers")]
+    public float steelPushForce = 200f;
+    public float ironPullForce = 150f;
+    public float pewterStrengthMult = 3f;
+
+    [Header("Emotional Allomancy (Phase 2)")]
+    public float emotionalPulseRadius = 15f;
+    public float emotionalPulseCooldown = 6f;
+    public float sootheDuration = 4f;
+    public float riotDuration = 3f;
+
+    [Header("Compounding (Phase 3)")]
+    public float goldCompoundingHealRate = 20f;
     public float steelCompoundingSpeedScale = 0.5f;
-    public bool compoundingDisabled = false;
+    public float damageResistance = 0.1f;
 
-    // Feruchemist metal indices for Lord Ruler's key compounding metals
-    private const int GoldIndex = 8;   // Health
-    private const int SteelIndex = 0;  // Speed
-    private const int PewterIndex = 2; // Strength
+    [Header("Atium Ascension (Phase 4)")]
+    public float atiumTimeDilation = 0.4f;
+    public float atiumDodgeChance = 0.7f;
+    public float atiumBurstDamage = 100f;
+    public float atiumBurstRadius = 8f;
 
-    private NavMeshAgent agent;
+    [Header("Metalmind Removal")]
+    public float metalmindRemovalRange = 2f;
+    public bool metalmindsExposed = false;
+    public float stunDuration = 4f;
+
+    [Header("References")]
+    public NavMeshAgent agent;
+    public Animator animator;
+    public GameObject coinPrefab;
+    public GameObject shockwavePrefab;
+
+    [Header("Cutscene Triggers")]
+    public string phase2CutsceneEvent = "LordRuler_Phase2";
+    public string phase4CutsceneEvent = "LordRuler_Phase4";
+    public string defeatCutsceneEvent = "LordRuler_Defeated";
+
+    // Internal
+    private BossPhase currentPhase = BossPhase.Physical;
     private Transform player;
-    private Rigidbody playerRigidbody;
+    private Rigidbody playerRb;
+    private bool compoundingDisabled = false;
+    private bool isStunned = false;
+    private bool isDead = false;
+    private float lastAttackTime;
+    private float lastPushTime;
+    private float lastEmotionalPulse;
+    private float lastOmniBurst;
     private bool isExecutingBurst = false;
-    private float originalAgentSpeed;
 
-    // Compounding references — Lord Ruler has both Allomancy and Feruchemy
+    // Compounding
     private Allomancer allomancer;
     private Feruchemist feruchemist;
     private Compounding compounding;
+    private const int GoldIndex = 8;
+    private const int SteelIndex = 0;
+    private const int PewterIndex = 2;
+
+    public System.Action<BossPhase> OnPhaseChanged;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        if (agent != null) originalAgentSpeed = agent.speed;
+        animator = animator != null ? animator : GetComponent<Animator>();
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
             player = playerObj.transform;
-            playerRigidbody = playerObj.GetComponent<Rigidbody>();
+            playerRb = playerObj.GetComponent<Rigidbody>();
         }
-        else Debug.LogWarning("[LordRulerBoss] No 'Player' tag found in scene.");
 
-        // Initialize Lord Ruler's Metallic Arts components
         InitializeCompounding();
     }
 
-    private void InitializeCompounding()
+    void InitializeCompounding()
     {
         allomancer = GetComponent<Allomancer>();
         feruchemist = GetComponent<Feruchemist>();
@@ -65,144 +114,411 @@ public class LordRulerBoss : MonoBehaviour
         if (feruchemist == null) feruchemist = gameObject.AddComponent<Feruchemist>();
         if (compounding == null) compounding = gameObject.AddComponent<Compounding>();
 
-        // Pre-charge key metalminds — the Lord Ruler has had 1000 years to store
-        compounding.PreChargeMetalmind(GoldIndex, 700f);   // Health — immortality source
-        compounding.PreChargeMetalmind(SteelIndex, 600f);  // Speed
-        compounding.PreChargeMetalmind(PewterIndex, 600f); // Strength
+        // 1000 years of stored attributes
+        compounding.PreChargeMetalmind(GoldIndex, 900f);
+        compounding.PreChargeMetalmind(SteelIndex, 700f);
+        compounding.PreChargeMetalmind(PewterIndex, 700f);
     }
 
     void Update()
     {
-        if (player == null) return;
+        if (isDead || player == null) return;
+        if (isStunned) return;
 
         UpdatePhase();
         ProcessCompounding();
-        ExecuteAIBehavior();
-    }
 
-    private void UpdatePhase()
-    {
-        if (health < 300f) currentPhase = BossPhase.Godlike;
-        else if (health < 700f) currentPhase = BossPhase.Spiritual;
-    }
+        float dist = Vector3.Distance(transform.position, player.position);
 
-    /// <summary>
-    /// Lord Ruler's compounding behavior — Gold for regen, Steel for speed in later phases.
-    /// </summary>
-    private void ProcessCompounding()
-    {
-        if (compounding == null || compoundingDisabled) return;
-
-        // Gold compounding — always active (source of immortality)
-        if (health < maxHealth)
+        switch (currentPhase)
         {
-            compounding.ForceStartCompounding(GoldIndex);
-
-            if (compounding.IsCompounding(GoldIndex))
-            {
-                float healMultiplier = compounding.GetOutputMultiplier(GoldIndex);
-                float healAmount = goldCompoundingHealRate * healMultiplier * Time.deltaTime;
-                health = Mathf.Min(maxHealth, health + healAmount);
-            }
+            case BossPhase.Physical:    UpdatePhysical(dist); break;
+            case BossPhase.Emotional:   UpdateEmotional(dist); break;
+            case BossPhase.Compounding: UpdateCompoundingPhase(dist); break;
+            case BossPhase.AtiumAscension: UpdateAtiumAscension(dist); break;
         }
 
-        // Steel compounding in Spiritual+ phases — supernatural speed
-        if (currentPhase >= BossPhase.Spiritual)
+        if (animator != null)
         {
-            compounding.ForceStartCompounding(SteelIndex);
+            float speed = agent != null ? agent.velocity.magnitude : 0f;
+            animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
+            animator.SetInteger("BossPhase", (int)currentPhase);
+        }
+    }
 
-            if (compounding.IsCompounding(SteelIndex) && agent != null)
+    // ── Phase Management ─────────────────────────────────────────────────
+
+    void UpdatePhase()
+    {
+        float hpPercent = health / maxHealth;
+        BossPhase newPhase;
+
+        if (hpPercent <= phase4Threshold)
+            newPhase = BossPhase.AtiumAscension;
+        else if (hpPercent <= phase3Threshold)
+            newPhase = BossPhase.Compounding;
+        else if (hpPercent <= phase2Threshold)
+            newPhase = BossPhase.Emotional;
+        else
+            newPhase = BossPhase.Physical;
+
+        if (newPhase != currentPhase)
+            TransitionPhase(newPhase);
+    }
+
+    void TransitionPhase(BossPhase newPhase)
+    {
+        BossPhase oldPhase = currentPhase;
+        currentPhase = newPhase;
+        OnPhaseChanged?.Invoke(newPhase);
+
+        CameraShakeManager.Instance?.Shake(0.8f, 0.4f);
+
+        switch (newPhase)
+        {
+            case BossPhase.Emotional:
+                EventManager.TriggerEvent(phase2CutsceneEvent);
+                Debug.Log("[LORD RULER] \"You think you can challenge ME? I AM PRESERVATION.\"");
+                break;
+
+            case BossPhase.Compounding:
+                Debug.Log("[LORD RULER] Gold compounding intensifies — wounds heal instantly!");
+                if (agent != null) agent.speed = baseSpeed * 1.5f;
+                break;
+
+            case BossPhase.AtiumAscension:
+                EventManager.TriggerEvent(phase4CutsceneEvent);
+                Debug.Log("[LORD RULER] \"I HAVE SEEN EVERY POSSIBLE FUTURE.\" — Burns Atium!");
+                Time.timeScale = atiumTimeDilation;
+                if (agent != null) agent.speed = baseSpeed * 2.5f;
+                break;
+        }
+    }
+
+    // ── Phase 1: Physical ────────────────────────────────────────────────
+
+    void UpdatePhysical(float dist)
+    {
+        if (dist > attackRange)
+        {
+            agent?.SetDestination(player.position);
+
+            if (Time.time - lastPushTime > 3f && dist < 15f && Random.value < 0.05f)
             {
-                float speedMultiplier = compounding.GetOutputMultiplier(SteelIndex);
-                agent.speed = originalAgentSpeed * (1f + speedMultiplier * steelCompoundingSpeedScale);
+                SteelPush();
             }
         }
         else
         {
-            compounding.ForceStopCompounding(SteelIndex);
-            if (agent != null) agent.speed = originalAgentSpeed;
-        }
-
-        // Pewter compounding in Godlike phase — overwhelming strength
-        if (currentPhase == BossPhase.Godlike)
-        {
-            compounding.ForceStartCompounding(PewterIndex);
+            MeleeAttack(baseDamage * pewterStrengthMult);
         }
     }
 
-    private void ExecuteAIBehavior()
+    // ── Phase 2: Emotional ───────────────────────────────────────────────
+
+    void UpdateEmotional(float dist)
     {
-        switch (currentPhase)
+        // Alternate between Soothe and Riot
+        if (Time.time - lastEmotionalPulse > emotionalPulseCooldown && dist < emotionalPulseRadius)
         {
-            case BossPhase.Physical:
-                // Heavy Steel/Pewter aggression
-                if (agent != null) agent.SetDestination(player.position);
-                if (Random.value < 0.05f) PerformSteelPush();
-                break;
-            case BossPhase.Spiritual:
-                // Zinc/Brass aura manipulation + speed compounding
-                if (agent != null) agent.SetDestination(player.position);
-                break;
-            case BossPhase.Godlike:
-                // Simultaneous 16-metal flare + full compounding
-                if (agent != null) agent.SetDestination(player.position);
-                if (!isExecutingBurst) StartCoroutine(PerformOmniBurst());
-                break;
+            lastEmotionalPulse = Time.time;
+            if (Random.value > 0.5f)
+                SoothePlayer();
+            else
+                RiotPlayer();
+        }
+
+        // Still fights physically
+        if (dist > attackRange)
+            agent?.SetDestination(player.position);
+        else
+            MeleeAttack(baseDamage * pewterStrengthMult);
+
+        // Occasional steel push for space
+        if (dist < 5f && Time.time - lastPushTime > 4f)
+            SteelPush();
+    }
+
+    void SoothePlayer()
+    {
+        // Brass Soothe — suppress player's aggression, slow them
+        BasicPlayerMove pm = player.GetComponent<BasicPlayerMove>();
+        if (pm != null) pm.externalSpeedMultiplier = 0.5f;
+
+        // Screen effect — blue/cold tint
+        CameraShakeManager.Instance?.Shake(0.3f, 0.1f);
+        Debug.Log("[LORD RULER] Brass Soothe — \"Be calm. Kneel.\"");
+
+        StartCoroutine(ResetPlayerSpeed(sootheDuration));
+    }
+
+    void RiotPlayer()
+    {
+        // Zinc Riot — inflame fear, camera shake and disorientation
+        CameraShakeManager.Instance?.Shake(riotDuration, 0.25f);
+        Debug.Log("[LORD RULER] Zinc Riot — \"FEAR ME!\"");
+
+        StartCoroutine(ResetPlayerSpeed(riotDuration));
+    }
+
+    IEnumerator ResetPlayerSpeed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        BasicPlayerMove pm = player.GetComponent<BasicPlayerMove>();
+        if (pm != null) pm.externalSpeedMultiplier = 1f;
+    }
+
+    // ── Phase 3: Compounding ─────────────────────────────────────────────
+
+    void UpdateCompoundingPhase(float dist)
+    {
+        // Extremely aggressive — heals faster than player can damage
+        if (dist > attackRange)
+        {
+            agent?.SetDestination(player.position);
+            if (agent != null) agent.speed = baseSpeed * 1.8f;
+        }
+        else
+        {
+            MeleeAttack(baseDamage * pewterStrengthMult * 1.5f);
+        }
+
+        // Steel push barrage
+        if (dist < 20f && Time.time - lastPushTime > 2f && Random.value < 0.08f)
+            SteelPush();
+    }
+
+    // ── Phase 4: Atium Ascension ─────────────────────────────────────────
+
+    void UpdateAtiumAscension(float dist)
+    {
+        // Atium future sight — dodge most attacks
+        // Omni-burst periodically
+        if (!isExecutingBurst && Time.time - lastOmniBurst > 10f)
+        {
+            StartCoroutine(OmniBurst());
+        }
+
+        if (dist > attackRange)
+        {
+            agent?.SetDestination(player.position);
+        }
+        else
+        {
+            // Devastating melee with all compounding active
+            MeleeAttack(baseDamage * pewterStrengthMult * 2f);
         }
     }
 
-    private void PerformSteelPush()
-    {
-        if (playerRigidbody == null) return;
-        Vector3 dir = player.position - transform.position;
-        playerRigidbody.AddForce(dir.normalized * 200f, ForceMode.Impulse);
-    }
-
-    private System.Collections.IEnumerator PerformOmniBurst()
+    IEnumerator OmniBurst()
     {
         isExecutingBurst = true;
-        Debug.Log("[LORD RULER] THE WELL IS MINE!");
-        // Massive shockwave logic
-        yield return new WaitForSeconds(5f);
+        lastOmniBurst = Time.time;
+        Debug.Log("[LORD RULER] \"I AM THE LAW!\" — Omni-burst!");
+
+        animator?.SetTrigger("OmniBurst");
+
+        yield return new WaitForSeconds(1f);
+
+        // AOE shockwave
+        Collider[] hits = Physics.OverlapSphere(transform.position, atiumBurstRadius);
+        foreach (var hit in hits)
+        {
+            if (hit.transform == transform) continue;
+            IDamageable target = hit.GetComponent<IDamageable>();
+            target?.TakeDamage(atiumBurstDamage);
+
+            Rigidbody rb = hit.attachedRigidbody;
+            if (rb != null)
+            {
+                Vector3 dir = (hit.transform.position - transform.position).normalized + Vector3.up;
+                rb.AddForce(dir * 50f, ForceMode.Impulse);
+            }
+        }
+
+        CameraShakeManager.Instance?.Shake(1f, 0.5f);
+        if (shockwavePrefab != null)
+            Instantiate(shockwavePrefab, transform.position, Quaternion.identity);
+
+        yield return new WaitForSeconds(2f);
         isExecutingBurst = false;
     }
 
-    public void TakeDamage(float amount)
+    // ── Compounding Processing ───────────────────────────────────────────
+
+    void ProcessCompounding()
     {
-        // Compounding resistance — Gold compounding provides damage reduction
-        float resistance = 0.1f;
-        if (compounding != null && compounding.IsCompounding(GoldIndex) && !compoundingDisabled)
+        if (compounding == null || compoundingDisabled) return;
+
+        // Gold compounding — always active for regeneration
+        if (health < maxHealth)
         {
-            // Even more resistant while actively Gold compounding
-            resistance *= 0.5f;
+            compounding.ForceStartCompounding(GoldIndex);
+            if (compounding.IsCompounding(GoldIndex))
+            {
+                float mult = compounding.GetOutputMultiplier(GoldIndex);
+                health = Mathf.Min(maxHealth, health + goldCompoundingHealRate * mult * Time.deltaTime);
+            }
         }
 
+        // Steel compounding in phase 3+
+        if (currentPhase >= BossPhase.Compounding)
+        {
+            compounding.ForceStartCompounding(SteelIndex);
+            if (compounding.IsCompounding(SteelIndex) && agent != null)
+            {
+                float speedMult = compounding.GetOutputMultiplier(SteelIndex);
+                agent.speed = baseSpeed * (1f + speedMult * steelCompoundingSpeedScale);
+            }
+        }
+
+        // Pewter compounding in phase 4
+        if (currentPhase == BossPhase.AtiumAscension)
+            compounding.ForceStartCompounding(PewterIndex);
+    }
+
+    // ── Attacks ──────────────────────────────────────────────────────────
+
+    void MeleeAttack(float damage)
+    {
+        if (agent != null) agent.SetDestination(transform.position);
+        transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
+
+        if (Time.time - lastAttackTime < 1.2f) return;
+        lastAttackTime = Time.time;
+
+        animator?.SetTrigger("Attack");
+        IDamageable target = player.GetComponent<IDamageable>();
+        target?.TakeDamage(damage);
+
+        if (playerRb != null)
+        {
+            Vector3 dir = (player.position - transform.position).normalized;
+            playerRb.AddForce(dir * 15f, ForceMode.Impulse);
+        }
+    }
+
+    void SteelPush()
+    {
+        lastPushTime = Time.time;
+        if (playerRb != null)
+        {
+            Vector3 dir = (player.position - transform.position).normalized;
+            playerRb.AddForce(dir * steelPushForce, ForceMode.Impulse);
+        }
+    }
+
+    // ── Damage & Death ───────────────────────────────────────────────────
+
+    public void TakeDamage(float amount)
+    {
+        if (isDead) return;
+
+        // Phase 4 Atium dodge
+        if (currentPhase == BossPhase.AtiumAscension && Random.value < atiumDodgeChance)
+        {
+            Debug.Log("[LORD RULER] Atium dodge!");
+            return;
+        }
+
+        // Compounding resistance
+        float resistance = compoundingDisabled ? 1f : damageResistance;
+        if (compounding != null && compounding.IsCompounding(GoldIndex) && !compoundingDisabled)
+            resistance *= 0.5f;
+
         health -= amount * resistance;
-        if (health <= 0) Die();
+
+        if (health <= 0)
+            Die();
+    }
+
+    void Die()
+    {
+        if (isDead) return;
+        isDead = true;
+        currentPhase = BossPhase.Defeated;
+
+        // Restore time scale if in Atium phase
+        Time.timeScale = 1f;
+
+        if (agent != null) agent.isStopped = true;
+        animator?.SetBool("IsDead", true);
+
+        EventManager.TriggerEvent(defeatCutsceneEvent);
+        CameraShakeManager.Instance?.Shake(2f, 0.6f);
+        Debug.Log("[LORD RULER] \"I am... the one who held it... I am...\" — THE LORD RULER HAS FALLEN.");
+
+        Destroy(gameObject, 8f);
+    }
+
+    // ── Metalmind Removal (Key Mechanic) ─────────────────────────────────
+
+    /// <summary>
+    /// Stun the Lord Ruler (e.g., Duralumin-enhanced push or pulling off his bracers).
+    /// Exposes metalminds for removal.
+    /// </summary>
+    public void StunAndExpose()
+    {
+        if (isStunned || isDead) return;
+        StartCoroutine(StunSequence());
+    }
+
+    IEnumerator StunSequence()
+    {
+        isStunned = true;
+        metalmindsExposed = true;
+        if (agent != null) agent.isStopped = true;
+        animator?.SetBool("IsStunned", true);
+        Debug.Log("[LORD RULER] STUNNED — metalminds exposed!");
+
+        yield return new WaitForSeconds(stunDuration);
+
+        isStunned = false;
+        metalmindsExposed = false;
+        if (agent != null) agent.isStopped = false;
+        animator?.SetBool("IsStunned", false);
     }
 
     /// <summary>
-    /// Disable the Lord Ruler's compounding — the key to defeating him.
-    /// Lore: Removing his metalminds stops his Compounding, making him mortal.
+    /// Remove the Lord Ruler's metalminds. This disables Compounding and makes him mortal.
+    /// Player must be in range and metalminds must be exposed (stunned).
     /// </summary>
+    public bool TryRemoveMetalminds(Transform playerTransform)
+    {
+        if (!metalmindsExposed || isDead) return false;
+        if (Vector3.Distance(transform.position, playerTransform.position) > metalmindRemovalRange) return false;
+
+        DisableCompounding();
+        return true;
+    }
+
     public void DisableCompounding()
     {
         compoundingDisabled = true;
+        damageResistance = 1f; // Full damage now
 
         if (compounding != null)
         {
             for (int i = 0; i < Feruchemist.MetalmindCount; i++)
-            {
                 compounding.ForceStopCompounding(i);
-            }
         }
 
-        Debug.Log("[LORD RULER] METALMINDS REMOVED — Compounding disabled! He is mortal!");
+        // Restore normal time
+        Time.timeScale = 1f;
+        if (agent != null) agent.speed = baseSpeed * 0.7f; // Weakened
+
+        Debug.Log("[LORD RULER] METALMINDS REMOVED! He ages rapidly — compounding disabled!");
     }
 
-    private void Die()
+    public bool CanRemoveMetalminds(Transform playerTransform)
     {
-        Debug.Log("[BOSS] THE LORD RULER HAS FALLEN. THE ASH STOPS.");
-        // End Game logic
+        return metalmindsExposed && !isDead &&
+               Vector3.Distance(transform.position, playerTransform.position) <= metalmindRemovalRange;
     }
+
+    // ── Public API ───────────────────────────────────────────────────────
+    public BossPhase GetPhase() => currentPhase;
+    public float GetHealthPercent() => health / maxHealth;
+    public bool IsCompoundingDisabled() => compoundingDisabled;
+    public bool IsDead() => isDead;
 }

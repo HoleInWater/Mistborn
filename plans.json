@@ -14,7 +14,9 @@
         "Metalmind capacity limits",
         "Integration with existing Allomancer component for Compounding detection"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Allomancy/"
+      ],
       "passes": true
     },
     {
@@ -29,7 +31,9 @@
         "Metal reserve drain during compounding",
         "Integration with LordRulerBoss.cs for boss compounding behavior"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Allomancy/"
+      ],
       "passes": true
     },
     {
@@ -44,8 +48,10 @@
         "Non-metallic weapon flag (immune to Steel/Iron)",
         "Squad leader designation and command relay"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Enemy/HazekillerAI.cs"],
-      "passes": false
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Enemy/HazekillerAI.cs"
+      ],
+      "passes": true
     },
     {
       "id": 4,
@@ -59,8 +65,10 @@
         "Hemalurgic spike system (removable, affects behavior)",
         "Koloss sword pickup for player after kill"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Enemy/KolossAI.cs"],
-      "passes": false
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Enemy/KolossAI.cs"
+      ],
+      "passes": true
     },
     {
       "id": 5,
@@ -74,8 +82,10 @@
         "Linchpin spike vulnerability (QTE or interact when stunned)",
         "Proper death animation when spike removed"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Enemy/SteelInquisitorAI.cs"],
-      "passes": false
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Enemy/SteelInquisitorAI.cs"
+      ],
+      "passes": true
     },
     {
       "id": 6,
@@ -90,8 +100,10 @@
         "Metalmind removal mechanic to disable compounding",
         "Victory cutscene trigger"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Enemy/LordRulerBoss.cs"],
-      "passes": false
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Enemy/LordRulerBoss.cs"
+      ],
+      "passes": true
     },
     {
       "id": 7,
@@ -106,7 +118,10 @@
         "Dialogue content for 6 key NPCs",
         "Quest trigger from dialogue responses"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Quests/DialogueSystem.cs", "Assets/_Project/Scripts/UI/DialogueManager.cs"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Quests/DialogueSystem.cs",
+        "Assets/_Project/Scripts/UI/DialogueManager.cs"
+      ],
       "passes": false
     },
     {
@@ -122,7 +137,9 @@
         "Mist spirit rare encounter spawner",
         "Weather transitions with particle effects"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/World/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/World/"
+      ],
       "passes": false
     },
     {
@@ -138,7 +155,10 @@
         "Coin bounce off surfaces for repositioning",
         "Coins recoverable after combat"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/Allomancy/", "Assets/_Project/Scripts/Player/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/Allomancy/",
+        "Assets/_Project/Scripts/Player/"
+      ],
       "passes": false
     },
     {
@@ -154,7 +174,9 @@
         "Tin-enhanced enemy position markers",
         "Minimap zoom and rotation"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/UI/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/UI/"
+      ],
       "passes": false
     },
     {
@@ -170,7 +192,10 @@
         "Visual skill tree UI with node connections",
         "Skill effects applied to corresponding metal scripts"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/UI/SkillTreeSystem.cs", "Assets/_Project/Scripts/Skill Tree Scripts/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/UI/SkillTreeSystem.cs",
+        "Assets/_Project/Scripts/Skill Tree Scripts/"
+      ],
       "passes": false
     },
     {
@@ -186,7 +211,10 @@
         "Visual indicator for undiscovered collectibles",
         "Achievement for finding all lore entries"
       ],
-      "files_to_modify": ["Assets/_Project/Scripts/World/", "Assets/_Project/Scripts/UI/"],
+      "files_to_modify": [
+        "Assets/_Project/Scripts/World/",
+        "Assets/_Project/Scripts/UI/"
+      ],
       "passes": false
     }
   ]
