@@ -1,39 +1,69 @@
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+/// <summary>
+/// Central game constants and configuration.
+/// All physics values reference PHYSICS-MATH-BOOK.md.
+/// </summary>
+public class GameConstants : MonoBehaviour
 {
-    public class GameConstants : MonoBehaviour
+    public static GameConstants Instance { get; private set; }
+
+    [Header("Game")]
+    public string version = "0.3.0";
+    public int targetFrameRate = 60;
+
+    [Header("Physics — PHYSICS-MATH-BOOK.md")]
+    public float gravity = -9.81f;
+    public float terminalVelocity = -50f;
+
+    [Header("Allomantic Constants")]
+    [Tooltip("Conservative A from handbook (Vin A = 35316)")]
+    public float allomanticStrengthA = 1500f;
+    public float coinMass = 0.01f;
+    public float standardCoinVelocity = 490f;
+
+    [Header("Feruchemy Constants")]
+    public float baseStoreRate = 10f;
+    public float baseTapRate = 15f;
+    public float defaultDiminishingFactor = 0.1f;
+
+    [Header("Compounding Constants")]
+    public float compoundingBaseMultiplier = 10f;
+    public float compoundingDiminishingDelta = 0.3f;
+    public int maxCompoundingCycles = 4;
+
+    [Header("Time Bubble Constants — Section 9")]
+    public float cadmiumSlowFactor = 0.15f;
+    public float bendalloyFastFactor = 8f;
+
+    [Header("Pewter Constants — Section 8")]
+    public float pewterEfficiencyK = 2f;
+    public float pewterMuscleAlpha = 0.5f;
+
+    [Header("Player Defaults")]
+    public float playerMaxHealth = 100f;
+    public float playerMaxStamina = 100f;
+    public float playerBaseDamage = 15f;
+    public float playerMoveSpeed = 5f;
+    public float playerSprintSpeed = 10f;
+
+    [Header("Audio")]
+    public float masterVolume = 0.8f;
+    public float musicVolume = 0.6f;
+    public float sfxVolume = 0.7f;
+
+    [Header("Debug")]
+    public bool showDebugLogs = false;
+    public bool enableCheatCodes = false;
+    public bool showPerformanceStats = false;
+
+    void Awake()
     {
-        // CHANGE 'private' TO 'protected' FOR ALL OF THESE:
-        [Header("Game Version")]
-        [SerializeField] protected string version = "1.0.0";
-        
-        [Header("Time Settings")]
-        [SerializeField] protected float fixedDeltaTime = 0.02f;
-        [SerializeField] protected int targetFrameRate = 60;
-        
-        [Header("Physics")]
-        [SerializeField] protected float defaultGravity = -9.81f;
-        [SerializeField] protected float terminalVelocity = -50f;
-        
-        [Header("Audio")]
-        [SerializeField] protected float masterVolume = 0.8f;
-        [SerializeField] protected float musicVolume = 0.6f;
-        [SerializeField] protected float sfxVolume = 0.7f;
-        
-        [Header("Debug")]
-        [SerializeField] protected bool showDebugLogs = false;
-        [SerializeField] protected bool enableCheatCodes = false;
-        
-        // This is the property we added in the last step
-        public static GameConstants Instance => _instance;
+        if (Instance != null && Instance != this) { Destroy(this); return; }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        public static string Version => Instance.version;
-        public static float FixedDeltaTime => Instance.fixedDeltaTime;
-        // ... (the rest of your static lines)
-
-        private static GameConstants _instance;
-        
-        // ... (Keep Awake and InitializeSettings as they were)
+        Application.targetFrameRate = targetFrameRate;
+        Physics.gravity = new Vector3(0, gravity, 0);
     }
 }
