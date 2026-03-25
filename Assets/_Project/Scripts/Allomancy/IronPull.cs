@@ -44,8 +44,9 @@ public class IronPull : MonoBehaviour
     public float metalCostPerSecond  = 2f;
 
     [Header("Allomancy Physics")]
-    public float allomanticStrength  = 50f;
-    public float maxCoinVelocity     = 20f;
+    [Tooltip("Allomantic constant A. Handbook: A_vin=35316, conservative=1500")]
+    public float allomanticStrength  = 1500f;
+    public float maxCoinVelocity     = 500f;
     [Range(1f, 2f)] public float distanceExponent = 1f;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
@@ -254,52 +255,52 @@ public class IronPull : MonoBehaviour
         if (!hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        // --- Direction and distance ---
+        // --- Direction and distance (pull = toward player) ---
         Vector3 dirToTarget = currentTargetRigidbody.position - playerRigidbody.position;
         float   distance    = dirToTarget.magnitude;
 
-        // --- Strength calculation ---
-        float strength = allomanticStrength
-                       * (playerRigidbody.mass / referenceMass)
-                       * CurrentFlareMultiplier;
-
-        float distanceFactor = Mathf.Clamp01(1f - (distance / maxRange));
-        float force          = strength * distanceFactor;
-
-        // --- Mass setup ---
+        // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
+        // From PHYSICS-MATH-BOOK.md Section 2: Steel & Iron Push/Pull
+        // Same formula as Steel Push — Iron Pull is the inverse application
         float playerMass = playerRigidbody.mass;
         float objectMass = currentTargetRigidbody.mass;
 
         if (isAnchored)
             objectMass = Mathf.Infinity;
 
-        float totalMass   = playerMass + objectMass;
-        float playerRatio = objectMass / totalMass;
-        float objectRatio = playerMass / totalMass;
+        float eff = Mathf.Max(distance, minDistance);
+        float A = allomanticStrength * CurrentFlareMultiplier;
+        float effectiveObjectMass = isAnchored ? playerMass * 10f : objectMass; // Anchored acts as massive
+        float forceMag = A * playerMass * effectiveObjectMass / (eff * eff);
 
-        // Multiplier amplified heavily for massive snappy impulse kick
-        Vector3 forceDir = dirToTarget.normalized * force * 250f;
+        // Newton's 3rd Law mass ratios
+        float totalMass   = playerMass + (isAnchored ? Mathf.Infinity : objectMass);
+        float playerRatio = isAnchored ? 1f : objectMass / totalMass;
+        float objectRatio = isAnchored ? 0f : playerMass / totalMass;
 
-        // Clamp impulse to prevent physics tunneling
-        float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
-        if (forceDir.magnitude > maxAllowedImpulse)
-            forceDir = forceDir.normalized * maxAllowedImpulse;
+        // Pull direction: player toward target, object toward player
+        Vector3 pullForce = dirToTarget.normalized * forceMag;
 
-        // --- Apply impulses ---
-        playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
+        // Clamp to prevent physics tunneling
+        float maxForce = (isAnchored ? playerMass : objectMass) * maxCoinVelocity;
+        if (pullForce.magnitude > maxForce)
+            pullForce = pullForce.normalized * maxForce;
+
+        // Apply as continuous force (not impulse — pull is held)
+        playerRigidbody.AddForce(pullForce * playerRatio, ForceMode.Force);
 
         if (!isAnchored)
-            currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
+            currentTargetRigidbody.AddForce(-pullForce * objectRatio, ForceMode.Force);
 
         // --- Visual feedback ---
-        if (force > shakeForceThreshold)
+        if (forceMag > shakeForceThreshold)
         {
             CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
-            TriggerPullTint(force);
+            TriggerPullTint(forceMag);
         }
 
         if (debugPullOperations)
-            Debug.Log($"[IRON PULL] force={force:F0} playerRatio={playerRatio:F2} objectRatio={objectRatio:F2} anchored={isAnchored}");
+            Debug.Log($"[IRON PULL] F={forceMag:F0} A={A:F0} m1={playerMass:F0} m2={objectMass:F0} r={eff:F1} ratio={playerRatio:F2}");
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────
