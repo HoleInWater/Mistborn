@@ -155,30 +155,15 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // Toggle on/off with Q (click, not hold)
+        // Single click = one pull impulse (not continuous)
         KeyCode pullKey = GetAbility1Key();
         if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
         {
-            if (isBurning)
-            {
-                StopBurning();
-            }
-            else
-            {
-                AutoSwitchToThisMetal();
-                StartBurning();
-            }
-        }
-
-        // While burning, apply pull each frame and drain metal
-        if (isBurning)
-        {
+            AutoSwitchToThisMetal();
+            if (!isBurning) StartBurning();
             PullMetals();
             DrainMetal(1f);
-
-            // Auto-stop if no target or out of metal
-            if (!hasCurrentTarget || (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) <= 0))
-                StopBurning();
+            cooldownTimer = 0.2f; // Brief cooldown between pulls
         }
 
         UpdatePrediction();
@@ -286,20 +271,20 @@ public class IronPull : MonoBehaviour
         float playerRatio = isAnchored ? 1f : (objectMass / (playerMass + objectMass));
         float objectRatio = isAnchored ? 0f : (playerMass / (playerMass + objectMass));
 
-        // Pull: player toward target, object toward player
-        // Using Impulse (per-frame tick) for snappy feel, scaled by deltaTime
-        Vector3 pullDir = dirToTarget.normalized * forceMag * Time.deltaTime;
+        // Single impulse pull — one click = one yank
+        Vector3 pullDir = dirToTarget.normalized * forceMag;
 
-        // Smooth velocity change for player (no jarring snap)
-        Vector3 playerVelChange = (pullDir * playerRatio) / playerMass;
-        playerVelChange = Vector3.ClampMagnitude(playerVelChange, maxCoinVelocity * 0.3f);
-        playerRigidbody.AddForce(playerVelChange, ForceMode.VelocityChange);
+        // Player pulled toward target (smooth velocity change)
+        Vector3 playerVel = (pullDir * playerRatio) / playerMass;
+        playerVel = Vector3.ClampMagnitude(playerVel, maxCoinVelocity);
+        playerRigidbody.AddForce(playerVel, ForceMode.VelocityChange);
 
+        // Object pulled toward player
         if (!isAnchored)
         {
-            Vector3 objVelChange = (-pullDir * objectRatio) / objectMass;
-            objVelChange = Vector3.ClampMagnitude(objVelChange, maxCoinVelocity);
-            currentTargetRigidbody.AddForce(objVelChange, ForceMode.VelocityChange);
+            Vector3 objVel = (-pullDir * objectRatio) / objectMass;
+            objVel = Vector3.ClampMagnitude(objVel, maxCoinVelocity);
+            currentTargetRigidbody.AddForce(objVel, ForceMode.VelocityChange);
         }
 
         // --- Visual feedback ---
