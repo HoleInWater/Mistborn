@@ -201,30 +201,33 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
+        // Toggle on/off with E (click, not hold) — matches Iron Pull
         KeyCode pushKey = GetAbility1Key();
-        bool eDown = pushKey != KeyCode.None && Input.GetKeyDown(pushKey);
-        bool eHeld = pushKey != KeyCode.None && Input.GetKey(pushKey);
-        
-        // Safety Catch: If unequipped mid-use, definitively trigger the Up state to halt physics
-        bool eUp   = (pushKey != KeyCode.None && Input.GetKeyUp(pushKey)) || (eKeyWasPressed && pushKey == KeyCode.None);
-
-        if (eDown && !eKeyWasPressed && cooldownTimer <= 0f)
+        if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
         {
-            Debug.LogError($"[STEEL PUSH] Clicked {pushKey}! Target Valid? {hasCurrentTarget}. Calling PushMetals.");
-            eKeyWasPressed = true;
-            AutoSwitchToThisMetal();
-            if (!isBurning) StartBurning();
-            PushMetals(); 
-            if (IsFlaring) StartFlaringVignette();
+            if (isBurning)
+            {
+                StopBurning();
+            }
+            else
+            {
+                AutoSwitchToThisMetal();
+                StartBurning();
+                PushMetals(); // Initial push impulse on activation
+                if (IsFlaring) StartFlaringVignette();
+            }
         }
 
-        if (eUp)
+        // While burning, keep pushing each frame and drain metal
+        if (isBurning)
         {
-            eKeyWasPressed = false;
-            StopBurning();
-        }
+            PushMetals();
+            DrainMetal(1f);
 
-        if (isBurning) DrainMetal(1f);
+            // Auto-stop if no target or out of Steel
+            if (!hasCurrentTarget || (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0))
+                StopBurning();
+        }
 
         if (enableSteelBubble)
         {
@@ -350,17 +353,21 @@ public class SteelPush : MonoBehaviour
         float playerRatio = isAnchored ? 1f : (targetMass / totalMass);
         float objectRatio = isAnchored ? 0f : (playerMass / totalMass);
 
-        Vector3 forceVec = dir.normalized * forceMag;
+        // Scale by deltaTime since this is called every frame while toggled on
+        Vector3 forceVec = dir.normalized * forceMag * Time.deltaTime;
 
-        // Push: object flies away
+        // Push: object flies away (VelocityChange for smooth acceleration)
         if (!isAnchored)
-            targetRb.AddForce(forceVec * objectRatio, ForceMode.Impulse);
+        {
+            Vector3 objVel = (forceVec * objectRatio) / targetMass;
+            objVel = Vector3.ClampMagnitude(objVel, maxCoinVelocity);
+            targetRb.AddForce(objVel, ForceMode.VelocityChange);
+        }
 
-        // Player recoil — smooth velocity change instead of hard impulse
-        // This prevents the jarring snap-back feeling
-        Vector3 recoilVelocity = (-forceVec * playerRatio) / playerMass;
-        recoilVelocity = Vector3.ClampMagnitude(recoilVelocity, maxCoinVelocity * 0.5f);
-        playerRigidbody.AddForce(recoilVelocity, ForceMode.VelocityChange);
+        // Player recoil — smooth velocity change
+        Vector3 recoilVel = (-forceVec * playerRatio) / playerMass;
+        recoilVel = Vector3.ClampMagnitude(recoilVel, maxCoinVelocity * 0.5f);
+        playerRigidbody.AddForce(recoilVel, ForceMode.VelocityChange);
 
         if (debugPushOperations)
         {
