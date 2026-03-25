@@ -190,27 +190,22 @@ public class SteelPush : MonoBehaviour
 
     void Update()
     {
-        if (allomancer != null && !allomancer.canBurnMetal)
-        {
-            if (isBurning) StopBurning();
-            return;
-        }
-
         if (cooldownTimer > 0f)            cooldownTimer            -= Time.deltaTime;
         if (steelBubbleCooldownTimer > 0f) steelBubbleCooldownTimer -= Time.deltaTime;
 
         UpdateTargetedMetal();
 
-        // Single click = one push impulse (matches Iron Pull)
+        // E key: single click = one push impulse. No burn requirement.
         KeyCode pushKey = GetAbility1Key();
         if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
         {
-            AutoSwitchToThisMetal();
-            if (!isBurning) StartBurning();
-            PushMetals();
-            DrainMetal(1f);
-            cooldownTimer = pushCooldown;
-            if (IsFlaring) StartFlaringVignette();
+            if (hasCurrentTarget && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
+            {
+                PushMetals();
+                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond);
+                cooldownTimer = pushCooldown;
+                if (IsFlaring) StartFlaringVignette();
+            }
         }
 
         if (enableSteelBubble)

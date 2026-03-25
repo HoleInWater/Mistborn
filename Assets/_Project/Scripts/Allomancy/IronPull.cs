@@ -37,19 +37,19 @@ public class IronPull : MonoBehaviour
     // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Settings")]
-    public float referenceMass       = 80f;
-    public float referenceDistance   = 3f;
     public float minDistance         = 1f;
     public float maxRange            = 30f;
     public float metalCostPerSecond  = 2f;
 
-    [Header("Allomancy Physics")]
-    [Header("Allomancy Physics — PHYSICS-MATH-BOOK.md Section 2")]
-    [Tooltip("Game-tuned A constant. Handbook A_conservative=1500. Lower = weaker pull.")]
-    public float allomanticStrength  = 50f;
-    [Tooltip("Max velocity for pulled objects")]
-    public float maxCoinVelocity     = 30f;
-    [Range(1f, 2f)] public float distanceExponent = 1f;
+    [Header("Pull Physics — PHYSICS-MATH-BOOK.md Section 2")]
+    [Tooltip("Base pull speed applied to player when pulling toward anchored metal")]
+    public float pullSpeed = 12f;
+    [Tooltip("Max speed player can reach from pulling")]
+    public float maxPullSpeed = 25f;
+    [Tooltip("Pull force on loose objects (coins, small metals) toward player")]
+    public float loosePullForce = 15f;
+    [Tooltip("Stronger pull at close range (inverse distance scaling)")]
+    public bool inverseDistanceScaling = true;
     [Range(0f, 1f)] public float velocityDamping  = 0.5f;
 
     [Header("Flare Scaling")]
@@ -145,25 +145,20 @@ public class IronPull : MonoBehaviour
 
     void Update()
     {
-        if (allomancer != null && !allomancer.canBurnMetal)
-        {
-            if (isBurning) StopBurning();
-            return;
-        }
-
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
 
         UpdateTargetedMetal();
 
-        // Single click = one pull impulse (not continuous)
+        // Q key: single click = one pull impulse. No burn requirement.
         KeyCode pullKey = GetAbility1Key();
         if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
         {
-            AutoSwitchToThisMetal();
-            if (!isBurning) StartBurning();
-            PullMetals();
-            DrainMetal(1f);
-            cooldownTimer = 0.2f; // Brief cooldown between pulls
+            if (hasCurrentTarget && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)
+            {
+                PullMetals();
+                allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond);
+                cooldownTimer = 0.2f;
+            }
         }
 
         UpdatePrediction();
@@ -248,54 +243,55 @@ public class IronPull : MonoBehaviour
         if (!hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        // --- Direction and distance (pull = toward player) ---
+        // --- Direction ---
         Vector3 dirToTarget = currentTargetRigidbody.position - playerRigidbody.position;
-        float   distance    = dirToTarget.magnitude;
+        float distance = dirToTarget.magnitude;
+        Vector3 pullDirection = dirToTarget.normalized;
 
-        // ── Lore-Accurate Force: F(a) = A × m1 × m2 / r² ────────
-        // PHYSICS-MATH-BOOK.md Section 2 — same formula as Steel Push
-        float playerMass = playerRigidbody.mass;
-        float objectMass = currentTargetRigidbody.mass;
-        float eff = Mathf.Max(distance, minDistance);
+        // --- Flare multiplier ---
+        float flare = CurrentFlareMultiplier;
 
-        // For anchored objects, use a large effective mass so player gets all the force
-        float effectiveObjectMass = isAnchored ? 1000f : objectMass;
-        float A = allomanticStrength * CurrentFlareMultiplier;
-        float forceMag = (A * playerMass * effectiveObjectMass) / (eff * eff);
+        // --- Distance scaling: stronger pull at close range ---
+        float distanceMult = inverseDistanceScaling
+            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f)
+            : 1f;
 
-        // Game-tuning: cap force to prevent physics explosion
-        float maxForce = playerMass * maxCoinVelocity;
-        forceMag = Mathf.Min(forceMag, maxForce);
-
-        // Newton's 3rd Law: lighter party moves more
-        float playerRatio = isAnchored ? 1f : (objectMass / (playerMass + objectMass));
-        float objectRatio = isAnchored ? 0f : (playerMass / (playerMass + objectMass));
-
-        // Single impulse pull — one click = one yank
-        Vector3 pullDir = dirToTarget.normalized * forceMag;
-
-        // Player pulled toward target (smooth velocity change)
-        Vector3 playerVel = (pullDir * playerRatio) / playerMass;
-        playerVel = Vector3.ClampMagnitude(playerVel, maxCoinVelocity);
-        playerRigidbody.AddForce(playerVel, ForceMode.VelocityChange);
-
-        // Object pulled toward player
-        if (!isAnchored)
+        if (isAnchored)
         {
-            Vector3 objVel = (-pullDir * objectRatio) / objectMass;
-            objVel = Vector3.ClampMagnitude(objVel, maxCoinVelocity);
-            currentTargetRigidbody.AddForce(objVel, ForceMode.VelocityChange);
+            // ANCHORED: Player gets yanked toward the heavy metal
+            // This is how Mistborn fly — pull toward building anchors
+            float speed = pullSpeed * flare * distanceMult;
+            Vector3 velocity = pullDirection * Mathf.Min(speed, maxPullSpeed);
+
+            // Add velocity toward target (VelocityChange = direct velocity, ignores mass)
+            playerRigidbody.AddForce(velocity, ForceMode.VelocityChange);
+        }
+        else
+        {
+            // LOOSE OBJECT: Newton's 3rd Law — lighter party moves more
+            float playerMass = playerRigidbody.mass;
+            float objectMass = currentTargetRigidbody.mass;
+            float totalMass = playerMass + objectMass;
+
+            float pullMag = loosePullForce * flare * distanceMult;
+
+            // Player moves toward object
+            float playerSpeed = pullMag * (objectMass / totalMass);
+            playerSpeed = Mathf.Min(playerSpeed, maxPullSpeed);
+            playerRigidbody.AddForce(pullDirection * playerSpeed, ForceMode.VelocityChange);
+
+            // Object moves toward player
+            float objectSpeed = pullMag * (playerMass / totalMass);
+            objectSpeed = Mathf.Min(objectSpeed, loosePullForce * 2f);
+            currentTargetRigidbody.AddForce(-pullDirection * objectSpeed, ForceMode.VelocityChange);
         }
 
         // --- Visual feedback ---
-        if (forceMag > shakeForceThreshold)
-        {
-            CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
-            TriggerPullTint(forceMag);
-        }
+        CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
+        TriggerPullTint(pullSpeed);
 
         if (debugPullOperations)
-            Debug.Log($"[IRON PULL] F={forceMag:F0} A={A:F0} m1={playerMass:F0} m2={objectMass:F0} r={eff:F1} ratio={playerRatio:F2}");
+            Debug.Log($"[IRON PULL] dist={distance:F1} anchored={isAnchored} flare={flare:F1}");
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────
