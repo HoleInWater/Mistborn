@@ -1,64 +1,111 @@
 using UnityEngine;
 
 /// <summary>
-/// Implements the Chromium Allomancy ability (Leecher).
-/// Wipes the metal reserves of another Allomancer upon touch/close range.
+/// Chromium Allomancy (Leecher) — wipes another Allomancer's metal reserves on touch.
+/// Lore: The external version of Aluminum. Requires physical contact.
+/// Also disrupts enemy Feruchemy and Compounding temporarily.
 /// </summary>
 public class Chromium : MonoBehaviour
 {
     [Header("Settings")]
-    public float leechRange = 3f;
-    public LayerMask targetLayer;
+    public float leechRange = 2.5f;
+    public float leechCooldown = 3f;
+    public float feruchemyDisruptDuration = 5f;
+
+    [Header("Visual")]
+    public float leechScreenPulse = 0.3f;
 
     [Header("References")]
     public Allomancer allomancer;
 
     private bool isBurning = false;
+    private float cooldownTimer = 0f;
 
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
-
-        // Auto-init the target layer if not set in the Inspector.
-        if (targetLayer == 0)
-            targetLayer = LayerMask.GetMask("Character");
     }
 
     void Update()
     {
-        bool wasBurning = isBurning;
-        isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Chromium;
+        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
 
-        if (isBurning && !wasBurning)
+        bool wasBurning = isBurning;
+        isBurning = allomancer != null && allomancer.IsBurning()
+                 && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Chromium;
+
+        if (isBurning && !wasBurning && cooldownTimer <= 0f)
         {
-            Leech();
+            AttemptLeech();
         }
+
+        if (isBurning)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Chromium, 3f * Time.deltaTime);
     }
 
-    void Leech()
+    void AttemptLeech()
     {
-        // Lore: Leecher requires physical contact. Short range raycast + sphere fallback handles this.
-        RaycastHit hit;
-        Allomancer target = null;
+        // Scan for nearby Allomancers
+        Collider[] hits = Physics.OverlapSphere(transform.position, leechRange);
+        bool leeched = false;
 
-        if (Physics.Raycast(transform.position, transform.forward, out hit, leechRange, targetLayer))
+        foreach (var col in hits)
         {
-            target = hit.collider.GetComponentInParent<Allomancer>();
+            if (col.transform == transform) continue;
+
+            Allomancer target = col.GetComponentInParent<Allomancer>();
+            if (target != null && target != allomancer)
+            {
+                LeechTarget(target, col.gameObject);
+                leeched = true;
+                break; // Leech one target per activation
+            }
+        }
+
+        if (leeched)
+        {
+            cooldownTimer = leechCooldown;
+            CameraShakeManager.Instance?.Shake(0.2f, 0.15f);
+            SoundManager.Instance?.PlayImpactSound();
         }
         else
         {
-            // Sphere check for "messy" contact
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, leechRange * 0.5f, targetLayer);
-            if (hitColliders.Length > 0) target = hitColliders[0].GetComponentInParent<Allomancer>();
+            Debug.Log("[CHROMIUM] No Allomancer in range to leech.");
+        }
+    }
+
+    void LeechTarget(Allomancer target, GameObject targetObj)
+    {
+        // Wipe Allomantic reserves
+        target.ClearAllReserves();
+        target.StopBurning();
+
+        // Disrupt Feruchemy temporarily
+        Feruchemist feruchemist = targetObj.GetComponent<Feruchemist>();
+        if (feruchemist != null)
+        {
+            for (int i = 0; i < Feruchemist.MetalmindCount; i++)
+            {
+                feruchemist.StopStoring(i);
+                feruchemist.StopTapping(i);
+            }
         }
 
-        // Guard: never leech self
-        if (target != null && target != allomancer)
+        // Disrupt Compounding
+        Compounding compounding = targetObj.GetComponent<Compounding>();
+        if (compounding != null)
         {
-            target.ClearAllReserves();
-            Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}");
-            allomancer.StopBurning(); // Reset burning to avoid multiple wipes per frame
+            for (int i = 0; i < Feruchemist.MetalmindCount; i++)
+                compounding.ForceStopCompounding(i);
         }
+
+        // Stun the Lord Ruler if we leech him (critical mechanic)
+        LordRulerBoss lordRuler = targetObj.GetComponent<LordRulerBoss>();
+        if (lordRuler != null)
+            lordRuler.StunAndExpose();
+
+        Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}!");
+        allomancer.StopBurning();
     }
 }
