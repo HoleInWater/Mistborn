@@ -37,12 +37,13 @@ public class Checkpoint : MonoBehaviour
         
         isActivated = true;
         lastCheckpoint = this;
-        
+
+        // Register with CheckpointSystem
+        CheckpointSystem.Instance?.SetCheckpoint(transform.position, transform.rotation);
+
         if (activationEffect != null)
-        {
             Instantiate(activationEffect, transform.position, Quaternion.identity);
-        }
-        
-        Debug.Log("Checkpoint activated!");
+
+        SoundManager.Instance?.PlayNotification();
     }
 }
