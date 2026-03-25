@@ -165,6 +165,11 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    public void AddQuestToDatabase(Quest quest)
+    {
+        if (quest != null) questDatabase[quest.questId] = quest;
+    }
+
     public Quest GetQuest(string questId)
     {
         return questDatabase.ContainsKey(questId) ? questDatabase[questId] : null;

@@ -163,6 +163,16 @@ public class GameFlowManager : MonoBehaviour
         return storyFlags.ContainsKey(flag) && storyFlags[flag];
     }
 
+    public Dictionary<string, bool> GetStoryFlags() => storyFlags;
+
+    public int GetChapterIndex() => currentChapter;
+
+    public void SetChapterIndex(int chapter)
+    {
+        currentChapter = chapter;
+        OnChapterChanged?.Invoke(currentChapter, currentSection);
+    }
+
     public void CompleteObjective(string objectiveId)
     {
         if (!completedObjectives.Contains(objectiveId))
