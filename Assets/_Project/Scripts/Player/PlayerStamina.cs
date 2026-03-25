@@ -60,10 +60,8 @@ public class PlayerStamina : MonoBehaviour
     {
         currentStamina -= amount;
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-
+        
         // Reset the timer once
         regenTimer = regenDelay;
     }
-
-    public float GetCurrentStamina() => currentStamina;
 }

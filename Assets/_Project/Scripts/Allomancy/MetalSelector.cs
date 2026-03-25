@@ -149,17 +149,4 @@ public class MetalSelector : MonoBehaviour
         secondaryMetal = metal;
         if (!isPrimaryActive) UpdateActiveMetal();
     }
-
-    public void SetActiveMetalByIndex(int index)
-    {
-        AllomancySkill.MetalType[] allMetals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
-        if (index >= 0 && index < allMetals.Length)
-        {
-            if (isPrimaryActive)
-                primaryMetal = allMetals[index];
-            else
-                secondaryMetal = allMetals[index];
-            UpdateActiveMetal();
-        }
-    }
 }
