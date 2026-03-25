@@ -7,7 +7,7 @@ public class EnemyAI : MonoBehaviour
 {
     [Header("Enemy Type")]
     public EnemyType enemyType = EnemyType.Guard;
-    public enum EnemyType { Guard, Coinshot, Seeker, Koloss, SteelInquisitor, NobleGuard, Mistwraith }
+    public enum EnemyType { Guard, Coinshot, Seeker, Koloss, SteelInquisitor, NobleGuard, Mistwraith, Thug, Smoker, Rioter, Obligator, SkaaRebel, Lurcher }
 
     [Header("Stats")]
     public float health = 100f;
@@ -51,19 +51,103 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         patrolCenter = transform.position;
-        
+
         if (navAgent == null) navAgent = GetComponent<NavMeshAgent>();
+        if (animator == null) animator = GetComponent<Animator>();
+
+        // Configure stats based on enemy type
+        ApplyEnemyTypeDefaults();
+
         if (navAgent != null)
         {
             navAgent.speed = moveSpeed;
             navAgent.stoppingDistance = attackRange - 1f;
         }
 
-        if (animator == null) animator = GetComponent<Animator>();
-
         if (autoPatrol && enemyType != EnemyType.Koloss)
         {
             StartPatrol();
+        }
+    }
+
+    void ApplyEnemyTypeDefaults()
+    {
+        switch (enemyType)
+        {
+            case EnemyType.Guard:
+                health = 80f; moveSpeed = 3.5f; runSpeed = 6f; attackDamage = 20f;
+                detectionRange = 15f; attackRange = 2.5f; useFlanking = true;
+                break;
+            case EnemyType.NobleGuard:
+                health = 120f; moveSpeed = 4f; runSpeed = 7f; attackDamage = 30f;
+                detectionRange = 18f; attackRange = 2.5f; useFlanking = true;
+                break;
+            case EnemyType.Coinshot: // Steel Misting
+                health = 60f; moveSpeed = 5f; runSpeed = 8f; attackDamage = 15f;
+                detectionRange = 25f; attackRange = 20f;
+                canUseAllomancy = true; useRangedAttacks = true;
+                availableMetals = new[] { AllomancySkill.MetalType.Steel };
+                break;
+            case EnemyType.Lurcher: // Iron Misting
+                health = 70f; moveSpeed = 4f; runSpeed = 6f; attackDamage = 20f;
+                detectionRange = 20f; attackRange = 15f;
+                canUseAllomancy = true; useRangedAttacks = true;
+                availableMetals = new[] { AllomancySkill.MetalType.Iron };
+                break;
+            case EnemyType.Thug: // Pewter Misting
+                health = 200f; moveSpeed = 5f; runSpeed = 9f; attackDamage = 45f;
+                detectionRange = 12f; attackRange = 3f;
+                canUseAllomancy = true; useFlanking = false;
+                availableMetals = new[] { AllomancySkill.MetalType.Pewter };
+                break;
+            case EnemyType.Smoker: // Copper Misting
+                health = 50f; moveSpeed = 3f; runSpeed = 5f; attackDamage = 10f;
+                detectionRange = 10f; attackRange = 2f;
+                canUseAllomancy = true;
+                availableMetals = new[] { AllomancySkill.MetalType.Copper };
+                break;
+            case EnemyType.Rioter: // Zinc Misting
+                health = 55f; moveSpeed = 3.5f; runSpeed = 5.5f; attackDamage = 12f;
+                detectionRange = 20f; attackRange = 15f;
+                canUseAllomancy = true; useRangedAttacks = true;
+                availableMetals = new[] { AllomancySkill.MetalType.Zinc };
+                break;
+            case EnemyType.Seeker: // Bronze Misting
+                health = 50f; moveSpeed = 3f; runSpeed = 5f; attackDamage = 10f;
+                detectionRange = 30f; attackRange = 2f;
+                canUseAllomancy = true;
+                availableMetals = new[] { AllomancySkill.MetalType.Bronze };
+                break;
+            case EnemyType.Koloss:
+                health = 500f; moveSpeed = 2.5f; runSpeed = 7f; attackDamage = 80f;
+                detectionRange = 20f; attackRange = 4f;
+                autoPatrol = false; useFlanking = false;
+                break;
+            case EnemyType.SteelInquisitor:
+                health = 800f; moveSpeed = 7f; runSpeed = 12f; attackDamage = 60f;
+                detectionRange = 35f; attackRange = 3f; attackCooldown = 0.8f;
+                canUseAllomancy = true; useFlanking = true;
+                availableMetals = new[] {
+                    AllomancySkill.MetalType.Steel, AllomancySkill.MetalType.Iron,
+                    AllomancySkill.MetalType.Pewter, AllomancySkill.MetalType.Tin,
+                    AllomancySkill.MetalType.Atium
+                };
+                break;
+            case EnemyType.Mistwraith:
+                health = 150f; moveSpeed = 2f; runSpeed = 4f; attackDamage = 35f;
+                detectionRange = 10f; attackRange = 3f;
+                useFlanking = false;
+                break;
+            case EnemyType.Obligator:
+                health = 40f; moveSpeed = 2.5f; runSpeed = 4f; attackDamage = 5f;
+                detectionRange = 20f; attackRange = 2f;
+                useMeleeAttacks = false;
+                break;
+            case EnemyType.SkaaRebel:
+                health = 60f; moveSpeed = 4f; runSpeed = 6.5f; attackDamage = 15f;
+                detectionRange = 12f; attackRange = 2f;
+                useFlanking = true;
+                break;
         }
     }
 
@@ -179,7 +263,7 @@ public class EnemyAI : MonoBehaviour
             else if (isFlanking && Vector3.Distance(transform.position, flankingPosition) < 2f)
             {
                 destination = target.position;
-                isFlacking = false;
+                isFlanking = false;
             }
 
             if (Vector3.Distance(transform.position, destination) <= attackRange)
@@ -261,8 +345,53 @@ public class EnemyAI : MonoBehaviour
 
     void UseAllomanticAttack()
     {
+        if (target == null) return;
         AllomancySkill.MetalType metal = availableMetals[Random.Range(0, availableMetals.Length)];
-        Debug.Log($"[ENEMY {enemyType}] Using {metal} Allomancy");
+
+        float distance = Vector3.Distance(transform.position, target.position);
+        Vector3 dirToTarget = (target.position - transform.position).normalized;
+
+        switch (metal)
+        {
+            case AllomancySkill.MetalType.Steel:
+                // Coinshot: Push coins/metal at player
+                Rigidbody targetRb = target.GetComponent<Rigidbody>();
+                if (targetRb != null)
+                    targetRb.AddForce(dirToTarget * 80f, ForceMode.Impulse);
+                break;
+
+            case AllomancySkill.MetalType.Iron:
+                // Lurcher: Pull player's metal equipment toward self
+                Rigidbody playerRb = target.GetComponent<Rigidbody>();
+                if (playerRb != null)
+                    playerRb.AddForce(-dirToTarget * 50f, ForceMode.Impulse);
+                break;
+
+            case AllomancySkill.MetalType.Pewter:
+                // Thug: Enhanced melee — already factored into attackDamage
+                break;
+
+            case AllomancySkill.MetalType.Zinc:
+                // Rioter: Inflame player's emotions (apply debuff)
+                if (distance < 15f)
+                {
+                    BasicPlayerMove pm = target.GetComponent<BasicPlayerMove>();
+                    if (pm != null) pm.externalSpeedMultiplier = 0.8f;
+                }
+                break;
+
+            case AllomancySkill.MetalType.Copper:
+                // Smoker: Hide Allomantic pulses (passive, no attack)
+                break;
+
+            case AllomancySkill.MetalType.Bronze:
+                // Seeker: Detect player Allomancy (passive detection)
+                break;
+
+            case AllomancySkill.MetalType.Atium:
+                // Inquisitor Atium: Dodge next attack (set invincibility window)
+                break;
+        }
     }
 
     Vector3 GetRandomPatrolPoint()
@@ -315,7 +444,7 @@ public class EnemyAI : MonoBehaviour
         currentState = State.Dead;
         
         animator?.SetBool("IsDead", true);
-        navAgent?.Stop();
+        if (navAgent != null) navAgent.isStopped = true;
         
         if (enemyType == EnemyType.Koloss || enemyType == EnemyType.SteelInquisitor)
         {
@@ -532,7 +661,7 @@ public class EnemyPatrol : MonoBehaviour
         if (!loopPatrol && currentPoint == 0)
         {
             currentPoint = patrolPoints.Length - 1;
-            navAgent?.Stop();
+            if (navAgent != null) navAgent.isStopped = true;
             return;
         }
 

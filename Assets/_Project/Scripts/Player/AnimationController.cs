@@ -128,12 +128,12 @@ public class AnimationConfig : MonoBehaviour
     public static void TriggerHit(Animator animator, Vector3 fromDirection)
     {
         if (animator == null) return;
-        
+
         animator.SetTrigger(Params.HitTrigger);
         animator.SetBool(Params.IsHit, true);
-        
-        // Reset hit state after animation
-        animator.SetBool(Params.IsHit, false);
+
+        // IsHit is reset by the animation state machine exit, not immediately here.
+        // Animators should have a behaviour or transition condition to clear IsHit.
     }
 
     /// <summary>
