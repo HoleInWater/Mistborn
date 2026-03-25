@@ -140,20 +140,23 @@ public class IronPull : MonoBehaviour
 
         if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
-            if (IsFlaring)
-            {
-                qKeyWasPressed = true;
-                if (!isBurning) StartBurning();
+            qKeyWasPressed = true;
+            if (!isBurning) StartBurning();
 
-                PullMetals();
-                DrainMetal(flaringMetalCostMultiplier);
-            }
+            PullMetals();
+            DrainMetal(flaringMetalCostMultiplier);
         }
 
         if (qKeyUp)
         {
             qKeyWasPressed = false;
             StopBurning();
+        }
+
+        if (isBurning)
+        {
+            PullMetals();
+            DrainMetal(1f);
         }
 
         UpdatePrediction();
