@@ -1,103 +1,155 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
-/// Manages enemy targeting and lock-on camera behavior.
+/// Enemy targeting and lock-on camera. Middle click to toggle.
+/// Atium burning extends lock-on range and shows target's predicted movement.
+/// Tab key to cycle between targets while locked on.
 /// </summary>
 public class LockOnSystem : MonoBehaviour
 {
     [Header("Settings")]
     public float searchRadius = 20f;
+    public float atiumSearchBonus = 15f;
     public LayerMask enemyLayer;
-    public KeyCode lockOnKey = KeyCode.Mouse2; // Middle click
+    public KeyCode lockOnKey = KeyCode.Mouse2;
+    public KeyCode cycleKey = KeyCode.Tab;
+
+    [Header("Camera")]
+    public float lockOnCameraSmoothSpeed = 5f;
 
     [Header("References")]
     public BasicPlayerMove playerMove;
     public Camera mainCamera;
+    public Allomancer allomancer;
 
     private Transform currentTarget;
     public Transform CurrentTarget => currentTarget;
 
-    void Awake()
+    private Collider[] cachedEnemies = new Collider[20];
+    private int currentTargetIndex = -1;
+    private float scanTimer;
+
+    void Start()
     {
-        if (playerMove == null) playerMove = GetComponentInParent<BasicPlayerMove>();
+        if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
         if (mainCamera == null) mainCamera = Camera.main;
+        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (enemyLayer == 0) enemyLayer = LayerMask.GetMask("Enemy");
+        if (enemyLayer == 0) enemyLayer = ~0;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(lockOnKey))
-        {
             ToggleLockOn();
-        }
 
+        // Cycle targets with Tab
+        if (Input.GetKeyDown(cycleKey) && currentTarget != null)
+            CycleTarget();
+
+        // Validate current target
         if (currentTarget != null)
         {
-            // First check if the transform reference itself was nulled by Unity destruction
-            if (!currentTarget || currentTarget.gameObject == null)
+            if (currentTarget == null || !currentTarget.gameObject.activeInHierarchy)
             {
                 ClearLockOn();
                 return;
             }
 
-            // Check if target is still valid/alive
-            IDamageable d = currentTarget.GetComponentInParent<IDamageable>();
-            if (d == null || (d is MonoBehaviour mb && !mb.enabled) || Vector3.Distance(transform.position, currentTarget.position) > searchRadius * 1.5f)
-            {
+            float maxDist = searchRadius * 1.5f;
+            if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
+                maxDist += atiumSearchBonus;
+
+            if (Vector3.Distance(transform.position, currentTarget.position) > maxDist)
                 ClearLockOn();
-            }
         }
+
+        // Feed lock-on target to player camera
+        if (playerMove != null)
+            playerMove.lockOnTarget = currentTarget;
     }
 
     public void ToggleLockOn()
     {
         if (currentTarget != null)
-        {
             ClearLockOn();
-        }
         else
-        {
             FindTarget();
-        }
     }
 
-    private void FindTarget()
+    void FindTarget()
     {
-        Collider[] enemies = Physics.OverlapSphere(transform.position, searchRadius, enemyLayer);
-        float closestWeight = float.MaxValue;
+        float range = searchRadius;
+        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
+            range += atiumSearchBonus;
+
+        int count = Physics.OverlapSphereNonAlloc(transform.position, range, cachedEnemies, enemyLayer);
+        float bestWeight = float.MaxValue;
         Transform bestTarget = null;
+        int bestIndex = -1;
 
-        foreach (var col in enemies)
+        for (int i = 0; i < count; i++)
         {
-            // Weight based on screen center proximity and distance
-            Vector3 viewportPos = mainCamera.WorldToViewportPoint(col.transform.position);
-            bool isOnScreen = viewportPos.z > 0 && viewportPos.x > 0 && viewportPos.x < 1 && viewportPos.y > 0 && viewportPos.y < 1;
+            Collider col = cachedEnemies[i];
+            if (col == null || col.transform == transform) continue;
 
-            if (isOnScreen)
+            // Must be alive
+            IDamageable hp = col.GetComponentInParent<IDamageable>();
+            if (hp != null && hp.GetCurrentHealth() <= 0) continue;
+
+            Vector3 viewPos = mainCamera.WorldToViewportPoint(col.transform.position);
+            bool onScreen = viewPos.z > 0 && viewPos.x > 0 && viewPos.x < 1 && viewPos.y > 0 && viewPos.y < 1;
+            if (!onScreen) continue;
+
+            float screenDist = Vector2.Distance(new Vector2(viewPos.x, viewPos.y), new Vector2(0.5f, 0.5f));
+            float worldDist = Vector3.Distance(transform.position, col.transform.position);
+            float weight = screenDist * 10f + worldDist;
+
+            if (weight < bestWeight)
             {
-                float distToCenter = Vector2.Distance(new Vector2(viewportPos.x, viewportPos.y), new Vector2(0.5f, 0.5f));
-                float distToPlayer = Vector3.Distance(transform.position, col.transform.position);
-                
-                float weight = distToCenter * 10f + distToPlayer; // Prefer center over distance
-
-                if (weight < closestWeight)
-                {
-                    closestWeight = weight;
-                    bestTarget = col.transform;
-                }
+                bestWeight = weight;
+                bestTarget = col.transform;
+                bestIndex = i;
             }
         }
 
         if (bestTarget != null)
         {
             currentTarget = bestTarget;
-            Debug.Log($"[LOCK-ON] Targeted {currentTarget.name}");
+            currentTargetIndex = bestIndex;
+            SoundManager.Instance?.PlayNotification();
+        }
+    }
+
+    void CycleTarget()
+    {
+        float range = searchRadius;
+        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
+            range += atiumSearchBonus;
+
+        int count = Physics.OverlapSphereNonAlloc(transform.position, range, cachedEnemies, enemyLayer);
+        if (count <= 1) return;
+
+        // Find next valid target
+        for (int attempt = 0; attempt < count; attempt++)
+        {
+            currentTargetIndex = (currentTargetIndex + 1) % count;
+            Collider col = cachedEnemies[currentTargetIndex];
+            if (col != null && col.transform != transform && col.transform != currentTarget)
+            {
+                currentTarget = col.transform;
+                SoundManager.Instance?.PlayNotification();
+                return;
+            }
         }
     }
 
     public void ClearLockOn()
     {
         currentTarget = null;
-        Debug.Log("[LOCK-ON] Cleared");
+        currentTargetIndex = -1;
+        if (playerMove != null) playerMove.lockOnTarget = null;
     }
+
+    public bool IsLockedOn() => currentTarget != null;
 }
