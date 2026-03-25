@@ -1,43 +1,88 @@
-// NOTE: Consider adding [RequireComponent(typeof(PlayerStamina))] attribute for dependency
 using UnityEngine;
 
+/// <summary>
+/// Sprint controller with Pewter and Steel Feruchemy integration.
+/// Pewter burning reduces stamina drain and increases sprint speed.
+/// Steel Feruchemy tapping further boosts speed.
+/// </summary>
 public class Sprint : MonoBehaviour
 {
     [Header("Speed Settings")]
-    // NOTE: Consider adding [Range(1f, 20f)] attribute for walkSpeed
     public float walkSpeed = 5f;
-    // NOTE: Consider adding [Range(5f, 30f)] attribute for sprintSpeed
     public float sprintSpeed = 10f;
-    
-    [HideInInspector] 
-    public float currentSpeed; // Your movement script will read this
+
+    [Header("Pewter Enhancement")]
+    [Tooltip("Sprint speed bonus when burning Pewter (S = S_base × (1 + k×P), k=1)")]
+    public float pewterSprintBonus = 0.5f;
+    [Tooltip("Stamina drain reduction when burning Pewter")]
+    public float pewterDrainReduction = 0.5f;
 
     [Header("Stamina Costs")]
-    // NOTE: Consider adding [Range(1f, 100f)] attribute for drainRate
     public float drainRate = 25f;
-    
+
+    [HideInInspector]
+    public float currentSpeed;
+
     private PlayerStamina staminaSystem;
+    private Allomancer allomancer;
+    private Feruchemist feruchemist;
+    private bool isSprinting = false;
 
     void Start()
     {
         staminaSystem = GetComponent<PlayerStamina>();
+        allomancer = GetComponent<Allomancer>();
+        feruchemist = GetComponent<Feruchemist>();
         currentSpeed = walkSpeed;
     }
 
     void Update()
     {
-        // Check if Shift is held AND we have stamina left
         bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift);
-        bool hasStamina = staminaSystem.currentStamina > 0.5f;
+        bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 0.5f;
 
         if (isTryingToSprint && hasStamina)
         {
-            currentSpeed = sprintSpeed;
-            staminaSystem.DrainStamina(drainRate); // Tells the other script to lower the bar
+            isSprinting = true;
+            float speed = sprintSpeed;
+            float drain = drainRate;
+
+            // Pewter burning: faster sprint, less stamina drain
+            if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+            {
+                float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+                float P = Mathf.Clamp01(flare / 2.5f);
+                speed *= (1f + pewterSprintBonus * P);
+                drain *= (1f - pewterDrainReduction * P);
+            }
+
+            // Steel Feruchemy tapping: speed boost from stored speed
+            if (feruchemist != null)
+            {
+                float speedMod = feruchemist.GetAttributeModifier(FeruchemicalAttribute.Speed);
+                if (speedMod > 1f)
+                    speed *= speedMod;
+            }
+
+            // Skill tree bonus
+            if (AllomanticSkillTree.Instance != null)
+            {
+                float moveBonus = AllomanticSkillTree.Instance.GetSkillValue("Move_Speed1")
+                                + AllomanticSkillTree.Instance.GetSkillValue("Move_Speed2");
+                speed *= (1f + moveBonus);
+            }
+
+            currentSpeed = speed;
+            if (staminaSystem != null)
+                staminaSystem.DrainStamina(drain);
         }
         else
         {
+            isSprinting = false;
             currentSpeed = walkSpeed;
         }
     }
+
+    public bool IsSprinting() => isSprinting;
+    public float GetSprintMultiplier() => isSprinting ? currentSpeed / walkSpeed : 1f;
 }

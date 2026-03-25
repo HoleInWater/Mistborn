@@ -201,32 +201,16 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // Toggle on/off with E (click, not hold) — matches Iron Pull
+        // Single click = one push impulse (matches Iron Pull)
         KeyCode pushKey = GetAbility1Key();
         if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
         {
-            if (isBurning)
-            {
-                StopBurning();
-            }
-            else
-            {
-                AutoSwitchToThisMetal();
-                StartBurning();
-                PushMetals(); // Initial push impulse on activation
-                if (IsFlaring) StartFlaringVignette();
-            }
-        }
-
-        // While burning, keep pushing each frame and drain metal
-        if (isBurning)
-        {
+            AutoSwitchToThisMetal();
+            if (!isBurning) StartBurning();
             PushMetals();
             DrainMetal(1f);
-
-            // Auto-stop if no target or out of Steel
-            if (!hasCurrentTarget || (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0))
-                StopBurning();
+            cooldownTimer = pushCooldown;
+            if (IsFlaring) StartFlaringVignette();
         }
 
         if (enableSteelBubble)
@@ -353,10 +337,10 @@ public class SteelPush : MonoBehaviour
         float playerRatio = isAnchored ? 1f : (targetMass / totalMass);
         float objectRatio = isAnchored ? 0f : (playerMass / totalMass);
 
-        // Scale by deltaTime since this is called every frame while toggled on
-        Vector3 forceVec = dir.normalized * forceMag * Time.deltaTime;
+        // Single impulse push — one click = one shove
+        Vector3 forceVec = dir.normalized * forceMag;
 
-        // Push: object flies away (VelocityChange for smooth acceleration)
+        // Object pushed away
         if (!isAnchored)
         {
             Vector3 objVel = (forceVec * objectRatio) / targetMass;
