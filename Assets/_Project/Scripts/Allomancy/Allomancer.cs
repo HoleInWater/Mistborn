@@ -204,6 +204,14 @@ public class Allomancer : MonoBehaviour
     }
     public bool IsBurning() => isBurningMetal;
 
+    /// <summary>
+    /// Check if a specific metal is currently being burned.
+    /// </summary>
+    public bool IsMetalBurning(AllomancySkill.MetalType metal)
+    {
+        return isBurningMetal && GetCurrentMetal() == metal;
+    }
+
     public void SetCurrentMetal(AllomancySkill.MetalType metal)
     {
         currentMetal = metal;
