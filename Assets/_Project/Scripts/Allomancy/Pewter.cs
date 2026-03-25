@@ -6,17 +6,15 @@ using UnityEngine;
 /// </summary>
 public class Pewter : MonoBehaviour
 {
-    [Header("Settings")]
-    [Tooltip("Multiplier for player mass when burning Pewter")]
-    public float massMultiplierBase = 1.5f;
-    [Tooltip("Multiplier for movement speed when burning Pewter")]
-    public float speedMultiplierBase = 1.2f;
-    
-    [Header("Flare Boosts")]
-    [Tooltip("Extra mass multiplier when flaring")]
-    public float massMultiplierMax = 2.5f;
-    [Tooltip("Extra speed multiplier when flaring")]
-    public float speedMultiplierMax = 1.6f;
+    [Header("Pewter Physics — PHYSICS-MATH-BOOK.md Section 8")]
+    [Tooltip("Pewter efficiency constant k: S = S_base × (1 + k × P)")]
+    public float pewterEfficiencyK = 2f;
+    [Tooltip("Muscle growth constant α: m = m_base × (1 + α × P), handbook α≈0.5")]
+    public float muscleGrowthAlpha = 0.5f;
+    [Tooltip("Max strength multiplier cap (prevents physics instability)")]
+    public float maxStrengthMultiplier = 4f;
+    [Tooltip("Max speed multiplier cap")]
+    public float maxSpeedMultiplier = 2f;
 
     [Header("References")]
     public Allomancer allomancer;
@@ -79,23 +77,27 @@ public class Pewter : MonoBehaviour
         }
     }
 
-    // Pewter effects scale relative to the base multipliers (1.5x mass, 1.2x speed)
-    // Multiplied by the flare multiplier which is 1.0 at base and 10.0 during burst.
+    // Handbook formula: S_pewter = S_base × (1 + k × P)
+    // Where P = power level 0-1, scaled by flare multiplier
+    // Muscle mass: m_muscle = m_base × (1 + α × P)
     void ApplyPewterEffects(float flareMult)
     {
         if (playerMove == null) return;
 
-        // Scale factors: flareMult is 1.0 to max (e.g. 10.0 for Duralumin).
-        // Clamped to inspector maximums to prevent physics instability.
-        float currentMassMult  = Mathf.Clamp(massMultiplierBase  * flareMult, 1f, massMultiplierMax);
-        float currentSpeedMult = Mathf.Clamp(speedMultiplierBase * flareMult, 1f, speedMultiplierMax);
+        // P is normalized power level: 1.0 at base burn, higher when flaring
+        float P = Mathf.Clamp01(flareMult / 2.5f); // Normalize to 0-1 range
 
-        // Apply Mass
+        // Strength/speed: S = S_base × (1 + k × P)
+        float strengthMult = Mathf.Min(1f + pewterEfficiencyK * P, maxStrengthMultiplier);
+        float speedMult    = Mathf.Min(1f + pewterEfficiencyK * P * 0.5f, maxSpeedMultiplier);
+
+        // Muscle mass: m = m_base × (1 + α × P)
+        float massMult = 1f + muscleGrowthAlpha * P;
+
         if (playerRigidbody != null)
-            playerRigidbody.mass = originalMass * currentMassMult;
+            playerRigidbody.mass = originalMass * massMult;
 
-        // Apply Move Speed
-        playerMove.moveSpeed = originalSpeed * currentSpeedMult;
+        playerMove.moveSpeed = originalSpeed * speedMult;
     }
     
     void ResetPewterEffects()
