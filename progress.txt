@@ -1,0 +1,79 @@
+# Mistborn Development Progress Log
+# This file serves as memory between Ralph Wiggum iterations.
+# Each iteration appends its work summary here.
+# ═══════════════════════════════════════════════════════════════
+
+## Completed Prior to Ralph Wiggum Loop
+- Fixed Iron Pull physics (ForceMode.Force, matched SteelPush model)
+- Implemented full Tin 5-sense Allomancy (sight, hearing, touch, smell, taste)
+- Re-enabled metal burn particle effects with runtime creation
+- Fixed animation state controller jump logic
+- Added 6 new enemy types (Thug, Smoker, Rioter, Lurcher, Obligator, SkaaRebel)
+- Created 12 lore-accurate quests (7 main + 5 side)
+- Expanded SoundManager with full audio categories and music system
+- Unified save/load system with comprehensive state persistence
+- Added PerformanceManager with object pooling, LOD culling, AI throttling
+
+## Ralph Wiggum Iterations
+
+### Iteration 1 — 2026-03-25
+**Task:** Implement Feruchemy base system (Task #1, Priority 1)
+
+**Files Created:**
+- `Assets/_Project/Scripts/Allomancy/Feruchemist.cs` — Full Feruchemy system
+
+**Files Modified:**
+- `Assets/_Project/Scripts/Managers/MistbornRegistry.cs` — Added Feruchemist registration
+- `plans.json` — Marked task 1 as passed
+
+**Summary:**
+- Created `FeruchemicalAttribute` enum with all 16 attributes (Speed, Weight, Strength, Senses, MentalSpeed, Warmth, Memories, Wakefulness, Health, Determination, Fortune, Investiture, Identity, Connection, Breath, Energy)
+- Created `Metalmind` serializable class with capacity, charge, store/tap rates, and diminishing returns factor
+- Implemented `Feruchemist.cs` MonoBehaviour with:
+  - 16 individually tuned metalminds (physical metals have higher caps, mental/spiritual are lower)
+  - Store mechanics with diminishing returns: S'(t) = baseRate × e^(-λt) × intensity, plus asymptotic fill cap from PHYSICS-MATH-BOOK.md
+  - Tap mechanics with diminishing returns based on accumulated tap time and remaining charge
+  - Attribute modifier system (< 1 when storing = reduced ability, > 1 when tapping = enhanced ability)
+  - Full store/tap toggle API (StartStoring, StartTapping, StopStoring, StopTapping, ToggleStore, ToggleTap)
+  - Compounding detection: CanCompound() and IsCompounding() check for dual Allomancy+Feruchemy on same metal
+  - Metal index mapping between Feruchemist (0-15) and AllomancySkill.MetalType (handles god metal gaps)
+  - Lore-accurate attribute descriptions for all 16 metals
+- Registered Feruchemist in MistbornRegistry for high-performance entity lookup
+- Created `FeruchemyController.cs` — player input handling and gameplay effect application:
+  - Tab toggles Feruchemy mode; number keys 1-9/0/-/=/[/]/\/; select metalminds
+  - Z=store, X=tap, C=stop all
+  - Applies attribute modifiers to gameplay: Speed→externalSpeedMultiplier, Weight→Rigidbody mass, Strength→jumpVelocity, Senses→camera FOV, Health→heal/drain over time, Energy→stamina regen, Wakefulness→sprint drain rate
+  - HUD status string API for displaying current Feruchemy state
+  - Clean reset on disable to restore original values
+
+### Iteration 1 — 2026-03-25
+**Task:** Implement Compounding system (Task #2, Priority 2)
+
+**Files Created:**
+- `Assets/_Project/Scripts/Allomancy/Compounding.cs` — Full Compounding system bridging Allomancer and Feruchemist
+
+**Files Modified:**
+- `Assets/_Project/Scripts/Managers/MistbornRegistry.cs` — Added Compounding registration/unregistration and list
+- `Assets/_Project/Scripts/Enemy/LordRulerBoss.cs` — Integrated compounding behavior (Gold regen, Steel speed, Pewter strength)
+- `plans.json` — Marked task 2 as passed
+
+**Summary:**
+- Created `Compounding.cs` MonoBehaviour that automatically detects when a character burns a metal Allomantically while having a charged Feruchemical metalmind for the same metal
+- Implements the Compounding cycle from PHYSICS-MATH-BOOK.md:
+  - Base 10x multiplier at cycle 1 vs normal Feruchemical tapping
+  - Exponential scaling with cycles: P(n) = P₀ × 10^n × e^(-δn) using AllomancyPhysicsFormulas.CalculateCompoundingWithDiminishingReturns()
+  - Maximum 4 cycles to prevent universe-breaking power levels
+  - Cycles advance over 8 seconds of sustained compounding
+  - Cycle decay when compounding stops (3s delay, then 0.5 cycles/sec decay)
+- Drains both Allomantic reserves (2.5x additional drain) and metalmind charge (5 units/sec) simultaneously
+- Overrides Feruchemist attributeModifiers with compounded values for downstream gameplay systems
+- Events: OnCompoundingStarted, OnCompoundingStopped, OnCycleAdvanced for UI/audio hooks
+- Boss API: ForceStartCompounding(), ForceStopCompounding(), PreChargeMetalmind() for AI control
+- LordRulerBoss integration:
+  - Gold compounding always active for regeneration (source of immortality)
+  - Steel compounding in Spiritual+ phase for supernatural speed
+  - Pewter compounding in Godlike phase for overwhelming strength
+  - Pre-charged metalminds (1000 years of storage)
+  - DisableCompounding() method — removing metalminds makes him mortal (lore-accurate weakness)
+  - Gold compounding provides additional damage resistance (0.05x instead of 0.1x)
+- Registered Compounding in MistbornRegistry for entity lookup
