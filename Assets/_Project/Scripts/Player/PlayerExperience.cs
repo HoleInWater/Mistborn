@@ -61,4 +61,15 @@ public class PlayerExperience : MonoBehaviour
         }
         return false;
     }
+
+    public int GetLevel() => currentLevel;
+    public float GetExperience() => currentXP;
+
+    public void SetLevelAndExperience(int level, float xp)
+    {
+        currentLevel = level;
+        currentXP = xp;
+        xpToNextLevel = Mathf.Round(100f * Mathf.Pow(xpScaleFactor, level - 1));
+        OnXPChanged?.Invoke();
+    }
 }

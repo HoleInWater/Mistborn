@@ -66,8 +66,8 @@ public class MinimapAllomanticOverlay : MonoBehaviour
             }
         }
 
-        if (minimapCamera == null && MinimapSystem.Instance != null)
-            minimapCamera = MinimapSystem.Instance.minimapCamera;
+        if (minimapCamera == null)
+            minimapCamera = Camera.main; // Fallback — assign minimap camera in Inspector
 
         if (enableFogOfWar)
             InitializeFogOfWar();
