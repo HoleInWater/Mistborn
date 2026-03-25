@@ -107,6 +107,17 @@ public class IronPull : MonoBehaviour
     private LineRenderer predictionLine;
     private bool         isPredictionActive = false;
 
+    // [AGENT REVIEW] Dynamic primary/secondary keybind
+    private KeyCode GetAbility1Key()
+    {
+        if (allomancer == null) return KeyCode.Q; 
+        var selector = allomancer.GetComponent<MetalSelector>();
+        if (selector == null) return KeyCode.Q;
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron) return KeyCode.E;
+        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) return KeyCode.Q;
+        return KeyCode.None;
+    }
+
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     void Start()
@@ -135,16 +146,28 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        bool qKeyDown = Input.GetKeyDown(KeyCode.Q);
-        bool qKeyUp   = Input.GetKeyUp(KeyCode.Q);
+        KeyCode pullKey = GetAbility1Key();
+        bool qKeyDown = pullKey != KeyCode.None && Input.GetKeyDown(pullKey);
+        bool qKeyHeld = pullKey != KeyCode.None && Input.GetKey(pullKey);
+        
+        // Safety Catch: If unequipped mid-use, definitively trigger the Up state to halt physics
+        bool qKeyUp   = (pullKey != KeyCode.None && Input.GetKeyUp(pullKey)) || (qKeyWasPressed && pullKey == KeyCode.None);
 
         if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
         {
+<<<<<<< Updated upstream
             qKeyWasPressed = true;
             if (!isBurning) StartBurning();
 
             PullMetals();
             DrainMetal(flaringMetalCostMultiplier);
+=======
+            Debug.LogError($"[IRON PULL] Clicked {pullKey}! Target Valid? {hasCurrentTarget}. Calling PullMetals.");
+            qKeyWasPressed = true;
+            AutoSwitchToThisMetal();
+            if (!isBurning) StartBurning();
+            PullMetals();
+>>>>>>> Stashed changes
         }
 
         if (qKeyUp)
@@ -160,6 +183,16 @@ public class IronPull : MonoBehaviour
         }
 
         UpdatePrediction();
+    }
+
+    private void AutoSwitchToThisMetal()
+    {
+        if (allomancer == null) return;
+        var selector = allomancer.GetComponent<MetalSelector>();
+        if (selector == null) return;
+        
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(true);
+        else if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(false);
     }
 
     // ── Burning ───────────────────────────────────────────────────────────────
@@ -188,37 +221,28 @@ public class IronPull : MonoBehaviour
         currentTargetRigidbody = null;
         isAnchored             = false;
 
-        if (playerCamera == null) playerCamera = Camera.main;
-        if (playerCamera == null) return;
+        LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
+        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
+        if (hits.Length == 0) return;
 
-        float closestWeight = float.MaxValue;
+        float closestDist = float.MaxValue;
 
-        // Optimized Registry Scan
-        foreach (var metal in MistbornRegistry.ActiveMetalTargets)
+        foreach (var hit in hits)
         {
-            if (metal == null || !metal.canBePulled) continue;
-            Rigidbody rb = metal.GetComponent<Rigidbody>();
+            Rigidbody rb = hit.attachedRigidbody;
             if (rb == null || rb == playerRigidbody) continue;
 
-            float dist = Vector3.Distance(rb.position, playerCamera.transform.position);
-            if (dist > maxRange || dist < 0.1f) continue;
-
-            // Simple weight: distance from center of screen + distance to player
-            Vector3 viewportPos = playerCamera.WorldToViewportPoint(rb.position);
-            bool isOnScreen = viewportPos.z > 0 && viewportPos.x > 0 && viewportPos.x < 1 && viewportPos.y > 0 && viewportPos.y < 1;
-
-            if (isOnScreen)
+            float dist = Vector3.Distance(playerRigidbody.position, rb.position);
+            if (dist < closestDist)
             {
-                float centerDiff = Vector2.Distance(new Vector2(viewportPos.x, viewportPos.y), new Vector2(0.5f, 0.5f));
-                float weight = centerDiff * 10f + dist;
-
-                if (weight < closestWeight)
+                closestDist = dist;
+                currentTargetRigidbody = rb;
+                currentTarget = hit.GetComponent<AllomanticTarget>();
+                
+                if (currentTarget == null || currentTarget.canBePulled)
                 {
-                    closestWeight = weight;
-                    currentTargetRigidbody = rb;
-                    currentTarget = metal;
                     hasCurrentTarget = true;
-                    isAnchored = metal.isAnchored || rb.isKinematic;
+                    isAnchored = currentTarget != null ? currentTarget.isAnchored : rb.isKinematic;
                 }
             }
         }
@@ -259,21 +283,22 @@ public class IronPull : MonoBehaviour
         float playerRatio = objectMass / totalMass;
         float objectRatio = playerMass / totalMass;
 
-        Vector3 forceDir = dirToTarget.normalized * force;
+        Vector3 forceDir = dirToTarget.normalized * force * 250f; // Multiplier amplified heavily for massive snappy impulse kick!
 
-        // Clamp impulse to prevent physics tunneling on very small objects
-        // during Duralumin-boosted pulls. Uses inspector-tunable maxCoinVelocity.
+        // Clamp impulse to prevent physics tunneling
         float maxAllowedImpulse = currentTargetRigidbody.mass * maxCoinVelocity;
         if (forceDir.magnitude > maxAllowedImpulse)
         {
             forceDir = forceDir.normalized * maxAllowedImpulse;
         }
 
-        // --- Apply forces ---
+        // --- Apply impulses ---
         playerRigidbody.AddForce(forceDir * playerRatio, ForceMode.Impulse);
 
         if (!isAnchored)
             currentTargetRigidbody.AddForce(-forceDir * objectRatio, ForceMode.Impulse);
+        
+        Debug.LogError($"[IRON PULL] Physics Applied! Force: {force}, Clamped Dir Magnitude: {forceDir.magnitude}");
         // --- Visual feedback ---
         if (force > shakeForceThreshold)
         {

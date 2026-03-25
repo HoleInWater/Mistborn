@@ -12,7 +12,7 @@ public class MetalSelector : MonoBehaviour
     private float scrollTimer = 0f;
     
     [Header("Two-Metal Selection")]
-    public KeyCode swapMetalsKey = KeyCode.Tab; // Key to swap between primary and secondary
+    public KeyCode swapMetalsKey = KeyCode.LeftAlt; // Key to swap between primary and secondary
     
     [Header("References")]
     public Allomancer allomancer;
@@ -42,24 +42,9 @@ public class MetalSelector : MonoBehaviour
     
     void Update()
     {
-        // Update scroll cooldown timer
-        if (scrollTimer > 0f)
-            scrollTimer -= Time.deltaTime;
-        
-        // Handle scroll wheel input for metal selection
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        
-        if (scroll != 0f && scrollTimer <= 0f)
-        {
-            // Scroll up = next metal, scroll down = previous metal
-            // Apply to currently active metal (primary or secondary)
-            if (scroll > 0f)
-                SelectNextMetal();
-            else if (scroll < 0f)
-                SelectPreviousMetal();
-            
-            scrollTimer = scrollCooldown;
-        }
+        // OLD CODE REMOVED: Scroll Wheel metal selection has been migrated exclusively to the 
+        // new MetalWheelController GUI system. This prevents catastrophic input collisions
+        // when the user attempts to Flare their metals using the scroll wheel.
         
         // Handle metal swap
         if (Input.GetKeyDown(swapMetalsKey))
@@ -142,4 +127,26 @@ public class MetalSelector : MonoBehaviour
     public AllomancySkill.MetalType GetSecondaryMetal() => secondaryMetal;
     public AllomancySkill.MetalType GetActiveMetal() => isPrimaryActive ? primaryMetal : secondaryMetal;
     public bool IsPrimaryActive() => isPrimaryActive;
+
+    // [AGENT REVIEW] Added explicit setters so the UI Wheel can assign specific metals
+    public void SetPrimaryActive(bool primaryStatus)
+    {
+        if (isPrimaryActive != primaryStatus)
+        {
+            isPrimaryActive = primaryStatus;
+            UpdateActiveMetal();
+        }
+    }
+
+    public void SetPrimaryMetal(AllomancySkill.MetalType metal)
+    {
+        primaryMetal = metal;
+        if (isPrimaryActive) UpdateActiveMetal();
+    }
+
+    public void SetSecondaryMetal(AllomancySkill.MetalType metal)
+    {
+        secondaryMetal = metal;
+        if (!isPrimaryActive) UpdateActiveMetal();
+    }
 }

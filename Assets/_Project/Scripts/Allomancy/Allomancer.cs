@@ -47,9 +47,10 @@ public class Allomancer : MonoBehaviour
             metalReserves[i] = 100f;
         }
 
-        // Start with basic traversal unlocked
-        unlockedMetals[(int)AllomancySkill.MetalType.Steel] = true;
-        unlockedMetals[(int)AllomancySkill.MetalType.Iron] = true;
+        // Start with ALL 16 metals unlocked for full Wheel UI testing
+        for (int i = 0; i < 16; i++) {
+            UnlockMetal((AllomancySkill.MetalType)i);
+        }
 
         EnsureAllomancyComponents();
         metalSelector = GetComponent<MetalSelector>();
@@ -168,7 +169,7 @@ public class Allomancer : MonoBehaviour
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
 
-        if (Input.GetKeyDown(KeyCode.R)) RefillAllMetals();
+        if (Input.GetKeyDown(KeyCode.RightAlt)) RefillAllMetals();
 
         // Ensure HUD selection highlights are up-to-date every frame
         if (metalReserve != null && metalSelector != null)

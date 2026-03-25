@@ -88,7 +88,29 @@ public class SteelPush : MonoBehaviour
 
     [Header("Steel Bubble")]
     public bool    enableSteelBubble             = true;
-    public KeyCode steelBubbleKey                = KeyCode.F;
+    // [AGENT REVIEW] Dynamically bound based on primary/secondary state
+    public KeyCode steelBubbleKey => GetAbility2Key();
+
+    private KeyCode GetAbility1Key()
+    {
+        if (allomancer == null) return KeyCode.E; 
+        var selector = allomancer.GetComponent<MetalSelector>();
+        if (selector == null) return KeyCode.E;
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.E;
+        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.Q;
+        return KeyCode.None;
+    }
+
+    private KeyCode GetAbility2Key()
+    {
+        if (allomancer == null) return KeyCode.F; 
+        var selector = allomancer.GetComponent<MetalSelector>();
+        if (selector == null) return KeyCode.F;
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.F;
+        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.V;
+        return KeyCode.None;
+    }
+
     public float   steelBubbleRadius             = 2.5f;
     public float   steelBubbleForce              = 50f;
     public float   steelBubbleCooldown           = 0.5f;
@@ -177,16 +199,21 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        bool eDown = Input.GetKeyDown(KeyCode.E);
-        bool eUp   = Input.GetKeyUp(KeyCode.E);
+        KeyCode pushKey = GetAbility1Key();
+        bool eDown = pushKey != KeyCode.None && Input.GetKeyDown(pushKey);
+        bool eHeld = pushKey != KeyCode.None && Input.GetKey(pushKey);
+        
+        // Safety Catch: If unequipped mid-use, definitively trigger the Up state to halt physics
+        bool eUp   = (pushKey != KeyCode.None && Input.GetKeyUp(pushKey)) || (eKeyWasPressed && pushKey == KeyCode.None);
 
-        if (eDown && !eKeyWasPressed && cooldownTimer <= 0f && IsFlaring)
+        if (eDown && !eKeyWasPressed && cooldownTimer <= 0f)
         {
+            Debug.LogError($"[STEEL PUSH] Clicked {pushKey}! Target Valid? {hasCurrentTarget}. Calling PushMetals.");
             eKeyWasPressed = true;
+            AutoSwitchToThisMetal();
             if (!isBurning) StartBurning();
-            PushMetals();
-            DrainMetal(flaringMetalCostMultiplier);
-            StartFlaringVignette();
+            PushMetals(); 
+            if (IsFlaring) StartFlaringVignette();
         }
 
         if (eUp)
@@ -199,21 +226,29 @@ public class SteelPush : MonoBehaviour
 
         if (enableSteelBubble)
         {
-            if (Input.GetKeyDown(steelBubbleKey) && IsFlaring
-                && steelBubbleCooldownTimer <= 0f && !bubbleAppliedThisPress)
+            bool bubbleDown = steelBubbleKey != KeyCode.None && Input.GetKeyDown(steelBubbleKey);
+
+            if (bubbleDown && steelBubbleCooldownTimer <= 0f)
             {
+                AutoSwitchToThisMetal();
                 if (!isBurning) StartBurning();
                 PushMetalsInBubble();
-                DrainMetal(steelBubbleMetalCostMultiplier);
                 steelBubbleCooldownTimer = steelBubbleCooldown;
-                bubbleAppliedThisPress   = true;
             }
-            if (Input.GetKeyUp(steelBubbleKey))
-                bubbleAppliedThisPress = false;
         }
 
         UpdatePrediction();
         UpdateCrosshairColor();
+    }
+
+    private void AutoSwitchToThisMetal()
+    {
+        if (allomancer == null) return;
+        var selector = allomancer.GetComponent<MetalSelector>();
+        if (selector == null) return;
+        
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) selector.SetPrimaryActive(true);
+        else if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) selector.SetPrimaryActive(false);
     }
 
     // ── Burning ───────────────────────────────────────────────────────────────
@@ -235,23 +270,38 @@ public class SteelPush : MonoBehaviour
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
+    private Renderer lastHighlightedRenderer;
+    private Color originalColor;
+
     void UpdateTargetedMetal()
     {
         hasCurrentTarget = false; currentTarget = null;
         currentTargetRigidbody = null; metalInRange = false;
 
-        if (playerCamera == null) return;
+        // Native physics layer scanner fully bypassing MistbornRegistry faults
+        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        if (hits.Length == 0) return;
 
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out currentTargetHit, maxRange, metalLayer))
+        float closestDist = float.MaxValue;
+        
+        foreach (var hit in hits)
         {
-            Rigidbody rb = currentTargetHit.rigidbody;
-            if (rb != null && rb != playerRigidbody)
+            Rigidbody rb = hit.attachedRigidbody;
+            if (rb == null || rb == playerRigidbody) continue;
+
+            float dist = Vector3.Distance(playerRigidbody.position, rb.position);
+            if (dist < closestDist)
             {
+                closestDist = dist;
                 currentTargetRigidbody = rb;
-                currentTarget          = currentTargetHit.collider.GetComponent<AllomanticTarget>();
-                hasCurrentTarget       = true;
-                metalInRange           = true;
+                currentTarget = hit.GetComponent<AllomanticTarget>();
+                
+                // Extra safety: only lock if pushable or lacks component entirely
+                if (currentTarget == null || currentTarget.canBePushed)
+                {
+                    hasCurrentTarget = true;
+                    metalInRange = true;
+                }
             }
         }
     }
@@ -280,17 +330,16 @@ public class SteelPush : MonoBehaviour
 
         float eff           = Mathf.Max(distance, minDistance);
         float forceMag      = strength / Mathf.Pow(eff, distanceExponent);
-        Vector3 forceVector = dir.normalized * forceMag;
+        Vector3 forceVector = dir.normalized * forceMag * 250f; // Multiplier amplified heavily for massive snappy impulse kick!
 
-        // Clamp impulse to prevent physics tunneling on very small objects (e.g. coins) 
-        // during Duralumin-boosted pushes.
+        // Clamp impulse to prevent physics tunneling
         float maxAllowedImpulse = targetRb.mass * maxCoinVelocity;
         if (forceVector.magnitude > maxAllowedImpulse)
         {
             forceVector = forceVector.normalized * maxAllowedImpulse;
         }
 
-        // Apply force
+        // Apply impulse
         if (!isAnchored)
         {
             targetRb.AddForce(forceVector, ForceMode.Impulse);
@@ -298,6 +347,8 @@ public class SteelPush : MonoBehaviour
 
         // Newton's Third Law (Recoil)
         playerRigidbody.AddForce(-forceVector, ForceMode.Impulse);
+        
+        Debug.LogError($"[STEEL PUSH] Physics Applied! ForceMag: {forceMag}, Clamped Magnitude: {forceVector.magnitude}");
 
         if (debugPushOperations)
         {
@@ -360,25 +411,45 @@ public class SteelPush : MonoBehaviour
 
     void CreatePredictionLine()
     {
-        if (!enablePushPrediction) return;
         predictionLine = gameObject.AddComponent<LineRenderer>();
         predictionLine.startWidth = 0.05f;
         predictionLine.endWidth = 0.01f;
         predictionLine.material = new Material(Shader.Find("Sprites/Default"));
-        predictionLine.startColor = predictionColor;
-        predictionLine.endColor = new Color(predictionColor.r, predictionColor.g, predictionColor.b, 0);
+        predictionLine.startColor = Color.blue;
+        predictionLine.endColor = new Color(0, 0, 1, 0.5f);
         predictionLine.positionCount = 0;
     }
 
     void UpdatePrediction()
     {
-        if (!enablePushPrediction || predictionLine == null) return;
+        if (predictionLine == null) return;
 
-        if (hasCurrentTarget && (showPredictionOnHold ? Input.GetKey(KeyCode.E) : true))
+        // FIXED NullReferenceException: Query the base GameObject directly since currentTarget (the script component) can be null!
+        Renderer targetRenderer = (hasCurrentTarget && currentTargetRigidbody != null) 
+            ? currentTargetRigidbody.gameObject.GetComponentInChildren<Renderer>() 
+            : null;
+        
+        // Reset previous highlight if target changed or we stopped burning
+        if (lastHighlightedRenderer != null && (lastHighlightedRenderer != targetRenderer || !isBurning))
+        {
+            if (lastHighlightedRenderer.material != null)
+                lastHighlightedRenderer.material.color = originalColor;
+            lastHighlightedRenderer = null;
+        }
+
+        if (hasCurrentTarget && isBurning && currentTargetRigidbody != null)
         {
             predictionLine.positionCount = 2;
             predictionLine.SetPosition(0, chestTransform.position);
-            predictionLine.SetPosition(1, currentTargetHit.point);
+            predictionLine.SetPosition(1, currentTargetRigidbody.position);
+            
+            // Turn the mesh strictly blue!
+            if (targetRenderer != null && lastHighlightedRenderer != targetRenderer && targetRenderer.material != null)
+            {
+                lastHighlightedRenderer = targetRenderer;
+                originalColor = targetRenderer.material.color;
+                targetRenderer.material.color = Color.blue;
+            }
         }
         else
         {
