@@ -65,11 +65,19 @@ public class MetalLineRenderer : MonoBehaviour
         }
     }
 
+    private bool metalSightActive = false;
+
     void Update()
     {
-        bool showLines = allomancer != null &&
-            (allomancer.IsMetalBurning(AllomancySkill.MetalType.Steel) ||
-             allomancer.IsMetalBurning(AllomancySkill.MetalType.Iron));
+        // Left Ctrl toggles metal sight on/off
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+            metalSightActive = !metalSightActive;
+
+        // Also show when actively burning Steel or Iron
+        bool showLines = metalSightActive ||
+            (allomancer != null &&
+             (allomancer.IsMetalBurning(AllomancySkill.MetalType.Steel) ||
+              allomancer.IsMetalBurning(AllomancySkill.MetalType.Iron)));
 
         if (!showLines)
         {

@@ -155,32 +155,30 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        KeyCode pullKey  = GetAbility1Key();
-        bool qKeyDown    = pullKey != KeyCode.None && Input.GetKeyDown(pullKey);
-        bool qKeyHeld    = pullKey != KeyCode.None && Input.GetKey(pullKey);
-
-        // Safety Catch: If unequipped mid-use, definitively trigger the Up state to halt physics
-        bool qKeyUp      = (pullKey != KeyCode.None && Input.GetKeyUp(pullKey))
-                        || (qKeyWasPressed && pullKey == KeyCode.None);
-
-        if (qKeyDown && !qKeyWasPressed && cooldownTimer <= 0f)
+        // Toggle on/off with Q (click, not hold)
+        KeyCode pullKey = GetAbility1Key();
+        if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
         {
-            qKeyWasPressed = true;
-            AutoSwitchToThisMetal();
-            if (!isBurning) StartBurning();
-            PullMetals();
+            if (isBurning)
+            {
+                StopBurning();
+            }
+            else
+            {
+                AutoSwitchToThisMetal();
+                StartBurning();
+            }
         }
 
-        if (qKeyUp)
-        {
-            qKeyWasPressed = false;
-            StopBurning();
-        }
-
+        // While burning, apply pull each frame and drain metal
         if (isBurning)
         {
             PullMetals();
             DrainMetal(1f);
+
+            // Auto-stop if no target or out of metal
+            if (!hasCurrentTarget || (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) <= 0))
+                StopBurning();
         }
 
         UpdatePrediction();
@@ -289,13 +287,20 @@ public class IronPull : MonoBehaviour
         float objectRatio = isAnchored ? 0f : (playerMass / (playerMass + objectMass));
 
         // Pull: player toward target, object toward player
-        // Using ForceMode.Force (continuous) scaled by dt for smooth pull
-        Vector3 pullDir = dirToTarget.normalized * forceMag;
+        // Using Impulse (per-frame tick) for snappy feel, scaled by deltaTime
+        Vector3 pullDir = dirToTarget.normalized * forceMag * Time.deltaTime;
 
-        playerRigidbody.AddForce(pullDir * playerRatio, ForceMode.Force);
+        // Smooth velocity change for player (no jarring snap)
+        Vector3 playerVelChange = (pullDir * playerRatio) / playerMass;
+        playerVelChange = Vector3.ClampMagnitude(playerVelChange, maxCoinVelocity * 0.3f);
+        playerRigidbody.AddForce(playerVelChange, ForceMode.VelocityChange);
 
         if (!isAnchored)
-            currentTargetRigidbody.AddForce(-pullDir * objectRatio, ForceMode.Force);
+        {
+            Vector3 objVelChange = (-pullDir * objectRatio) / objectMass;
+            objVelChange = Vector3.ClampMagnitude(objVelChange, maxCoinVelocity);
+            currentTargetRigidbody.AddForce(objVelChange, ForceMode.VelocityChange);
+        }
 
         // --- Visual feedback ---
         if (forceMag > shakeForceThreshold)
