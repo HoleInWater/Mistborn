@@ -81,10 +81,14 @@ public class BasicPlayerMove : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
  
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;                               // Prevent physics from tipping the player over
-        rb.interpolation = RigidbodyInterpolation.Interpolate; // Smooth visual position between physics steps
+        rb.freezeRotation = true;                                        // Prevent physics tipping player over
+        rb.interpolation = RigidbodyInterpolation.Interpolate;          // Smooth visual between physics steps
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;  // Prevent tunneling at high speed (Steel Push)
         rb.isKinematic = false;
-        rb.sleepThreshold = 0.0f;                              // Never let the rigidbody sleep mid-movement
+        rb.sleepThreshold = 0.0f;                                       // Never sleep mid-movement
+        rb.linearDamping = 2f;                                           // Slight drag so player doesn't slide forever after push/pull
+        rb.angularDamping = 5f;                                          // Prevent spinning
+        rb.constraints = RigidbodyConstraints.FreezeRotation;           // Lock all rotation axes
  
         // If cameraPivot isn't assigned in the Inspector, fall back to this transform
         // so movement doesn't silently break — though look direction will be wrong
