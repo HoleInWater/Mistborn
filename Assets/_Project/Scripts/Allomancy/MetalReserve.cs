@@ -70,6 +70,7 @@ public class MetalReserve : MonoBehaviour
 
     /// <summary>
     /// Highlights the primary and secondary selected metals in the HUD.
+    /// Also hides any metals that are neither primary nor secondary to reduce screen clutter.
     /// </summary>
     public void HighlightSelection(AllomancySkill.MetalType primary, AllomancySkill.MetalType secondary, bool isPrimaryActive)
     {
@@ -83,12 +84,23 @@ public class MetalReserve : MonoBehaviour
             if (kvp.Key == (isPrimaryActive ? primary : secondary))
             {
                 kvp.Value.AddToClassList("active-metal");
+                kvp.Value.style.display = DisplayStyle.Flex;
             }
             else if (kvp.Key == (isPrimaryActive ? secondary : primary))
             {
                 kvp.Value.AddToClassList("secondary-metal");
+                kvp.Value.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                // Hide unused metals
+                kvp.Value.style.display = DisplayStyle.None;
             }
         }
+
+        // Reorder Hierarchy (SendToBack pushes to index 0. Secondary first, then Primary ensures Primary is absolute first)
+        if (_metalBars.TryGetValue(secondary, out var secBar)) secBar.SendToBack();
+        if (_metalBars.TryGetValue(primary, out var priBar)) priBar.SendToBack();
     }
 
     /// <summary>

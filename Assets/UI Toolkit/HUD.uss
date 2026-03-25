@@ -26,7 +26,8 @@
 }
 
 .MetalBar {
-    width: 6.25%; /* 100/16 */
+    width: 40%;
+    margin-right: 8%; /* Creates a dedicated gap to prevent scaling occlusion overlaps */
     height: 30px;
     margin: 0;
     padding: 0;
@@ -50,7 +51,8 @@
 /* Selection Highlights */
 .MetalBar.active-metal .unity-progress-bar__background {
     border-color: rgb(255, 255, 255);
-    border-width: 2px;
+    border-width: 4px; /* Dramatically thickened border to replace scaling */
+    background-color: rgb(50, 50, 50); /* Brighter base so it visually pops */
 }
 
 .MetalBar.secondary-metal .unity-progress-bar__background {

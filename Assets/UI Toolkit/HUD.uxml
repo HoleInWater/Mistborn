@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/HUD.uss?fileID=7433441132597879392&amp;guid=10a28823af41bb24f89b59c1e8165c75&amp;type=3#HUD"/>
     <ui:ProgressBar value="22" title="Health" name="Health" class="HUD Health unity-progress-bar-progress" style="font-size: 14px; width: 30%; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
-    <ui:VisualElement name="MetalReserves" class="HUD MetalContainer" style="flex-direction: row; flex-wrap: wrap; width: 100%; padding-top: 10px;">
+    <ui:VisualElement name="MetalReserves" class="HUD MetalContainer" style="flex-direction: row; flex-wrap: wrap; width: 25%; padding-top: 10px;">
         <ui:ProgressBar value="100" title="Steel" name="Metal_Steel" class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Iron" name="Metal_Iron" class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Pewter" name="Metal_Pewter" class="HUD MetalBar"/>
@@ -18,6 +18,8 @@
         <ui:ProgressBar value="100" title="Duralumin" name="Metal_Duralumin" class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Bendalloy" name="Metal_Bendalloy" class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Cadmium" name="Metal_Cadmium" class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Chromium" name="Metal_Chromium" class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Nicrosil" name="Metal_Nicrosil" class="HUD MetalBar"/>
     </ui:VisualElement>
-    <ui:ProgressBar value="22" title="Stamina" name="Stamina" class="HUD Metal" style="width: 25%; height: auto; color: rgb(255, 255, 255);"/>
+    <ui:ProgressBar value="49.5" title="Stamina" name="Stamina" class="HUD Stamina" style="margin-top: 10px; width: 30%; height: auto; color: rgb(255, 255, 255);"/>
 </ui:UXML>

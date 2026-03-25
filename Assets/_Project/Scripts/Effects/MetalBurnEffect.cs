@@ -21,30 +21,17 @@ public class MetalBurnEffect : MonoBehaviour
     
     void Awake()
     {
-        if (burnParticles == null)
-            burnParticles = GetComponent<ParticleSystem>();
+        // [AGENT REVIEW] Permanently disable particles per user request
+        if (burnParticles) { burnParticles.Stop(); var em = burnParticles.emission; em.enabled = false; }
+        if (flareParticles) { flareParticles.Stop(); var em = flareParticles.emission; em.enabled = false; }
         
-        if (flareParticles == null)
-        {
-            // Create a separate particle system for flare effects
-            GameObject flareObj = new GameObject("FlareParticles");
-            flareObj.transform.SetParent(transform);
-            flareParticles = flareObj.AddComponent<ParticleSystem>();
-            
-            // Copy settings from burn particles
-            var main = burnParticles.main;
-            var flareMain = flareParticles.main;
-            flareMain.duration = main.duration;
-            flareMain.loop = main.loop;
-            flareMain.startLifetime = main.startLifetime;
-            flareMain.startSpeed = main.startSpeed;
-            flareMain.startSize = main.startSize;
-            flareMain.startRotation = main.startRotation;
-            flareMain.startColor = main.startColor;
-            flareMain.gravityModifier = main.gravityModifier;
-        }
+        // Ensure any default particle systems automatically added to this GameObject are killed
+        var localPs = GetComponent<ParticleSystem>();
+        if (localPs) { localPs.Stop(); var localEm = localPs.emission; localEm.enabled = false; }
+        
+        this.enabled = false; // Disable ONLY the script, not the entire Player GameObject!
     }
-    
+
     void Start()
     {
         if (allomancer == null)
@@ -54,8 +41,11 @@ public class MetalBurnEffect : MonoBehaviour
         var burnMain = burnParticles.main;
         burnMain.loop = false;
         
-        var flareMain = flareParticles.main;
-        flareMain.loop = false;
+        if (flareParticles != null)
+        {
+            var flareMain = flareParticles.main;
+            flareMain.loop = false;
+        }
     }
     
     void Update()
@@ -66,6 +56,9 @@ public class MetalBurnEffect : MonoBehaviour
     
     void UpdateBurnEffect()
     {
+        // [AGENT REVIEW] Particle emissions disabled globally per user request
+        return;
+
         if (allomancer == null) return;
 
         bool isBurning = allomancer.IsBurning();
@@ -100,7 +93,10 @@ public class MetalBurnEffect : MonoBehaviour
     
     void UpdateFlareEffect()
     {
-        if (allomancer == null) return;
+        // [AGENT REVIEW] Particle emissions disabled globally per user request
+        return;
+
+        if (allomancer == null || flareParticles == null) return;
 
         // Check global flare state from FlareManager
         bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
