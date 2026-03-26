@@ -119,7 +119,7 @@ public class AllomancyHUD : MonoBehaviour
         if (updateTimer > 0f || allomancer == null) return;
         updateTimer = UPDATE_INTERVAL;
 
-        for (int i = 0; i < 16 && i < metalBars.Length; i++)
+        for (int i = 0; i < 16 && i < metalBars.Length && i < allomancer.metalReserves.Length; i++)
         {
             if (metalBars[i] == null) continue;
             float reserve = allomancer.metalReserves[i];

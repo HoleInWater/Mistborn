@@ -82,7 +82,7 @@ public class PlayerHUD : MonoBehaviour
     {
         if (xp == null) return;
 
-        if (xpBarFill != null)
+        if (xpBarFill != null && xp.xpToNextLevel > 0f)
             xpBarFill.fillAmount = xp.currentXP / xp.xpToNextLevel;
         if (levelText != null)
             levelText.text = $"Lv {xp.currentLevel}";
@@ -95,10 +95,16 @@ public class PlayerHUD : MonoBehaviour
         if (levelUpEffect != null)
         {
             levelUpEffect.SetActive(true);
-            Invoke("HideLevelUp", 2f);
+            StartCoroutine(HideLevelUpDelayed());
         }
         NotificationSystem.Instance?.ShowNotification($"Level Up! Now level {xp.currentLevel}");
         SoundManager.Instance?.PlaySkillUnlock();
+    }
+
+    System.Collections.IEnumerator HideLevelUpDelayed()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        HideLevelUp();
     }
 
     void HideLevelUp()
