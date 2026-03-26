@@ -105,12 +105,8 @@ public class IronPull : MonoBehaviour
     // [AGENT REVIEW] Dynamic primary/secondary keybind
     private KeyCode GetAbility1Key()
     {
-        if (allomancer == null) return KeyCode.Q;
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return KeyCode.Q;
-        if (selector.GetPrimaryMetal()   == AllomancySkill.MetalType.Iron) return KeyCode.E;
-        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) return KeyCode.Q;
-        return KeyCode.None;
+        // Q always pulls — no metal selector dependency
+        return KeyCode.Q;
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
