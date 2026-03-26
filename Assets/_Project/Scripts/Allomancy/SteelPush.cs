@@ -94,12 +94,8 @@ public class SteelPush : MonoBehaviour
 
     private KeyCode GetAbility1Key()
     {
-        if (allomancer == null) return KeyCode.E; 
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return KeyCode.E;
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.E;
-        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.Q;
-        return KeyCode.None;
+        // E always pushes — no metal selector dependency
+        return KeyCode.E;
     }
 
     private KeyCode GetAbility2Key()
