@@ -131,7 +131,7 @@ public class GrappleSystem : MonoBehaviour
         Vector3 pullDir = (grapplePoint - transform.position).normalized;
 
         // Apply pull + slight upward bias for arcing motion
-        playerRb.AddForce(pullDir * force * Time.deltaTime, ForceMode.Force);
+        playerRb.AddForce(pullDir * force, ForceMode.Force);
 
         // Swing component (perpendicular input)
         float h = Input.GetAxis("Horizontal");

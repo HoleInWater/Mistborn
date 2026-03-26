@@ -18,6 +18,7 @@ public class EventManager : MonoBehaviour
                 {
                     GameObject go = new GameObject("EventManager");
                     _instance = go.AddComponent<EventManager>();
+                    DontDestroyOnLoad(go);
                 }
             }
             return _instance;

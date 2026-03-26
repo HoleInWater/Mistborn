@@ -42,6 +42,7 @@ public class CutsceneManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()

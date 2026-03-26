@@ -176,6 +176,7 @@ public class IronPull : MonoBehaviour
         currentTargetRigidbody = null;
         isAnchored             = false;
 
+        if (playerRigidbody == null) return;
         LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;

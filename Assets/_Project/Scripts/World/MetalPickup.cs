@@ -12,6 +12,7 @@ public class MetalPickup : MonoBehaviour
     private bool isCollected = false;
     private Renderer objectRenderer;
     private Collider objectCollider;
+    private Coroutine respawnCoroutine;
     
     void Start()
     {
@@ -48,13 +49,21 @@ public class MetalPickup : MonoBehaviour
         isCollected = true;
         if (objectRenderer != null) objectRenderer.enabled = false;
         if (objectCollider != null) objectCollider.enabled = false;
-        
-        Invoke("Respawn", respawnTime);
+
+        if (respawnCoroutine != null) StopCoroutine(respawnCoroutine);
+        respawnCoroutine = StartCoroutine(RespawnAfterDelay());
     }
-    
+
+    IEnumerator RespawnAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(respawnTime);
+        Respawn();
+    }
+
     void Respawn()
     {
         isCollected = false;
+        respawnCoroutine = null;
         if (objectRenderer != null) objectRenderer.enabled = true;
         if (objectCollider != null) objectCollider.enabled = true;
     }
