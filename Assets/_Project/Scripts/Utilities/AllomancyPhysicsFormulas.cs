@@ -357,7 +357,17 @@ public static class AllomancyPhysicsFormulas
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // CONSTANTS
+    // WORLD SCALE: 2 Unity units = 5 feet (see WorldScale.cs)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>1 Unity unit = 2.5 feet = 0.762 meters</summary>
+    public const float METERS_PER_UNIT = 0.762f;
+    public const float UNITS_PER_METER = 1.312f;
+    public const float FEET_PER_UNIT = 2.5f;
+    public const float UNITS_PER_FOOT = 0.4f;
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CONSTANTS (handbook values, game-tuned for 2u=5ft scale)
     // ═══════════════════════════════════════════════════════════════════════════
 
     /// <summary>Vin's calculated Allomantic strength constant (unflared)</summary>
@@ -366,7 +376,7 @@ public static class AllomancyPhysicsFormulas
     /// <summary>Conservative A for game balance (book-consistent)</summary>
     public const float A_CONSERVATIVE = 1500f;
 
-    /// <summary>Standard coin mass in kg (US quarter)</summary>
+    /// <summary>Standard coin mass in kg (US quarter = ~5.67g, Mistborn clip ~10g)</summary>
     public const float COIN_MASS = 0.01f;
 
     /// <summary>Coin cross-section area (radius ~12mm)</summary>
@@ -386,4 +396,7 @@ public static class AllomancyPhysicsFormulas
 
     /// <summary>Coin drag coefficient (sphere approximation)</summary>
     public const float COIN_DRAG_COEFFICIENT = 0.47f;
+
+    /// <summary>Gravity in Unity units/s² (9.81 m/s² × 1.312 units/m)</summary>
+    public const float GRAVITY_UNITS = 12.87f;
 }

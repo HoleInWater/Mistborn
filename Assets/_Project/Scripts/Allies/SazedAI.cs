@@ -97,8 +97,6 @@ public class SazedAI : MonoBehaviour
         healTimer = healCooldown;
         playerHealth.Heal(healAmountPerSecond * Time.deltaTime);
 
-        // Lore bark
-        if (Random.value < 0.01f);
     }
 
     void PewterPunch(Transform target)
@@ -115,8 +113,6 @@ public class SazedAI : MonoBehaviour
             Vector3 dir = (target.position - transform.position).normalized;
             rb.AddForce(dir * 15f, ForceMode.Impulse);
         }
-
-        if (Random.value < 0.3f);
     }
 
     void Follow()

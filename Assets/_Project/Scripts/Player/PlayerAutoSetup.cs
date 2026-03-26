@@ -14,11 +14,12 @@ public class PlayerAutoSetup : MonoBehaviour
         SteelPush push = GetComponent<SteelPush>();
         if (push != null)
         {
-            push.pushSpeed = 25f;        // Smooth launch, not rocket
-            push.maxRecoilSpeed = 20f;   // Cap so you don't fly to infinity
-            push.loosePushForce = 35f;   // Coins fly fast but not insane
+            // Scale: 2 Unity units = 5 feet (see WorldScale.cs)
+            push.pushSpeed = 32f;        // ~80 ft/s launch off building
+            push.maxRecoilSpeed = 24f;   // ~60 ft/s cap
+            push.loosePushForce = 40f;   // Coin at ~100 ft/s
             push.pushCooldown = 0.2f;
-            push.maxRange = 30f;
+            push.maxRange = 40f; // WorldScale: ~100 ft coin push range
             push.minDistance = 1f;
             push.inverseDistanceScaling = true;
             push.metalCostPerSecond = 2f;
@@ -28,10 +29,11 @@ public class PlayerAutoSetup : MonoBehaviour
         IronPull pull = GetComponent<IronPull>();
         if (pull != null)
         {
-            pull.pullSpeed = 20f;        // Smooth yank toward target
-            pull.maxPullSpeed = 18f;     // Cap for control
-            pull.loosePullForce = 30f;   // Objects come toward you at reasonable speed
-            pull.maxRange = 30f;
+            // Scale: 2 Unity units = 5 feet (see WorldScale.cs)
+            pull.pullSpeed = 24f;        // ~60 ft/s yank toward target
+            pull.maxPullSpeed = 20f;     // ~50 ft/s cap
+            pull.loosePullForce = 32f;   // Objects at ~80 ft/s toward player
+            pull.maxRange = 40f; // WorldScale: ~100 ft pull range
             pull.minDistance = 1f;
             pull.inverseDistanceScaling = true;
             pull.metalCostPerSecond = 2f;
@@ -41,7 +43,7 @@ public class PlayerAutoSetup : MonoBehaviour
         MetalLineRenderer mlr = GetComponent<MetalLineRenderer>();
         if (mlr != null)
         {
-            mlr.maxRange = 30f;
+            mlr.maxRange = 80f; // WorldScale: ~200 ft metal sight range
             mlr.closestHighlightColor = new Color(0.1f, 0.15f, 0.5f);
         }
 
