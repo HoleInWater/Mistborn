@@ -4,6 +4,11 @@ using UnityEngine;
 /// Chromium Allomancy (Leecher) — wipes another Allomancer's metal reserves on touch.
 /// Lore: The external version of Aluminum. Requires physical contact.
 /// Also disrupts enemy Feruchemy and Compounding temporarily.
+///
+/// BUG FIX: Script was referencing GetComponentInParent<Allomancer>() which is not a real
+/// class in this project. Allomancer == null every frame, so isBurning was always false,
+/// AttemptLeech never fired, and DrainMetal never ran — meaning the wheel always saw
+/// Chromium as EMPTY. Replaced with MetalReserve, which is the actual component.
 /// </summary>
 public class Chromium : MonoBehaviour
 {
@@ -16,15 +21,16 @@ public class Chromium : MonoBehaviour
     public float leechScreenPulse = 0.3f;
 
     [Header("References")]
-    public Allomancer allomancer;
+    public MetalReserve metalReserve; // FIX: was Allomancer allomancer (nonexistent class)
 
     private bool isBurning = false;
     private float cooldownTimer = 0f;
 
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponentInParent<Allomancer>();
+        // FIX: was GetComponentInParent<Allomancer>() — always returned null
+        if (metalReserve == null)
+            metalReserve = GetComponentInParent<MetalReserve>();
     }
 
     void Update()
@@ -32,8 +38,10 @@ public class Chromium : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
 
         bool wasBurning = isBurning;
-        isBurning = allomancer != null && allomancer.IsBurning()
-                 && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Chromium;
+
+        // FIX: was allomancer.IsBurning() / allomancer.GetCurrentMetal() — both null-crashed silently
+        isBurning = metalReserve != null
+            && metalReserve.currentMetal > 0f; // Chromium is "burning" while it has reserve
 
         if (isBurning && !wasBurning && cooldownTimer <= 0f)
         {
@@ -41,12 +49,11 @@ public class Chromium : MonoBehaviour
         }
 
         if (isBurning)
-            allomancer.DrainMetal(AllomancySkill.MetalType.Chromium, 3f * Time.deltaTime);
+            metalReserve.Drain(3f * Time.deltaTime);
     }
 
     void AttemptLeech()
     {
-        // Scan for nearby Allomancers
         Collider[] hits = Physics.OverlapSphere(transform.position, leechRange);
         bool leeched = false;
 
@@ -54,12 +61,12 @@ public class Chromium : MonoBehaviour
         {
             if (col.transform == transform) continue;
 
-            Allomancer target = col.GetComponentInParent<Allomancer>();
-            if (target != null && target != allomancer)
+            MetalReserve target = col.GetComponentInParent<MetalReserve>();
+            if (target != null && target != metalReserve)
             {
                 LeechTarget(target, col.gameObject);
                 leeched = true;
-                break; // Leech one target per activation
+                break;
             }
         }
 
@@ -69,14 +76,15 @@ public class Chromium : MonoBehaviour
             CameraShakeManager.Instance?.Shake(0.2f, 0.15f);
             SoundManager.Instance?.PlayImpactSound();
         }
-        // No target found — nothing to leech
     }
 
-    void LeechTarget(Allomancer target, GameObject targetObj)
+    void LeechTarget(MetalReserve target, GameObject targetObj)
     {
-        // Wipe Allomantic reserves
-        target.ClearAllReserves();
-        target.StopBurning();
+        // Wipe all metal reserves on the target by draining everything
+        foreach (AllomancySkill.MetalType metal in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
+        {
+            target.Drain(target.maxMetal); // drain full amount for every metal
+        }
 
         // Disrupt Feruchemy temporarily
         Feruchemist feruchemist = targetObj.GetComponent<Feruchemist>();
@@ -97,11 +105,11 @@ public class Chromium : MonoBehaviour
                 compounding.ForceStopCompounding(i);
         }
 
-        // Stun the Lord Ruler if we leech him (critical mechanic)
+        // Stun the Lord Ruler if we leech him
         LordRulerBoss lordRuler = targetObj.GetComponent<LordRulerBoss>();
         if (lordRuler != null)
             lordRuler.StunAndExpose();
 
-        allomancer.StopBurning();
+        metalReserve.Drain(metalReserve.maxMetal); // stop self burn too
     }
 }
