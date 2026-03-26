@@ -116,7 +116,7 @@ public class SazedAI : MonoBehaviour
             rb.AddForce(dir * 15f, ForceMode.Impulse);
         }
 
-        if (Random.value < 0.3f)
+        if (Random.value < 0.3f);
     }
 
     void Follow()
