@@ -221,7 +221,7 @@ public class SteelInquisitorAI : MonoBehaviour
         if (agent != null) agent.SetDestination(dodgeTarget);
         animator?.SetTrigger("Dodge");
 
-        yield return new WaitForSeconds(atiumDodgeWindow);
+        yield return new WaitForSecondsRealtime(atiumDodgeWindow);
         isDodging = false;
     }
 
@@ -275,7 +275,7 @@ public class SteelInquisitorAI : MonoBehaviour
 
     IEnumerator ResetEmotionalEffect(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSecondsRealtime(duration);
         BasicPlayerMove pm = player.GetComponent<BasicPlayerMove>();
         if (pm != null) pm.externalSpeedMultiplier = 1f;
     }
@@ -303,6 +303,7 @@ public class SteelInquisitorAI : MonoBehaviour
 
     void PerformMeleeAttack()
     {
+        if (player == null) return;
         if (agent != null) agent.SetDestination(transform.position);
         transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
 
@@ -359,7 +360,7 @@ public class SteelInquisitorAI : MonoBehaviour
         animator?.SetBool("IsStunned", true);
 
 
-        yield return new WaitForSeconds(stunDuration);
+        yield return new WaitForSecondsRealtime(stunDuration);
 
         isStunned = false;
         linchpinExposed = false;

@@ -206,7 +206,6 @@ public class FeruchemyController : MonoBehaviour
         }
 
         selectedMetalmind = index;
-        Metalmind mind = feruchemist.metalminds[index];
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

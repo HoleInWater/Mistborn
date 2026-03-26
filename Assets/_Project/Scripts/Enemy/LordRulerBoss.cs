@@ -258,7 +258,7 @@ public class LordRulerBoss : MonoBehaviour
 
     IEnumerator ResetPlayerSpeed(float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSecondsRealtime(delay);
         BasicPlayerMove pm = player.GetComponent<BasicPlayerMove>();
         if (pm != null) pm.externalSpeedMultiplier = 1f;
     }
@@ -312,7 +312,7 @@ public class LordRulerBoss : MonoBehaviour
 
         animator?.SetTrigger("OmniBurst");
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
 
         // AOE shockwave
         Collider[] hits = Physics.OverlapSphere(transform.position, atiumBurstRadius);
@@ -334,7 +334,7 @@ public class LordRulerBoss : MonoBehaviour
         if (shockwavePrefab != null)
             Instantiate(shockwavePrefab, transform.position, Quaternion.identity);
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSecondsRealtime(2f);
         isExecutingBurst = false;
     }
 
@@ -375,6 +375,7 @@ public class LordRulerBoss : MonoBehaviour
 
     void MeleeAttack(float damage)
     {
+        if (player == null) return;
         if (agent != null) agent.SetDestination(transform.position);
         transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
 
