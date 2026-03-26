@@ -40,10 +40,7 @@ public class MetalReserve : MonoBehaviour
                 bar.highValue = maxMetal;
                 _metalBars.Add(metal, bar);
             }
-            else
-            {
-                Debug.LogWarning($"[MetalReserve] Could not find ProgressBar named {barName} in UI.");
-            }
+            // Bar not found in UIDocument — will be null for this metal
         }
     }
 

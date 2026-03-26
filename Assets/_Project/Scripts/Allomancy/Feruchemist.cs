@@ -295,7 +295,6 @@ public class Feruchemist : MonoBehaviour
         accumulatedTapTime[metalIndex] = 0f;
         isStoring[metalIndex] = true;
 
-        Debug.Log($"[FERUCHEMIST] Storing {metalminds[metalIndex].attribute} into metalmind.");
     }
 
     /// <summary>
@@ -311,7 +310,6 @@ public class Feruchemist : MonoBehaviour
         accumulatedStoreTime[metalIndex] = 0f;
         isTapping[metalIndex] = true;
 
-        Debug.Log($"[FERUCHEMIST] Tapping {metalminds[metalIndex].attribute} from metalmind.");
     }
 
     /// <summary>
@@ -529,7 +527,6 @@ public class Feruchemist : MonoBehaviour
     {
         if (metalIndex < 0 || metalIndex >= MetalmindCount) return;
         unlockedMetals[metalIndex] = true;
-        Debug.Log($"[FERUCHEMIST] Unlocked {metalminds[metalIndex].attribute}.");
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

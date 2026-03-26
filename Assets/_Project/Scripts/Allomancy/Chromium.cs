@@ -69,10 +69,7 @@ public class Chromium : MonoBehaviour
             CameraShakeManager.Instance?.Shake(0.2f, 0.15f);
             SoundManager.Instance?.PlayImpactSound();
         }
-        else
-        {
-            Debug.Log("[CHROMIUM] No Allomancer in range to leech.");
-        }
+        // No target found — nothing to leech
     }
 
     void LeechTarget(Allomancer target, GameObject targetObj)
@@ -105,7 +102,6 @@ public class Chromium : MonoBehaviour
         if (lordRuler != null)
             lordRuler.StunAndExpose();
 
-        Debug.Log($"[CHROMIUM] Leeched all metals from {target.name}!");
         allomancer.StopBurning();
     }
 }

@@ -35,11 +35,11 @@ public class SteelPush : MonoBehaviour
 
     [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]
     [Tooltip("Base push speed — how fast objects fly away")]
-    public float pushSpeed = 18f;
+    public float pushSpeed = 35f;
     [Tooltip("Max recoil speed on player when pushing anchored metal")]
-    public float maxRecoilSpeed = 20f;
+    public float maxRecoilSpeed = 30f;
     [Tooltip("Force applied to loose objects")]
-    public float loosePushForce = 20f;
+    public float loosePushForce = 40f;
     [Tooltip("Stronger push at close range")]
     public bool inverseDistanceScaling = true;
 
@@ -126,16 +126,7 @@ public class SteelPush : MonoBehaviour
     public bool debugCalibration = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
-    private bool _isBurning = false;
-    private bool isBurning 
-    {
-        get 
-        {
-            bool globalBurn = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Steel;
-            return _isBurning || globalBurn;
-        }
-        set { _isBurning = value; }
-    }
+    // No burn state — push works on click without needing to "burn" first
 
     private bool IsFlaring =>
         FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
@@ -207,15 +198,16 @@ public class SteelPush : MonoBehaviour
             }
         }
 
+        // Steel Bubble: radial push (single click, not continuous)
         if (enableSteelBubble)
         {
             bool bubbleDown = steelBubbleKey != KeyCode.None && Input.GetKeyDown(steelBubbleKey);
 
-            if (bubbleDown && steelBubbleCooldownTimer <= 0f)
+            if (bubbleDown && steelBubbleCooldownTimer <= 0f
+                && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {
-                AutoSwitchToThisMetal();
-                if (!isBurning) StartBurning();
                 PushMetalsInBubble();
+                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * steelBubbleMetalCostMultiplier);
                 steelBubbleCooldownTimer = steelBubbleCooldown;
             }
         }
@@ -224,32 +216,7 @@ public class SteelPush : MonoBehaviour
         UpdateCrosshairColor();
     }
 
-    private void AutoSwitchToThisMetal()
-    {
-        if (allomancer == null) return;
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return;
-        
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) selector.SetPrimaryActive(true);
-        else if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) selector.SetPrimaryActive(false);
-    }
-
-    // ── Burning ───────────────────────────────────────────────────────────────
-
-    void StartBurning()
-    {
-        if (isBurning) return;
-        isBurning = true;
-        allomancer?.StartBurning(AllomancySkill.MetalType.Steel);
-    }
-
-    void StopBurning()
-    {
-        if (!isBurning) return;
-        isBurning     = false;
-        cooldownTimer = pushCooldown;
-        allomancer?.StopBurning();
-    }
+    // No burn state management — push works on click
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
@@ -350,8 +317,6 @@ public class SteelPush : MonoBehaviour
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
         SoundManager.Instance?.PlayPushSound();
 
-        if (debugPushOperations)
-            Debug.Log($"[STEEL PUSH] dist={distance:F1} anchored={isAnchored} flare={flare:F1}");
     }
 
     void PushMetalsInBubble()
@@ -417,32 +382,12 @@ public class SteelPush : MonoBehaviour
     {
         if (predictionLine == null) return;
 
-        // FIXED NullReferenceException: Query the base GameObject directly since currentTarget (the script component) can be null!
-        Renderer targetRenderer = (hasCurrentTarget && currentTargetRigidbody != null) 
-            ? currentTargetRigidbody.gameObject.GetComponentInChildren<Renderer>() 
-            : null;
-        
-        // Reset previous highlight if target changed or we stopped burning
-        if (lastHighlightedRenderer != null && (lastHighlightedRenderer != targetRenderer || !isBurning))
-        {
-            if (lastHighlightedRenderer.material != null)
-                lastHighlightedRenderer.material.color = originalColor;
-            lastHighlightedRenderer = null;
-        }
-
-        if (hasCurrentTarget && isBurning && currentTargetRigidbody != null)
+        // Show targeting line when there's a valid target (no burn required)
+        if (hasCurrentTarget && currentTargetRigidbody != null)
         {
             predictionLine.positionCount = 2;
-            predictionLine.SetPosition(0, chestTransform.position);
+            predictionLine.SetPosition(0, chestTransform != null ? chestTransform.position : transform.position);
             predictionLine.SetPosition(1, currentTargetRigidbody.position);
-            
-            // Turn the mesh strictly blue!
-            if (targetRenderer != null && lastHighlightedRenderer != targetRenderer && targetRenderer.material != null)
-            {
-                lastHighlightedRenderer = targetRenderer;
-                originalColor = targetRenderer.material.color;
-                targetRenderer.material.color = Color.blue;
-            }
         }
         else
         {

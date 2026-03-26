@@ -71,10 +71,7 @@ public class Nicrosil : MonoBehaviour
             CameraShakeManager.Instance?.Shake(0.3f, 0.2f);
             SoundManager.Instance?.PlayFlareSound();
         }
-        else
-        {
-            Debug.Log("[NICROSIL] No Allomancer in range to Nicroburst.");
-        }
+        // No target found
     }
 
     void NicroburstTarget(Allomancer target, GameObject targetObj)
@@ -92,13 +89,11 @@ public class Nicrosil : MonoBehaviour
                 AllomancySkill.MetalType metal = (AllomancySkill.MetalType)i;
                 target.DrainMetal(metal, enemyDrainRate);
             }
-            Debug.Log($"[NICROSIL] Forced flare on enemy {target.name} — draining metals!");
         }
         else
         {
             // Ally: supercharge their current burn
             target.isNicrobursting = true;
-            Debug.Log($"[NICROSIL] Supercharged ally {target.name}! {burstMultiplier}x power for {burstDuration}s.");
         }
 
         allomancer.StopBurning();

@@ -65,7 +65,6 @@ public class Duralumin : MonoBehaviour
         CameraShakeManager.Instance?.Shake(0.3f, 0.1f);
         SoundManager.Instance?.PlayFlareSound();
 
-        Debug.Log("[DURALUMIN] PRIMED! Next metal will BURST. Switch metals now!");
 
         // Drain Duralumin itself
         allomancer.DrainMetal(AllomancySkill.MetalType.Duralumin,
@@ -77,7 +76,6 @@ public class Duralumin : MonoBehaviour
     {
         hasPrimed = false;
         if (allomancer != null) allomancer.isDuraluminPrimed = false;
-        Debug.Log("[DURALUMIN] Burst expired — not used in time.");
     }
 
     /// <summary>
@@ -108,23 +106,19 @@ public class Duralumin : MonoBehaviour
 
             case AllomancySkill.MetalType.Pewter:
                 // Brief superhuman mode — already handled by FlareManager multiplier
-                Debug.Log("[DURALUMIN+PEWTER] SUPERHUMAN STRENGTH!");
                 break;
 
             case AllomancySkill.MetalType.Tin:
                 // Sensory explosion — can stun enemies but also overloads player
-                Debug.Log("[DURALUMIN+TIN] SENSORY EXPLOSION!");
                 CameraShakeManager.Instance?.Shake(1f, 0.6f);
                 break;
 
             case AllomancySkill.MetalType.Zinc:
                 // Emotional shockwave — Riot everything in range
-                Debug.Log("[DURALUMIN+ZINC] EMOTIONAL RIOT WAVE!");
                 break;
 
             case AllomancySkill.MetalType.Brass:
                 // Mass Soothe — calm/stun everything
-                Debug.Log("[DURALUMIN+BRASS] MASS SOOTHE!");
                 break;
         }
 

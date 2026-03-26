@@ -119,7 +119,6 @@ public class Hemalurgy : MonoBehaviour
                 allomancer.unlockedMetals[(int)metal.Value] = false;
         }
 
-        Debug.Log($"[HEMALURGY] Spike '{spikeId}' removed. Power lost: {spike.stolenPower}");
         return spike;
     }
 
@@ -138,7 +137,6 @@ public class Hemalurgy : MonoBehaviour
 
     void OnLinchpinRemoved()
     {
-        Debug.Log("[HEMALURGY] LINCHPIN REMOVED — HOST DIES INSTANTLY!");
 
         // Kill the host
         IDamageable health = GetComponent<IDamageable>();
@@ -167,7 +165,6 @@ public class Hemalurgy : MonoBehaviour
         if (metal.HasValue && allomancer != null)
             allomancer.UnlockMetal(metal.Value);
 
-        Debug.Log($"[HEMALURGY] Spike added: {spike.stolenPower} (decay: {spike.decayFactor:P0})");
     }
 
     AllomancySkill.MetalType? GetMetalFromPower(StolenPower power)

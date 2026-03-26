@@ -68,7 +68,6 @@ public class AllomanticSight : MonoBehaviour
             playerCamera = Camera.main;
             if (playerCamera == null)
             {
-                Debug.LogError("AllomanticSight: No main camera found! Please assign playerCamera in Inspector.");
             }
         }
         
@@ -85,11 +84,9 @@ public class AllomanticSight : MonoBehaviour
                 if (chest == null) chest = player.transform; // Fallback to player transform
                 
                 chestTransform = chest;
-                Debug.Log($"AllomanticSight: Auto-found chest transform: {chest.name}");
             }
             else
             {
-                Debug.LogWarning($"AllomanticSight: No GameObject found with tag '{playerTag}'. Chest will default to camera position.");
             }
         }
         
@@ -206,7 +203,6 @@ public class AllomanticSight : MonoBehaviour
         
         // Log state change (this Debug.Log should be removed for production)
 #if UNITY_EDITOR
-        Debug.Log(isActive ? "Allomantic Sight ACTIVE" : "Allomantic Sight OFF");
 #endif
     }
     
@@ -226,7 +222,6 @@ public class AllomanticSight : MonoBehaviour
         // Check if playerCamera is assigned
         if (playerCamera == null)
         {
-            Debug.LogError("AllomanticSight: playerCamera is not assigned!");
             return;
         }
         
