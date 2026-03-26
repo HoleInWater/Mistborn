@@ -106,6 +106,7 @@ public class WeatherGameplayIntegration : MonoBehaviour
 
     void CheckMistSpiritSpawn()
     {
+        if (player == null) return;
         mistSpiritCheckTimer += Time.deltaTime;
         if (mistSpiritCheckTimer < 10f) return;
         mistSpiritCheckTimer = 0f;
