@@ -53,6 +53,12 @@ public class PlayerCamera : MonoBehaviour
     private Vector3 dollyDir;
     private float currentDistance;
 
+<<<<<<< HEAD
+=======
+    // Multiplier that maps SettingsManager's 0.1-10 range to camera-space units
+    private const float SensitivityScale = 100f;
+
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     void Start()
     {
         // Lock cursor to center of screen
@@ -62,10 +68,18 @@ public class PlayerCamera : MonoBehaviour
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
         currentDistance = maxDistance;
+<<<<<<< HEAD
+=======
+
+        // Apply saved settings if available
+        if (SettingsManager.Instance != null)
+            mouseSensitivity = SettingsManager.Instance.mouseSensitivity * SensitivityScale;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
 
     void Update()
     {
+<<<<<<< HEAD
         // Get mouse input
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
@@ -73,6 +87,21 @@ public class PlayerCamera : MonoBehaviour
         // Apply rotation
         yRotation += mouseX;
         xRotation -= mouseY;
+=======
+        // Always reflect the latest sensitivity and invert settings
+        float effectiveSensitivity = SettingsManager.Instance != null
+            ? SettingsManager.Instance.mouseSensitivity * SensitivityScale
+            : mouseSensitivity;
+        bool invertY = SettingsManager.Instance != null && SettingsManager.Instance.invertY;
+
+        // Get mouse input
+        float mouseX = Input.GetAxis("Mouse X") * effectiveSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * effectiveSensitivity * Time.deltaTime;
+
+        // Apply rotation
+        yRotation += mouseX;
+        xRotation += invertY ? mouseY : -mouseY;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         xRotation = Mathf.Clamp(xRotation, -80f, 80f);
 
         // Apply rotation to pivot
@@ -99,7 +128,15 @@ public class PlayerCamera : MonoBehaviour
         cameraTransform.localPosition = dollyDir * currentDistance;
     }
 
+<<<<<<< HEAD
     // Public method to set mouse sensitivity (for options menu)
+=======
+    /// <summary>
+    /// Set raw internal sensitivity. SettingsManager values (0.1-10) are
+    /// automatically scaled by SensitivityScale each frame; only call this
+    /// directly if you want to bypass SettingsManager.
+    /// </summary>
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     public void SetMouseSensitivity(float sensitivity)
     {
         mouseSensitivity = sensitivity;

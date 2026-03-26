@@ -230,7 +230,11 @@ public class HazekillerAI : MonoBehaviour
 
     void ExecuteFormation(float distToPlayer)
     {
+<<<<<<< HEAD
         if (agent == null || !agent.enabled) return;
+=======
+        if (agent == null || !agent.enabled || player == null) return;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         agent.speed = runSpeed;
 
         Vector3 targetPos;

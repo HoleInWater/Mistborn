@@ -41,7 +41,11 @@ public class GroundSlam : MonoBehaviour
     void Update()
     {
         // Ctrl while airborne
+<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.LeftControl) && !playerMove.IsGrounded() && !isSlamming)
+=======
+        if (Input.GetKeyDown(Keybinds.Crouch) && !playerMove.IsGrounded() && !isSlamming)
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             float height = GetHeightAboveGround();
             if (height >= minHeightToSlam)

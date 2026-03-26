@@ -10,7 +10,11 @@ public class MetalSpawner : MonoBehaviour
     void Update()
     {
         // Press T to spawn metal
+<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.T))
+=======
+        if (Input.GetKeyDown(Keybinds.MetalSight))
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             SpawnMetal();
         }

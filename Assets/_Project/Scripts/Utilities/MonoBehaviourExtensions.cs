@@ -10,6 +10,7 @@ namespace MistbornGame.Utilities
     public static class MonoBehaviourExtensions
     {
         /// <summary>
+<<<<<<< HEAD
         /// Starts a coroutine on a MonoBehaviour with optional completion callback
         /// </summary>
         public static Coroutine StartCoroutine(this MonoBehaviour behaviour, Action onComplete, float delay = 0f)
@@ -23,6 +24,23 @@ namespace MistbornGame.Utilities
             if (delay > 0f)
             {
                 yield return new WaitForSeconds(delay);
+=======
+        /// Starts a coroutine on a MonoBehaviour with optional completion callback.
+        /// Pass realtime:true for UI callbacks that must fire even when timeScale = 0.
+        /// </summary>
+        public static Coroutine StartCoroutine(this MonoBehaviour behaviour, Action onComplete, float delay = 0f, bool realtime = false)
+        {
+            if (behaviour == null) return null;
+            return behaviour.StartCoroutine(RunCoroutine(onComplete, delay, realtime));
+        }
+
+        private static IEnumerator RunCoroutine(Action onComplete, float delay, bool realtime)
+        {
+            if (delay > 0f)
+            {
+                if (realtime) yield return new WaitForSecondsRealtime(delay);
+                else          yield return new WaitForSeconds(delay);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             }
             else
             {
@@ -32,6 +50,7 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// Invokes an action after a delay
         /// </summary>
         public static void InvokeAction(this MonoBehaviour behaviour, Action action, float delay)
@@ -43,10 +62,26 @@ namespace MistbornGame.Utilities
         private static IEnumerator InvokeAfterDelay(Action action, float delay)
         {
             yield return new WaitForSeconds(delay);
+=======
+        /// Invokes an action after a delay.
+        /// Pass realtime:true for UI callbacks that must fire even when timeScale = 0.
+        /// </summary>
+        public static void InvokeAction(this MonoBehaviour behaviour, Action action, float delay, bool realtime = false)
+        {
+            if (behaviour == null || action == null) return;
+            behaviour.StartCoroutine(InvokeAfterDelay(action, delay, realtime));
+        }
+
+        private static IEnumerator InvokeAfterDelay(Action action, float delay, bool realtime)
+        {
+            if (realtime) yield return new WaitForSecondsRealtime(delay);
+            else          yield return new WaitForSeconds(delay);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             action?.Invoke();
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// Invokes an action repeatedly at an interval
         /// </summary>
         public static Coroutine InvokeRepeating(this MonoBehaviour behaviour, Action action, float delay, float repeatInterval)
@@ -60,11 +95,33 @@ namespace MistbornGame.Utilities
             if (delay > 0f)
             {
                 yield return new WaitForSeconds(delay);
+=======
+        /// Invokes an action repeatedly at an interval.
+        /// Pass realtime:true for UI callbacks that must fire even when timeScale = 0.
+        /// </summary>
+        public static Coroutine InvokeRepeating(this MonoBehaviour behaviour, Action action, float delay, float repeatInterval, bool realtime = false)
+        {
+            if (behaviour == null || action == null) return null;
+            return behaviour.StartCoroutine(RepeatAction(action, delay, repeatInterval, realtime));
+        }
+
+        private static IEnumerator RepeatAction(Action action, float delay, float repeatInterval, bool realtime)
+        {
+            if (delay > 0f)
+            {
+                if (realtime) yield return new WaitForSecondsRealtime(delay);
+                else          yield return new WaitForSeconds(delay);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             }
             while (true)
             {
                 action?.Invoke();
+<<<<<<< HEAD
                 yield return new WaitForSeconds(repeatInterval);
+=======
+                if (realtime) yield return new WaitForSecondsRealtime(repeatInterval);
+                else          yield return new WaitForSeconds(repeatInterval);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             }
         }
 

@@ -41,7 +41,12 @@ public class CheckpointSystem : MonoBehaviour
     IEnumerator RespawnSequence()
     {
         // Screen fade could go here
+<<<<<<< HEAD
         yield return new WaitForSeconds(respawnDelay);
+=======
+        // WaitForSecondsRealtime so respawn isn't blocked by a paused timeScale
+        yield return new WaitForSecondsRealtime(respawnDelay);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null) yield break;

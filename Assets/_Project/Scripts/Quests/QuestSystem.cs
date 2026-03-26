@@ -86,7 +86,11 @@ public class QuestManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+<<<<<<< HEAD
 
+=======
+        DontDestroyOnLoad(gameObject);
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         foreach (Quest q in allQuests)
             if (q != null) questDatabase[q.questId] = q;
     }

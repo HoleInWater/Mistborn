@@ -31,6 +31,11 @@ public class LockOnSystem : MonoBehaviour
 
     void Start()
     {
+<<<<<<< HEAD
+=======
+        lockOnKey = Keybinds.Grapple;
+        cycleKey = Keybinds.MetalWheel;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
         if (mainCamera == null) mainCamera = Camera.main;
         if (allomancer == null) allomancer = GetComponent<Allomancer>();

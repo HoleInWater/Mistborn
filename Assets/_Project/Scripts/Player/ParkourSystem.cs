@@ -86,14 +86,22 @@ public class ParkourSystem : MonoBehaviour
         }
 
         // Slide: sprint + crouch
+<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift)
+=======
+        if (Input.GetKeyDown(Keybinds.Crouch) && Input.GetKey(Keybinds.Sprint)
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             && playerMove.IsGrounded() && slideTimer <= 0f)
         {
             StartCoroutine(Slide());
         }
 
         // Steel Push launch: push off ground coin for vertical boost
+<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.Space) && !playerMove.IsGrounded()
+=======
+        if (Input.GetKeyDown(Keybinds.Jump) && !playerMove.IsGrounded()
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             && steelLaunchTimer <= 0f && allomancer != null
             && allomancer.IsMetalBurning(AllomancySkill.MetalType.Steel))
         {
@@ -236,7 +244,11 @@ public class ParkourSystem : MonoBehaviour
             elapsed += Time.deltaTime;
 
             // Cancel slide if player releases crouch
+<<<<<<< HEAD
             if (!Input.GetKey(KeyCode.LeftControl)) break;
+=======
+            if (!Input.GetKey(Keybinds.Crouch)) break;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             yield return null;
         }
 

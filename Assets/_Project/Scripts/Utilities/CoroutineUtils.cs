@@ -72,6 +72,7 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// Creates a coroutine that invokes an action after a delay
         /// </summary>
         public static IEnumerator InvokeAfterDelay(float delay, System.Action action)
@@ -87,11 +88,32 @@ namespace MistbornGame.Utilities
         /// Creates a coroutine that fades a CanvasGroup over time
         /// </summary>
         public static IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration)
+=======
+        /// Creates a coroutine that invokes an action after a delay.
+        /// Pass realtime:true for UI/menu callbacks that must run even when timeScale = 0.
+        /// </summary>
+        public static IEnumerator InvokeAfterDelay(float delay, System.Action action, bool realtime = false)
+        {
+            if (realtime) yield return new WaitForSecondsRealtime(delay);
+            else          yield return new WaitForSeconds(delay);
+            action?.Invoke();
+        }
+
+        /// <summary>
+        /// Creates a coroutine that fades a CanvasGroup over time.
+        /// Pass realtime:true for menus/pause overlays that must animate while timeScale = 0.
+        /// </summary>
+        public static IEnumerator FadeCanvasGroup(CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration, bool realtime = false)
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             float elapsed = 0f;
             while (elapsed < duration)
             {
+<<<<<<< HEAD
                 elapsed += Time.deltaTime;
+=======
+                elapsed += realtime ? Time.unscaledDeltaTime : Time.deltaTime;
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
                 float t = Mathf.Clamp01(elapsed / duration);
                 canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
                 yield return null;

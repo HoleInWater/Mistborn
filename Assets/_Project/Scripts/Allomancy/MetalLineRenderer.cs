@@ -77,7 +77,11 @@ public class MetalLineRenderer : MonoBehaviour
     void Update()
     {
         // T key toggles allomantic sight (metal lines + closest highlight)
+<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.T))
+=======
+        if (Input.GetKeyDown(Keybinds.MetalSight))
+>>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             metalSightActive = !metalSightActive;
 
         // Only show when manually toggled with Z — no auto-activation
