@@ -48,11 +48,14 @@ public class AshfallManager : MonoBehaviour
     /// <summary>
     /// Follow the player so ash is always around them.
     /// </summary>
+    private Transform cachedPlayer;
+
     void LateUpdate()
     {
-        Transform player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        if (player != null)
-            transform.position = new Vector3(player.position.x, player.position.y + 15f, player.position.z);
+        if (cachedPlayer == null)
+            cachedPlayer = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (cachedPlayer != null)
+            transform.position = new Vector3(cachedPlayer.position.x, cachedPlayer.position.y + 15f, cachedPlayer.position.z);
     }
 
     public float GetIntensity() => ashIntensity;

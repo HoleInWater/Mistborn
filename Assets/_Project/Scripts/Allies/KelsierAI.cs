@@ -162,6 +162,8 @@ public class KelsierAI : MonoBehaviour
         };
 
         string[] barks = type == "steel" ? steelBarks : meleeBarks;
+        // Bark could be shown via NotificationSystem or overhead text in future
+        _ = barks; // Suppress unused warning
     }
 
     Transform FindNearestEnemy()
