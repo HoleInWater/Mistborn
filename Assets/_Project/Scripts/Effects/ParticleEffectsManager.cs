@@ -158,7 +158,7 @@ public class ParticleEffectsManager : MonoBehaviour
 
     IEnumerator ReturnAfterDelay(string pool, GameObject effect, float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSecondsRealtime(delay);
         ReturnToPool(pool, effect);
     }
 
