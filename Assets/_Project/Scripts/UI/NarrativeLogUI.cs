@@ -49,6 +49,46 @@ public class NarrativeLogUI : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J)) ToggleLog();
+        // J opens quest menu instead of journal
+        if (Input.GetKeyDown(KeyCode.J)) ToggleQuestMenu();
+    }
+
+    public void ToggleQuestMenu()
+    {
+        if (logPanel == null) return;
+        bool active = !logPanel.activeSelf;
+        logPanel.SetActive(active);
+        if (active) RefreshQuestLog();
+    }
+
+    public void RefreshQuestLog()
+    {
+        if (QuestManager.Instance == null || logContentText == null) return;
+
+        string text = "--- ACTIVE QUESTS ---\n\n";
+
+        foreach (var quest in QuestManager.Instance.GetActiveQuests())
+        {
+            text += $"<b>{quest.title}</b>\n";
+            text += $"{quest.description}\n";
+            foreach (var obj in quest.objectives)
+            {
+                string check = obj.isCompleted ? "[x]" : "[ ]";
+                text += $"  {check} {obj.description}";
+                if (obj.targetCount > 1) text += $" ({obj.currentCount}/{obj.targetCount})";
+                text += "\n";
+            }
+            text += "\n";
+        }
+
+        var completed = QuestManager.Instance.GetCompletedQuests();
+        if (completed.Count > 0)
+        {
+            text += "--- COMPLETED ---\n\n";
+            foreach (var quest in completed)
+                text += $"[x] {quest.title}\n";
+        }
+
+        logContentText.text = text;
     }
 }
