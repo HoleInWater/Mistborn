@@ -188,7 +188,7 @@ public class SteelPush : MonoBehaviour
                 PushMetals();
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond);
                 cooldownTimer = pushCooldown;
-                if (IsFlaring) StartFlaringVignette();
+                if (isFlaring) StartFlaringVignette();
             }
             else
             {
