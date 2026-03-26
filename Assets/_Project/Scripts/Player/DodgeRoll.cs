@@ -34,6 +34,7 @@ public class DodgeRoll : MonoBehaviour
 
     void Start()
     {
+        dodgeKey = Keybinds.DodgeRoll;
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         if (stamina == null) stamina = GetComponent<PlayerStamina>();
         if (allomancer == null) allomancer = GetComponent<Allomancer>();

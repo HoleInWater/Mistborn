@@ -110,7 +110,8 @@ public class Allomancer : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        // Toggle burn — reads Keybinds so player rebinds are respected
+        if (Input.GetKeyDown(Keybinds.BurnToggle))
         {
             if (isBurningMetal) StopBurning();
             else StartBurning(GetCurrentMetal());

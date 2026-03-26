@@ -38,7 +38,7 @@ public class SceneBootstrap : MonoBehaviour
         EnsureSingleton<CheckpointSystem>("CheckpointSystem");
         EnsureSingleton<TimeBubbleManager>("TimeBubbleManager");
         EnsureSingleton<InputManager>("InputManager");
-        EnsureSingleton<LoreCodex>("LoreCodex");
+        EnsureSingleton<SettingsManager>("SettingsManager");
         EnsureSingleton<WeatherGameplayIntegration>("WeatherIntegration");
 
         // PerformanceManager is optional — only add if the class exists in build

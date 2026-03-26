@@ -112,12 +112,12 @@ public class ParrySystem : MonoBehaviour
             isParrying = false;
 
         // F key to block/parry
-        if (Input.GetKeyDown(KeyCode.F) && cooldownTimer <= 0f)
+        if (Input.GetKeyDown(Keybinds.SteelBubble) && cooldownTimer <= 0f)
         {
             StartParry();
         }
 
-        isBlocking = Input.GetKey(KeyCode.F);
+        isBlocking = Input.GetKey(Keybinds.SteelBubble);
         animator?.SetBool("IsBlocking", isBlocking);
     }
 

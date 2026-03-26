@@ -122,7 +122,7 @@ public class FlareManager : MonoBehaviour
 
     void HandleBurnToggle()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(Keybinds.Crouch))
         {
             IsBurning = !IsBurning;
         }

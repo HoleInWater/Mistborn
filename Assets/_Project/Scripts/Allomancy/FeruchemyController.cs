@@ -105,7 +105,7 @@ public class FeruchemyController : MonoBehaviour
     private void HandleInput()
     {
         // Tab toggles Feruchemy mode
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(Keybinds.MetalWheel))
         {
             feruchemyModeActive = !feruchemyModeActive;
             if (!feruchemyModeActive)

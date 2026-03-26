@@ -32,8 +32,9 @@ public class LoadingScreen : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);  // must survive the scene transition it triggered
         if (loadingPanel != null) loadingPanel.SetActive(false);
     }
 

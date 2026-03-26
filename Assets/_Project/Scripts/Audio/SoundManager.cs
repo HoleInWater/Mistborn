@@ -109,6 +109,19 @@ public class SoundManager : MonoBehaviour
     public void TransitionToExploration() { }
     public void TransitionToCombat() { }
 
+    /// <summary>Apply music volume to the music AudioSource.</summary>
+    public void SetMusicVolume(float v)
+    {
+        musicVolume = v;
+        if (musicSource != null) musicSource.volume = v;
+    }
+
+    /// <summary>Apply SFX volume; individual PlayOneShot calls already use sfxVolume.</summary>
+    public void SetSFXVolume(float v)
+    {
+        sfxVolume = v;
+    }
+
     private void PlayOneShot(AudioSource source, AudioClip[] clips, float volume)
     {
         if (source == null || clips == null || clips.Length == 0) return;

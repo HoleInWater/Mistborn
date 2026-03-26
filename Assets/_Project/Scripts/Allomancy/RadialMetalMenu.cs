@@ -56,9 +56,9 @@ public class RadialMetalMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(Keybinds.MetalWheel))
             OpenWheel();
-        if (Input.GetKeyUp(KeyCode.Tab))
+        if (Input.GetKeyUp(Keybinds.MetalWheel))
             CloseAndSelect();
 
         if (isOpen)

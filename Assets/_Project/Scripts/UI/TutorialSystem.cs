@@ -32,7 +32,7 @@ public class TutorialSystem : MonoBehaviour
     void Update()
     {
         // F1 toggles help overlay
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (Input.GetKeyDown(Keybinds.Help))
         {
             if (helpOverlayPanel != null)
                 helpOverlayPanel.SetActive(!helpOverlayPanel.activeSelf);

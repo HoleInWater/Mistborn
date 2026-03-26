@@ -39,7 +39,7 @@ public class StealthSystem : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(Keybinds.Crouch))
         {
             ToggleCrouch();
         }

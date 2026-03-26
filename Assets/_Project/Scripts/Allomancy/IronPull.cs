@@ -98,7 +98,7 @@ public class IronPull : MonoBehaviour
     private KeyCode GetAbility1Key()
     {
         // Q always pulls — no metal selector dependency
-        return KeyCode.Q;
+        return Keybinds.IronPull;
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────

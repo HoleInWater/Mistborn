@@ -38,6 +38,7 @@ public class MetalVialSystem : MonoBehaviour
 
     void Start()
     {
+        drinkKey = Keybinds.DrinkVial;
         if (allomancer == null) allomancer = GetComponent<Allomancer>();
         if (animator == null) animator = GetComponent<Animator>();
 

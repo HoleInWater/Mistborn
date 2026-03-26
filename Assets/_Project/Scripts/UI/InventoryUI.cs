@@ -31,6 +31,7 @@ public class InventoryUI : MonoBehaviour
 
     void Start()
     {
+        toggleKey = Keybinds.Inventory;
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {

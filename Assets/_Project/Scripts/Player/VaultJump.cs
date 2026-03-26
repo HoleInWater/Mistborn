@@ -24,7 +24,7 @@ public class VaultJump : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !isVaulting)
+        if (Input.GetKeyDown(Keybinds.Jump) && !isVaulting)
         {
             TryVault();
         }

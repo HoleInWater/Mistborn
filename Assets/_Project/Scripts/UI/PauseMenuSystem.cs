@@ -1,89 +1,98 @@
 using UnityEngine;
 
 /// <summary>
-/// Pause menu with resume, settings, save/load, and quit.
-/// Integrates with GameFlowManager for state control.
+/// Pause menu: Esc toggles pause.
+/// Pause panel shows Resume / Settings / Save &amp; Quit.
+/// Settings are handled by the attached SettingsPanelController.
+/// Wire panels and the settings controller in the Inspector.
 /// </summary>
 public class PauseMenuSystem : MonoBehaviour
 {
-    [Header("UI Panels")]
+    [Header("Panels")]
     public GameObject pausePanel;
-    public GameObject settingsPanel;
-    public GameObject saveLoadPanel;
-    public GameObject loreCodexPanel;
+    public SettingsPanelController settingsController;  // root of the settings panel
 
-    [Header("Settings")]
-    public bool isPaused = false;
+    [HideInInspector] public bool isPaused;
+
+    // ─────────────────────────────────────────────────────────────────────
+
+    void Start()
+    {
+        HideAllPanels();
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (KeybindRebinder.IsRebinding) return;
+
+        if (Input.GetKeyDown(Keybinds.Pause))
         {
             if (isPaused) ResumeGame();
-            else PauseGame();
+            else          PauseGame();
         }
     }
+
+    // ── Pause / Resume ────────────────────────────────────────────────────
 
     public void PauseGame()
     {
         isPaused = true;
-        if (pausePanel != null) pausePanel.SetActive(true);
+        ShowPanel(pausePanel);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         GameFlowManager.Instance?.PauseGame();
+        GameManager.Instance?.SetState(GameManager.GameState.Paused);
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-        CloseAllPanels();
+        HideAllPanels();
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         GameFlowManager.Instance?.ResumeGame();
+        GameManager.Instance?.SetState(GameManager.GameState.Playing);
     }
 
-    public void OpenSettings()
+    // ── Pause Panel Buttons ───────────────────────────────────────────────
+
+    public void OnResumeClicked() => ResumeGame();
+
+    public void OnSettingsClicked()
     {
-        CloseAllPanels();
-        if (settingsPanel != null) settingsPanel.SetActive(true);
+        ShowPanel(settingsController?.gameObject);
+        settingsController?.RefreshUI();
     }
 
-    public void OpenSaveLoad()
+    /// <summary>Save to slot 0 (AutoSave) then return to main menu.</summary>
+    public void OnSaveAndQuitClicked()
     {
-        CloseAllPanels();
-        if (saveLoadPanel != null) saveLoadPanel.SetActive(true);
-    }
-
-    public void OpenLoreCodex()
-    {
-        CloseAllPanels();
-        if (loreCodexPanel != null) loreCodexPanel.SetActive(true);
-    }
-
-    public void BackToPause()
-    {
-        CloseAllPanels();
-        if (pausePanel != null) pausePanel.SetActive(true);
-    }
-
-    public void QuitToMenu()
-    {
+        SaveLoadManager.Instance?.SaveGame(0, "AutoSave");
+        NotificationSystem.Instance?.ShowNotification("Game Saved");
         Time.timeScale = 1f;
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        GameManager.Instance?.ReturnToMainMenu();
     }
 
-    public void QuitGame()
+    // ── Settings Back Button ──────────────────────────────────────────────
+
+    public void OnSettingsBackClicked()
     {
-        Application.Quit();
+        ShowPanel(pausePanel);
     }
 
-    void CloseAllPanels()
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    void ShowPanel(GameObject panel)
+    {
+        HideAllPanels();
+        if (panel != null) panel.SetActive(true);
+    }
+
+    void HideAllPanels()
     {
         if (pausePanel != null) pausePanel.SetActive(false);
-        if (settingsPanel != null) settingsPanel.SetActive(false);
-        if (saveLoadPanel != null) saveLoadPanel.SetActive(false);
-        if (loreCodexPanel != null) loreCodexPanel.SetActive(false);
+        if (settingsController != null) settingsController.gameObject.SetActive(false);
     }
 }

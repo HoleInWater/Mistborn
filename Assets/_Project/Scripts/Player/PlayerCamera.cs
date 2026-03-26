@@ -53,6 +53,9 @@ public class PlayerCamera : MonoBehaviour
     private Vector3 dollyDir;
     private float currentDistance;
 
+    // Multiplier that maps SettingsManager's 0.1-10 range to camera-space units
+    private const float SensitivityScale = 100f;
+
     void Start()
     {
         // Lock cursor to center of screen
@@ -62,17 +65,27 @@ public class PlayerCamera : MonoBehaviour
         dollyDir = cameraTransform.localPosition.normalized;
         maxDistance = cameraTransform.localPosition.magnitude;
         currentDistance = maxDistance;
+
+        // Apply saved settings if available
+        if (SettingsManager.Instance != null)
+            mouseSensitivity = SettingsManager.Instance.mouseSensitivity * SensitivityScale;
     }
 
     void Update()
     {
+        // Always reflect the latest sensitivity and invert settings
+        float effectiveSensitivity = SettingsManager.Instance != null
+            ? SettingsManager.Instance.mouseSensitivity * SensitivityScale
+            : mouseSensitivity;
+        bool invertY = SettingsManager.Instance != null && SettingsManager.Instance.invertY;
+
         // Get mouse input
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * effectiveSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * effectiveSensitivity * Time.deltaTime;
 
         // Apply rotation
         yRotation += mouseX;
-        xRotation -= mouseY;
+        xRotation += invertY ? mouseY : -mouseY;
         xRotation = Mathf.Clamp(xRotation, -80f, 80f);
 
         // Apply rotation to pivot
@@ -99,7 +112,11 @@ public class PlayerCamera : MonoBehaviour
         cameraTransform.localPosition = dollyDir * currentDistance;
     }
 
-    // Public method to set mouse sensitivity (for options menu)
+    /// <summary>
+    /// Set raw internal sensitivity. SettingsManager values (0.1-10) are
+    /// automatically scaled by SensitivityScale each frame; only call this
+    /// directly if you want to bypass SettingsManager.
+    /// </summary>
     public void SetMouseSensitivity(float sensitivity)
     {
         mouseSensitivity = sensitivity;

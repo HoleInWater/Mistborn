@@ -72,11 +72,22 @@ public class SaveGameUI : MonoBehaviour
         if (hasSave)
         {
             var data = SaveLoadManager.Instance.PeekSaveData(slotIndex);
-            label = data != null ? $"Slot {slotIndex + 1}: {data.saveName} - {data.saveTimeString}" : $"Slot {slotIndex + 1}: Save Data";
+            if (data != null)
+            {
+                string timeStr = System.DateTime.TryParse(data.saveTimeString,
+                    null, System.Globalization.DateTimeStyles.RoundtripKind, out System.DateTime dt)
+                    ? dt.ToString("MMM d, yyyy  h:mm tt")
+                    : data.saveTimeString;
+                label = $"Slot {slotIndex + 1}  •  {data.saveName}  •  Ch.{data.chapterIndex + 1}  •  {timeStr}";
+            }
+            else
+            {
+                label = $"Slot {slotIndex + 1}  •  Save Data";
+            }
         }
         else
         {
-            label = $"Slot {slotIndex + 1}: Empty";
+            label = $"Slot {slotIndex + 1}  •  Empty";
         }
 
         if (slotPrefab != null)
