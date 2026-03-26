@@ -23,16 +23,8 @@ public class IronPull : MonoBehaviour
 {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private float FlareLevel =>
-        FlareManager.Instance != null
-            ? (float)FlareManager.Instance.Intensity / FlareManager.Instance.maxIntensitySteps
-            : 0f;
-
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
-
-    private bool IsFlaring =>
-        FlareManager.Instance != null && FlareManager.Instance.IsIronFlaring;
 
     // ── Inspector ─────────────────────────────────────────────────────────────
 
@@ -48,13 +40,8 @@ public class IronPull : MonoBehaviour
     public float maxPullSpeed = 40f;
     [Tooltip("Speed applied to loose objects pulled toward player")]
     public float loosePullForce = 60f;
-    [Tooltip("Stronger pull at close range (inverse distance scaling)")]
+    [Tooltip("Stronger pull at close range")]
     public bool inverseDistanceScaling = true;
-    [Range(0f, 1f)] public float velocityDamping  = 0.5f;
-
-    [Header("Flare Scaling")]
-    [Range(1.5f, 4f)]  public float maxFlareMultiplier         = 2.5f;
-    [Range(1f,   5f)]  public float flaringMetalCostMultiplier = 3f;
 
     [Header("References")]
     public Camera        playerCamera;
@@ -244,23 +231,16 @@ public class IronPull : MonoBehaviour
         }
 
         // --- Visual feedback ---
-        CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
-        TriggerPullTint(pullSpeed);
+        CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
+        SoundManager.Instance?.PlayPullSound();
+
+        // Pull trail effect
+        Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
+        PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.position, chestPos);
 
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────
-
-    void DrainMetal(float multiplier = 1f)
-    {
-        if (allomancer == null) return;
-
-        float flareCostScale = Mathf.Lerp(1f, flaringMetalCostMultiplier, FlareLevel);
-        float drainAmount    = metalCostPerSecond * Time.deltaTime * multiplier * flareCostScale;
-        float actionDrain    = metalCostPerSecond * 0.5f * multiplier;
-
-        allomancer.DrainMetal(AllomancySkill.MetalType.Iron, drainAmount + actionDrain);
-    }
 
     // ── Prediction ────────────────────────────────────────────────────────────
 
@@ -348,31 +328,4 @@ public class IronPull : MonoBehaviour
         pullTintCoroutine = null;
     }
 
-    // ── GUI ───────────────────────────────────────────────────────────────────
-
-    void OnGUI()
-    {
-        if (currentPullTint.a > 0.01f)
-        {
-            GUI.color = currentPullTint;
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-        }
-
-        if (IsFlaring && debugPullOperations)
-        {
-            GUIStyle style = new GUIStyle();
-            style.normal.textColor = Color.cyan;
-            style.fontSize         = 14;
-
-            GUI.Label(new Rect(10, 250, 300, 20), $"Iron Pull – FlareLevel: {FlareLevel:F2}", style);
-            GUI.Label(new Rect(10, 270, 300, 20), $"Multiplier: {CurrentFlareMultiplier:F2}×",  style);
-
-            if (hasCurrentTarget && currentTargetRigidbody != null)
-            {
-                float dist = Vector3.Distance(playerRigidbody.position, currentTargetRigidbody.position);
-                GUI.Label(new Rect(10, 290, 300, 20), $"Target: {dist:F1}m", style);
-            }
-        }
-    }
 }
