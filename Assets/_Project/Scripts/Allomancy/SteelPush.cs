@@ -309,6 +309,10 @@ public class SteelPush : MonoBehaviour
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
         SoundManager.Instance?.PlayPushSound();
 
+        // Push trail effect
+        Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
+        PushPullTrail.Instance?.ShowPushTrail(chestPos, targetRb.position);
+
     }
 
     void PushMetalsInBubble()
