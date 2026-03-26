@@ -44,8 +44,9 @@ public class GameConstants : MonoBehaviour
     public float playerMaxHealth = 100f;
     public float playerMaxStamina = 100f;
     public float playerBaseDamage = 15f;
-    public float playerMoveSpeed = 5f;
-    public float playerSprintSpeed = 10f;
+    [Tooltip("2 Unity units = 5 feet. See WorldScale.cs")]
+    public float playerMoveSpeed = 1.8f;   // WorldScale.WalkSpeed (~4.5 ft/s)
+    public float playerSprintSpeed = 6f;   // WorldScale.RunSpeed (~15 ft/s)
 
     [Header("Audio")]
     public float masterVolume = 0.8f;
