@@ -365,7 +365,7 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator ReEnableNav()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         if (navAgent != null) navAgent.enabled = true;
     }
 

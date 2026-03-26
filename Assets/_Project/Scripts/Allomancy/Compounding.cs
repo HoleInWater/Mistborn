@@ -107,9 +107,6 @@ public class Compounding : MonoBehaviour
         allomancer = GetComponent<Allomancer>();
         feruchemist = GetComponent<Feruchemist>();
 
-        if (allomancer == null)
-        if (feruchemist == null)
-
         for (int i = 0; i < Feruchemist.MetalmindCount; i++)
         {
             outputMultipliers[i] = 1f;

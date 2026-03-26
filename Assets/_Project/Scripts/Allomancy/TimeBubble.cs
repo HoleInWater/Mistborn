@@ -73,7 +73,7 @@ public class TimeBubble : MonoBehaviour
         Rigidbody rb = other.GetComponent<Rigidbody>();
         if (rb != null && affectedRigidbodies.Contains(rb))
         {
-            rb.linearVelocity /= timeScaleMultiplier;
+            if (timeScaleMultiplier > 0.001f) rb.linearVelocity /= timeScaleMultiplier;
             affectedRigidbodies.Remove(rb);
         }
 
@@ -87,7 +87,7 @@ public class TimeBubble : MonoBehaviour
         BasicPlayerMove player = other.GetComponent<BasicPlayerMove>();
         if (player != null && affectedPlayers.Contains(player))
         {
-            player.externalSpeedMultiplier /= timeScaleMultiplier;
+            if (timeScaleMultiplier > 0.001f) player.externalSpeedMultiplier /= timeScaleMultiplier;
             affectedPlayers.Remove(player);
         }
     }
@@ -98,7 +98,7 @@ public class TimeBubble : MonoBehaviour
         
         foreach (var rb in affectedRigidbodies)
         {
-            if (rb != null) rb.linearVelocity /= timeScaleMultiplier;
+            if (rb != null && timeScaleMultiplier > 0.001f) rb.linearVelocity /= timeScaleMultiplier;
         }
         foreach (var ai in affectedAI)
         {
@@ -106,7 +106,7 @@ public class TimeBubble : MonoBehaviour
         }
         foreach (var player in affectedPlayers)
         {
-            if (player != null) player.externalSpeedMultiplier /= timeScaleMultiplier;
+            if (player != null && timeScaleMultiplier > 0.001f) player.externalSpeedMultiplier /= timeScaleMultiplier;
         }
         
         if (MistbornTimeManager.Instance != null)
