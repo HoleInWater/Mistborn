@@ -99,7 +99,7 @@ public class BranchingDialogueManager : MonoBehaviour
         UpdateDialogueUI();
 
         if (currentNode.isEndNode)
-            Invoke("EndDialogue", 1f);
+            StartCoroutine(EndDialogueDelayed());
     }
 
     void UpdateDialogueUI()
@@ -164,6 +164,12 @@ public class BranchingDialogueManager : MonoBehaviour
         if (responseContainer == null) return;
         foreach (Transform child in responseContainer)
             Destroy(child.gameObject);
+    }
+
+    System.Collections.IEnumerator EndDialogueDelayed()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+        EndDialogue();
     }
 
     public void EndDialogue()

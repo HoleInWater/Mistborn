@@ -64,7 +64,7 @@ public class EmotionalAllomancy : MonoBehaviour
             if (ai == null) continue;
 
             float dist = Vector3.Distance(transform.position, col.transform.position);
-            float falloff = 1f - (dist / effectiveRadius);
+            float falloff = effectiveRadius > 0f ? 1f - (dist / effectiveRadius) : 0f;
             float intensity = riotIntensity * flare * falloff;
 
             ai.currentEmotion = AIController.EmotionState.Aggressive;
@@ -89,7 +89,7 @@ public class EmotionalAllomancy : MonoBehaviour
             if (ai == null) continue;
 
             float dist = Vector3.Distance(transform.position, col.transform.position);
-            float falloff = 1f - (dist / effectiveRadius);
+            float falloff = effectiveRadius > 0f ? 1f - (dist / effectiveRadius) : 0f;
             float intensity = sootheIntensity * flare * falloff;
 
             ai.currentEmotion = AIController.EmotionState.Calm;

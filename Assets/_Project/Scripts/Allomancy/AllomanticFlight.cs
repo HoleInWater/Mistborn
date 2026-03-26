@@ -153,6 +153,7 @@ public class AllomanticFlight : MonoBehaviour
     {
         if (currentPullAnchor == null)
         {
+            if (playerCamera == null) return;
             // Find metal in camera direction
             Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.6f, 0)); // Slightly above center
             RaycastHit hit;
@@ -214,6 +215,7 @@ public class AllomanticFlight : MonoBehaviour
 
     void ApplyAirControl()
     {
+        if (playerCamera == null) return;
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
