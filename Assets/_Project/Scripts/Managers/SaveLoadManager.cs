@@ -139,5 +139,13 @@ public class SaveLoadManager : MonoBehaviour
 
     public bool HasSave(int slot) => System.IO.File.Exists(GetPath(slot));
     public void DeleteSave(int slot) { string p = GetPath(slot); if (System.IO.File.Exists(p)) System.IO.File.Delete(p); }
+
+    public SaveData PeekSaveData(int slot)
+    {
+        string path = GetPath(slot);
+        if (!System.IO.File.Exists(path)) return null;
+        return JsonUtility.FromJson<SaveData>(System.IO.File.ReadAllText(path));
+    }
+
     string GetPath(int slot) => $"{Application.persistentDataPath}/{saveFolder}/save_{slot}.json";
 }
