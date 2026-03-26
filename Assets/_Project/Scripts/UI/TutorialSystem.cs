@@ -25,6 +25,7 @@ public class TutorialSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
         if (helpOverlayPanel != null) helpOverlayPanel.SetActive(false);
     }

@@ -54,73 +54,78 @@ public class BossIntroSequence : MonoBehaviour
         if (bossTitleText != null) bossTitleText.text = title;
         if (introCanvasGroup != null) introCanvasGroup.alpha = 0f;
 
-        // Slow time for cinematic feel
+        // Slow time for cinematic feel — captured before any yield so it's always restored
         float originalTimeScale = Time.timeScale;
         Time.timeScale = 0.3f;
 
         // Camera zoom
         if (mainCamera != null)
-        {
             originalFOV = mainCamera.fieldOfView;
-        }
 
-        // Disable player input
+        // Cache player reference once — FindObjectOfType is expensive and can return null after a scene change
         BasicPlayerMove player = FindObjectOfType<BasicPlayerMove>();
         if (player != null) player.enabled = false;
 
-        // Fade in
-        float elapsed = 0f;
-        while (elapsed < fadeInDuration)
+        bool completed = false;
+        try
         {
-            elapsed += Time.unscaledDeltaTime;
-            if (introCanvasGroup != null)
-                introCanvasGroup.alpha = elapsed / fadeInDuration;
-            if (mainCamera != null)
-                mainCamera.fieldOfView = Mathf.Lerp(originalFOV, introCameraFOV,
-                    elapsed / fadeInDuration);
-            yield return null;
-        }
-
-        // Hold — camera looks at boss
-        elapsed = 0f;
-        while (elapsed < cameraHoldDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            if (mainCamera != null && boss != null)
+            // Fade in
+            float elapsed = 0f;
+            while (elapsed < fadeInDuration)
             {
-                Vector3 dir = (boss.position - mainCamera.transform.position).normalized;
-                Quaternion look = Quaternion.LookRotation(dir);
-                mainCamera.transform.rotation = Quaternion.Slerp(
-                    mainCamera.transform.rotation, look, Time.unscaledDeltaTime * cameraLookSpeed);
+                elapsed += Time.unscaledDeltaTime;
+                if (introCanvasGroup != null)
+                    introCanvasGroup.alpha = elapsed / fadeInDuration;
+                if (mainCamera != null)
+                    mainCamera.fieldOfView = Mathf.Lerp(originalFOV, introCameraFOV,
+                        elapsed / fadeInDuration);
+                yield return null;
             }
-            yield return null;
-        }
 
-        // Fade out
-        elapsed = 0f;
-        while (elapsed < fadeOutDuration)
+            // Hold — camera looks at boss
+            elapsed = 0f;
+            while (elapsed < cameraHoldDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                if (mainCamera != null && boss != null)
+                {
+                    Vector3 dir = (boss.position - mainCamera.transform.position).normalized;
+                    Quaternion look = Quaternion.LookRotation(dir);
+                    mainCamera.transform.rotation = Quaternion.Slerp(
+                        mainCamera.transform.rotation, look, Time.unscaledDeltaTime * cameraLookSpeed);
+                }
+                yield return null;
+            }
+
+            // Fade out
+            elapsed = 0f;
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                if (introCanvasGroup != null)
+                    introCanvasGroup.alpha = 1f - (elapsed / fadeOutDuration);
+                if (mainCamera != null)
+                    mainCamera.fieldOfView = Mathf.Lerp(introCameraFOV, originalFOV,
+                        elapsed / fadeOutDuration);
+                yield return null;
+            }
+
+            completed = true;
+        }
+        finally
         {
-            elapsed += Time.unscaledDeltaTime;
-            if (introCanvasGroup != null)
-                introCanvasGroup.alpha = 1f - (elapsed / fadeOutDuration);
-            if (mainCamera != null)
-                mainCamera.fieldOfView = Mathf.Lerp(introCameraFOV, originalFOV,
-                    elapsed / fadeOutDuration);
-            yield return null;
+            // Always restore timeScale and player control, even if coroutine is stopped mid-way
+            Time.timeScale = originalTimeScale;
+            if (introPanel != null) introPanel.SetActive(false);
+            if (player != null) player.enabled = true;
+            isPlaying = false;
         }
 
-        // Cleanup
-        if (introPanel != null) introPanel.SetActive(false);
-        Time.timeScale = originalTimeScale;
-
-        // Re-enable player
-        if (player != null) player.enabled = true;
-
-        // Show boss health bar on CombatUI
-        CombatUI.Instance?.ShowBossHealth(bossName, 1f);
-
-        isPlaying = false;
-        SoundManager.Instance?.TransitionToBoss();
+        if (completed)
+        {
+            CombatUI.Instance?.ShowBossHealth(bossName, 1f);
+            SoundManager.Instance?.TransitionToBoss();
+        }
     }
 
     /// <summary>
