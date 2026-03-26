@@ -1,12 +1,20 @@
 ///
-/// [AGENT TRIPLE ERROR CHECK REPORT]
-/// PASS 1 - LOGIC: Loops advancing slots safely, skipping empty/locked. Null checks added before modifying Allomancer properties.
-/// PASS 2 - UNITY API: Subscribes and unsubscribes to InputHandler events gracefully. Fades using CanvasGroup. Designed to be slapped onto a Self-Contained Prefab + Canvas.
-/// PASS 3 - CONSOLE: Navigates by groups (tabs) without mouse input required. Protects existing Allomancy system.
+/// BUG FIX SUMMARY:
+/// FIX 1 - instantiatedSlots was MetalWheelSlot[16] and all loops stopped at i < 16,
+///         so Chromium (index 16) and Nicrosil (index 17) were never instantiated.
+///         Now sized and iterated from metalData.Count.
 ///
-/// BUG FIX: instantiatedSlots array and all loops were hardcoded to 16, silently dropping
-///          Chromium and Nicrosil (indices 16 and 17). Now derives count from metalData.Count
-///          so any number of metals in the Inspector list will be correctly instantiated.
+/// FIX 2 - unlockedMetals[] and metalReserves[] were accessed directly as
+///         array[(int)metalType] with no bounds check. If those arrays are length 16,
+///         indices 16 and 17 throw IndexOutOfRangeException. Unity silently swallows
+///         this in Update loops, so: EquipSelectedMetal's safeguard never passed
+///         (can't select), and RefreshAllSlots never reached SetState/SetColor
+///         (no colors). All accesses now go through SafeIsUnlocked() / SafeGetReserve().
+///
+/// ACTION REQUIRED: Also resize unlockedMetals and metalReserves on your Allomancer
+///                  component to length 18 (or however many metals are in your enum).
+///                  Add entries for Chromium and Nicrosil in your metalData list in
+///                  the Inspector, assigned to MetalGroup.Enhancement.
 ///
 
 using UnityEngine;
@@ -20,7 +28,6 @@ public class MetalSlotData
 {
     public AllomancySkill.MetalType metalType;
     public MetalGroup group;
-    // Note: reserve, unlocked, and burning states are pulled dynamically from Allomancer
     public Color themeColor = Color.white;
     public Sprite slotIcon;
 }
@@ -32,7 +39,7 @@ public class MetalWheelController : MonoBehaviour
     public MetalWheelTimeManager timeManager;
     public MetalWheelInputHandler inputHandler;
     public MetalWheelAudio audioManager;
-    public Allomancer playerAllomancer; // Target player scripts
+    public Allomancer playerAllomancer;
 
     [Header("UI References")]
     public CanvasGroup wheelCanvasGroup;
@@ -45,25 +52,21 @@ public class MetalWheelController : MonoBehaviour
     public List<MetalSlotData> metalData = new List<MetalSlotData>();
     public MetalWheelSlot slotPrefab;
 
-    // FIX: Was MetalWheelSlot[16] — now sized dynamically in InitializeSlots()
+    // FIX 1: No longer hardcoded to [16] — allocated dynamically in InitializeSlots()
     private MetalWheelSlot[] instantiatedSlots;
 
     private int currentSlotIndex = 0;
     private int currentGroupIndex = 0;
     private bool isOpen = false;
-
-    // Animation states
     private float targetAlpha = 0f;
 
     void Awake()
     {
         if (wheelCanvasGroup == null) wheelCanvasGroup = GetComponent<CanvasGroup>();
 
-        // Ensure game object persists if it's treated as a singleton prefab
         if (transform.parent == null)
             DontDestroyOnLoad(gameObject);
 
-        // Initial setup
         wheelCanvasGroup.alpha = 0f;
         wheelCanvasGroup.interactable = false;
         wheelCanvasGroup.blocksRaycasts = false;
@@ -95,34 +98,40 @@ public class MetalWheelController : MonoBehaviour
 
     private void InitializeSlots()
     {
-        // FIX: Size the array from metalData.Count, not the hardcoded 16.
-        //      This ensures Chromium (index 16) and Nicrosil (index 17) — or any
-        //      additional metals — are allocated a slot and instantiated correctly.
-        int totalMetals = metalData.Count;
-        instantiatedSlots = new MetalWheelSlot[totalMetals];
+        int totalMetals = metalData.Count; // FIX 1: was hardcoded 16
 
+        instantiatedSlots = new MetalWheelSlot[totalMetals];
         float radius = 140f;
 
-        for (int i = 0; i < totalMetals; i++)
+        for (int i = 0; i < totalMetals; i++) // FIX 1: was i < 16
         {
-            if (metalData.Count > i)
-            {
-                MetalSlotData data = metalData[i];
+            MetalSlotData data = metalData[i];
+            if (slotPrefab == null) continue;
 
-                if (slotPrefab != null)
-                {
-                    MetalWheelSlot newSlot = Instantiate(slotPrefab, slotsContainer);
+            MetalWheelSlot newSlot = Instantiate(slotPrefab, slotsContainer);
 
-                    // FIX: Angle step was hardcoded to divide by 16.
-                    //      Now divides by totalMetals so slots are evenly distributed
-                    //      around the wheel regardless of how many metals exist.
-                    float angle = i * (Mathf.PI * 2f / totalMetals) + (Mathf.PI / 2f); // Start top
-                    newSlot.transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * -radius, 0f);
-                    newSlot.Setup(data.themeColor, data.slotIcon);
-                    instantiatedSlots[i] = newSlot;
-                }
-            }
+            float angle = i * (Mathf.PI * 2f / totalMetals) + (Mathf.PI / 2f); // FIX 1: was / 16f
+            newSlot.transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * -radius, 0f);
+            newSlot.Setup(data.themeColor, data.slotIcon);
+            instantiatedSlots[i] = newSlot;
         }
+    }
+
+    // FIX 2: Bounds-safe helpers replace all direct playerAllomancer.array[metalInt] accesses.
+    // Raw access throws IndexOutOfRangeException for metals beyond the original array size of 16.
+    // Unity swallows exceptions in Update loops — making the failures completely invisible in console.
+    private bool SafeIsUnlocked(int metalInt)
+    {
+        if (playerAllomancer == null || playerAllomancer.unlockedMetals == null) return false;
+        if (metalInt < 0 || metalInt >= playerAllomancer.unlockedMetals.Length) return false;
+        return playerAllomancer.unlockedMetals[metalInt];
+    }
+
+    private float SafeGetReserve(int metalInt)
+    {
+        if (playerAllomancer == null || playerAllomancer.metalReserves == null) return 0f;
+        if (metalInt < 0 || metalInt >= playerAllomancer.metalReserves.Length) return 0f;
+        return playerAllomancer.metalReserves[metalInt];
     }
 
     private void OpenWheel()
@@ -130,14 +139,12 @@ public class MetalWheelController : MonoBehaviour
         isOpen = true;
         targetAlpha = 1f;
 
-        // Prevent player from looking around while menu is open
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         if (timeManager != null) timeManager.SlowTime();
         if (audioManager != null) audioManager.PlayOpenSound();
 
-        // Try to auto-focus the currently active metal
         if (playerAllomancer != null)
         {
             AllomancySkill.MetalType active = playerAllomancer.GetCurrentMetal();
@@ -160,7 +167,6 @@ public class MetalWheelController : MonoBehaviour
         wheelCanvasGroup.interactable = false;
         wheelCanvasGroup.blocksRaycasts = false;
 
-        // Restore player mouse look
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -168,9 +174,7 @@ public class MetalWheelController : MonoBehaviour
         if (audioManager != null) audioManager.PlayCloseSound(confirmSelection);
 
         if (confirmSelection)
-        {
             EquipSelectedMetal(asSecondary);
-        }
     }
 
     private void EquipSelectedMetal(bool asSecondary)
@@ -179,35 +183,31 @@ public class MetalWheelController : MonoBehaviour
         if (currentSlotIndex < 0 || currentSlotIndex >= metalData.Count) return;
 
         MetalSlotData selectedData = metalData[currentSlotIndex];
+        int metalInt = (int)selectedData.metalType;
 
-        // STRICT SAFEGUARD: Ensure unlocked and valid reserve before applying
-        if (playerAllomancer.unlockedMetals != null &&
-            playerAllomancer.metalReserves != null &&
-            playerAllomancer.unlockedMetals[(int)selectedData.metalType] &&
-            playerAllomancer.metalReserves[(int)selectedData.metalType] > 0)
+        // FIX 2: SafeIsUnlocked/SafeGetReserve replace the direct array accesses that
+        // were throwing IndexOutOfRangeException for Chromium and Nicrosil, silently
+        // preventing ANY equip attempt from succeeding for those two metals.
+        if (SafeIsUnlocked(metalInt) && SafeGetReserve(metalInt) > 0)
         {
             MetalSelector selector = playerAllomancer.GetComponent<MetalSelector>();
-
             if (selector != null)
             {
                 AllomancySkill.MetalType targetType = selectedData.metalType;
 
                 if (asSecondary)
                 {
-                    if (selector.GetPrimaryMetal() == targetType) {
+                    if (selector.GetPrimaryMetal() == targetType)
                         selector.SetPrimaryMetal(selector.GetSecondaryMetal());
-                    }
                     selector.SetSecondaryMetal(targetType);
                 }
                 else
                 {
-                    if (selector.GetSecondaryMetal() == targetType) {
+                    if (selector.GetSecondaryMetal() == targetType)
                         selector.SetSecondaryMetal(selector.GetPrimaryMetal());
-                    }
                     selector.SetPrimaryMetal(targetType);
                 }
 
-                // Audio feedback for successful click equip
                 if (audioManager != null) audioManager.PlayCloseSound(true);
             }
             else
@@ -227,12 +227,11 @@ public class MetalWheelController : MonoBehaviour
         if (inputHandler == null) return;
 
         Vector2 dir = inputHandler.GetRadialDirection();
-        if (dir == Vector2.zero) return; // Deadzone hit, keep current selection
+        if (dir == Vector2.zero) return;
 
         float maxDot = -2f;
         int bestIndex = currentSlotIndex;
 
-        // Find the slot that best matches the mouse/stick direction vector via Dot Product
         for (int i = 0; i < instantiatedSlots.Length; i++)
         {
             if (instantiatedSlots[i] == null) continue;
@@ -247,7 +246,6 @@ public class MetalWheelController : MonoBehaviour
             }
         }
 
-        // Connect to UI: allow hovering even if locked/empty so they can view it
         if (bestIndex != currentSlotIndex)
         {
             currentSlotIndex = bestIndex;
@@ -265,7 +263,6 @@ public class MetalWheelController : MonoBehaviour
         currentGroupIndex = (currentGroupIndex + delta + 4) % 4;
         MetalGroup targetGroup = (MetalGroup)currentGroupIndex;
 
-        // Find first available metal in the new group to snap to
         bool found = false;
         for (int i = 0; i < metalData.Count; i++)
         {
@@ -285,25 +282,19 @@ public class MetalWheelController : MonoBehaviour
         }
         else
         {
-            // User tried switching to a tab where everything is locked
             if (audioManager != null) audioManager.PlayDenySound();
         }
     }
 
     private bool IsSlotAvailable(int index)
     {
-        if (playerAllomancer == null || index < 0 || index >= metalData.Count) return false;
-
+        if (index < 0 || index >= metalData.Count) return false;
         int metalInt = (int)metalData[index].metalType;
-        bool unlocked = playerAllomancer.unlockedMetals != null && playerAllomancer.unlockedMetals[metalInt];
-        float reserve = playerAllomancer.metalReserves != null ? playerAllomancer.metalReserves[metalInt] : 0f;
-
-        return unlocked && reserve > 0f;
+        return SafeIsUnlocked(metalInt) && SafeGetReserve(metalInt) > 0f; // FIX 2
     }
 
     void Update()
     {
-        // Canvas Fading
         wheelCanvasGroup.alpha = Mathf.Lerp(wheelCanvasGroup.alpha, targetAlpha, Time.unscaledDeltaTime * 15f);
         if (targetAlpha == 0f && wheelCanvasGroup.alpha < 0.02f) wheelCanvasGroup.alpha = 0f;
         if (targetAlpha == 1f && wheelCanvasGroup.alpha > 0.98f) wheelCanvasGroup.alpha = 1f;
@@ -313,7 +304,7 @@ public class MetalWheelController : MonoBehaviour
         if (isOpen)
         {
             HandleRadialHover();
-            RefreshAllSlots(); // Constantly updating to pulse reserves
+            RefreshAllSlots();
         }
     }
 
@@ -324,16 +315,22 @@ public class MetalWheelController : MonoBehaviour
             if (instantiatedSlots[i] == null || i >= metalData.Count) continue;
 
             int metalInt = (int)metalData[i].metalType;
-            bool unlocked = playerAllomancer != null && playerAllomancer.unlockedMetals[metalInt];
-            float reservePercentage = playerAllomancer != null ? playerAllomancer.metalReserves[metalInt] / 100f : 0f;
-            bool isBurningThis = playerAllomancer != null && playerAllomancer.IsBurning() && playerAllomancer.GetCurrentMetal() == metalData[i].metalType;
+
+            // FIX 2: Safe accessors — without these, slots 16 and 17 threw
+            // IndexOutOfRangeException here every frame, so SetState was never called,
+            // leaving Chromium and Nicrosil permanently colorless and unresponsive.
+            bool unlocked = SafeIsUnlocked(metalInt);
+            float reservePercentage = SafeGetReserve(metalInt) / 100f;
+            bool isBurningThis = playerAllomancer != null
+                && playerAllomancer.IsBurning()
+                && playerAllomancer.GetCurrentMetal() == metalData[i].metalType;
 
             MetalWheelSlot.SlotState state;
-            if (!unlocked)              state = MetalWheelSlot.SlotState.LOCKED;
+            if (!unlocked)                   state = MetalWheelSlot.SlotState.LOCKED;
             else if (reservePercentage <= 0) state = MetalWheelSlot.SlotState.EMPTY;
-            else if (isBurningThis)     state = MetalWheelSlot.SlotState.ACTIVE;
-            else if (i == currentSlotIndex) state = MetalWheelSlot.SlotState.SELECTED;
-            else                        state = MetalWheelSlot.SlotState.AVAILABLE;
+            else if (isBurningThis)          state = MetalWheelSlot.SlotState.ACTIVE;
+            else if (i == currentSlotIndex)  state = MetalWheelSlot.SlotState.SELECTED;
+            else                             state = MetalWheelSlot.SlotState.AVAILABLE;
 
             instantiatedSlots[i].SetState(state);
             instantiatedSlots[i].SetReserveDisplay(reservePercentage);
