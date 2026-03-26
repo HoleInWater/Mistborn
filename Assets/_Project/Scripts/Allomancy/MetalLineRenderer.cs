@@ -201,30 +201,44 @@ public class MetalLineRenderer : MonoBehaviour
     /// </summary>
     void HighlightClosestMetal()
     {
-        // Clear previous highlight if target changed
+        // Clear previous if target changed
         if (closestHighlightedRenderer != null)
         {
             if (closestMetalTransform == null || closestHighlightedRenderer.transform != closestMetalTransform)
-            {
                 ClearHighlight();
-            }
         }
 
         if (closestMetalTransform == null) return;
 
-        Renderer targetRenderer = closestMetalTransform.GetComponentInChildren<Renderer>();
+        // Find renderer — check self, parent, children
+        Renderer targetRenderer = closestMetalTransform.GetComponent<Renderer>();
+        if (targetRenderer == null) targetRenderer = closestMetalTransform.GetComponentInChildren<Renderer>();
+        if (targetRenderer == null) targetRenderer = closestMetalTransform.GetComponentInParent<Renderer>();
         if (targetRenderer == null) return;
 
-        // Only highlight if this is a new target
         if (targetRenderer != closestHighlightedRenderer)
         {
-            ClearHighlight(); // Clear old one first
-
+            ClearHighlight();
             closestHighlightedRenderer = targetRenderer;
-            if (targetRenderer.material != null)
+
+            Material mat = targetRenderer.material;
+            if (mat != null)
             {
-                closestOriginalColor = targetRenderer.material.color;
-                targetRenderer.material.color = closestHighlightColor;
+                // Save original color — try HDRP _BaseColor first, then legacy _Color
+                if (mat.HasProperty("_BaseColor"))
+                    closestOriginalColor = mat.GetColor("_BaseColor");
+                else
+                    closestOriginalColor = mat.color;
+
+                // Apply dark blue highlight
+                if (mat.HasProperty("_BaseColor"))
+                    mat.SetColor("_BaseColor", closestHighlightColor);
+                else
+                    mat.color = closestHighlightColor;
+
+                // Also set emission for HDRP glow effect
+                if (mat.HasProperty("_EmissiveColor"))
+                    mat.SetColor("_EmissiveColor", closestHighlightColor * 0.5f);
             }
         }
     }
@@ -233,7 +247,14 @@ public class MetalLineRenderer : MonoBehaviour
     {
         if (closestHighlightedRenderer != null && closestHighlightedRenderer.material != null)
         {
-            closestHighlightedRenderer.material.color = closestOriginalColor;
+            Material mat = closestHighlightedRenderer.material;
+            if (mat.HasProperty("_BaseColor"))
+                mat.SetColor("_BaseColor", closestOriginalColor);
+            else
+                mat.color = closestOriginalColor;
+
+            if (mat.HasProperty("_EmissiveColor"))
+                mat.SetColor("_EmissiveColor", Color.black);
         }
         closestHighlightedRenderer = null;
     }
