@@ -230,7 +230,7 @@ public class Feruchemist : MonoBehaviour
 
                 // Asymptotic cap: harder to store as metalmind fills
                 // S = (C_max × r) / (C_max + r)
-                float fillFactor = 1f - (mind.currentCharge / mind.maxCapacity);
+                float fillFactor = mind.maxCapacity > 0f ? 1f - (mind.currentCharge / mind.maxCapacity) : 0f;
                 effectiveRate *= Mathf.Max(0.1f, fillFactor);
 
                 float storeAmount = effectiveRate * dt;
@@ -252,7 +252,7 @@ public class Feruchemist : MonoBehaviour
                     * tapIntensity;
 
                 // Diminishing output as metalmind empties
-                float chargeFactor = mind.currentCharge / mind.maxCapacity;
+                float chargeFactor = mind.maxCapacity > 0f ? mind.currentCharge / mind.maxCapacity : 0f;
                 effectiveRate *= Mathf.Max(0.1f, chargeFactor);
 
                 float tapAmount = effectiveRate * dt;
