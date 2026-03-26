@@ -285,8 +285,64 @@ public class EnemyAI : MonoBehaviour
         currentState = State.Dead;
         animator?.SetBool("IsDead", true);
         if (navAgent != null) navAgent.isStopped = true;
+
+        // Grant XP
+        PlayerExperience xp = PlayerExperience.Instance;
+        if (xp != null) xp.AddXP(GetXPValue());
+
+        // Drop loot
+        SpawnLoot();
+
+        // Track achievements
         EventManager.TriggerEvent("EnemyKilled");
+        if (enemyType == EnemyType.Koloss)
+            AchievementSystem.Instance?.TryUnlock("kill_koloss_10");
+
+        // Particle effect
+        ParticleEffectsManager.Instance?.PlayDeathEffect(transform.position);
+
         Destroy(gameObject, 3f);
+    }
+
+    float GetXPValue()
+    {
+        switch (enemyType)
+        {
+            case EnemyType.Guard: return 25f;
+            case EnemyType.NobleGuard: return 40f;
+            case EnemyType.Coinshot: return 50f;
+            case EnemyType.Lurcher: return 45f;
+            case EnemyType.Thug: return 60f;
+            case EnemyType.Koloss: return 100f;
+            case EnemyType.SteelInquisitor: return 500f;
+            case EnemyType.Mistwraith: return 35f;
+            default: return 20f;
+        }
+    }
+
+    void SpawnLoot()
+    {
+        // 40% chance to drop loot
+        if (Random.value > 0.4f) return;
+
+        GameObject lootObj = new GameObject("LootDrop");
+        lootObj.transform.position = transform.position + Vector3.up * 0.5f;
+        LootDrop loot = lootObj.AddComponent<LootDrop>();
+        loot.lootType = Random.value > 0.5f ? LootDrop.LootType.Coin : LootDrop.LootType.MetalVial;
+        loot.minAmount = 1;
+        loot.maxAmount = 3;
+
+        // Add trigger collider for pickup
+        SphereCollider col = lootObj.AddComponent<SphereCollider>();
+        col.isTrigger = true;
+        col.radius = 1.5f;
+
+        // Simple visual (cube placeholder until prefab assigned)
+        GameObject visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        visual.transform.SetParent(lootObj.transform);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localScale = Vector3.one * 0.3f;
+        Destroy(visual.GetComponent<Collider>()); // Remove extra collider
     }
 
     void UpdateAnimations()
