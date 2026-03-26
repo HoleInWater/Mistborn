@@ -63,7 +63,9 @@ public class CombatUI : MonoBehaviour
     void UpdateHealthBar()
     {
         if (playerHealth == null || healthBarFill == null) return;
-        healthBarFill.fillAmount = playerHealth.GetCurrentHealth() / playerHealth.GetMaxHealth();
+        float maxHealth = playerHealth.GetMaxHealth();
+        if (maxHealth <= 0f) return;
+        healthBarFill.fillAmount = playerHealth.GetCurrentHealth() / maxHealth;
         if (healthText != null)
             healthText.text = $"{Mathf.RoundToInt(playerHealth.GetCurrentHealth())}";
     }
@@ -71,6 +73,7 @@ public class CombatUI : MonoBehaviour
     void UpdateStaminaBar()
     {
         if (playerStamina == null || staminaBarFill == null) return;
+        if (playerStamina.maxStamina <= 0f) return;
         staminaBarFill.fillAmount = playerStamina.GetCurrentStamina() / playerStamina.maxStamina;
     }
 

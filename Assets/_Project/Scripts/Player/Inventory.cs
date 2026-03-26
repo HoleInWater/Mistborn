@@ -34,6 +34,7 @@ public class Inventory : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public bool AddItem(InventoryItem item)
