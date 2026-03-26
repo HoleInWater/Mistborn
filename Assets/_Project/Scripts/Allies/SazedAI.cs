@@ -98,7 +98,7 @@ public class SazedAI : MonoBehaviour
         playerHealth.Heal(healAmountPerSecond * Time.deltaTime);
 
         // Lore bark
-        if (Random.value < 0.01f)
+        if (Random.value < 0.01f);
     }
 
     void PewterPunch(Transform target)
