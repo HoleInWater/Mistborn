@@ -71,7 +71,7 @@ public class Electrum : MonoBehaviour
     {
         foreach (var ghost in shadows)
         {
-            if (ghost != null) Destroy(ghost);
+            if (ghost != null) Destroy(ghost.gameObject);
         }
         shadows.Clear();
     }
