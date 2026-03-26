@@ -88,8 +88,8 @@ public class GroundSlam : MonoBehaviour
             if (damageable != null)
             {
                 float dist = Vector3.Distance(transform.position, hit.transform.position);
-                float falloff = 1f - (dist / radius);
-                damageable.TakeDamage(damage * Mathf.Max(0, falloff));
+                float falloff = radius > 0f ? 1f - (dist / radius) : 1f;
+                damageable.TakeDamage(damage * Mathf.Max(0f, falloff));
             }
 
             Rigidbody rb = hit.attachedRigidbody;

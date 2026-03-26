@@ -55,9 +55,15 @@ public class VaultJump : MonoBehaviour
         vaultTarget = target;
         
         
-        Invoke("EndVault", 0.5f);
+        StartCoroutine(EndVaultDelayed());
     }
-    
+
+    System.Collections.IEnumerator EndVaultDelayed()
+    {
+        yield return new WaitForSecondsRealtime(0.5f);
+        EndVault();
+    }
+
     void EndVault()
     {
         isVaulting = false;

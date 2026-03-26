@@ -115,7 +115,9 @@ public class KolossAI : MonoBehaviour
     void UpdateRageState()
     {
         if (healthComponent == null) return;
-        float hpPercent = healthComponent.GetCurrentHealth() / healthComponent.GetMaxHealth();
+        float maxHp = healthComponent.GetMaxHealth();
+        if (maxHp <= 0f) return;
+        float hpPercent = healthComponent.GetCurrentHealth() / maxHp;
 
         if (!isRaging && hpPercent <= rageHealthThreshold)
         {
@@ -199,8 +201,8 @@ public class KolossAI : MonoBehaviour
             if (damageable != null)
             {
                 float dist = Vector3.Distance(transform.position, hit.transform.position);
-                float falloff = 1f - (dist / slamRadius);
-                damageable.TakeDamage(slamDamage * falloff);
+                float falloff = slamRadius > 0f ? 1f - (dist / slamRadius) : 1f;
+                damageable.TakeDamage(slamDamage * Mathf.Max(0f, falloff));
             }
 
             Rigidbody rb = hit.attachedRigidbody;
