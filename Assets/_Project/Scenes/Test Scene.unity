@@ -620,9 +620,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 641062204}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 641062206}
   m_SourcePrefab: {fileID: 100100000, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
 --- !u!1 &53509032
 GameObject:
@@ -1762,18 +1759,6 @@ MonoBehaviour:
   labelOffColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   idleAlpha: 0.3
   showNumber: 1
---- !u!114 &641062206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641062182}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 220002d7feb6bfa41b43d717c09909ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAutoSetup
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
