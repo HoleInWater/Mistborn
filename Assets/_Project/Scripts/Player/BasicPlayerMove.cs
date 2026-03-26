@@ -4,8 +4,8 @@ using UnityEngine;
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f;
-    public float sprintSpeed = 10f;
+    public float moveSpeed = 1.8f;    // WorldScale: ~4.5 ft/s walk (2u=5ft)
+    public float sprintSpeed = 6f;    // WorldScale: ~15 ft/s run
     public float rotationSpeed = 10f;
     public float mouseSensitivity = 200f;
  

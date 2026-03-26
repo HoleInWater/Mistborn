@@ -19,13 +19,14 @@ public class EnemyAI : MonoBehaviour
     }
 
     [Header("Stats")]
+    // WorldScale: 2 Unity units = 5 feet
     public float health = 100f;
-    public float moveSpeed = 3.5f;
-    public float runSpeed = 6f;
+    public float moveSpeed = 1.4f;    // ~3.5 ft/s
+    public float runSpeed = 2.4f;     // ~6 ft/s
     public float attackDamage = 25f;
-    public float attackRange = 2.5f;
-    public float detectionRange = 15f;
-    public float patrolRadius = 20f;
+    public float attackRange = 1.2f;  // ~3 ft melee (sword length + reach)
+    public float detectionRange = 8f; // ~20 ft
+    public float patrolRadius = 12f;  // ~30 ft
 
     [Header("Combat")]
     public bool canUseAllomancy = false;
@@ -66,62 +67,63 @@ public class EnemyAI : MonoBehaviour
             currentState = State.Patrol;
     }
 
+    // All distances in WorldScale: 2 Unity units = 5 feet
     void ApplyEnemyTypeDefaults()
     {
         switch (enemyType)
         {
-            case EnemyType.Guard:
-                health = 80f; moveSpeed = 3.5f; runSpeed = 6f; attackDamage = 20f;
-                detectionRange = 15f; attackRange = 2.5f;
+            case EnemyType.Guard: // City guard with sword
+                health = 80f; moveSpeed = 1.4f; runSpeed = 2.4f; attackDamage = 20f;
+                detectionRange = 8f; attackRange = 1.2f; // 20ft detect, 3ft melee
                 break;
-            case EnemyType.NobleGuard:
-                health = 120f; moveSpeed = 4f; runSpeed = 7f; attackDamage = 30f;
-                detectionRange = 18f; attackRange = 2.5f;
+            case EnemyType.NobleGuard: // Better equipped
+                health = 120f; moveSpeed = 1.6f; runSpeed = 2.8f; attackDamage = 30f;
+                detectionRange = 9.6f; attackRange = 1.2f; // 24ft detect
                 break;
-            case EnemyType.Coinshot:
-                health = 60f; moveSpeed = 5f; runSpeed = 8f; attackDamage = 15f;
-                detectionRange = 25f; attackRange = 20f;
+            case EnemyType.Coinshot: // Steel Misting — ranged
+                health = 60f; moveSpeed = 2f; runSpeed = 3.2f; attackDamage = 15f;
+                detectionRange = 16f; attackRange = 12f; // 40ft detect, 30ft push range
                 canUseAllomancy = true; useRangedAttacks = true;
                 availableMetals = new[] { AllomancySkill.MetalType.Steel };
                 break;
-            case EnemyType.Lurcher:
-                health = 70f; moveSpeed = 4f; runSpeed = 6f; attackDamage = 20f;
-                detectionRange = 20f; attackRange = 15f;
+            case EnemyType.Lurcher: // Iron Misting — ranged pull
+                health = 70f; moveSpeed = 1.6f; runSpeed = 2.4f; attackDamage = 20f;
+                detectionRange = 12f; attackRange = 8f; // 30ft detect, 20ft pull
                 canUseAllomancy = true; useRangedAttacks = true;
                 availableMetals = new[] { AllomancySkill.MetalType.Iron };
                 break;
-            case EnemyType.Thug:
-                health = 200f; moveSpeed = 5f; runSpeed = 9f; attackDamage = 45f;
-                detectionRange = 12f; attackRange = 3f;
+            case EnemyType.Thug: // Pewter Misting — tank
+                health = 200f; moveSpeed = 2f; runSpeed = 3.6f; attackDamage = 45f;
+                detectionRange = 6.4f; attackRange = 1.6f; // 16ft detect, 4ft melee
                 canUseAllomancy = true; useFlanking = false;
                 availableMetals = new[] { AllomancySkill.MetalType.Pewter };
                 break;
-            case EnemyType.Smoker:
-                health = 50f; moveSpeed = 3f; runSpeed = 5f; attackDamage = 10f;
-                detectionRange = 10f; attackRange = 2f;
+            case EnemyType.Smoker: // Copper Misting — hider
+                health = 50f; moveSpeed = 1.2f; runSpeed = 2f; attackDamage = 10f;
+                detectionRange = 4f; attackRange = 1f; // 10ft detect
                 canUseAllomancy = true;
                 availableMetals = new[] { AllomancySkill.MetalType.Copper };
                 break;
-            case EnemyType.Rioter:
-                health = 55f; moveSpeed = 3.5f; runSpeed = 5.5f; attackDamage = 12f;
-                detectionRange = 20f; attackRange = 15f;
+            case EnemyType.Rioter: // Zinc Misting — emotional
+                health = 55f; moveSpeed = 1.4f; runSpeed = 2.2f; attackDamage = 12f;
+                detectionRange = 12f; attackRange = 8f; // 30ft detect, 20ft riot range
                 canUseAllomancy = true; useRangedAttacks = true;
                 availableMetals = new[] { AllomancySkill.MetalType.Zinc };
                 break;
-            case EnemyType.Seeker:
-                health = 50f; moveSpeed = 3f; runSpeed = 5f; attackDamage = 10f;
-                detectionRange = 30f; attackRange = 2f;
+            case EnemyType.Seeker: // Bronze Misting — detector
+                health = 50f; moveSpeed = 1.2f; runSpeed = 2f; attackDamage = 10f;
+                detectionRange = 80f; attackRange = 1f; // 200ft seek range!
                 canUseAllomancy = true;
                 availableMetals = new[] { AllomancySkill.MetalType.Bronze };
                 break;
-            case EnemyType.Koloss:
-                health = 500f; moveSpeed = 2.5f; runSpeed = 7f; attackDamage = 80f;
-                detectionRange = 20f; attackRange = 4f;
+            case EnemyType.Koloss: // 12ft tall brute
+                health = 500f; moveSpeed = 1f; runSpeed = 2.8f; attackDamage = 80f;
+                detectionRange = 12f; attackRange = 2.4f; // 30ft detect, 6ft reach
                 autoPatrol = false; useFlanking = false;
                 break;
-            case EnemyType.SteelInquisitor:
-                health = 800f; moveSpeed = 7f; runSpeed = 12f; attackDamage = 60f;
-                detectionRange = 35f; attackRange = 3f; attackCooldown = 0.8f;
+            case EnemyType.SteelInquisitor: // All metals, Hemalurgic spikes
+                health = 800f; moveSpeed = 2.8f; runSpeed = 4.8f; attackDamage = 60f;
+                detectionRange = 20f; attackRange = 1.6f; attackCooldown = 0.8f; // 50ft detect
                 canUseAllomancy = true; useFlanking = true;
                 availableMetals = new[] {
                     AllomancySkill.MetalType.Steel, AllomancySkill.MetalType.Iron,
@@ -129,17 +131,17 @@ public class EnemyAI : MonoBehaviour
                     AllomancySkill.MetalType.Atium
                 };
                 break;
-            case EnemyType.Mistwraith:
-                health = 150f; moveSpeed = 2f; runSpeed = 4f; attackDamage = 35f;
-                detectionRange = 10f; attackRange = 3f; useFlanking = false;
+            case EnemyType.Mistwraith: // Shapeless bone creature
+                health = 150f; moveSpeed = 0.8f; runSpeed = 1.6f; attackDamage = 35f;
+                detectionRange = 4f; attackRange = 1.6f; useFlanking = false; // 10ft detect
                 break;
-            case EnemyType.Obligator:
-                health = 40f; moveSpeed = 2.5f; runSpeed = 4f; attackDamage = 5f;
-                detectionRange = 20f; attackRange = 2f; useMeleeAttacks = false;
+            case EnemyType.Obligator: // Bureaucrat, doesn't fight
+                health = 40f; moveSpeed = 1f; runSpeed = 1.6f; attackDamage = 5f;
+                detectionRange = 12f; attackRange = 1f; useMeleeAttacks = false; // 30ft detect
                 break;
-            case EnemyType.SkaaRebel:
-                health = 60f; moveSpeed = 4f; runSpeed = 6.5f; attackDamage = 15f;
-                detectionRange = 12f; attackRange = 2f; useFlanking = true;
+            case EnemyType.SkaaRebel: // Rebellion fighter, ally-ish
+                health = 60f; moveSpeed = 1.6f; runSpeed = 2.6f; attackDamage = 15f;
+                detectionRange = 6.4f; attackRange = 1f; useFlanking = true; // 16ft detect
                 break;
         }
     }

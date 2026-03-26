@@ -19,7 +19,7 @@ public class PlayerAutoSetup : MonoBehaviour
             push.maxRecoilSpeed = 24f;   // ~60 ft/s cap
             push.loosePushForce = 40f;   // Coin at ~100 ft/s
             push.pushCooldown = 0.2f;
-            push.maxRange = 30f;
+            push.maxRange = 40f; // WorldScale: ~100 ft coin push range
             push.minDistance = 1f;
             push.inverseDistanceScaling = true;
             push.metalCostPerSecond = 2f;
@@ -33,7 +33,7 @@ public class PlayerAutoSetup : MonoBehaviour
             pull.pullSpeed = 24f;        // ~60 ft/s yank toward target
             pull.maxPullSpeed = 20f;     // ~50 ft/s cap
             pull.loosePullForce = 32f;   // Objects at ~80 ft/s toward player
-            pull.maxRange = 30f;
+            pull.maxRange = 40f; // WorldScale: ~100 ft pull range
             pull.minDistance = 1f;
             pull.inverseDistanceScaling = true;
             pull.metalCostPerSecond = 2f;
@@ -43,7 +43,7 @@ public class PlayerAutoSetup : MonoBehaviour
         MetalLineRenderer mlr = GetComponent<MetalLineRenderer>();
         if (mlr != null)
         {
-            mlr.maxRange = 30f;
+            mlr.maxRange = 80f; // WorldScale: ~200 ft metal sight range
             mlr.closestHighlightColor = new Color(0.1f, 0.15f, 0.5f);
         }
 
