@@ -80,11 +80,8 @@ public class MetalLineRenderer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Z))
             metalSightActive = !metalSightActive;
 
-        // Also show when actively burning Steel or Iron
-        bool showLines = metalSightActive ||
-            (allomancer != null &&
-             (allomancer.IsMetalBurning(AllomancySkill.MetalType.Steel) ||
-              allomancer.IsMetalBurning(AllomancySkill.MetalType.Iron)));
+        // Only show when manually toggled with Z — no auto-activation
+        bool showLines = metalSightActive;
 
         if (!showLines)
         {
