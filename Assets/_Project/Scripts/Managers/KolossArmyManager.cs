@@ -35,7 +35,6 @@ public class KolossArmyManager : MonoBehaviour
     {
         if (kolossPrefab == null)
         {
-            Debug.LogError("[KolossArmyManager] kolossPrefab is not assigned! Cannot spawn Koloss swarm.");
             return;
         }
 

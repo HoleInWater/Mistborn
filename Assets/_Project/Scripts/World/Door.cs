@@ -57,7 +57,6 @@ public class Door : MonoBehaviour
             else
             {
                 PlaySound(lockedSound);
-                Debug.Log("Door is locked!");
             }
         }
         else

@@ -88,7 +88,6 @@ public class SceneBootstrap : MonoBehaviour
             go.AddComponent<DialogueDatabase>();
         }
 
-        Debug.Log("[BOOTSTRAP] Scene initialized. All systems ready.");
     }
 
     void EnsureComponent<T>(GameObject obj) where T : MonoBehaviour

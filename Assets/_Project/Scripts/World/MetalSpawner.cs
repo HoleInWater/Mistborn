@@ -59,7 +59,6 @@ public class MetalSpawner : MonoBehaviour
         {
             // CRITICAL: assign to 'Metal' physics layer so Iron/Steel raycasts detect it
             metal.layer = LayerMask.NameToLayer("Metal");
-            Debug.Log($"[MetalSpawner] Spawned metal at {spawnPos}");
         }
     }
 }

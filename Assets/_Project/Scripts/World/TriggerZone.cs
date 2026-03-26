@@ -41,19 +41,14 @@ public class TriggerZone : MonoBehaviour
         switch (triggerType)
         {
             case TriggerType.Cutscene:
-                Debug.Log("Triggering cutscene!");
                 break;
             case TriggerType.Dialog:
-                Debug.Log("Starting dialog!");
                 break;
             case TriggerType.SpawnEnemies:
-                Debug.Log("Spawning enemies!");
                 break;
             case TriggerType.OpenDoor:
-                Debug.Log("Opening door!");
                 break;
             case TriggerType.UnlockArea:
-                Debug.Log("Area unlocked!");
                 break;
         }
     }

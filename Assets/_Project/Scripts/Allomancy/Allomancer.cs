@@ -226,9 +226,9 @@ public class Allomancer : MonoBehaviour
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
         UpdateHUD(metal);
-        
-        if (metal == GetCurrentMetal())
-            canBurnMetal = metalReserves[(int)metal] > 0;
+        // canBurnMetal is now always recalculated from current metal reserve
+        // so depleting Steel doesn't block Pewter
+        canBurnMetal = metalReserves[(int)GetCurrentMetal()] > 0;
     }
 
     public void RefillMetal(AllomancySkill.MetalType metal, float amount)

@@ -28,16 +28,12 @@ public class LootDrop : MonoBehaviour
         switch (lootType)
         {
             case LootType.MetalPieces:
-                Debug.Log($"Dropped {amount} metal pieces!");
                 break;
             case LootType.HealthPotion:
-                Debug.Log($"Dropped {amount} health potions!");
                 break;
             case LootType.SkillPoint:
-                Debug.Log($"Dropped {amount} skill points!");
                 break;
             case LootType.Coin:
-                Debug.Log($"Dropped {amount} coins!");
                 break;
         }
         

@@ -48,7 +48,6 @@ public class PlayerExperience : MonoBehaviour
         xpToNextLevel = Mathf.Round(xpToNextLevel * xpScaleFactor);
         
         OnLevelUp?.Invoke();
-        Debug.Log($"[PROGRESION] Level Up! Reached level {currentLevel}. Skill Points: {skillPoints}");
     }
 
     public bool SpendSkillPoints(int amount)

@@ -99,7 +99,6 @@ public class SazedAI : MonoBehaviour
 
         // Lore bark
         if (Random.value < 0.01f)
-            Debug.Log("[SAZED] \"I am tapping my goldmind to heal you, I think.\"");
     }
 
     void PewterPunch(Transform target)
@@ -118,7 +117,6 @@ public class SazedAI : MonoBehaviour
         }
 
         if (Random.value < 0.3f)
-            Debug.Log("[SAZED] \"I do not enjoy violence, but I will protect you.\"");
     }
 
     void Follow()

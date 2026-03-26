@@ -162,7 +162,6 @@ public class KelsierAI : MonoBehaviour
         };
 
         string[] barks = type == "steel" ? steelBarks : meleeBarks;
-        Debug.Log($"[KELSIER] \"{barks[Random.Range(0, barks.Length)]}\"");
     }
 
     Transform FindNearestEnemy()

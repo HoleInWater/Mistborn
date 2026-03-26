@@ -67,7 +67,6 @@ public class ComboSystem : MonoBehaviour
             if (rageMeter >= 1f) StartRage();
         }
         
-        Debug.Log($"Combo: {currentCombo}x - Rage: {rageMeter:P0}");
     }
 
     private void StartRage()
@@ -80,13 +79,11 @@ public class ComboSystem : MonoBehaviour
             // We don't force IsBurning = true here to respect player control, 
             // but it's an option if we want "Auto-Burn".
         }
-        Debug.Log("<color=red>[RAGE MODE ACTIVE]</color>");
     }
 
     private void EndRage()
     {
         isRaging = false;
-        Debug.Log("[Rage Mode Ended]");
     }
     
     public void ResetCombo()

@@ -14,7 +14,6 @@ namespace MistbornGame.Utilities
             {
                 if (applicationIsQuitting)
                 {
-                    Debug.LogWarning($"[Singleton] Instance of {typeof(T)} is already destroyed. Returning null.");
                     return null;
                 }
                 
@@ -31,11 +30,9 @@ namespace MistbornGame.Utilities
                             singletonObject.name = $"(Singleton) {typeof(T)}";
                             
                             DontDestroyOnLoad(singletonObject);
-                            Debug.Log($"[Singleton] An instance of {typeof(T)} was created.");
                         }
                         else
                         {
-                            Debug.Log($"[Singleton] Using existing instance of {typeof(T)}: {_instance.name}");
                         }
                     }
                     

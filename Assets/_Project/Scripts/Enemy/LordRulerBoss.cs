@@ -178,17 +178,14 @@ public class LordRulerBoss : MonoBehaviour
         {
             case BossPhase.Emotional:
                 EventManager.TriggerEvent(phase2CutsceneEvent);
-                Debug.Log("[LORD RULER] \"You think you can challenge ME? I AM PRESERVATION.\"");
                 break;
 
             case BossPhase.Compounding:
-                Debug.Log("[LORD RULER] Gold compounding intensifies — wounds heal instantly!");
                 if (agent != null) agent.speed = baseSpeed * 1.5f;
                 break;
 
             case BossPhase.AtiumAscension:
                 EventManager.TriggerEvent(phase4CutsceneEvent);
-                Debug.Log("[LORD RULER] \"I HAVE SEEN EVERY POSSIBLE FUTURE.\" — Burns Atium!");
                 Time.timeScale = atiumTimeDilation;
                 if (agent != null) agent.speed = baseSpeed * 2.5f;
                 break;
@@ -247,7 +244,6 @@ public class LordRulerBoss : MonoBehaviour
 
         // Screen effect — blue/cold tint
         CameraShakeManager.Instance?.Shake(0.3f, 0.1f);
-        Debug.Log("[LORD RULER] Brass Soothe — \"Be calm. Kneel.\"");
 
         StartCoroutine(ResetPlayerSpeed(sootheDuration));
     }
@@ -256,7 +252,6 @@ public class LordRulerBoss : MonoBehaviour
     {
         // Zinc Riot — inflame fear, camera shake and disorientation
         CameraShakeManager.Instance?.Shake(riotDuration, 0.25f);
-        Debug.Log("[LORD RULER] Zinc Riot — \"FEAR ME!\"");
 
         StartCoroutine(ResetPlayerSpeed(riotDuration));
     }
@@ -314,7 +309,6 @@ public class LordRulerBoss : MonoBehaviour
     {
         isExecutingBurst = true;
         lastOmniBurst = Time.time;
-        Debug.Log("[LORD RULER] \"I AM THE LAW!\" — Omni-burst!");
 
         animator?.SetTrigger("OmniBurst");
 
@@ -417,7 +411,6 @@ public class LordRulerBoss : MonoBehaviour
         // Phase 4 Atium dodge
         if (currentPhase == BossPhase.AtiumAscension && Random.value < atiumDodgeChance)
         {
-            Debug.Log("[LORD RULER] Atium dodge!");
             return;
         }
 
@@ -446,7 +439,6 @@ public class LordRulerBoss : MonoBehaviour
 
         EventManager.TriggerEvent(defeatCutsceneEvent);
         CameraShakeManager.Instance?.Shake(2f, 0.6f);
-        Debug.Log("[LORD RULER] \"I am... the one who held it... I am...\" — THE LORD RULER HAS FALLEN.");
 
         Destroy(gameObject, 8f);
     }
@@ -469,7 +461,6 @@ public class LordRulerBoss : MonoBehaviour
         metalmindsExposed = true;
         if (agent != null) agent.isStopped = true;
         animator?.SetBool("IsStunned", true);
-        Debug.Log("[LORD RULER] STUNNED — metalminds exposed!");
 
         yield return new WaitForSeconds(stunDuration);
 
@@ -507,7 +498,6 @@ public class LordRulerBoss : MonoBehaviour
         Time.timeScale = 1f;
         if (agent != null) agent.speed = baseSpeed * 0.7f; // Weakened
 
-        Debug.Log("[LORD RULER] METALMINDS REMOVED! He ages rapidly — compounding disabled!");
     }
 
     public bool CanRemoveMetalminds(Transform playerTransform)
