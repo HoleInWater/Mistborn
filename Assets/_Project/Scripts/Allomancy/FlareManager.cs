@@ -125,7 +125,6 @@ public class FlareManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             IsBurning = !IsBurning;
-            Debug.Log($"[FLARE] Burning {(IsBurning ? "ON" : "OFF")} – intensity {Intensity}");
         }
     }
 

@@ -75,7 +75,6 @@ public class MetalSelector : MonoBehaviour
         
         UpdateActiveMetal();
         
-        Debug.Log($"[MetalSelector] Selected {(isPrimaryActive ? "PRIMARY" : "SECONDARY")} metal: {nextMetal}");
     }
     
     void SelectPreviousMetal()
@@ -100,14 +99,12 @@ public class MetalSelector : MonoBehaviour
         
         UpdateActiveMetal();
         
-        Debug.Log($"[MetalSelector] Selected {(isPrimaryActive ? "PRIMARY" : "SECONDARY")} metal: {prevMetal}");
     }
     
     void SwapMetals()
     {
         isPrimaryActive = !isPrimaryActive;
         UpdateActiveMetal();
-        Debug.Log($"[MetalSelector] Swapped metals. Active is now: {(isPrimaryActive ? "PRIMARY" : "SECONDARY")}");
     }
     
     void UpdateActiveMetal()

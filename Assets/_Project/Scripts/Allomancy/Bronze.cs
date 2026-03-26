@@ -115,7 +115,6 @@ public class Bronze : MonoBehaviour
         float volume = Mathf.Clamp01(1f - (dist / baseDetectionRadius));
         
         // LORE: Seeker "hears" or "feels" the pulse.
-        Debug.Log($"[BRONZE] Pulse: {metal} ({category}) from {target.name} - Volume: {volume:F2}");
         
         // Spawn Visual Pulse
         CreateVisualPulse(target.transform.position, metal, category);

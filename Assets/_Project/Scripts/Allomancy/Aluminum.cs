@@ -83,6 +83,5 @@ public class Aluminum : MonoBehaviour
         // Stop burning
         allomancer.StopBurning();
 
-        Debug.Log("[ALUMINUM] All metal reserves purged. System is clean.");
     }
 }

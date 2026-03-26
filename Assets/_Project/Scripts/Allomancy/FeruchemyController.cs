@@ -111,11 +111,9 @@ public class FeruchemyController : MonoBehaviour
             if (!feruchemyModeActive)
             {
                 // Exiting Feruchemy mode doesn't stop active store/tap
-                Debug.Log("[FERUCHEMY] Mode deactivated. Active stores/taps continue.");
             }
             else
             {
-                Debug.Log($"[FERUCHEMY] Mode activated. Selected: {feruchemist.metalminds[selectedMetalmind].attribute}");
             }
         }
 
@@ -138,7 +136,6 @@ public class FeruchemyController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             feruchemist.StopAll();
-            Debug.Log("[FERUCHEMY] Stopped all storing and tapping.");
         }
     }
 
@@ -205,13 +202,11 @@ public class FeruchemyController : MonoBehaviour
         if (index < 0 || index >= Feruchemist.MetalmindCount) return;
         if (!feruchemist.unlockedMetals[index])
         {
-            Debug.Log($"[FERUCHEMY] {feruchemist.metalminds[index].attribute} is locked.");
             return;
         }
 
         selectedMetalmind = index;
         Metalmind mind = feruchemist.metalminds[index];
-        Debug.Log($"[FERUCHEMY] Selected: {mind.attribute} ({mind.ChargePercent * 100f:F0}% charged)");
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

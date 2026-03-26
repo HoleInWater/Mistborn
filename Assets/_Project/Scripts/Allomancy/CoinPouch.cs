@@ -225,8 +225,6 @@ public class CoinPouch : MonoBehaviour
             }
         }
 
-        if (recovered > 0)
-            Debug.Log($"[COINS] Recovered {recovered} coins. Total: {coinCount}");
     }
 
     // ── Coin Spawning ────────────────────────────────────────────────────

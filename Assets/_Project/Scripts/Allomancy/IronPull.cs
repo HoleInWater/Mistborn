@@ -84,22 +84,8 @@ public class IronPull : MonoBehaviour
     public bool debugFlareState     = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
+    // No burn state — pull works on click
 
-    private bool _isBurning = false;
-    private bool isBurning
-    {
-        get
-        {
-            bool globalBurn = allomancer != null
-                           && allomancer.IsBurning()
-                           && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Iron;
-            return _isBurning || globalBurn;
-        }
-        set { _isBurning = value; }
-    }
-
-    private bool  pullAppliedThisPress = false;
-    private bool  qKeyWasPressed       = false;
     private float cooldownTimer        = 0f;
 
     private RaycastHit       currentTargetHit;
@@ -164,32 +150,7 @@ public class IronPull : MonoBehaviour
         UpdatePrediction();
     }
 
-    private void AutoSwitchToThisMetal()
-    {
-        if (allomancer == null) return;
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return;
-
-        if      (selector.GetPrimaryMetal()   == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(true);
-        else if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) selector.SetPrimaryActive(false);
-    }
-
-    // ── Burning ───────────────────────────────────────────────────────────────
-
-    void StartBurning()
-    {
-        if (isBurning) return;
-        isBurning = true;
-        allomancer?.StartBurning(AllomancySkill.MetalType.Iron);
-    }
-
-    void StopBurning()
-    {
-        if (!isBurning) return;
-        isBurning     = false;
-        cooldownTimer = 0.2f;
-        allomancer?.StopBurning();
-    }
+    // No burn state management — pull works on click
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
@@ -290,8 +251,6 @@ public class IronPull : MonoBehaviour
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude * Mathf.Clamp01(FlareLevel + 0.3f));
         TriggerPullTint(pullSpeed);
 
-        if (debugPullOperations)
-            Debug.Log($"[IRON PULL] dist={distance:F1} anchored={isAnchored} flare={flare:F1}");
     }
 
     // ── Metal Drain ───────────────────────────────────────────────────────────

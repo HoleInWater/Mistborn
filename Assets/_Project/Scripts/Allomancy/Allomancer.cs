@@ -70,7 +70,6 @@ public class Allomancer : MonoBehaviour
     public void UnlockMetal(AllomancySkill.MetalType metal)
     {
         unlockedMetals[(int)metal] = true;
-        Debug.Log($"[ALLOMANCER] Metal Unlocked: {metal}");
     }
 
 
@@ -122,7 +121,6 @@ public class Allomancer : MonoBehaviour
                 {
                     isNicrobursting = false;
                     nicroburstTimer = 0f;
-                    Debug.Log("[NICROSIL] Burst exhausted.");
                 }
             }
         }
@@ -144,7 +142,6 @@ public class Allomancer : MonoBehaviour
             // Duralumin Burst Logic: Lore-accurate "Forced Flare"
             if (isDuraluminPrimed)
             {
-                Debug.Log($"[DURALUMIN] FORCED BURST! Expending all {GetCurrentMetal()} reserves.");
                 // Instant drain:
                 float remaining = GetMetalReserve(GetCurrentMetal());
                 DrainMetal(GetCurrentMetal(), remaining);
@@ -187,7 +184,6 @@ public class Allomancer : MonoBehaviour
     {
         if (!unlockedMetals[(int)metal])
         {
-            Debug.Log($"[ALLOMANCER] Cannot burn {metal} - Not unlocked!");
             isBurningMetal = false;
             return;
         }
@@ -249,7 +245,6 @@ public class Allomancer : MonoBehaviour
             UpdateHUD((AllomancySkill.MetalType)i);
         }
         canBurnMetal = true;
-        Debug.Log("[ALLOMANCER] All metal reserves refilled.");
     }
 
     public void ClearAllReserves()
@@ -260,7 +255,6 @@ public class Allomancer : MonoBehaviour
             UpdateHUD((AllomancySkill.MetalType)i);
         }
         canBurnMetal = false;
-        Debug.Log("[ALLOMANCER] All metal reserves emptied by Chromium leeching.");
     }
 
     private void UpdateHUD(AllomancySkill.MetalType metal)

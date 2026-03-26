@@ -108,9 +108,7 @@ public class Compounding : MonoBehaviour
         feruchemist = GetComponent<Feruchemist>();
 
         if (allomancer == null)
-            Debug.LogWarning("[COMPOUNDING] No Allomancer component found. Compounding requires both Allomancer and Feruchemist.");
         if (feruchemist == null)
-            Debug.LogWarning("[COMPOUNDING] No Feruchemist component found. Compounding requires both Allomancer and Feruchemist.");
 
         for (int i = 0; i < Feruchemist.MetalmindCount; i++)
         {
@@ -144,7 +142,6 @@ public class Compounding : MonoBehaviour
                 if (!wasCompounding)
                 {
                     OnCompoundingStarted?.Invoke(i, outputMultipliers[i]);
-                    Debug.Log($"[COMPOUNDING] {feruchemist.metalminds[i].attribute} compounding ACTIVATED — multiplier: {outputMultipliers[i]:F1}x");
                 }
             }
             else
@@ -153,7 +150,6 @@ public class Compounding : MonoBehaviour
                 {
                     StopCompounding(i);
                     OnCompoundingStopped?.Invoke(i);
-                    Debug.Log($"[COMPOUNDING] {feruchemist.metalminds[i].attribute} compounding DEACTIVATED.");
                 }
 
                 ProcessCycleDecay(i, dt);
@@ -208,7 +204,6 @@ public class Compounding : MonoBehaviour
         if (newCycleInt > previousCycleInt && newCycleInt > 0)
         {
             OnCycleAdvanced?.Invoke(metalIndex, newCycleInt);
-            Debug.Log($"[COMPOUNDING] {mind.attribute} advanced to cycle {newCycleInt} — power scaling exponentially!");
         }
 
         // --- Calculate output multiplier using physics formulas ---
