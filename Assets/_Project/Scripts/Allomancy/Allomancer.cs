@@ -9,6 +9,13 @@
  * - Handles 2-metal selection (Primary/Secondary) via MetalSelector.
  * - High-speed HUD updates for all 16 bars.
  * - Standardized Burn/Flare drain logic.
+ *
+ * BUG FIX: Awake() unlock loop was `i < 16` but metalReserves is sized to 20 and
+ *          EnsureAllomancyComponents() adds Chromium and Nicrosil as components.
+ *          Because the loop never called UnlockMetal() for them, the wheel always
+ *          showed them as LOCKED regardless of any other fix. Changed to use
+ *          Enum.GetValues so every metal in the MetalType enum is unlocked,
+ *          future-proofing against any further additions.
  */
 
 using UnityEngine;
@@ -33,8 +40,8 @@ public class Allomancer : MonoBehaviour
 
     [Header("Burst State")]
     public bool isDuraluminPrimed = false;
-    private float nicroburstTimer = 0f; // Moved here as per instruction's implied placement
-    public bool isNicrobursting = false; // This field is not removed by the instruction, only the duplicate is.
+    private float nicroburstTimer = 0f;
+    public bool isNicrobursting = false;
 
     private MetalSelector metalSelector;
 
@@ -47,9 +54,12 @@ public class Allomancer : MonoBehaviour
             metalReserves[i] = 100f;
         }
 
-        // Start with ALL 16 metals unlocked for full Wheel UI testing
-        for (int i = 0; i < 16; i++) {
-            UnlockMetal((AllomancySkill.MetalType)i);
+        // FIX: Was `for (int i = 0; i < 16; i++)` — stopped before Chromium and Nicrosil,
+        // leaving them permanently locked and invisible/unselectable on the wheel.
+        // Now iterates every value in the enum so all metals are unlocked correctly.
+        foreach (AllomancySkill.MetalType metal in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
+        {
+            UnlockMetal(metal);
         }
 
         EnsureAllomancyComponents();
@@ -60,8 +70,7 @@ public class Allomancer : MonoBehaviour
     {
         MistbornRegistry.UnregisterAllomancer(this);
     }
-    
-    // Kept for scene-start safety if components are added at runtime
+
     void Start()
     {
         if (metalSelector == null) metalSelector = GetComponent<MetalSelector>();
@@ -72,7 +81,6 @@ public class Allomancer : MonoBehaviour
         unlockedMetals[(int)metal] = true;
     }
 
-
     void EnsureAllomancyComponents()
     {
         if (GetComponent<SteelPush>() == null) gameObject.AddComponent<SteelPush>();
@@ -82,7 +90,6 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<MetalReserve>() == null) gameObject.AddComponent<MetalReserve>();
         if (GetComponent<MetalBurnEffect>() == null) gameObject.AddComponent<MetalBurnEffect>();
         
-        // Add all 16 metal components
         if (GetComponent<Tin>() == null) gameObject.AddComponent<Tin>();
         if (GetComponent<Pewter>() == null) gameObject.AddComponent<Pewter>();
         if (GetComponent<Zinc>() == null) gameObject.AddComponent<Zinc>();
@@ -101,23 +108,20 @@ public class Allomancer : MonoBehaviour
         if (GetComponent<Nicrosil>() == null) gameObject.AddComponent<Nicrosil>();
     }
 
-
     void Update()
     {
-        // Toggle burn with B key
         if (Input.GetKeyDown(KeyCode.B))
         {
             if (isBurningMetal) StopBurning();
             else StartBurning(GetCurrentMetal());
         }
 
-        // Handle Nicroburst consumption
         if (isNicrobursting)
         {
             if (isBurningMetal)
             {
                 nicroburstTimer += Time.deltaTime;
-                if (nicroburstTimer > AllomancyConstants.NicroburstDuration) // Consume after burst duration
+                if (nicroburstTimer > AllomancyConstants.NicroburstDuration)
                 {
                     isNicrobursting = false;
                     nicroburstTimer = 0f;
@@ -129,7 +133,6 @@ public class Allomancer : MonoBehaviour
             nicroburstTimer = 0f;
         }
 
-        // Determine active states
         bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
         bool isUsingMetal = isBurningMetal || isFlaring;
 
@@ -139,36 +142,25 @@ public class Allomancer : MonoBehaviour
             if (isFlaring && FlareManager.Instance != null)
                 drainRate += FlareManager.Instance.flareBurnRate;
 
-            // Duralumin Burst Logic: Lore-accurate "Forced Flare"
             if (isDuraluminPrimed)
             {
-                // Instant drain:
                 float remaining = GetMetalReserve(GetCurrentMetal());
                 DrainMetal(GetCurrentMetal(), remaining);
                 isDuraluminPrimed = false;
-                isNicrobursting = false; // Nicroburst is also consumed by the burst
+                isNicrobursting = false;
             }
             else
             {
                 DrainMetal(GetCurrentMetal(), drainRate * Time.deltaTime);
-                
-                // If we were nicrobursting but not duralumin priming, clear it after some burn
-                if (isNicrobursting && drainRate > baseBurnRate)
-                {
-                    // For now, nicroburst lasts for one "flare action" or until metal is stopped
-                    // We'll clear it when they stop burning in StopBurning()
-                }
             }
         }
         else if (!isUsingMetal && metalReserve != null)
         {
-            // Passive recovery only when idle
             RefillMetal(GetCurrentMetal(), metalReserve.passiveRecoveryRate * Time.deltaTime);
         }
 
         if (Input.GetKeyDown(KeyCode.RightAlt)) RefillAllMetals();
 
-        // Ensure HUD selection highlights are up-to-date every frame
         if (metalReserve != null && metalSelector != null)
         {
             metalReserve.HighlightSelection(
@@ -192,17 +184,14 @@ public class Allomancer : MonoBehaviour
         canBurnMetal = metalReserves[(int)metal] > 0;
     }
 
-
     public void StopBurning()
     {
         isBurningMetal = false;
-        isNicrobursting = false; // Clear nicroburst on stop
+        isNicrobursting = false;
     }
+
     public bool IsBurning() => isBurningMetal;
 
-    /// <summary>
-    /// Check if a specific metal is currently being burned.
-    /// </summary>
     public bool IsMetalBurning(AllomancySkill.MetalType metal)
     {
         return isBurningMetal && GetCurrentMetal() == metal;
@@ -226,8 +215,6 @@ public class Allomancer : MonoBehaviour
     {
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
         UpdateHUD(metal);
-        // canBurnMetal is now always recalculated from current metal reserve
-        // so depleting Steel doesn't block Pewter
         canBurnMetal = metalReserves[(int)GetCurrentMetal()] > 0;
     }
 
@@ -259,7 +246,6 @@ public class Allomancer : MonoBehaviour
 
     private void UpdateHUD(AllomancySkill.MetalType metal)
     {
-        // HUD Refresh
         if (metalReserve != null)
         {
             metalReserve.UpdateAllBars(metalReserves);
