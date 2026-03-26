@@ -43,6 +43,8 @@ public class BlockAbility : MonoBehaviour
         if (stamina == null) stamina = GetComponent<PlayerStamina>();
         if (animator == null) animator = GetComponent<Animator>();
 
+        blockKey = Keybinds.Block;
+
         if (playerController != null)
             originalSpeed = playerController.moveSpeed;
     }

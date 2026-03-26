@@ -7,7 +7,9 @@ using UnityEngine;
 /// CONTROLS:
 ///   E           = Steel Push
 ///   Q           = Iron Pull
-///   F           = Parry/Block / Steel Bubble
+///   F           = Steel Bubble
+///   G           = Interact
+///   Mouse Right = Block / Parry
 ///   Z           = Metal Sight toggle
 ///   B           = Burn toggle
 ///   Tab         = Metal Wheel / Swap metals
@@ -45,8 +47,9 @@ public static class Keybinds
     public static int LockOnToggle = 2;
 
     // Interaction
-    public static KeyCode Interact = KeyCode.E;
+    public static KeyCode Interact = KeyCode.G;
     public static KeyCode Grapple = KeyCode.Mouse2;
+    public static KeyCode Block = KeyCode.Mouse1;
 
     // UI
     public static KeyCode Inventory = KeyCode.I;

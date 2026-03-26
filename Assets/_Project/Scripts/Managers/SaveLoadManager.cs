@@ -44,6 +44,7 @@ public class SaveLoadManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void SaveGame(int slot, string saveName)

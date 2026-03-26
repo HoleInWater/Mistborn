@@ -91,7 +91,13 @@ public class GameManager : MonoBehaviour
     void OnPlayerDied()
     {
         if (currentState == GameState.GameOver) return;
-        Invoke("ShowGameOver", gameOverDelay);
+        StartCoroutine(ShowGameOverDelayed());
+    }
+
+    System.Collections.IEnumerator ShowGameOverDelayed()
+    {
+        yield return new WaitForSecondsRealtime(gameOverDelay);
+        ShowGameOver();
     }
 
     void ShowGameOver()

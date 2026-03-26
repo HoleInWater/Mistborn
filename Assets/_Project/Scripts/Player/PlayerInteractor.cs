@@ -20,6 +20,7 @@ public class PlayerInteractor : MonoBehaviour
     void Start()
     {
         mainCam = Camera.main;
+        interactKey = Keybinds.Interact;
         if (promptText != null) promptText.gameObject.SetActive(false);
     }
 
