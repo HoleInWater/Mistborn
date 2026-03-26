@@ -7,9 +7,9 @@ using UnityEngine;
 /// </summary>
 public class Sprint : MonoBehaviour
 {
-    [Header("Speed Settings")]
-    public float walkSpeed = 5f;
-    public float sprintSpeed = 10f;
+    [Header("Speed Settings — WorldScale: 2u = 5ft")]
+    public float walkSpeed = 1.8f; // ~4.5 ft/s
+    public float sprintSpeed = 6f; // ~15 ft/s run
 
     [Header("Pewter Enhancement")]
     [Tooltip("Sprint speed bonus when burning Pewter (S = S_base × (1 + k×P), k=1)")]
