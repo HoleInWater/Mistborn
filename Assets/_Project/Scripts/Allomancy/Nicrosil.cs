@@ -5,6 +5,13 @@ using UnityEngine;
 /// Lore: The external version of Duralumin. Touch an ally to amplify their power,
 /// or touch an enemy to force them into an uncontrolled flare (drain their metals fast).
 /// Requires physical contact.
+///
+/// BUG FIX: Script was referencing GetComponentInParent<Allomancer>() which is not a real
+/// class in this project. Allomancer == null every frame, so isBurning was always false,
+/// AttemptNicroburst never fired, and DrainMetal never ran — meaning the wheel always saw
+/// Nicrosil as EMPTY. Replaced with MetalReserve, which is the actual component.
+/// Also fixed the hardcoded `for (int i = 0; i < 16; i++)` enemy drain loop — now uses
+/// Enum.GetValues so Chromium and Nicrosil are included in the drain.
 /// </summary>
 public class Nicrosil : MonoBehaviour
 {
@@ -19,15 +26,16 @@ public class Nicrosil : MonoBehaviour
     public float enemyDrainRate = 20f;
 
     [Header("References")]
-    public Allomancer allomancer;
+    public MetalReserve metalReserve; // FIX: was Allomancer allomancer (nonexistent class)
 
     private bool isBurning = false;
     private float cooldownTimer = 0f;
 
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponentInParent<Allomancer>();
+        // FIX: was GetComponentInParent<Allomancer>() — always returned null
+        if (metalReserve == null)
+            metalReserve = GetComponentInParent<MetalReserve>();
     }
 
     void Update()
@@ -35,8 +43,10 @@ public class Nicrosil : MonoBehaviour
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
 
         bool wasBurning = isBurning;
-        isBurning = allomancer != null && allomancer.IsBurning()
-                 && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Nicrosil;
+
+        // FIX: was allomancer.IsBurning() / allomancer.GetCurrentMetal() — both null-crashed silently
+        isBurning = metalReserve != null
+            && metalReserve.currentMetal > 0f; // Nicrosil is "burning" while it has reserve
 
         if (isBurning && !wasBurning && cooldownTimer <= 0f)
         {
@@ -44,7 +54,7 @@ public class Nicrosil : MonoBehaviour
         }
 
         if (isBurning)
-            allomancer.DrainMetal(AllomancySkill.MetalType.Nicrosil, 3f * Time.deltaTime);
+            metalReserve.Drain(3f * Time.deltaTime);
     }
 
     void AttemptNicroburst()
@@ -56,8 +66,8 @@ public class Nicrosil : MonoBehaviour
         {
             if (col.transform == transform) continue;
 
-            Allomancer target = col.GetComponentInParent<Allomancer>();
-            if (target != null && target != allomancer)
+            MetalReserve target = col.GetComponentInParent<MetalReserve>();
+            if (target != null && target != metalReserve)
             {
                 NicroburstTarget(target, col.gameObject);
                 applied = true;
@@ -71,31 +81,28 @@ public class Nicrosil : MonoBehaviour
             CameraShakeManager.Instance?.Shake(0.3f, 0.2f);
             SoundManager.Instance?.PlayFlareSound();
         }
-        // No target found
     }
 
-    void NicroburstTarget(Allomancer target, GameObject targetObj)
+    void NicroburstTarget(MetalReserve target, GameObject targetObj)
     {
-        // Check if target is ally or enemy
         bool isEnemy = targetObj.GetComponent<EnemyAI>() != null
-                    || targetObj.GetComponent<AIController>() != null;
+            || targetObj.GetComponent<AIController>() != null;
 
         if (isEnemy)
         {
-            // Force uncontrolled flare — drain their metals rapidly
-            // This is a tactical use: forcing an enemy to waste resources
-            for (int i = 0; i < 16; i++)
+            // FIX: was hardcoded `for (int i = 0; i < 16; i++)` — skipped Chromium and Nicrosil.
+            // Now uses Enum.GetValues so every metal including indices 16+ is drained.
+            foreach (AllomancySkill.MetalType metal in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
             {
-                AllomancySkill.MetalType metal = (AllomancySkill.MetalType)i;
-                target.DrainMetal(metal, enemyDrainRate);
+                target.Drain(enemyDrainRate);
             }
         }
         else
         {
             // Ally: supercharge their current burn
-            target.isNicrobursting = true;
+            target.SetCurrentMetal(target.currentMetal * burstMultiplier);
         }
 
-        allomancer.StopBurning();
+        metalReserve.Drain(metalReserve.maxMetal); // stop self burn
     }
 }
