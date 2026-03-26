@@ -245,6 +245,7 @@ public class SteelPush : MonoBehaviour
         hasCurrentTarget = false; currentTarget = null;
         currentTargetRigidbody = null; metalInRange = false;
 
+        if (playerRigidbody == null) return;
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
         if (hits.Length == 0) return;
 
@@ -371,7 +372,8 @@ public class SteelPush : MonoBehaviour
         predictionLine = gameObject.AddComponent<LineRenderer>();
         predictionLine.startWidth = 0.05f;
         predictionLine.endWidth   = 0.01f;
-        predictionLine.material   = new Material(Shader.Find("Sprites/Default"));
+        Shader lineShader = Shader.Find("Sprites/Default") ?? Shader.Find("Hidden/InternalErrorShader");
+        predictionLine.material = new Material(lineShader);
         predictionLine.startColor = Color.blue;
         predictionLine.endColor   = new Color(0, 0, 1, 0.5f);
         predictionLine.positionCount = 0;

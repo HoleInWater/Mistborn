@@ -30,15 +30,16 @@ public class DialogueManager : MonoBehaviour
 
     public void StartDialogue(DialogueData data)
     {
-        if (dialoguePanel == null) return;
+        if (dialoguePanel == null || data == null) return;
 
         dialoguePanel.SetActive(true);
-        nameText.text = data.speakerName;
+        if (nameText != null) nameText.text = data.speakerName ?? "";
 
         sentenceQueue.Clear();
-        foreach (string line in data.lines)
+        if (data.lines != null)
         {
-            sentenceQueue.Enqueue(line);
+            foreach (string line in data.lines)
+                sentenceQueue.Enqueue(line);
         }
 
         DisplayNextSentence();
@@ -73,7 +74,7 @@ public class DialogueManager : MonoBehaviour
         foreach (char letter in sentence.ToCharArray())
         {
             dialogueText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSecondsRealtime(typingSpeed);
         }
 
         isTyping = false;
@@ -81,13 +82,13 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
-        dialoguePanel.SetActive(false);
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
     }
 
     void Update()
     {
-        // Advance on Space or Left Click if panel is active
-        if (dialoguePanel.activeInHierarchy && (Input.GetKeyDown(Keybinds.Jump) || Input.GetMouseButtonDown(0)))
+        if (dialoguePanel != null && dialoguePanel.activeInHierarchy &&
+            (Input.GetKeyDown(Keybinds.Jump) || Input.GetMouseButtonDown(0)))
         {
             DisplayNextSentence();
         }
