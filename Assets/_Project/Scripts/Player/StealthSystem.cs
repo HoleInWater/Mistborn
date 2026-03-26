@@ -72,7 +72,6 @@ public class StealthSystem : MonoBehaviour
             playerController.moveSpeed = crouchSpeed;
         }
         
-        Debug.Log("Crouching");
     }
     
     void StandUp()
@@ -88,7 +87,6 @@ public class StealthSystem : MonoBehaviour
             playerController.moveSpeed = normalSpeed;
         }
         
-        Debug.Log("Standing");
     }
     
     public bool IsCrouching()

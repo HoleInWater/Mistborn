@@ -17,7 +17,6 @@ public class XPDropper : MonoBehaviour
         if (PlayerExperience.Instance != null)
         {
             PlayerExperience.Instance.AddXP(xpValue);
-            Debug.Log($"[XP] +{xpValue} XP gained from {gameObject.name}");
         }
     }
 

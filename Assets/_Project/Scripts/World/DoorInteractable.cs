@@ -30,7 +30,6 @@ public class DoorInteractable : MonoBehaviour, IInteractable
     {
         isOpen = !isOpen;
         targetRot = isOpen ? Quaternion.Euler(openRotation) * closedRot : closedRot;
-        Debug.Log($"[DOOR] {doorName} is now {(isOpen ? "Open" : "Closed")}");
     }
 
     public string GetInteractionPrompt()

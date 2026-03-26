@@ -24,7 +24,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         if (isDead) return;
         
         currentHealth -= amount;
-        Debug.Log($"{gameObject.name} took {amount} damage. HP: {currentHealth}/{maxHealth}");
         
         if (currentHealth <= 0)
         {
@@ -37,7 +36,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         isDead = true;
         currentHealth = 0;
         
-        Debug.Log($"{gameObject.name} defeated!");
         
         if (deathEffect != null)
         {
@@ -49,7 +47,6 @@ public class EnemyHealth : MonoBehaviour, IDamageable
             if (Random.value <= lootDropChance)
             {
                 Instantiate(lootPrefab, transform.position + Vector3.up, Quaternion.identity);
-                Debug.Log("Dropped loot!");
             }
         }
         

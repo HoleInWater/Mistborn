@@ -170,7 +170,6 @@ public class NarrativeTimeline : MonoBehaviour
         NotificationSystem.Instance?.ShowNotification($"Chapter {beat.chapter}: {beat.title}");
 
         OnStoryBeatReached?.Invoke(currentChapter, beat);
-        Debug.Log($"[NARRATIVE] Chapter {beat.chapter}: {beat.title} — {beat.description}");
     }
 
     public StoryBeat GetCurrentBeat()

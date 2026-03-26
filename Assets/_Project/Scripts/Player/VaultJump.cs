@@ -45,7 +45,6 @@ public class VaultJump : MonoBehaviour
             }
             else if (height >= vaultHeight)
             {
-                Debug.Log("Object too high to vault");
             }
         }
     }
@@ -55,7 +54,6 @@ public class VaultJump : MonoBehaviour
         isVaulting = true;
         vaultTarget = target;
         
-        Debug.Log("Vaulting!");
         
         Invoke("EndVault", 0.5f);
     }

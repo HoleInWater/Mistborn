@@ -103,7 +103,6 @@ public class GameManager : MonoBehaviour
     {
         SetState(GameState.Victory);
         AchievementSystem.Instance?.TryUnlock("lord_ruler_defeated");
-        Debug.Log("[GAME] THE LORD RULER HAS FALLEN. THE ASH STOPS. THE MISTS RECEDE.");
     }
 
     void OnInquisitorDefeated()

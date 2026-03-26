@@ -136,7 +136,6 @@ public class KolossAI : MonoBehaviour
         }
 
         animator?.SetBool("IsRaging", true);
-        Debug.Log($"[KOLOSS] {gameObject.name} entered RAGE mode!");
     }
 
     // ── Movement ─────────────────────────────────────────────────────────
@@ -219,7 +218,6 @@ public class KolossAI : MonoBehaviour
         if (slamEffectPrefab != null)
             Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
 
-        Debug.Log("[KOLOSS] GROUND SLAM!");
     }
 
     // ── Hemalurgic Spikes ────────────────────────────────────────────────
@@ -233,7 +231,6 @@ public class KolossAI : MonoBehaviour
         if (!spikesIntact || spikeCount <= 0) return;
 
         spikeCount--;
-        Debug.Log($"[KOLOSS] Spike removed! {spikeCount} remaining.");
 
         // Each spike removal weakens the Koloss
         currentDamage *= 0.7f;
@@ -252,7 +249,6 @@ public class KolossAI : MonoBehaviour
         if (agent != null) agent.isStopped = true;
         animator?.SetBool("IsDocile", true);
 
-        Debug.Log("[KOLOSS] All spikes removed — Koloss is docile.");
         StartCoroutine(DocileDeath());
     }
 

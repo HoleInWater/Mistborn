@@ -59,7 +59,6 @@ public class RebellionManager : MonoBehaviour
     {
         coinReserve += coins;
         globalMorale = Mathf.Clamp(globalMorale + morale, 0f, 100f);
-        Debug.Log($"[REBELLION] Supplies Secured. Morale: {globalMorale}%");
     }
 
     void Update()

@@ -40,7 +40,6 @@ public class MetalWheelInputHandler : MonoBehaviour
         catch (ArgumentException)
         {
             gamepadConfigSetup = false;
-            Debug.LogWarning("[MetalWheel] Gamepad inputs ('LeftBumper', 'RightStickVertical', etc.) are not configured in Edit -> Project Settings -> Input Manager. Controller support for the wheel is disabled temporarily to prevent spam.");
         }
     }
 

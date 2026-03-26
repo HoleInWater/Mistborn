@@ -16,7 +16,6 @@ public class SkaaCell : MonoBehaviour, IInteractable
     {
         if (suspicionLevel > 80f)
         {
-            Debug.Log("[CELL] Too high suspicion! We cannot talk now.");
             return;
         }
 

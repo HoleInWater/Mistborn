@@ -35,7 +35,6 @@ public class PlayerSetup : MonoBehaviour
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)
         {
-            Debug.LogError("PlayerSetup: No GameObject tagged 'Player' found!");
             return;
         }
 
@@ -44,7 +43,6 @@ public class PlayerSetup : MonoBehaviour
         if (playerCamera == null)
         {
             playerCamera = player.AddComponent<PlayerCamera>();
-            Debug.Log("Added PlayerCamera component to Player");
         }
 
         // Ensure AllomanticSight component exists
@@ -52,7 +50,6 @@ public class PlayerSetup : MonoBehaviour
         if (allomanticSight == null)
         {
             allomanticSight = player.AddComponent<AllomanticSight>();
-            Debug.Log("Added AllomanticSight component to Player");
         }
 
         // Copy camera references from BasicPlayerMove if they are assigned
@@ -79,7 +76,6 @@ public class PlayerSetup : MonoBehaviour
         {
             // Default to all layers (should be configured in inspector)
             allomanticSight.metalLayer = ~0; // Everything
-            Debug.Log("AllomanticSight metalLayer defaulted to all layers");
         }
 
         // Assign playerCamera reference in AllomanticSight if not set

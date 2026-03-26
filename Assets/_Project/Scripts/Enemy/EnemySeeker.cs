@@ -79,7 +79,6 @@ public class EnemySeeker : MonoBehaviour
     {
         if (aiController != null)
         {
-            Debug.Log($"[SEEKER] {gameObject.name} detected Allomancy from {target.name}!");
             aiController.SetEmotionState(AIController.EmotionState.Aggressive);
             // Future AIController logic should handle pathfinding to target
         }

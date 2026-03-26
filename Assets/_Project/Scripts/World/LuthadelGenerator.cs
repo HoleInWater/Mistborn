@@ -106,7 +106,6 @@ public class LuthadelGenerator : MonoBehaviour
         // Phase 6: Place landmarks
         PlaceLandmarks();
 
-        Debug.Log($"[LUTHADEL] City generated — {cityWidth}x{cityDepth} blocks, seed {seed}");
     }
 
     void AssignDistricts()

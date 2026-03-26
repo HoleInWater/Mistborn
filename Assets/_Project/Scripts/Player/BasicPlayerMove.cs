@@ -94,7 +94,6 @@ public class BasicPlayerMove : MonoBehaviour
         // so movement doesn't silently break — though look direction will be wrong
         if (cameraPivot == null)
         {
-            Debug.LogWarning("cameraPivot is not assigned! Falling back to player transform. Assign it in the Inspector.");
             cameraPivot = this.transform;
         }
  
@@ -117,7 +116,6 @@ public class BasicPlayerMove : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("cameraTransform is not assigned! Camera dolly and zoom will not work.");
             targetZoomDistance = defaultZoomDistance;
         }
  

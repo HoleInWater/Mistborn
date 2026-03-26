@@ -209,7 +209,6 @@ public class LoreCodex : MonoBehaviour
             {
                 entry.unlocked = true;
                 OnEntryUnlocked?.Invoke(entry);
-                Debug.Log($"[LORE] Unlocked: {entry.title}");
 
                 // Check achievement
                 CheckAllCollectedAchievement();
@@ -226,7 +225,6 @@ public class LoreCodex : MonoBehaviour
 
         if (unlocked >= total)
         {
-            Debug.Log("[LORE] ALL LORE ENTRIES COLLECTED — Achievement unlocked!");
             EventManager.TriggerEvent("AllLoreCollected");
         }
     }

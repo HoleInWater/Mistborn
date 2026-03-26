@@ -115,7 +115,6 @@ public class WeatherGameplayIntegration : MonoBehaviour
             Vector3 spawnPos = player.position + Random.onUnitSphere * 15f;
             spawnPos.y = player.position.y;
             Instantiate(mistSpiritPrefab, spawnPos, Quaternion.identity);
-            Debug.Log("[WEATHER] A mist spirit appears...");
         }
     }
 

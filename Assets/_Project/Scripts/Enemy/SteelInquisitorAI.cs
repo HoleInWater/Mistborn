@@ -130,11 +130,9 @@ public class SteelInquisitorAI : MonoBehaviour
         switch (phase)
         {
             case BossPhase.Atium:
-                Debug.Log("[INQUISITOR] Phase 2: Burning Atium — future sight active!");
                 if (agent != null) agent.speed = moveSpeed * 1.3f;
                 break;
             case BossPhase.AllBurn:
-                Debug.Log("[INQUISITOR] Phase 3: ALL METALS BURNING — FRENZY!");
                 if (agent != null) agent.speed = sprintSpeed * allBurnSpeedMultiplier;
                 break;
         }
@@ -270,7 +268,6 @@ public class SteelInquisitorAI : MonoBehaviour
         BasicPlayerMove pm = player.GetComponent<BasicPlayerMove>();
         if (pm != null) pm.externalSpeedMultiplier = 0.6f;
         CameraShakeManager.Instance?.Shake(1f, 0.2f);
-        Debug.Log("[INQUISITOR] Zinc Riot pulse!");
 
         // Reset after duration
         StartCoroutine(ResetEmotionalEffect(3f));
@@ -361,7 +358,6 @@ public class SteelInquisitorAI : MonoBehaviour
         if (agent != null) agent.isStopped = true;
         animator?.SetBool("IsStunned", true);
 
-        Debug.Log("[INQUISITOR] STUNNED — linchpin exposed!");
 
         yield return new WaitForSeconds(stunDuration);
 
@@ -379,7 +375,6 @@ public class SteelInquisitorAI : MonoBehaviour
         if (!linchpinExposed || isDead) return false;
         if (Vector3.Distance(transform.position, playerTransform.position) > spikeRemovalRange) return false;
 
-        Debug.Log("[INQUISITOR] LINCHPIN REMOVED — INSTANT DEATH!");
         currentHealth = 0;
         if (healthComponent != null) healthComponent.TakeDamage(healthComponent.GetMaxHealth());
         Die();

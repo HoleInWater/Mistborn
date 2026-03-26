@@ -82,7 +82,6 @@ public class DialogueManager : MonoBehaviour
     void EndDialogue()
     {
         dialoguePanel.SetActive(false);
-        Debug.Log("[DIALOGUE] End of conversation.");
     }
 
     void Update()

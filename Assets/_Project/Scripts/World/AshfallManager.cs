@@ -43,6 +43,5 @@ public class AshfallManager : MonoBehaviour
     public void SetIntensity(float val)
     {
         targetIntensity = Mathf.Clamp(val, 0f, 5f);
-        Debug.Log($"[ASHFALL] Intensity shifting to {targetIntensity}");
     }
 }
