@@ -34,12 +34,12 @@ public class SteelPush : MonoBehaviour
     public float pushCooldown      = 0.2f;
 
     [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]
-    [Tooltip("Base push speed — how fast objects fly away")]
-    public float pushSpeed = 35f;
-    [Tooltip("Max recoil speed on player when pushing anchored metal")]
-    public float maxRecoilSpeed = 30f;
-    [Tooltip("Force applied to loose objects")]
-    public float loosePushForce = 40f;
+    [Tooltip("Recoil speed when pushing anchored metal (launches player)")]
+    public float pushSpeed = 60f;
+    [Tooltip("Max recoil speed cap")]
+    public float maxRecoilSpeed = 50f;
+    [Tooltip("Speed applied to loose objects when pushed")]
+    public float loosePushForce = 80f;
     [Tooltip("Stronger push at close range")]
     public bool inverseDistanceScaling = true;
 
@@ -104,10 +104,11 @@ public class SteelPush : MonoBehaviour
 
     private KeyCode GetAbility2Key()
     {
-        if (allomancer == null) return KeyCode.F; 
+        // G key for steel bubble (F is parry/block)
+        if (allomancer == null) return KeyCode.G;
         var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return KeyCode.F;
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.F;
+        if (selector == null) return KeyCode.G;
+        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.G;
         if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.V;
         return KeyCode.None;
     }
