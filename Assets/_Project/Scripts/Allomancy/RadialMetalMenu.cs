@@ -52,6 +52,7 @@ public class RadialMetalMenu : MonoBehaviour
         if (allomancer == null) allomancer = GetComponentInParent<Allomancer>();
         if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
         if (wheelPanel != null) wheelPanel.SetActive(false);
+        previousTimeScale = 1f;
     }
 
     void Update()

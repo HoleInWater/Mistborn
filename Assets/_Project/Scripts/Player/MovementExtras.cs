@@ -186,8 +186,11 @@ public class MovementExtras : MonoBehaviour
         if (playerRb != null)
         {
             playerRb.useGravity = true;
-            Vector3 dir = (ziplineEnd.position - ziplineStart.position).normalized;
-            playerRb.AddForce(dir * ziplineDismountForce + Vector3.up * 3f, ForceMode.Impulse);
+            if (ziplineEnd != null && ziplineStart != null)
+            {
+                Vector3 dir = (ziplineEnd.position - ziplineStart.position).normalized;
+                playerRb.AddForce(dir * ziplineDismountForce + Vector3.up * 3f, ForceMode.Impulse);
+            }
         }
         if (playerMove != null) playerMove.enabled = true;
         ziplineStart = null;

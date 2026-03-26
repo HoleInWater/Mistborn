@@ -162,7 +162,7 @@ public class MetalLineRenderer : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             MetalLineData data = activeLines[i];
-            if (data.target == null) continue;
+            if (data.target == null || !data.target.gameObject.activeInHierarchy) continue;
 
             LineRenderer lr = linePool[i];
             lr.gameObject.SetActive(true);

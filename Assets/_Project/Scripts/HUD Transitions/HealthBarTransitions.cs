@@ -18,6 +18,7 @@ public class HealthBarTransitions : MonoBehaviour
 
     void OnEnable()
     {
+        if (uiDocument == null) return;
         var root = uiDocument.rootVisualElement;
         _progressBar = root.Q<ProgressBar>(progressBarName);
 
