@@ -59,6 +59,10 @@ public class ComboSystem : MonoBehaviour
         
         lastHitTime = Time.time;
         currentDamageMultiplier = 1f + (currentCombo * damageMultiplierPerHit);
+
+        // Achievement: 10-hit combo
+        if (currentCombo >= 10)
+            AchievementSystem.Instance?.TryUnlock("combo_10");
         
         // Build rage
         if (!isRaging)
