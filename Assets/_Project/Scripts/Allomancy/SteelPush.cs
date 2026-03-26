@@ -94,23 +94,14 @@ public class SteelPush : MonoBehaviour
 
     private KeyCode GetAbility1Key()
     {
-        if (allomancer == null) return KeyCode.E; 
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return KeyCode.E;
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.E;
-        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.Q;
-        return KeyCode.None;
+        // E always pushes — no metal selector dependency
+        return KeyCode.E;
     }
 
     private KeyCode GetAbility2Key()
     {
-        // G key for steel bubble (F is parry/block)
-        if (allomancer == null) return KeyCode.G;
-        var selector = allomancer.GetComponent<MetalSelector>();
-        if (selector == null) return KeyCode.G;
-        if (selector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.G;
-        if (selector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return KeyCode.V;
-        return KeyCode.None;
+        // G always does steel bubble — no selector dependency
+        return KeyCode.G;
     }
 
     public float   steelBubbleRadius             = 2.5f;
