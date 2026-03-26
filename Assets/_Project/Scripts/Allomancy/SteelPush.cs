@@ -35,11 +35,11 @@ public class SteelPush : MonoBehaviour
 
     [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]
     [Tooltip("Recoil speed when pushing anchored metal (launches player)")]
-    public float pushSpeed = 60f;
+    public float pushSpeed = 25f;
     [Tooltip("Max recoil speed cap")]
-    public float maxRecoilSpeed = 50f;
+    public float maxRecoilSpeed = 20f;
     [Tooltip("Speed applied to loose objects when pushed")]
-    public float loosePushForce = 80f;
+    public float loosePushForce = 35f;
     [Tooltip("Stronger push at close range")]
     public bool inverseDistanceScaling = true;
 

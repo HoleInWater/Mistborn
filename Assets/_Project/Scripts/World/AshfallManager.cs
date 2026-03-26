@@ -44,4 +44,16 @@ public class AshfallManager : MonoBehaviour
     {
         targetIntensity = Mathf.Clamp(val, 0f, 5f);
     }
+
+    /// <summary>
+    /// Follow the player so ash is always around them.
+    /// </summary>
+    void LateUpdate()
+    {
+        Transform player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (player != null)
+            transform.position = new Vector3(player.position.x, player.position.y + 15f, player.position.z);
+    }
+
+    public float GetIntensity() => ashIntensity;
 }
