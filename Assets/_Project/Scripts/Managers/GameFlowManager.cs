@@ -28,11 +28,7 @@ public class GameFlowManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
-<<<<<<< HEAD
 
-=======
-        DontDestroyOnLoad(gameObject);
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         InitializeStoryFlags();
     }
 
@@ -116,10 +112,6 @@ public class ObjectiveManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
-<<<<<<< HEAD
-=======
-        DontDestroyOnLoad(gameObject);
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
 
     public void AddObjective(Objective objective)

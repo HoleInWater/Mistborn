@@ -68,7 +68,6 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-<<<<<<< HEAD
         // Movement
         moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         lookInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
@@ -144,84 +143,5 @@ public class InputManager : MonoBehaviour
         if (PlayerPrefs.HasKey($"Keybind_{action}"))
             return (KeyCode)PlayerPrefs.GetInt($"Keybind_{action}");
         return defaultKey;
-=======
-        // Always read from Keybinds.* so SettingsManager rebinds take effect immediately.
-        // The instance key fields below are kept for legacy inspector overrides but are
-        // NOT polled here — Keybinds is the single source of truth.
-
-        // Movement
-        moveInput  = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        lookInput  = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        jumpPressed   = Input.GetKeyDown(Keybinds.Jump);
-        jumpHeld      = Input.GetKey(Keybinds.Jump);
-        sprintHeld    = Input.GetKey(Keybinds.Sprint);
-        crouchPressed = Input.GetKeyDown(Keybinds.Crouch);
-        crouchHeld    = Input.GetKey(Keybinds.Crouch);
-
-        // Combat
-        attackPressed      = Input.GetMouseButtonDown(Keybinds.LightAttack);
-        heavyAttackPressed = Input.GetMouseButtonDown(Keybinds.HeavyAttack);
-        blockHeld          = Input.GetKey(Keybinds.SteelBubble);
-        parryPressed       = Input.GetKeyDown(Keybinds.SteelBubble);
-        dodgePressed       = Input.GetKeyDown(Keybinds.DodgeRoll);
-
-        // Allomancy
-        pushPressed      = Input.GetKeyDown(Keybinds.SteelPush);
-        pushHeld         = Input.GetKey(Keybinds.SteelPush);
-        pullPressed      = Input.GetKeyDown(Keybinds.IronPull);
-        pullHeld         = Input.GetKey(Keybinds.IronPull);
-        burnTogglePressed = Input.GetKeyDown(Keybinds.BurnToggle);
-        metalWheelHeld   = Input.GetKey(Keybinds.MetalWheel);
-        scrollDelta      = Input.GetAxis("Mouse ScrollWheel");
-
-        // UI
-        pausePressed        = Input.GetKeyDown(Keybinds.Pause);
-        helpPressed         = Input.GetKeyDown(Keybinds.Help);
-        interactPressed     = Input.GetKeyDown(Keybinds.Interact);
-        recoverCoinsPressed = Input.GetKeyDown(recoverKey); // no Keybinds entry; keep local field
-    }
-
-    /// <summary>
-    /// Rebind a key at runtime. Delegates to SettingsManager so the change is
-    /// persisted and applied to Keybinds.* in one place.
-    /// Also updates this component's legacy instance fields for any code that
-    /// still reads them directly.
-    /// </summary>
-    public void RebindKey(string actionName, KeyCode newKey)
-    {
-        // Persist via SettingsManager (updates Keybinds.* + PlayerPrefs "KB_" keys)
-        SettingsManager.Instance?.SaveKeybind(actionName, newKey);
-
-        // Keep legacy instance fields in sync
-        switch (actionName)
-        {
-            case "Jump":       jumpKey       = newKey; break;
-            case "Sprint":     sprintKey     = newKey; break;
-            case "Crouch":     crouchKey     = newKey; break;
-            case "DodgeRoll":  dodgeKey      = newKey; break;
-            case "SteelPush":  pushKey       = newKey; break;
-            case "IronPull":   pullKey       = newKey; break;
-            case "BurnToggle": burnToggleKey = newKey; break;
-            case "MetalWheel": metalWheelKey = newKey; break;
-            case "Interact":   interactKey   = newKey; break;
-        }
-    }
-
-    /// <summary>
-    /// Sync legacy instance fields from current Keybinds.* values.
-    /// Call after SettingsManager.LoadSettings() if you need the fields current.
-    /// </summary>
-    public void SyncFromKeybinds()
-    {
-        jumpKey       = Keybinds.Jump;
-        sprintKey     = Keybinds.Sprint;
-        crouchKey     = Keybinds.Crouch;
-        dodgeKey      = Keybinds.DodgeRoll;
-        pushKey       = Keybinds.SteelPush;
-        pullKey       = Keybinds.IronPull;
-        burnToggleKey = Keybinds.BurnToggle;
-        metalWheelKey = Keybinds.MetalWheel;
-        interactKey   = Keybinds.SteelBubble;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
 }

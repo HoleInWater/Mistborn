@@ -53,10 +53,6 @@ public class AllomanticSight : MonoBehaviour
     
     // ===== PRIVATE STATE =====
     private bool isActive = false; // Whether the sight is currently active
-<<<<<<< HEAD
-=======
-    private Coroutine slowMotionCoroutine;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     private List<LineRenderer> activeLines = new List<LineRenderer>(); // Currently active line renderers
     private List<LineRenderer> linePool = new List<LineRenderer>(); // Pool of inactive line renderers for reuse
     private float metalReserve = 100f; // Current metal reserve for burning Tin
@@ -175,11 +171,7 @@ public class AllomanticSight : MonoBehaviour
     void Update()
     {
         // Check for Tab key press to toggle Allomantic Sight
-<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.Tab))
-=======
-        if (Input.GetKeyDown(Keybinds.MetalWheel))
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             ToggleSight();
         }
@@ -201,22 +193,12 @@ public class AllomanticSight : MonoBehaviour
         if (!isActive)
         {
             ClearLines();
-<<<<<<< HEAD
             Time.timeScale = 1f; // Reset time scale when turning off
         }
         else
         {
             // Slow-motion effect when turning on
             StartCoroutine(SlowMotionEffect(0.3f));
-=======
-            if (slowMotionCoroutine != null) { StopCoroutine(slowMotionCoroutine); slowMotionCoroutine = null; }
-            Time.timeScale = 1f;
-        }
-        else
-        {
-            if (slowMotionCoroutine != null) StopCoroutine(slowMotionCoroutine);
-            slowMotionCoroutine = StartCoroutine(SlowMotionEffect(0.3f));
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         }
         
         // Log state change (this Debug.Log should be removed for production)
@@ -229,10 +211,6 @@ public class AllomanticSight : MonoBehaviour
         Time.timeScale = 0.5f;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1f;
-<<<<<<< HEAD
-=======
-        slowMotionCoroutine = null;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
     
     // Draws lines from the player to all metal objects within range

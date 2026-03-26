@@ -38,11 +38,7 @@ public class Sprint : MonoBehaviour
 
     void Update()
     {
-<<<<<<< HEAD
         bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift);
-=======
-        bool isTryingToSprint = Input.GetKey(Keybinds.Sprint);
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 0.5f;
 
         if (isTryingToSprint && hasStamina)

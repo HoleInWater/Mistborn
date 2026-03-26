@@ -32,14 +32,8 @@ public class LoadingScreen : MonoBehaviour
 
     void Awake()
     {
-<<<<<<< HEAD
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
-=======
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);  // must survive the scene transition it triggered
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (loadingPanel != null) loadingPanel.SetActive(false);
     }
 
@@ -82,11 +76,7 @@ public class LoadingScreen : MonoBehaviour
         if (progressBar != null) progressBar.fillAmount = 1f;
         if (progressText != null) progressText.text = "100%";
 
-<<<<<<< HEAD
         yield return new WaitForSeconds(0.5f);
-=======
-        yield return new WaitForSecondsRealtime(0.5f);
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         op.allowSceneActivation = true;
     }
 

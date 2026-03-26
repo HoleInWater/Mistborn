@@ -12,10 +12,6 @@ public class MetalPickup : MonoBehaviour
     private bool isCollected = false;
     private Renderer objectRenderer;
     private Collider objectCollider;
-<<<<<<< HEAD
-=======
-    private Coroutine respawnCoroutine;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     
     void Start()
     {
@@ -52,7 +48,6 @@ public class MetalPickup : MonoBehaviour
         isCollected = true;
         if (objectRenderer != null) objectRenderer.enabled = false;
         if (objectCollider != null) objectCollider.enabled = false;
-<<<<<<< HEAD
         
         Invoke("Respawn", respawnTime);
     }
@@ -60,23 +55,6 @@ public class MetalPickup : MonoBehaviour
     void Respawn()
     {
         isCollected = false;
-=======
-
-        if (respawnCoroutine != null) StopCoroutine(respawnCoroutine);
-        respawnCoroutine = StartCoroutine(RespawnAfterDelay());
-    }
-
-    IEnumerator RespawnAfterDelay()
-    {
-        yield return new WaitForSecondsRealtime(respawnTime);
-        Respawn();
-    }
-
-    void Respawn()
-    {
-        isCollected = false;
-        respawnCoroutine = null;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (objectRenderer != null) objectRenderer.enabled = true;
         if (objectCollider != null) objectCollider.enabled = true;
     }

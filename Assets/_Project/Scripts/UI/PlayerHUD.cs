@@ -2,26 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-<<<<<<< HEAD
 /// Master HUD controller — XP bar, coin counter, quest tracker, compass markers.
-=======
-/// Master HUD controller — health, XP, stamina, coins, quest tracker, compass.
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
 /// Single Update loop drives all lightweight HUD elements for performance.
 /// </summary>
 public class PlayerHUD : MonoBehaviour
 {
-<<<<<<< HEAD
-=======
-    [Header("Health")]
-    public Image healthBarFill;     // set fillAmount = currentHP / maxHP
-    public Text  healthText;        // optional "85 / 100" label
-
-    [Header("Stamina")]
-    public Image staminaBarFill;    // set fillAmount = currentStamina / maxStamina
-    public Text  staminaText;       // optional numeric label
-
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     [Header("XP & Level")]
     public Image xpBarFill;
     public Text levelText;
@@ -52,11 +37,6 @@ public class PlayerHUD : MonoBehaviour
 
     // Cached refs
     private PlayerExperience xp;
-<<<<<<< HEAD
-=======
-    private PlayerHealth playerHealth;
-    private PlayerStamina stamina;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     private CoinPouch coins;
     private MetalVialSystem vials;
     private StatusEffects statusEffects;
@@ -69,29 +49,17 @@ public class PlayerHUD : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-<<<<<<< HEAD
             xp = player.GetComponent<PlayerExperience>();
             coins = player.GetComponent<CoinPouch>();
             vials = player.GetComponent<MetalVialSystem>();
-=======
-            xp           = player.GetComponent<PlayerExperience>();
-            playerHealth = player.GetComponent<PlayerHealth>();
-            stamina      = player.GetComponent<PlayerStamina>();
-            coins        = player.GetComponent<CoinPouch>();
-            vials        = player.GetComponent<MetalVialSystem>();
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
             statusEffects = player.GetComponent<StatusEffects>();
         }
 
         mainCam = Camera.main;
 
-<<<<<<< HEAD
         // Listen for level ups
         if (xp != null)
             xp.OnLevelUp += OnLevelUp;
-=======
-        if (xp != null) xp.OnLevelUp += OnLevelUp;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
 
     void Update()
@@ -100,11 +68,6 @@ public class PlayerHUD : MonoBehaviour
         if (hudUpdateTimer > 0f) return;
         hudUpdateTimer = HUD_UPDATE_INTERVAL;
 
-<<<<<<< HEAD
-=======
-        UpdateHealthBar();
-        UpdateStaminaBar();
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         UpdateXPBar();
         UpdateCoinCounter();
         UpdateQuestTracker();
@@ -113,35 +76,6 @@ public class PlayerHUD : MonoBehaviour
         UpdateStatusEffects();
     }
 
-<<<<<<< HEAD
-=======
-    // ── Health ───────────────────────────────────────────────────────────
-
-    void UpdateHealthBar()
-    {
-        if (playerHealth == null) return;
-
-        float current = playerHealth.GetCurrentHealth();
-        float max     = playerHealth.GetMaxHealth();
-        float ratio   = max > 0f ? current / max : 0f;
-
-        if (healthBarFill != null) healthBarFill.fillAmount = ratio;
-        if (healthText    != null) healthText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
-    }
-
-    // ── Stamina ──────────────────────────────────────────────────────────
-
-    void UpdateStaminaBar()
-    {
-        if (stamina == null) return;
-
-        float ratio = stamina.maxStamina > 0f ? stamina.currentStamina / stamina.maxStamina : 0f;
-
-        if (staminaBarFill != null) staminaBarFill.fillAmount = ratio;
-        if (staminaText    != null) staminaText.text = $"{Mathf.CeilToInt(stamina.currentStamina)}";
-    }
-
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     // ── XP ───────────────────────────────────────────────────────────────
 
     void UpdateXPBar()

@@ -51,16 +51,9 @@ public class NotificationSystem : MonoBehaviour
             if (text != null) text.text = message;
         }
 
-<<<<<<< HEAD
         yield return new WaitForSeconds(displayDuration);
 
         // Fade out
-=======
-        // WaitForSecondsRealtime so notifications still appear while the game is paused
-        yield return new WaitForSecondsRealtime(displayDuration);
-
-        // Fade out (also realtime so it completes during pause)
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (notif != null)
         {
             CanvasGroup cg = notif.GetComponent<CanvasGroup>();
@@ -69,11 +62,7 @@ public class NotificationSystem : MonoBehaviour
             float alpha = 1f;
             while (alpha > 0f)
             {
-<<<<<<< HEAD
                 alpha -= Time.deltaTime * fadeSpeed;
-=======
-                alpha -= Time.unscaledDeltaTime * fadeSpeed;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
                 cg.alpha = alpha;
                 yield return null;
             }

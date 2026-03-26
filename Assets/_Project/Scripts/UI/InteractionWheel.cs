@@ -42,10 +42,6 @@ public class InteractionWheel : MonoBehaviour
 
     void Start()
     {
-<<<<<<< HEAD
-=======
-        openKey = Keybinds.Interact;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (playerCamera == null) playerCamera = Camera.main;
         if (allomancer == null) allomancer = GetComponentInParent<Allomancer>();
         if (wheelPanel != null) wheelPanel.SetActive(false);

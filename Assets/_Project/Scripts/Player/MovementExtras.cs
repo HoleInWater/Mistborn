@@ -62,13 +62,8 @@ public class MovementExtras : MonoBehaviour
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         float upDown = 0f;
-<<<<<<< HEAD
         if (Input.GetKey(KeyCode.Space)) upDown = 1f;
         if (Input.GetKey(KeyCode.LeftControl)) upDown = -1f;
-=======
-        if (Input.GetKey(Keybinds.Jump)) upDown = 1f;
-        if (Input.GetKey(Keybinds.Crouch)) upDown = -1f;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
 
         Vector3 swimDir = (Camera.main.transform.forward * v + Camera.main.transform.right * h + Vector3.up * upDown).normalized;
         playerRb.linearVelocity = swimDir * swimSpeed;
@@ -100,11 +95,7 @@ public class MovementExtras : MonoBehaviour
         playerRb.linearVelocity = new Vector3(0, v * climbSpeed, 0);
 
         // Dismount
-<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.Space))
-=======
-        if (Input.GetKeyDown(Keybinds.Jump))
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             ExitClimb();
             playerRb.AddForce(-currentLadder.forward * 3f + Vector3.up * 3f, ForceMode.Impulse);
@@ -123,11 +114,7 @@ public class MovementExtras : MonoBehaviour
         if (playerRb != null) playerRb.linearVelocity = Vector3.zero;
 
         // Auto-dismount at end or on jump
-<<<<<<< HEAD
         if (ziplineProgress >= 1f || Input.GetKeyDown(KeyCode.Space))
-=======
-        if (ziplineProgress >= 1f || Input.GetKeyDown(Keybinds.Jump))
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             ExitZipline();
         }

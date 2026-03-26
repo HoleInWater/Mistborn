@@ -35,10 +35,6 @@ public class PlayerInteractor : MonoBehaviour
 
     private void CheckForInteractable()
     {
-<<<<<<< HEAD
-=======
-        if (mainCam == null) return;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         Ray ray = new Ray(mainCam.transform.position, mainCam.transform.forward);
         RaycastHit hit;
 

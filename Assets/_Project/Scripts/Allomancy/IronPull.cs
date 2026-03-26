@@ -98,11 +98,7 @@ public class IronPull : MonoBehaviour
     private KeyCode GetAbility1Key()
     {
         // Q always pulls — no metal selector dependency
-<<<<<<< HEAD
         return KeyCode.Q;
-=======
-        return Keybinds.IronPull;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
@@ -180,10 +176,6 @@ public class IronPull : MonoBehaviour
         currentTargetRigidbody = null;
         isAnchored             = false;
 
-<<<<<<< HEAD
-=======
-        if (playerRigidbody == null) return;
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;

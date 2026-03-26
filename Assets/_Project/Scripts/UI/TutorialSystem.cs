@@ -25,10 +25,6 @@ public class TutorialSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
-<<<<<<< HEAD
-=======
-        DontDestroyOnLoad(gameObject);
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
         if (helpOverlayPanel != null) helpOverlayPanel.SetActive(false);
     }
@@ -36,11 +32,7 @@ public class TutorialSystem : MonoBehaviour
     void Update()
     {
         // F1 toggles help overlay
-<<<<<<< HEAD
         if (Input.GetKeyDown(KeyCode.F1))
-=======
-        if (Input.GetKeyDown(Keybinds.Help))
->>>>>>> 7daa366c60caed24ce0c1046ca4c50300c733d1a
         {
             if (helpOverlayPanel != null)
                 helpOverlayPanel.SetActive(!helpOverlayPanel.activeSelf);
