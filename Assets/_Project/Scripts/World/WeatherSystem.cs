@@ -32,6 +32,7 @@ public class WeatherSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         targetWeather = currentWeather;
     }
 

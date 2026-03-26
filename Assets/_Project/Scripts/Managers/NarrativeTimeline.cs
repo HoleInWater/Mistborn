@@ -35,6 +35,7 @@ public class NarrativeTimeline : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         PopulateStoryBeats();
         totalChapters = storyBeats.Count;
     }

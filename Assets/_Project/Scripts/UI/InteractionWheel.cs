@@ -73,6 +73,7 @@ public class InteractionWheel : MonoBehaviour
 
     void QuickInteract()
     {
+        if (playerCamera == null) return;
         // Quick press E — interact with nearest object
         RaycastHit hit;
         if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, detectionRange))

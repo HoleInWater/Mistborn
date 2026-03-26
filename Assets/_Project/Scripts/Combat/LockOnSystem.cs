@@ -79,6 +79,7 @@ public class LockOnSystem : MonoBehaviour
 
     void FindTarget()
     {
+        if (mainCamera == null) return;
         float range = searchRadius;
         if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
             range += atiumSearchBonus;
