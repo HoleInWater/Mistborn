@@ -65,7 +65,8 @@ public class BasicPlayerMove : MonoBehaviour
     private float targetZoomDistance;      // Desired camera distance set by the scroll wheel
  
     private PlayerStamina staminaSystem;
- 
+    private bool hasDedicatedCameraController; // Set in Start; if true, skip HandleCamera/HandleZoom
+
     // Input values cached in Update and consumed in FixedUpdate / HandleMovement
     private float inputX;
     private float inputZ;
@@ -125,6 +126,10 @@ public class BasicPlayerMove : MonoBehaviour
         }
  
         staminaSystem = GetComponent<PlayerStamina>();
+
+        // If a dedicated PlayerCamera component is present, let it own all camera
+        // rotation and collision — skip the duplicate logic here to prevent fighting.
+        hasDedicatedCameraController = GetComponent<PlayerCamera>() != null;
     }
  
     void Update()
@@ -158,8 +163,11 @@ public class BasicPlayerMove : MonoBehaviour
             }
         }
  
-        HandleCamera();
-        HandleZoom();
+        if (!hasDedicatedCameraController)
+        {
+            HandleCamera();
+            HandleZoom();
+        }
     }
  
     void FixedUpdate()
@@ -300,6 +308,7 @@ public class BasicPlayerMove : MonoBehaviour
     {
         // LateUpdate runs after all Update calls, so the camera always reads the
         // final pivot rotation for the frame — this prevents one-frame jitter
+        if (hasDedicatedCameraController) return; // PlayerCamera owns collision dolly
         if (cameraTransform == null || cameraPivot == null) return;
  
         // Work out the world-space position the camera wants to sit at
