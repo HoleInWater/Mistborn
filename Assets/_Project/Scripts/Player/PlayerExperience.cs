@@ -24,6 +24,7 @@ public class PlayerExperience : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void AddXP(float amount)

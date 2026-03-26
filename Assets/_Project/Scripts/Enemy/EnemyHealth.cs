@@ -55,7 +55,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     
     public float GetHealthPercentage()
     {
-        return currentHealth / maxHealth;
+        return maxHealth > 0f ? currentHealth / maxHealth : 0f;
     }
 
     public float GetCurrentHealth() => currentHealth;

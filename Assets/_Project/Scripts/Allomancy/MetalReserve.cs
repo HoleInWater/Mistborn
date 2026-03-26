@@ -54,6 +54,7 @@ public class MetalReserve : MonoBehaviour
         foreach (var kvp in _metalBars)
         {
             int index = (int)kvp.Key;
+            if (index < 0 || index >= reserves.Length) continue;
             float currentValue = reserves[index];
 
             if (!Mathf.Approximately(_lastDisplayedReserves[index], currentValue))
