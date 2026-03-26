@@ -100,7 +100,7 @@ public class GrappleSystem : MonoBehaviour
 
     void UpdateGrapple()
     {
-        if (grappleTarget == null)
+        if (grappleTarget == null || playerRb == null)
         {
             ReleaseGrapple();
             return;

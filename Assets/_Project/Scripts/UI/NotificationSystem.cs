@@ -51,7 +51,7 @@ public class NotificationSystem : MonoBehaviour
             if (text != null) text.text = message;
         }
 
-        yield return new WaitForSeconds(displayDuration);
+        yield return new WaitForSecondsRealtime(displayDuration);
 
         // Fade out
         if (notif != null)
