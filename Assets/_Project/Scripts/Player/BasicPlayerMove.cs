@@ -86,8 +86,13 @@ public class BasicPlayerMove : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;  // Prevent tunneling at high speed (Steel Push)
         rb.isKinematic = false;
         rb.sleepThreshold = 0.0f;                                       // Never sleep mid-movement
-        rb.linearDamping = 2f;                                           // Slight drag so player doesn't slide forever after push/pull
-        rb.angularDamping = 5f;                                          // Prevent spinning
+        // Don't override damping here — PlayerAutoSetup sets it to 0.5
+        // Only set if no PlayerAutoSetup is present
+        if (GetComponent<PlayerAutoSetup>() == null)
+        {
+            rb.linearDamping = 0.5f;
+            rb.angularDamping = 5f;
+        }
         rb.constraints = RigidbodyConstraints.FreezeRotation;           // Lock all rotation axes
  
         // If cameraPivot isn't assigned in the Inspector, fall back to this transform
