@@ -45,7 +45,9 @@ public class EnemyHealthBarUI : MonoBehaviour
     {
         if (enemyHealth == null) return;
 
-        float hpPercent = enemyHealth.GetCurrentHealth() / enemyHealth.GetMaxHealth();
+        float maxHp = enemyHealth.GetMaxHealth();
+        if (maxHp <= 0f) return;
+        float hpPercent = enemyHealth.GetCurrentHealth() / maxHp;
 
         // Detect damage
         if (hpPercent < lastHealthPercent - 0.01f)

@@ -102,7 +102,8 @@ public class WaypointSystem : MonoBehaviour
             CanvasGroup cg = wp.uiInstance.GetComponent<CanvasGroup>();
             if (cg != null)
             {
-                float fade = dist > distanceFadeStart ? 1f - ((dist - distanceFadeStart) / (maxRenderDistance - distanceFadeStart)) : 1f;
+                float fadeRange = Mathf.Max(maxRenderDistance - distanceFadeStart, 0.01f);
+                float fade = dist > distanceFadeStart ? 1f - ((dist - distanceFadeStart) / fadeRange) : 1f;
                 cg.alpha = fade;
             }
         }
