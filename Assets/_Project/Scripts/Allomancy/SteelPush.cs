@@ -92,17 +92,8 @@ public class SteelPush : MonoBehaviour
     // [AGENT REVIEW] Dynamically bound based on primary/secondary state
     public KeyCode steelBubbleKey => GetAbility2Key();
 
-    private KeyCode GetAbility1Key()
-    {
-        // E always pushes — no metal selector dependency
-        return KeyCode.E;
-    }
-
-    private KeyCode GetAbility2Key()
-    {
-        // G always does steel bubble — no selector dependency
-        return KeyCode.G;
-    }
+    private KeyCode GetAbility1Key() => Keybinds.SteelPush;
+    private KeyCode GetAbility2Key() => Keybinds.SteelBubble;
 
     public float   steelBubbleRadius             = 2.5f;
     public float   steelBubbleForce              = 50f;
