@@ -34,7 +34,7 @@ public static class Keybinds
     public static KeyCode SteelPush = KeyCode.E;
     public static KeyCode IronPull = KeyCode.Q;
     public static KeyCode SteelBubble = KeyCode.F;
-    public static KeyCode MetalSight = KeyCode.Z;
+    public static KeyCode MetalSight = KeyCode.T;
     public static KeyCode BurnToggle = KeyCode.B;
     public static KeyCode MetalWheel = KeyCode.Tab;
     public static KeyCode DrinkVial = KeyCode.X;
