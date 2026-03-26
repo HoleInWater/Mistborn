@@ -14,9 +14,9 @@ public class PlayerAutoSetup : MonoBehaviour
         SteelPush push = GetComponent<SteelPush>();
         if (push != null)
         {
-            push.pushSpeed = 60f;
-            push.maxRecoilSpeed = 50f;
-            push.loosePushForce = 80f;
+            push.pushSpeed = 25f;        // Smooth launch, not rocket
+            push.maxRecoilSpeed = 20f;   // Cap so you don't fly to infinity
+            push.loosePushForce = 35f;   // Coins fly fast but not insane
             push.pushCooldown = 0.2f;
             push.maxRange = 30f;
             push.minDistance = 1f;
@@ -28,9 +28,9 @@ public class PlayerAutoSetup : MonoBehaviour
         IronPull pull = GetComponent<IronPull>();
         if (pull != null)
         {
-            pull.pullSpeed = 45f;
-            pull.maxPullSpeed = 40f;
-            pull.loosePullForce = 60f;
+            pull.pullSpeed = 20f;        // Smooth yank toward target
+            pull.maxPullSpeed = 18f;     // Cap for control
+            pull.loosePullForce = 30f;   // Objects come toward you at reasonable speed
             pull.maxRange = 30f;
             pull.minDistance = 1f;
             pull.inverseDistanceScaling = true;
@@ -49,7 +49,7 @@ public class PlayerAutoSetup : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearDamping = 2f;
+            rb.linearDamping = 0.5f; // Low drag so push/pull carries you far
             rb.angularDamping = 5f;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             rb.constraints = RigidbodyConstraints.FreezeRotation;

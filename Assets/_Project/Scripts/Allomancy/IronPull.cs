@@ -35,11 +35,11 @@ public class IronPull : MonoBehaviour
 
     [Header("Pull Physics — PHYSICS-MATH-BOOK.md Section 2")]
     [Tooltip("Pull speed when yanking toward anchored metal")]
-    public float pullSpeed = 45f;
+    public float pullSpeed = 20f;
     [Tooltip("Max speed player can reach from pulling")]
-    public float maxPullSpeed = 40f;
+    public float maxPullSpeed = 18f;
     [Tooltip("Speed applied to loose objects pulled toward player")]
-    public float loosePullForce = 60f;
+    public float loosePullForce = 30f;
     [Tooltip("Stronger pull at close range")]
     public bool inverseDistanceScaling = true;
 
