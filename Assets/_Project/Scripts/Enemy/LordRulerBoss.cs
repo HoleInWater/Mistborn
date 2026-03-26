@@ -463,7 +463,7 @@ public class LordRulerBoss : MonoBehaviour
         if (agent != null) agent.isStopped = true;
         animator?.SetBool("IsStunned", true);
 
-        yield return new WaitForSeconds(stunDuration);
+        yield return new WaitForSecondsRealtime(stunDuration);
 
         isStunned = false;
         metalmindsExposed = false;

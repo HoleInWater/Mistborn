@@ -99,6 +99,7 @@ public class CoinPouch : MonoBehaviour
     void ThrowAndPushCoin()
     {
         if (coinPrefab == null || coinCount <= 0) return;
+        if (playerCamera == null) return;
         coinCount--;
 
         Vector3 dir = playerCamera.transform.forward;
@@ -123,7 +124,7 @@ public class CoinPouch : MonoBehaviour
             float playerRatio, objectRatio;
             AllomancyPhysicsFormulas.CalculateMassRatios(
                 playerRigidbody.mass, coinMass, false, out playerRatio, out objectRatio);
-            playerRigidbody.AddForce(-dir * force * playerRatio * Time.fixedDeltaTime, ForceMode.Impulse);
+            playerRigidbody.AddForce(-dir * force * playerRatio, ForceMode.Impulse);
         }
 
         DrainMetal(1f);
