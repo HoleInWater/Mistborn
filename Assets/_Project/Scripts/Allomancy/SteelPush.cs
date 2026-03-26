@@ -109,21 +109,13 @@ public class SteelPush : MonoBehaviour
     public bool debugCalibration = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
-    // No burn state — push works on click without needing to "burn" first
-
-    private bool IsFlaring =>
-        FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
-
-    private float FlareLevel =>
-        FlareManager.Instance != null
-            ? (float)(FlareManager.Instance.Intensity - 1) / (FlareManager.Instance.maxIntensitySteps - 1)
-            : 0f;
 
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
-    private bool  eKeyWasPressed         = false;
-    private bool  bubbleAppliedThisPress = false;
+    private bool IsFlaring =>
+        FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
+
     private float cooldownTimer          = 0f;
     private float steelBubbleCooldownTimer = 0f;
 
