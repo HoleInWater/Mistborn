@@ -23,7 +23,6 @@ public class MetalSelector : MonoBehaviour
     private AllomancySkill.MetalType primaryMetal;
     private AllomancySkill.MetalType secondaryMetal;
     private bool isPrimaryActive = true; // Which metal is currently active for E/Q
-    public bool IsWheelOpen => isWheelOpen;
     
     void Start()
     {
