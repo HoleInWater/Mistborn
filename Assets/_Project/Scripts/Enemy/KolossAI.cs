@@ -256,7 +256,7 @@ public class KolossAI : MonoBehaviour
 
     IEnumerator DocileDeath()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSecondsRealtime(5f);
         OnDeath();
     }
 

@@ -48,15 +48,21 @@ public class AllomanticObjectInteraction : MonoBehaviour
             CameraShakeManager.Instance?.Shake(0.15f, 0.1f);
         }
 
-        // Audio
-        if (impactSound != null)
-            AudioSource.PlayClipAtPoint(impactSound, collision.contacts[0].point);
-        else
-            SoundManager.Instance?.PlayImpactSound();
+        // Audio / particle effect — only if there are valid contact points
+        if (collision.contactCount > 0)
+        {
+            Vector3 contactPoint = collision.contacts[0].point;
+            if (impactSound != null)
+                AudioSource.PlayClipAtPoint(impactSound, contactPoint);
+            else
+                SoundManager.Instance?.PlayImpactSound();
 
-        // Particle effect
-        ParticleEffectsManager.Instance?.PlayHitEffect(
-            collision.contacts[0].point, damage);
+            ParticleEffectsManager.Instance?.PlayHitEffect(contactPoint, damage);
+        }
+        else
+        {
+            SoundManager.Instance?.PlayImpactSound();
+        }
     }
 
     /// <summary>
