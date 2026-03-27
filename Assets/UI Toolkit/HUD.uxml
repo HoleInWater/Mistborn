@@ -21,5 +21,5 @@
         <ui:ProgressBar value="100" title="Chromium" name="Metal_Chromium" class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Nicrosil" name="Metal_Nicrosil" class="HUD MetalBar"/>
     </ui:VisualElement>
-    <ui:ProgressBar value="49.5" title="Stamina" name="Stamina" class="HUD Stamina" style="margin-top: 10px; width: 30%; height: auto; color: rgb(255, 255, 255);"/>
+    <ui:ProgressBar value="49.5" title="Stamina" name="Stamina" class="HUD Stamina" style="margin-top: 10px; width: 25%; height: auto; color: rgb(255, 255, 255);"/>
 </ui:UXML>
