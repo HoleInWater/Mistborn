@@ -150,6 +150,7 @@ public class LordRulerBoss : MonoBehaviour
 
     void UpdatePhase()
     {
+        if (maxHealth <= 0f) return;
         float hpPercent = health / maxHealth;
         BossPhase newPhase;
 
@@ -509,7 +510,7 @@ public class LordRulerBoss : MonoBehaviour
 
     // ── Public API ───────────────────────────────────────────────────────
     public BossPhase GetPhase() => currentPhase;
-    public float GetHealthPercent() => health / maxHealth;
+    public float GetHealthPercent() => maxHealth > 0f ? health / maxHealth : 0f;
     public bool IsCompoundingDisabled() => compoundingDisabled;
     public bool IsDead() => isDead;
 }

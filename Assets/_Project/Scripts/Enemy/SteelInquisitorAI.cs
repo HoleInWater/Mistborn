@@ -416,5 +416,5 @@ public class SteelInquisitorAI : MonoBehaviour
     // ── Public API ───────────────────────────────────────────────────────
     public BossPhase GetPhase() => currentPhase;
     public bool IsStunned() => isStunned;
-    public float GetHealthPercent() => currentHealth / maxHealth;
+    public float GetHealthPercent() => maxHealth > 0f ? currentHealth / maxHealth : 0f;
 }
