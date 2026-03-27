@@ -99,13 +99,13 @@ public class PlayerRagdoll : MonoBehaviour
             rb.AddForce(direction * force * 0.3f, ForceMode.Impulse);
         }
 
-        yield return new WaitForSeconds(ragdollDuration);
+        yield return new WaitForSecondsRealtime(ragdollDuration);
 
         // Recovery
         isRecovering = true;
         DisableRagdoll();
 
-        yield return new WaitForSeconds(recoverDuration);
+        yield return new WaitForSecondsRealtime(recoverDuration);
         isRecovering = false;
     }
 
