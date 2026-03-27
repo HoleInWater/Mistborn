@@ -63,11 +63,12 @@ public class SteelPush : MonoBehaviour
     public float masteryBonus = 1f;
 
     [Header("References")]
-    public Camera     playerCamera;
-    public LayerMask  metalLayer;
-    public Allomancer allomancer;
-    public Rigidbody  playerRigidbody;
-    public Transform  chestTransform;
+    public Camera         playerCamera;
+    public LayerMask      metalLayer;
+    public Allomancer     allomancer;
+    public Rigidbody      playerRigidbody;
+    public Transform      chestTransform;
+    public MetalSelector  metalSelector;
 
     [Header("Visual Effects")]
     public float shakeMagnitude      = 0.1f;
@@ -102,7 +103,18 @@ public class SteelPush : MonoBehaviour
     // [AGENT REVIEW] Dynamically bound based on primary/secondary state
     public KeyCode steelBubbleKey => GetAbility2Key();
 
-    private KeyCode GetAbility1Key() => Keybinds.SteelPush;
+    private KeyCode GetAbility1Key()
+    {
+        if (metalSelector != null)
+        {
+            if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel)
+                return Keybinds.SteelPush;   // E = primary slot
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
+                return Keybinds.IronPull;    // Q = secondary slot
+            return KeyCode.None;             // Steel not equipped in either slot
+        }
+        return Keybinds.SteelPush;           // fallback if no selector
+    }
     private KeyCode GetAbility2Key() => Keybinds.SteelBubble;
 
     public float steelBubbleRadius              = 2.5f;
@@ -142,6 +154,8 @@ public class SteelPush : MonoBehaviour
         if (playerRigidbody == null) playerRigidbody = GetComponentInParent<Rigidbody>();
         if (playerCamera    == null) playerCamera    = Camera.main;
         if (allomancer      == null) allomancer      = GetComponentInParent<Allomancer>();
+
+        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
 
         if (chestTransform == null)
         {

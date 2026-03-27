@@ -51,11 +51,12 @@ public class IronPull : MonoBehaviour
     public bool inverseDistanceScaling = true;
 
     [Header("References")]
-    public Camera playerCamera;
-    public LayerMask metalLayer;
-    public Allomancer allomancer;
-    public Rigidbody playerRigidbody;
-    public Transform chestTransform;
+    public Camera        playerCamera;
+    public LayerMask     metalLayer;
+    public Allomancer    allomancer;
+    public Rigidbody     playerRigidbody;
+    public Transform     chestTransform;
+    public MetalSelector metalSelector;
 
     [Header("Visual Effects")]
     public GameObject pullEffectPrefab;
@@ -97,8 +98,15 @@ public class IronPull : MonoBehaviour
 
     private KeyCode GetAbility1Key()
     {
-        // Q always pulls — no metal selector dependency
-        return KeyCode.Q;
+        if (metalSelector != null)
+        {
+            if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron)
+                return Keybinds.SteelPush;   // E = primary slot
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron)
+                return Keybinds.IronPull;    // Q = secondary slot
+            return KeyCode.None;             // Iron not equipped in either slot
+        }
+        return Keybinds.IronPull;            // fallback if no selector
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
@@ -110,6 +118,8 @@ public class IronPull : MonoBehaviour
         if (allomancer      == null) allomancer      = GetComponentInParent<Allomancer>();
 
         metalLayer = LayerMask.GetMask("Metal");
+
+        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
 
         if (chestTransform == null)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;

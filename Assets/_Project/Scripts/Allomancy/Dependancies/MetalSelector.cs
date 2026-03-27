@@ -12,7 +12,7 @@ public class MetalSelector : MonoBehaviour
     private float scrollTimer = 0f;
     
     [Header("Two-Metal Selection")]
-    public KeyCode swapMetalsKey = KeyCode.LeftAlt; // Key to swap between primary and secondary
+    public KeyCode swapMetalsKey = KeyCode.Tab; // Key to swap between primary and secondary (matches Keybinds.MetalWheel)
     
     [Header("References")]
     public Allomancer allomancer;
