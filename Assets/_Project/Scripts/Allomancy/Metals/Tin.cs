@@ -92,6 +92,7 @@ public class Tin : MonoBehaviour
 
             originalCameraLocalPos = playerCamera.transform.localPosition;
         }
+        Debug.Log($"Exposure: {exposure}, Fog: {fog}, ColorAdj: {colorAdjustments}, Vignette: {vignette}");
     }
 
     void Update()
