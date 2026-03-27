@@ -61,9 +61,8 @@ public class MetalSelector : MonoBehaviour
     void Update()
     {
         bool wheelIsOpen = metalWheelInputHandler != null && metalWheelInputHandler.IsWheelOpen;
-        bool isBurning = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
 
-        if (!wheelIsOpen && !isBurning)
+        if (!wheelIsOpen)
         {
             float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
             if (scrollTimer <= 0f)
