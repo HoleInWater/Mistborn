@@ -42,12 +42,20 @@ public class MetalSelector : MonoBehaviour
     
     void Update()
     {
-        // OLD CODE REMOVED: Scroll Wheel metal selection has been migrated exclusively to the 
-        // new MetalWheelController GUI system. This prevents catastrophic input collisions
-        // when the user attempts to Flare their metals using the scroll wheel.
-        
+        // Scroll wheel selects metal (only when not burning — avoids flare intensity collision)
+        if (!FlareManager.Instance || !FlareManager.Instance.IsBurning)
+        {
+            float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
+            if (scrollTimer <= 0f)
+            {
+                if (scroll > 0f) { SelectNextMetal();     scrollTimer = scrollCooldown; }
+                if (scroll < 0f) { SelectPreviousMetal(); scrollTimer = scrollCooldown; }
+            }
+        }
+        if (scrollTimer > 0f) scrollTimer -= Time.deltaTime;
+
         // Handle metal swap
-        if (Input.GetKeyDown(swapMetalsKey))
+        if (Input.GetKeyDown(Keybinds.MetalWheel))
         {
             SwapMetals();
         }
