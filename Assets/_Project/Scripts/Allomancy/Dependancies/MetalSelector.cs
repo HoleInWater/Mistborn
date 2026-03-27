@@ -10,43 +10,56 @@ public class MetalSelector : MonoBehaviour
     [Header("Selection")]
     public float scrollCooldown = 0.2f;
     private float scrollTimer = 0f;
-    
+
     [Header("Two-Metal Selection")]
-    public KeyCode swapMetalsKey = KeyCode.Tab; // Key to swap between primary and secondary (matches Keybinds.MetalWheel)
-    
+    public KeyCode swapMetalsKey = KeyCode.Tab;
+
     [Header("References")]
     public Allomancer allomancer;
     public MetalReserve metalReserve;
-    public MetalWheelInputHandler metalWheelInputHandler; // Assign in Inspector
-    
-    // Track both selected metals
+    public MetalWheelInputHandler metalWheelInputHandler;
+
     private AllomancySkill.MetalType primaryMetal;
     private AllomancySkill.MetalType secondaryMetal;
-    private bool isPrimaryActive = true; // Which metal is currently active for E/Q
-    
+    private bool isPrimaryActive = true;
+
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponent<Allomancer>();
-        
+
         if (metalReserve == null)
             metalReserve = GetComponentInParent<MetalReserve>();
 
         if (metalWheelInputHandler == null)
             metalWheelInputHandler = FindObjectOfType<MetalWheelInputHandler>();
-        
-        // Initialize with default metals (Steel primary, Iron secondary)
+
+        // Subscribe to wheel open so we can flush any pending scroll input
+        if (metalWheelInputHandler != null)
+            metalWheelInputHandler.OnWheelOpenTriggered += OnWheelOpened;
+
         primaryMetal = AllomancySkill.MetalType.Steel;
         secondaryMetal = AllomancySkill.MetalType.Iron;
         isPrimaryActive = true;
-        
-        // Set the active metal
+
         UpdateActiveMetal();
     }
-    
+
+    void OnDestroy()
+    {
+        if (metalWheelInputHandler != null)
+            metalWheelInputHandler.OnWheelOpenTriggered -= OnWheelOpened;
+    }
+
+    private void OnWheelOpened()
+    {
+        // Force cooldown so any scroll input that triggered the wheel open
+        // doesn't immediately fire a metal change
+        scrollTimer = scrollCooldown;
+    }
+
     void Update()
     {
-        // Block scroll wheel input while the metal wheel is open
         bool wheelIsOpen = metalWheelInputHandler != null && metalWheelInputHandler.IsWheelOpen;
 
         if (!wheelIsOpen)
@@ -59,58 +72,56 @@ public class MetalSelector : MonoBehaviour
             }
             if (scrollTimer > 0f) scrollTimer -= Time.deltaTime;
         }
-
-        // Handle metal swap
-        if (Input.GetKeyDown(swapMetalsKey))
+        else
         {
-            SwapMetals();
+            // Keep draining the timer while open so scroll can't fire the moment it closes
+            if (scrollTimer > 0f) scrollTimer -= Time.deltaTime;
         }
+
+        if (Input.GetKeyDown(swapMetalsKey))
+            SwapMetals();
     }
-    
+
     void SelectNextMetal()
     {
         if (allomancer == null) return;
-        
+
         AllomancySkill.MetalType[] allMetals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
         AllomancySkill.MetalType currentMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
-        
+
         int currentIndex = System.Array.IndexOf(allMetals, currentMetal);
         int nextIndex = (currentIndex + 1) % allMetals.Length;
         AllomancySkill.MetalType nextMetal = allMetals[nextIndex];
-        
-        if (isPrimaryActive)
-            primaryMetal = nextMetal;
-        else
-            secondaryMetal = nextMetal;
-        
+
+        if (isPrimaryActive) primaryMetal = nextMetal;
+        else secondaryMetal = nextMetal;
+
         UpdateActiveMetal();
     }
-    
+
     void SelectPreviousMetal()
     {
         if (allomancer == null) return;
-        
+
         AllomancySkill.MetalType[] allMetals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
         AllomancySkill.MetalType currentMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
-        
+
         int currentIndex = System.Array.IndexOf(allMetals, currentMetal);
         int prevIndex = (currentIndex - 1 + allMetals.Length) % allMetals.Length;
         AllomancySkill.MetalType prevMetal = allMetals[prevIndex];
-        
-        if (isPrimaryActive)
-            primaryMetal = prevMetal;
-        else
-            secondaryMetal = prevMetal;
-        
+
+        if (isPrimaryActive) primaryMetal = prevMetal;
+        else secondaryMetal = prevMetal;
+
         UpdateActiveMetal();
     }
-    
+
     void SwapMetals()
     {
         isPrimaryActive = !isPrimaryActive;
         UpdateActiveMetal();
     }
-    
+
     void UpdateActiveMetal()
     {
         if (allomancer == null) return;
@@ -118,8 +129,7 @@ public class MetalSelector : MonoBehaviour
         AllomancySkill.MetalType activeMetal = isPrimaryActive ? primaryMetal : secondaryMetal;
         allomancer.SetCurrentMetal(activeMetal);
     }
-    
-    // Public methods for other scripts to query selected metals
+
     public AllomancySkill.MetalType GetPrimaryMetal() => primaryMetal;
     public AllomancySkill.MetalType GetSecondaryMetal() => secondaryMetal;
     public AllomancySkill.MetalType GetActiveMetal() => isPrimaryActive ? primaryMetal : secondaryMetal;
