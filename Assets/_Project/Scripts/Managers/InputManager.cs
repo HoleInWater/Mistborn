@@ -78,11 +78,11 @@ public class InputManager : MonoBehaviour
         crouchPressed = Input.GetKeyDown(crouchKey);
         crouchHeld = Input.GetKey(crouchKey);
 
-        // Combat
+        // Combat — Block/Parry = Mouse1 (Keybinds.Block), NOT interactKey
         attackPressed = Input.GetMouseButtonDown(0);
         heavyAttackPressed = Input.GetMouseButtonDown(1);
-        blockHeld = Input.GetKey(interactKey); // F to block
-        parryPressed = Input.GetKeyDown(interactKey);
+        blockHeld = Input.GetMouseButton(1);
+        parryPressed = Input.GetMouseButtonDown(1);
         dodgePressed = Input.GetKeyDown(dodgeKey);
 
         // Allomancy
