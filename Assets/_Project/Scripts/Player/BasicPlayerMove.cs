@@ -140,12 +140,12 @@ public class BasicPlayerMove : MonoBehaviour
         // Cache raw inputs so they can be reused across Update and FixedUpdate
         inputX = Input.GetAxisRaw("Horizontal");
         inputZ = Input.GetAxisRaw("Vertical");
-        sprintHeld = Input.GetKey(KeyCode.LeftShift);
-        spaceHeld = Input.GetKey(KeyCode.Space);
- 
+        sprintHeld = Input.GetKey(Keybinds.Sprint);
+        spaceHeld = Input.GetKey(Keybinds.Jump);
+
         // Jump buffer: record a jump request for up to jumpBufferTime seconds so the
         // player can press Space slightly before landing and still trigger a jump
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(Keybinds.Jump))
             jumpBufferCounter = jumpBufferTime;
         else
             jumpBufferCounter -= Time.deltaTime;
@@ -197,7 +197,7 @@ public class BasicPlayerMove : MonoBehaviour
  
         float currentActiveSpeed = moveSpeed;
         bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
-        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
+        bool isTryingToSprint = Input.GetKey(Keybinds.Sprint) && isMoving;
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
  
         if (isTryingToSprint && hasStamina)

@@ -59,7 +59,7 @@ public class WallRun : MonoBehaviour
             }
 
             // Wall jump
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(Keybinds.Jump))
             {
                 WallJump();
             }

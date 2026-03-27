@@ -62,8 +62,8 @@ public class AllomanticFlight : MonoBehaviour
     {
         pushCooldownTimer -= Time.deltaTime;
 
-        bool pushHeld = Input.GetKey(KeyCode.E);
-        bool pullHeld = Input.GetKey(KeyCode.Q);
+        bool pushHeld = Input.GetKey(Keybinds.SteelPush);
+        bool pullHeld = Input.GetKey(Keybinds.IronPull);
         bool hasSteelReserve = allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0;
         bool hasIronReserve = allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0;
 
@@ -272,7 +272,7 @@ public class AllomanticFlight : MonoBehaviour
     void UpdateVisualLines()
     {
         // Push line
-        if (lastPushAnchor != null && Input.GetKey(KeyCode.E))
+        if (lastPushAnchor != null && Input.GetKey(Keybinds.SteelPush))
         {
             pushLine.positionCount = 2;
             pushLine.SetPosition(0, transform.position);

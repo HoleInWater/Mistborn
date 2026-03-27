@@ -88,7 +88,7 @@ public class DialogueManager : MonoBehaviour
     void Update()
     {
         // Advance on Space or Left Click if panel is active
-        if (dialoguePanel != null && dialoguePanel.activeInHierarchy && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
+        if (dialoguePanel != null && dialoguePanel.activeInHierarchy && (Input.GetKeyDown(Keybinds.Jump) || Input.GetMouseButtonDown(0)))
         {
             DisplayNextSentence();
         }
