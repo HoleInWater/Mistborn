@@ -48,7 +48,7 @@ public class MetalSelector : MonoBehaviour
     {
         // Block scroll wheel input while the metal wheel is open
         bool wheelIsOpen = metalWheelInputHandler != null && metalWheelInputHandler.IsWheelOpen;
-        public bool IsWheelOpen => isWheelOpen
+        public bool IsWheelOpen => isWheelOpen;
 
         if (!wheelIsOpen)
         {
