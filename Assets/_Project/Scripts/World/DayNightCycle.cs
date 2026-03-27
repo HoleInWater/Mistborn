@@ -117,13 +117,9 @@ public class DayNightCycle : MonoBehaviour
                     if (l.type == LightType.Directional) { directionalLight = l; break; }
                 }
             }
-            // Re-register with HDRP sky so the sun disk follows the light
+            // Re-register as the environment sun so sky rotation stays in sync.
             if (directionalLight != null)
-            {
                 RenderSettings.sun = directionalLight;
-                var hd = directionalLight.GetComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalLightData>();
-                if (hd != null) hd.interactsWithSky = true;
-            }
         }
         if (directionalLight == null) return;
 

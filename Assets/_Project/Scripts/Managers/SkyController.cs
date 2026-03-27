@@ -3,11 +3,10 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
 /// <summary>
-/// Ensures the HDRP sky is configured correctly at runtime:
-/// - Switches to PhysicallyBasedSky (shows sun disk from directional light)
-/// - Ensures the directional light interacts with the sky
-/// Fixes: no sun visible, sky incorrectly showing gradient-only.
-/// Assign sunLight to the Directional Light in the Inspector.
+/// Links the scene's directional light as the HDRP sun so the sun disk
+/// appears in the sky and DayNightCycle rotations are visible.
+/// Does NOT modify sky type or volume profiles — all sky/colour/exposure
+/// settings are left exactly as configured in the scene.
 /// </summary>
 public class SkyController : MonoBehaviour
 {
@@ -28,58 +27,18 @@ public class SkyController : MonoBehaviour
         }
 
         SetupSunLight();
-        SetupSky();
     }
 
     void SetupSunLight()
     {
         if (sunLight == null) return;
 
-        // Link as the environment sun so PhysicallyBasedSky can find it
+        // Register as the environment sun so the sky system tracks this light.
         RenderSettings.sun = sunLight;
 
+        // Allow the directional light to interact with the sky (shows sun disk in PBS).
         HDAdditionalLightData hd = sunLight.GetComponent<HDAdditionalLightData>();
         if (hd != null)
             hd.interactsWithSky = true;
-    }
-
-    void SetupSky()
-    {
-        // Find the highest-priority global volume
-        Volume globalVolume = null;
-        float bestPriority = float.MinValue;
-        foreach (Volume v in FindObjectsByType<Volume>(FindObjectsSortMode.None))
-        {
-            if (v.isGlobal && v.priority >= bestPriority)
-            {
-                bestPriority = v.priority;
-                globalVolume = v;
-            }
-        }
-
-        if (globalVolume == null) return;
-
-        // Create an instanced copy so we don't permanently modify the shared asset on disk.
-        // volume.profile returns sharedProfile if no instance exists yet; we must explicitly clone it.
-        if (globalVolume.sharedProfile != null && globalVolume.profile == globalVolume.sharedProfile)
-            globalVolume.profile = Object.Instantiate(globalVolume.sharedProfile);
-        VolumeProfile profile = globalVolume.profile;
-
-        // Ensure VisualEnvironment uses PhysicallyBasedSky.
-        // Do NOT override skyAmbientMode — preserve whatever the profile has set
-        // (Dynamic recaptures ambient from the sky each frame; if PBS isn't ready on
-        // the first capture the ambient comes back black, making all surfaces invisible).
-        if (!profile.TryGet(out VisualEnvironment visualEnv))
-            visualEnv = profile.Add<VisualEnvironment>(true);
-        visualEnv.skyType.Override(SkySettings.GetUniqueID<PhysicallyBasedSky>());
-
-        // Add/configure PhysicallyBasedSky
-        if (!profile.TryGet(out PhysicallyBasedSky sky))
-            sky = profile.Add<PhysicallyBasedSky>(true);
-        sky.active = true;
-
-        // Disable GradientSky so it doesn't override
-        if (profile.TryGet(out GradientSky gradientSky))
-            gradientSky.active = false;
     }
 }
