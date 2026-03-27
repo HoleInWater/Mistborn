@@ -20,7 +20,7 @@ public class CheckpointSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         lastCheckpointPosition = defaultSpawnPoint;
         lastCheckpointRotation = Quaternion.identity;
@@ -93,7 +93,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         currentHealth = maxHealth;
     }

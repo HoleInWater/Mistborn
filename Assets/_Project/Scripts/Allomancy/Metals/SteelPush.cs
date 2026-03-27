@@ -319,7 +319,7 @@ public class SteelPush : MonoBehaviour
         if (isAnchored)
         {
             float   recoilSpeed = pushSpeed * flare * distanceMult;
-            Vector3 recoil      = -pushDirection * Mathf.Min(recoilSpeed, maxRecoilSpeed);
+            Vector3 recoil      = -pushDirection * Mathf.Min(recoilSpeed, maxRecoilSpeed * flare);
             playerRigidbody.AddForce(recoil, ForceMode.VelocityChange);
         }
         else

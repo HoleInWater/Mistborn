@@ -217,7 +217,7 @@ public class LuthadelGenerator : MonoBehaviour
             Renderer r = building.GetComponent<Renderer>();
             if (r != null)
             {
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
                 mat.color = block.type == DistrictType.Noble ? nobleDistrictColor : skaaDistrictColor;
                 r.material = mat;
             }
@@ -249,7 +249,7 @@ public class LuthadelGenerator : MonoBehaviour
         Renderer r = canal.GetComponent<Renderer>();
         if (r != null)
         {
-            Material mat = new Material(Shader.Find("Standard"));
+            Material mat = new Material(Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
             mat.color = new Color(0.15f, 0.2f, 0.3f, 0.8f);
             r.material = mat;
         }
@@ -289,7 +289,7 @@ public class LuthadelGenerator : MonoBehaviour
                     Renderer r = fixture.GetComponent<Renderer>();
                     if (r != null)
                     {
-                        Material mat = new Material(Shader.Find("Standard"));
+                        Material mat = new Material(Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
                         mat.color = new Color(0.4f, 0.4f, 0.45f);
                         r.material = mat;
                     }
@@ -394,7 +394,7 @@ public class LuthadelGenerator : MonoBehaviour
                 spire.transform.position = spirePos + Vector3.up * h;
 
                 Renderer r = spire.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Standard"));
+                Material mat = new Material(Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
                 mat.color = new Color(0.2f, 0.2f, 0.25f);
                 r.material = mat;
 

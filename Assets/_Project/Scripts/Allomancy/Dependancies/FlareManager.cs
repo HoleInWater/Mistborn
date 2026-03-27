@@ -60,8 +60,8 @@ public class FlareManager : MonoBehaviour
 
     [Header("Force Scaling")]
     [Tooltip("Force multiplier at intensity 10.")]
-    [Range(1.5f, 4f)]
-    public float maxFlareMultiplier = 2.5f;
+    [Range(1f, 10f)]
+    public float maxFlareMultiplier = 3.2f;
 
     // ── State ─────────────────────────────────────────────────────────────────
 

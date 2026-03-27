@@ -41,6 +41,7 @@ public class PlayerHUD : MonoBehaviour
     private MetalVialSystem vials;
     private StatusEffects statusEffects;
     private Camera mainCam;
+    private MetalLineRenderer metalLineRenderer;
     private float hudUpdateTimer;
     private const float HUD_UPDATE_INTERVAL = 0.15f; // Update 7x/sec, not 60
 
@@ -56,6 +57,7 @@ public class PlayerHUD : MonoBehaviour
         }
 
         mainCam = Camera.main;
+        metalLineRenderer = FindObjectOfType<MetalLineRenderer>();
 
         // Listen for level ups
         if (xp != null)
@@ -170,8 +172,7 @@ public class PlayerHUD : MonoBehaviour
     {
         if (metalSightIcon == null) return;
 
-        MetalLineRenderer mlr = FindObjectOfType<MetalLineRenderer>();
-        bool active = mlr != null && mlr.GetVisibleLineCount() > 0;
+        bool active = metalLineRenderer != null && metalLineRenderer.GetVisibleLineCount() > 0;
         metalSightIcon.color = active ? metalSightActiveColor : metalSightInactiveColor;
     }
 

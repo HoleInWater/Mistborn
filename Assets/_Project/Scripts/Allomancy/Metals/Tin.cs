@@ -92,7 +92,6 @@ public class Tin : MonoBehaviour
 
             originalCameraLocalPos = playerCamera.transform.localPosition;
         }
-        Debug.Log($"Exposure: {exposure}, Fog: {fog}, ColorAdj: {colorAdjustments}, Vignette: {vignette}");
     }
 
     void Update()
@@ -201,9 +200,9 @@ public class Tin : MonoBehaviour
             vignette.color.value = Color.white;
         }
         
-        if (exposure != null)
+        if (exposure != null && currentOverloadVisual > 0f)
         {
-            // Set overload exposure — NOT additive (would accumulate infinitely)
+            // Overload blinds — override night vision exposure during overload
             exposure.compensation.value = currentOverloadVisual * 8f;
         }
 
