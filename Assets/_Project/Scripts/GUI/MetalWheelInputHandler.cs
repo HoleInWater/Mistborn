@@ -65,8 +65,8 @@ public class MetalWheelInputHandler : MonoBehaviour
             lbRbPressed = Input.GetButton("LeftBumper") && Input.GetButton("RightBumper");
         }
         
-        // Fallback for PC test if controllers aren't connected: R
-        bool pcOpenPressed = Input.GetKey(KeyCode.R);
+        // Fallback for PC test if controllers aren't connected: Tab
+        bool pcOpenPressed = Input.GetKey(Keybinds.MetalWheel);
 
         bool openInputActive = lbRbPressed || pcOpenPressed;
 
@@ -83,9 +83,9 @@ public class MetalWheelInputHandler : MonoBehaviour
             bool confirmSelection = true;
 
             // 1. Mouse Logic (Overrides Gamepad if PC input was used)
-            if (!Input.GetKey(KeyCode.R)) 
+            if (!Input.GetKey(Keybinds.MetalWheel))
             {
-                // User requested: Releasing R DOES NOT confirm. Must explicitly click.
+                // User requested: Releasing Tab DOES NOT confirm. Must explicitly click.
                 confirmSelection = false; 
             }
             

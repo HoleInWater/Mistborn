@@ -127,7 +127,7 @@ public class AllomancySkillTreeController : MonoBehaviour
     void Update()
     {
         // Check if the Tab key was pressed this frame
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(Keybinds.MetalWheel))
         {
             ToggleSkillTree();
         }

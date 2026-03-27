@@ -172,7 +172,7 @@ public class AllomanticSight : MonoBehaviour
     void Update()
     {
         // Check for Tab key press to toggle Allomantic Sight
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(Keybinds.MetalWheel))
         {
             ToggleSight();
         }

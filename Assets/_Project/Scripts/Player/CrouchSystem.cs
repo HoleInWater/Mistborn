@@ -50,7 +50,7 @@ public class CrouchSystem : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(Keybinds.Crouch))
         {
             if (isCrouching)
                 TryStandUp();
@@ -59,7 +59,7 @@ public class CrouchSystem : MonoBehaviour
         }
 
         // Can't crouch while sprinting
-        if (isCrouching && Input.GetKey(KeyCode.LeftShift))
+        if (isCrouching && Input.GetKey(Keybinds.Sprint))
             TryStandUp();
 
         UpdateCollider();

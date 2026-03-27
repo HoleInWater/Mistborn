@@ -50,7 +50,7 @@ public class NarrativeLogUI : MonoBehaviour
     void Update()
     {
         // J opens quest menu instead of journal
-        if (Input.GetKeyDown(KeyCode.J)) ToggleQuestMenu();
+        if (Input.GetKeyDown(Keybinds.Journal)) ToggleQuestMenu();
     }
 
     public void ToggleQuestMenu()

@@ -104,8 +104,8 @@ public class FeruchemyController : MonoBehaviour
 
     private void HandleInput()
     {
-        // Tab toggles Feruchemy mode
-        if (Input.GetKeyDown(KeyCode.Tab))
+        // H toggles Feruchemy mode
+        if (Input.GetKeyDown(Keybinds.FeruchemyMode))
         {
             feruchemyModeActive = !feruchemyModeActive;
             if (!feruchemyModeActive)
@@ -122,18 +122,18 @@ public class FeruchemyController : MonoBehaviour
         // Number keys select metalmind (1-9 = index 0-8, 0 = index 9)
         HandleMetalmindSelection();
 
-        // Z = toggle store, X = toggle tap, C = stop all
-        if (Input.GetKeyDown(KeyCode.Z))
+        // Z = toggle store, X = toggle tap, C = stop all (all gated behind feruchemyModeActive)
+        if (Input.GetKeyDown(Keybinds.FeruchemyStore))
         {
             feruchemist.ToggleStore(selectedMetalmind);
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(Keybinds.FeruchemyTap))
         {
             feruchemist.ToggleTap(selectedMetalmind);
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(Keybinds.FeruchemyStopAll))
         {
             feruchemist.StopAll();
         }
