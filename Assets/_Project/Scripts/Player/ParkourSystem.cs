@@ -131,6 +131,7 @@ public class ParkourSystem : MonoBehaviour
         Vector3 landPos = overPos + transform.forward * 1f - Vector3.up * vaultHeight;
 
         // Arc over the obstacle
+        if (vaultSpeed <= 0f) yield break;
         float duration = vaultCheckDistance * 2f / vaultSpeed;
         float elapsed = 0f;
 

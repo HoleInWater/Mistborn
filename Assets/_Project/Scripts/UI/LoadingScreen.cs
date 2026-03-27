@@ -76,7 +76,7 @@ public class LoadingScreen : MonoBehaviour
         if (progressBar != null) progressBar.fillAmount = 1f;
         if (progressText != null) progressText.text = "100%";
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         op.allowSceneActivation = true;
     }
 
