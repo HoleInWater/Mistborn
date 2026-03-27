@@ -63,6 +63,7 @@ public class LoadingScreen : MonoBehaviour
 
     IEnumerator UpdateProgress(AsyncOperation op)
     {
+        if (op == null) yield break;
         op.allowSceneActivation = false;
 
         while (op.progress < 0.9f)
