@@ -88,7 +88,7 @@ public class FlareManager : MonoBehaviour
     {
         get
         {
-            float mult = IsBurning
+            float mult = IsBurning && maxIntensitySteps > 1
                 ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
                 : 1f;
 
