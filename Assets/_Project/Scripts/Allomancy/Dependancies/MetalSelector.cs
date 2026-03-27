@@ -26,7 +26,7 @@ public class MetalSelector : MonoBehaviour
     void Start()
     {
         if (allomancer == null)
-            allomancer = GetComponent<Allomancer>();
+            allomancer = GetComponentInParent<Allomancer>();
 
         if (metalReserve == null)
             metalReserve = GetComponentInParent<MetalReserve>();
