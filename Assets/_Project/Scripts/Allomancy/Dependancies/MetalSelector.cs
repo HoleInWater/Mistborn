@@ -42,15 +42,12 @@ public class MetalSelector : MonoBehaviour
     
     void Update()
     {
-        // Scroll wheel selects metal (only when not burning — avoids flare intensity collision)
-        if (!FlareManager.Instance || !FlareManager.Instance.IsBurning)
+        // Scroll wheel selects metal
+        float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
+        if (scrollTimer <= 0f)
         {
-            float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
-            if (scrollTimer <= 0f)
-            {
-                if (scroll > 0f) { SelectNextMetal();     scrollTimer = scrollCooldown; }
-                if (scroll < 0f) { SelectPreviousMetal(); scrollTimer = scrollCooldown; }
-            }
+            if (scroll > 0f) { SelectNextMetal();     scrollTimer = scrollCooldown; }
+            if (scroll < 0f) { SelectPreviousMetal(); scrollTimer = scrollCooldown; }
         }
         if (scrollTimer > 0f) scrollTimer -= Time.deltaTime;
 
