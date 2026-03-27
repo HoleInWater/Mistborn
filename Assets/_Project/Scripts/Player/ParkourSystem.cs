@@ -185,6 +185,8 @@ public class ParkourSystem : MonoBehaviour
         Vector3 upPos = startPos + Vector3.up * mantleCheckHeight;
         Vector3 forwardPos = upPos + transform.forward * 1f;
 
+        if (mantleSpeed <= 0f) { isMantling = false; yield break; }
+
         playerRb.isKinematic = true;
 
         // Phase 1: Pull up

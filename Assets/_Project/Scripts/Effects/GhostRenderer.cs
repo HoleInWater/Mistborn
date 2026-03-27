@@ -40,7 +40,8 @@ public class GhostRenderer : MonoBehaviour
             mf.sharedMesh = filter.sharedMesh;
 
             MeshRenderer mr = part.AddComponent<MeshRenderer>();
-            mr.sharedMaterials = filter.GetComponent<MeshRenderer>().sharedMaterials;
+            MeshRenderer sourceMr = filter.GetComponent<MeshRenderer>();
+            if (sourceMr != null) mr.sharedMaterials = sourceMr.sharedMaterials;
             
             // Set transparency
             foreach (Material m in mr.materials)

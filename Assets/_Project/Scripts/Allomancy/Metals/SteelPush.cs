@@ -119,11 +119,11 @@ public class SteelPush : MonoBehaviour
     {
         if (metalSelector != null)
         {
-            // F (SteelBubble) is the primary-slot ability-2 key.
-            // Only bind it when Steel is in the primary slot.
-            if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.SteelBubble;
-            return KeyCode.None;
+            // F (SteelBubble) is active whenever Steel is equipped in either slot.
+            // Returns None only when Steel isn't selected at all.
+            bool steelEquipped = metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel
+                              || metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel;
+            if (!steelEquipped) return KeyCode.None;
         }
         return Keybinds.SteelBubble;
     }

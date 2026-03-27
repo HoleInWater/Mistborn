@@ -318,6 +318,7 @@ public static class AllomancyPhysicsFormulas
     /// </summary>
     public static float CalculateFlareMultiplier(int intensity, int maxIntensity, float maxMultiplier)
     {
+        if (maxIntensity <= 0) return 1f;
         float normalized = (float)intensity / maxIntensity;
         float diminished = 1f - Mathf.Exp(-3f * normalized); // Steep initial, plateaus
         return 1f + diminished * (maxMultiplier - 1f);
