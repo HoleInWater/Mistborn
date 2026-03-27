@@ -52,7 +52,7 @@ public class MetalSelector : MonoBehaviour
         if (scrollTimer > 0f) scrollTimer -= Time.deltaTime;
 
         // Handle metal swap
-        if (Input.GetKeyDown(Keybinds.MetalWheel))
+        if (Input.GetKeyDown(swapMetalsKey))
         {
             SwapMetals();
         }
