@@ -115,7 +115,16 @@ public class SteelPush : MonoBehaviour
         }
         return Keybinds.SteelPush;           // fallback if no selector
     }
-    private KeyCode GetAbility2Key() => Keybinds.SteelBubble;
+    private KeyCode GetAbility2Key()
+    {
+        if (metalSelector != null)
+        {
+            bool steelEquipped = metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel
+                              || metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel;
+            if (!steelEquipped) return KeyCode.None;
+        }
+        return Keybinds.SteelBubble;
+    }
 
     public float steelBubbleRadius              = 2.5f;
     public float steelBubbleForce               = 50f;
