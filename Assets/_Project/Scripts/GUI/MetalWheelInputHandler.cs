@@ -92,7 +92,7 @@ public class MetalWheelInputHandler : MonoBehaviour
             lbRbPressed = Input.GetButton("LeftBumper") && Input.GetButton("RightBumper");
         }
 
-        bool pcOpenPressed = Input.GetKey(KeyCode.R);
+        bool pcOpenPressed = Input.GetKey(Keybinds.MetalWheel);
         bool openInputActive = lbRbPressed || pcOpenPressed;
 
         // --- OPEN ---
@@ -117,7 +117,7 @@ public class MetalWheelInputHandler : MonoBehaviour
             bool asSecondary = false;
 
             // PC: R key released → confirm selection (primary)
-            if (Input.GetKeyUp(KeyCode.R))
+            if (Input.GetKeyUp(Keybinds.MetalWheel))
             {
                 confirmSelection = true;
                 asSecondary = false;
