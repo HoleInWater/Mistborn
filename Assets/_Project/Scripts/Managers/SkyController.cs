@@ -65,11 +65,13 @@ public class SkyController : MonoBehaviour
             globalVolume.profile = Object.Instantiate(globalVolume.sharedProfile);
         VolumeProfile profile = globalVolume.profile;
 
-        // Ensure VisualEnvironment uses PhysicallyBasedSky
+        // Ensure VisualEnvironment uses PhysicallyBasedSky.
+        // Do NOT override skyAmbientMode — preserve whatever the profile has set
+        // (Dynamic recaptures ambient from the sky each frame; if PBS isn't ready on
+        // the first capture the ambient comes back black, making all surfaces invisible).
         if (!profile.TryGet(out VisualEnvironment visualEnv))
             visualEnv = profile.Add<VisualEnvironment>(true);
         visualEnv.skyType.Override(SkySettings.GetUniqueID<PhysicallyBasedSky>());
-        visualEnv.skyAmbientMode.Override(SkyAmbientMode.Dynamic);
 
         // Add/configure PhysicallyBasedSky
         if (!profile.TryGet(out PhysicallyBasedSky sky))
