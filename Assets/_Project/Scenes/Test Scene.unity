@@ -1320,10 +1320,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.1757518
   m_Height: 1.7904792
   m_Direction: 1
-  m_Center: {x: 0, y: 0.8936422, z: 0}
+  m_Center: {x: -0.021935344, y: 0.8936422, z: -0.0071474314}
 --- !u!114 &641062192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1358,7 +1358,7 @@ MonoBehaviour:
   sprintSpeed: 10
   rotationSpeed: 10
   mouseSensitivity: 100
-  jumpVelocity: 5
+  jumpVelocity: 6
   fallMultiplier: 5
   lowJumpMultiplier: 2
   jumpBufferTime: 0.2
@@ -1607,9 +1607,9 @@ MonoBehaviour:
   minDistance: 1
   maxRange: 30
   metalCostPerSecond: 2
-  pullSpeed: 12
-  maxPullSpeed: 25
-  loosePullForce: 15
+  pullSpeed: 20
+  maxPullSpeed: 18
+  loosePullForce: 30
   inverseDistanceScaling: 1
   playerCamera: {fileID: 53509035}
   metalLayer:
@@ -1648,9 +1648,9 @@ MonoBehaviour:
   maxRange: 30
   metalCostPerSecond: 2
   pushCooldown: 0.2
-  pushSpeed: 18
+  pushSpeed: 25
   maxRecoilSpeed: 20
-  loosePushForce: 20
+  loosePushForce: 35
   inverseDistanceScaling: 1
   flaringMetalCostMultiplier: 3
   masteryBonus: 1
@@ -3232,7 +3232,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
+  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3304,7 +3304,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
