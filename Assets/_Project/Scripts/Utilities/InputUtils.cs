@@ -75,6 +75,7 @@ namespace MistbornGame.Utilities
         {
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = z;
+            if (Camera.main == null) return Vector3.zero;
             return Camera.main.ScreenToWorldPoint(mousePos);
         }
 
@@ -83,6 +84,7 @@ namespace MistbornGame.Utilities
         /// </summary>
         public static Vector3 GetMouseDirection()
         {
+            if (Camera.main == null) return Vector3.forward;
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = Camera.main.nearClipPlane;
             Vector3 worldPoint = Camera.main.ScreenToWorldPoint(mousePos);

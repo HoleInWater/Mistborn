@@ -215,7 +215,9 @@ namespace MistbornGame.Utilities
         public static bool IsGrounded(this Rigidbody rb, float checkDistance = 0.1f, LayerMask? groundLayer = null)
         {
             if (rb == null) return false;
-            float radius = rb.GetComponent<Collider>().bounds.extents.y;
+            Collider col = rb.GetComponent<Collider>();
+            if (col == null) return false;
+            float radius = col.bounds.extents.y;
             Vector3 origin = rb.position + Vector3.up * radius;
             float distance = radius + checkDistance;
             LayerMask mask = groundLayer ?? Physics.DefaultRaycastLayers;

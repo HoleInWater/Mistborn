@@ -65,7 +65,9 @@ public class MovementExtras : MonoBehaviour
         if (Input.GetKey(KeyCode.Space)) upDown = 1f;
         if (Input.GetKey(KeyCode.LeftControl)) upDown = -1f;
 
-        Vector3 swimDir = (Camera.main.transform.forward * v + Camera.main.transform.right * h + Vector3.up * upDown).normalized;
+        Camera cam = Camera.main;
+        if (cam == null) return;
+        Vector3 swimDir = (cam.transform.forward * v + cam.transform.right * h + Vector3.up * upDown).normalized;
         playerRb.linearVelocity = swimDir * swimSpeed;
 
         // Oxygen
