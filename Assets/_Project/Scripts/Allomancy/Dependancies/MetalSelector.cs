@@ -65,6 +65,7 @@ public class MetalSelector : MonoBehaviour
         {
             SwapMetals();
         }
+        Debug.Log($"WheelHandler: {metalWheelInputHandler}, IsOpen: {metalWheelInputHandler?.IsWheelOpen}");
     }
     
     void SelectNextMetal()
