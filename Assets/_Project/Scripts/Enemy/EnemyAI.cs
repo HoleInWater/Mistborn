@@ -249,6 +249,7 @@ public class EnemyAI : MonoBehaviour
     void UseAllomanticAttack()
     {
         if (target == null) return;
+        if (availableMetals == null || availableMetals.Length == 0) return;
         AllomancySkill.MetalType metal = availableMetals[Random.Range(0, availableMetals.Length)];
         Vector3 dir = (target.position - transform.position).normalized;
         float dist = Vector3.Distance(transform.position, target.position);
