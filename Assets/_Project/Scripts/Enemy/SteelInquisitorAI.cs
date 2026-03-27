@@ -105,6 +105,7 @@ public class SteelInquisitorAI : MonoBehaviour
 
     void UpdatePhase()
     {
+        if (maxHealth <= 0f) return;
         float hpPercent = currentHealth / maxHealth;
         BossPhase newPhase = currentPhase;
 
