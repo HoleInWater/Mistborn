@@ -21,6 +21,7 @@ public class MetalWheelInputHandler : MonoBehaviour
 
     private float lastScrollTime = -10f;
     private bool isWheelOpen = false;
+    public bool IsWheelOpen => isWheelOpen;
 
     // Gamepad states to prevent rapid firing on axes
     private bool rightStickXInUse = false;
