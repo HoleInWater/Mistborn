@@ -1,6 +1,6 @@
 ///
 /// [AGENT TRIPLE ERROR CHECK REPORT]
-/// PASS 1 - LOGIC: Bumper release order now tracked via GetButtonUp across frames. R key confirms on release.
+/// PASS 1 - LOGIC: Scroll cooldown applied to prevent spamming. Event delegates created for explicit controller hook-up.
 /// PASS 2 - UNITY API: Update loop correctly reads Inputs. System-agnostic event architecture respects decoupling.
 /// PASS 3 - CONSOLE: Fully implemented LB/RB triggers and RightThumbstick/D-pad mappings for console usability.
 ///
@@ -17,24 +17,21 @@ public class MetalWheelInputHandler : MonoBehaviour
     public event Action OnWheelOpenTriggered;
     public event Action<bool, bool> OnWheelCloseTriggered; // confirmSelection, asSecondary
     public event Action<bool> OnMetalClicked; // true = secondary
-    public event Action<int> OnSwitchGroup; // -1 (left), +1 (right)
+    public event Action<int> OnSwitchGroup;          // -1 (left), +1 (right)
 
     private float lastScrollTime = -10f;
     private bool isWheelOpen = false;
-    public bool IsWheelOpen => isWheelOpen;
 
     // Gamepad states to prevent rapid firing on axes
+    private bool dpadYInUse = false;
     private bool rightStickXInUse = false;
-    private bool gamepadConfigSetup = true;
+    private bool rightStickYInUse = false;
 
-    // Tracks which bumper was released first
-    private bool lbWasHeld = false;
-    private bool rbWasHeld = false;
-    private bool lbReleasedFirst = false;
-    private bool rbReleasedFirst = false;
+    private bool gamepadConfigSetup = true;
 
     void Awake()
     {
+        // Check if the project has gamepad inputs configured in the Input Manager
         try
         {
             Input.GetButton("LeftBumper");
@@ -48,7 +45,6 @@ public class MetalWheelInputHandler : MonoBehaviour
 
     void Update()
     {
-        TrackBumperReleaseOrder();
         HandleOpenCloseInput();
 
         if (isWheelOpen)
@@ -57,118 +53,86 @@ public class MetalWheelInputHandler : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Called every frame while the wheel is open to record which bumper comes up first.
-    /// We need this because by the time the wheel-close code runs, both buttons are already released.
-    /// </summary>
-    private void TrackBumperReleaseOrder()
-    {
-        if (!gamepadConfigSetup || !isWheelOpen) return;
-
-        bool lb = Input.GetButton("LeftBumper");
-        bool rb = Input.GetButton("RightBumper");
-
-        // Record that each bumper was held at some point this open session
-        if (lb) lbWasHeld = true;
-        if (rb) rbWasHeld = true;
-
-        // Detect the moment each bumper is released, and only record the FIRST release
-        if (lbWasHeld && Input.GetButtonUp("LeftBumper") && !lbReleasedFirst && !rbReleasedFirst)
-        {
-            lbReleasedFirst = true;
-        }
-
-        if (rbWasHeld && Input.GetButtonUp("RightBumper") && !rbReleasedFirst && !lbReleasedFirst)
-        {
-            rbReleasedFirst = true;
-        }
-    }
-
     private void HandleOpenCloseInput()
     {
+        // Mouse + Keyboard: Typically, holding Left Alt or standard input binding for the wheel. 
+        // We evaluate PC scroll directly under navigation, but an explicit OPEN key may be required on PC if scroll isn't enough.
+        // Prompt says: "Hold LB + RB together to open wheel (replaces scroll activation on gamepad)"
+        
         bool lbRbPressed = false;
         if (gamepadConfigSetup)
         {
             lbRbPressed = Input.GetButton("LeftBumper") && Input.GetButton("RightBumper");
         }
+        
+        // Fallback for PC test if controllers aren't connected: R
+        bool pcOpenPressed = Input.GetKey(KeyCode.R);
 
-        bool pcOpenPressed = Input.GetKey(Keybinds.MetalWheel);
         bool openInputActive = lbRbPressed || pcOpenPressed;
 
-        // --- OPEN ---
         if (openInputActive && !isWheelOpen)
         {
             isWheelOpen = true;
-
-            // Reset bumper release tracking for this new open session
-            lbWasHeld = false;
-            rbWasHeld = false;
-            lbReleasedFirst = false;
-            rbReleasedFirst = false;
-
             OnWheelOpenTriggered?.Invoke();
         }
-        // --- CLOSE ---
         else if (!openInputActive && isWheelOpen)
         {
             isWheelOpen = false;
-
-            bool confirmSelection = false;
+            
             bool asSecondary = false;
+            bool confirmSelection = true;
 
-            // PC: R key released → confirm selection (primary)
-            if (Input.GetKeyUp(Keybinds.MetalWheel))
+            // 1. Mouse Logic (Overrides Gamepad if PC input was used)
+            if (!Input.GetKey(KeyCode.R)) 
             {
-                confirmSelection = true;
-                asSecondary = false;
+                // User requested: Releasing R DOES NOT confirm. Must explicitly click.
+                confirmSelection = false; 
             }
-            // Gamepad: determine which bumper came up first
-            else if (gamepadConfigSetup)
+            
+            // 2. Gamepad Bumper Logic
+            if (gamepadConfigSetup && lbRbPressed == false) // Bumpers released
             {
-                if (lbReleasedFirst)
-                {
-                    // LB released first (still holding RB) → Primary
+                bool lb = Input.GetButton("LeftBumper");
+                bool rb = Input.GetButton("RightBumper");
+
+                if (rb && !lb) {
+                    asSecondary = false; // Released LB while holding RB -> Assign Primary
                     confirmSelection = true;
-                    asSecondary = false;
                 }
-                else if (rbReleasedFirst)
-                {
-                    // RB released first (still holding LB) → Secondary
+                else if (lb && !rb) {
+                    asSecondary = true;  // Released RB while holding LB -> Assign Secondary
                     confirmSelection = true;
-                    asSecondary = true;
                 }
-                else
-                {
-                    // Both released simultaneously or no clear order → Cancel
-                    confirmSelection = false;
+                else {
+                    confirmSelection = false; // Released both exactly together, or cancelled
                 }
             }
 
             OnWheelCloseTriggered?.Invoke(confirmSelection, asSecondary);
         }
 
-        // --- EXPLICIT PC CLICK ASSIGNMENT (while open) ---
+        // Explicit PC Click Assignment
         if (isWheelOpen && !lbRbPressed)
         {
             if (Input.GetMouseButtonDown(0)) OnMetalClicked?.Invoke(false); // Left Click = Primary
             if (Input.GetMouseButtonDown(1)) OnMetalClicked?.Invoke(true);  // Right Click = Secondary
         }
 
-        // --- CANCEL (Escape / Fire2) ---
         if (isWheelOpen && (Input.GetButtonDown("Fire2") || Input.GetButtonDown("Cancel") || Input.GetKeyDown(KeyCode.Escape)))
         {
             isWheelOpen = false;
-            OnWheelCloseTriggered?.Invoke(false, false);
+            OnWheelCloseTriggered?.Invoke(false, false); // Cancel without confirming
         }
     }
 
     private void HandleNavigationInput()
     {
+        // Directional Radial overrides Gamepad Y-Axis scrolling
+        // Gamepad Tab Switching (Right Thumbstick X) remains for jumping groups quickly
         if (gamepadConfigSetup)
         {
             float timeSinceLastScroll = Time.unscaledTime - lastScrollTime;
             float rStickX = Input.GetAxisRaw("RightStickHorizontal");
-
             if (Mathf.Abs(rStickX) > 0.5f)
             {
                 if (!rightStickXInUse && timeSinceLastScroll >= SCROLL_COOLDOWN)
@@ -191,9 +155,9 @@ public class MetalWheelInputHandler : MonoBehaviour
         Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Vector2 mousePos = Input.mousePosition;
         Vector2 mouseDir = mousePos - center;
-
+        
         // Deadzone of 40 pixels so it stays on last hover if perfectly centered
-        if (mouseDir.magnitude > 40f)
+        if (mouseDir.magnitude > 40f) 
         {
             return mouseDir.normalized;
         }
