@@ -22,9 +22,10 @@ public class DialogueManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        
+        DontDestroyOnLoad(gameObject);
+
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
     }
 

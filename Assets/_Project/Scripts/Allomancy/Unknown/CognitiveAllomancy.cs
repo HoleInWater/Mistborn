@@ -82,6 +82,7 @@ public class CognitiveAllomancy : MonoBehaviour
         detectedPulses.Clear();
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
         float range = bronzeDetectionRange * flare;
+        if (range <= 0f) return;
 
         // Find all Allomancers in range
         var allomancers = MistbornRegistry.ActiveAllomancers;
