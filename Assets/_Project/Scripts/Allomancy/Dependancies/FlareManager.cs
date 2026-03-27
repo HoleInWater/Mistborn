@@ -36,8 +36,9 @@ public class FlareManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         _cachedAllomancer = GetComponentInParent<Allomancer>();
     }
 
@@ -88,7 +89,7 @@ public class FlareManager : MonoBehaviour
     {
         get
         {
-            float mult = IsBurning
+            float mult = IsBurning && maxIntensitySteps > 1
                 ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
                 : 1f;
 
