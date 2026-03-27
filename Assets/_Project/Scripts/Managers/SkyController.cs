@@ -21,8 +21,7 @@ public class SkyController : MonoBehaviour
 
         if (sunLight == null)
         {
-            Light[] lights = FindObjectsOfType<Light>();
-            foreach (Light l in lights)
+            foreach (Light l in FindObjectsByType<Light>(FindObjectsSortMode.None))
             {
                 if (l.type == LightType.Directional) { sunLight = l; break; }
             }
@@ -49,7 +48,7 @@ public class SkyController : MonoBehaviour
         // Find the highest-priority global volume
         Volume globalVolume = null;
         float bestPriority = float.MinValue;
-        foreach (Volume v in FindObjectsOfType<Volume>())
+        foreach (Volume v in FindObjectsByType<Volume>(FindObjectsSortMode.None))
         {
             if (v.isGlobal && v.priority >= bestPriority)
             {
@@ -60,8 +59,11 @@ public class SkyController : MonoBehaviour
 
         if (globalVolume == null) return;
 
-        // Use an instance profile so we don't permanently modify the shared asset
-        VolumeProfile profile = globalVolume.profile; // creates an instance if sharedProfile is null
+        // Create an instanced copy so we don't permanently modify the shared asset on disk.
+        // volume.profile returns sharedProfile if no instance exists yet; we must explicitly clone it.
+        if (globalVolume.sharedProfile != null && globalVolume.profile == globalVolume.sharedProfile)
+            globalVolume.profile = Object.Instantiate(globalVolume.sharedProfile);
+        VolumeProfile profile = globalVolume.profile;
 
         // Ensure VisualEnvironment uses PhysicallyBasedSky
         if (!profile.TryGet(out VisualEnvironment visualEnv))

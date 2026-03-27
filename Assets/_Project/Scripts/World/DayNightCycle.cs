@@ -105,6 +105,26 @@ public class DayNightCycle : MonoBehaviour
 
     void UpdateSun(float t)
     {
+        // Re-acquire directional light after scene transitions (DontDestroyOnLoad
+        // keeps this singleton alive but scene objects—including the light—are destroyed).
+        if (directionalLight == null)
+        {
+            directionalLight = RenderSettings.sun;
+            if (directionalLight == null)
+            {
+                foreach (Light l in FindObjectsByType<Light>(FindObjectsSortMode.None))
+                {
+                    if (l.type == LightType.Directional) { directionalLight = l; break; }
+                }
+            }
+            // Re-register with HDRP sky so the sun disk follows the light
+            if (directionalLight != null)
+            {
+                RenderSettings.sun = directionalLight;
+                var hd = directionalLight.GetComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalLightData>();
+                if (hd != null) hd.interactsWithSky = true;
+            }
+        }
         if (directionalLight == null) return;
 
         // Rotate sun: 0h = below horizon, 6h = sunrise, 12h = overhead, 18h = sunset
@@ -114,9 +134,27 @@ public class DayNightCycle : MonoBehaviour
         // Color
         directionalLight.color = sunColorGradient.Evaluate(t);
 
-        // Intensity: bright during day, dim at night
-        bool isDay = currentHour > dawnEnd && currentHour < duskStart;
-        directionalLight.intensity = isDay ? maxSunIntensity : moonIntensity;
+        // Intensity: smooth fade through dawn and dusk instead of hard snap
+        float intensity;
+        if (currentHour >= dawnEnd && currentHour <= duskStart)
+        {
+            intensity = maxSunIntensity;
+        }
+        else if (currentHour > duskStart && currentHour <= nightStart)
+        {
+            float fade = (currentHour - duskStart) / Mathf.Max(nightStart - duskStart, 0.001f);
+            intensity = Mathf.Lerp(maxSunIntensity, moonIntensity, fade);
+        }
+        else if (currentHour >= nightEnd && currentHour < dawnEnd)
+        {
+            float fade = (currentHour - nightEnd) / Mathf.Max(dawnEnd - nightEnd, 0.001f);
+            intensity = Mathf.Lerp(moonIntensity, maxSunIntensity, fade);
+        }
+        else
+        {
+            intensity = moonIntensity;
+        }
+        directionalLight.intensity = intensity;
     }
 
     void UpdateAmbient(float t)
