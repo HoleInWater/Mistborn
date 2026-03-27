@@ -22,6 +22,7 @@ public class StealthSystem : MonoBehaviour
     private bool isCrouching = false;
     private float originalHeight;
     private float originalCenter;
+    private float originalCameraHeight;
     
     void Start()
     {
@@ -33,7 +34,7 @@ public class StealthSystem : MonoBehaviour
         
         if (playerCamera != null)
         {
-            originalHeight = playerCamera.transform.localPosition.y;
+            originalCameraHeight = playerCamera.transform.localPosition.y;
         }
     }
     
