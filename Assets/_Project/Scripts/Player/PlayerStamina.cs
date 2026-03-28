@@ -233,8 +233,22 @@ public class PlayerStamina : MonoBehaviour
         IsExhausted    = true;
         exhaustionTimer = exhaustionDuration;
         currentStamina  = 0f;
-        OxygenDebt      = maxOxygenDebt;                    // fully in debt at collapse
-        regenTimer      = exhaustionDuration + regenDelay;  // don't regen until penalty clears
+        OxygenDebt      = maxOxygenDebt;
+        regenTimer      = exhaustionDuration + regenDelay;
+        EventManager.TriggerEvent("PlayerExhausted");
+    }
+
+    /// <summary>
+    /// Called by Pewter.cs when a pewter drag crash occurs.
+    /// Dumps all suppressed fatigue debt at once — can be far worse than normal exhaustion.
+    /// </summary>
+    public void TriggerCrashExhaustion(float durationMultiplier = 2f)
+    {
+        IsExhausted    = true;
+        exhaustionTimer = exhaustionDuration * durationMultiplier;
+        currentStamina  = 0f;
+        OxygenDebt      = maxOxygenDebt;
+        regenTimer      = exhaustionTimer + regenDelay;
         EventManager.TriggerEvent("PlayerExhausted");
     }
 }

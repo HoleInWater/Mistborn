@@ -34,7 +34,9 @@ public class Allomancer : MonoBehaviour
     public bool canBurnMetal = true;
 
     [Header("Burn Rate")]
-    public float baseBurnRate = 1f;
+    // Set to 0 — every metal script owns its own drain rate (calibrated to MAG values).
+    // This generic drain was double-counting on top of per-script rates.
+    public float baseBurnRate = 0f;
 
     [Header("HUD")]
     public MetalReserve metalReserve;

@@ -84,8 +84,30 @@ public class Pewter : MonoBehaviour
     [Tooltip("Extra metal drained per push")]
     public float pushMetalCost = 5f;
 
+    [Header("Endurance (Stamina)")]
+    [Tooltip("Aerobic regen rate multiplier at base burn. Pewter keeps the body going longer.")]
+    [Range(1f, 4f)]
+    public float baseStaminaRegenMult = 2f;
+    [Tooltip("Aerobic regen rate multiplier at max flare.")]
+    [Range(1f, 8f)]
+    public float maxStaminaRegenMult = 5f;
+    [Tooltip("Sprint drain rate multiplier at base burn (0.3 = 70% reduction).")]
+    [Range(0.05f, 1f)]
+    public float baseSprintDrainMult = 0.3f;
+    [Tooltip("Sprint drain rate multiplier at max flare (near-zero — pewter dragging).")]
+    [Range(0.01f, 0.5f)]
+    public float maxSprintDrainMult = 0.05f;
+
+    [Header("Knockback Resistance")]
+    [Tooltip("Divides incoming knockback force at base burn. 2 = half knockback.")]
+    [Range(1f, 5f)]
+    public float baseKnockbackResistance = 2f;
+    [Tooltip("Knockback resistance at max flare.")]
+    [Range(1f, 10f)]
+    public float maxKnockbackResistance = 6f;
+
     [Header("References")]
-    public Allomancer     allomancer;
+    public Allomancer      allomancer;
     public BasicPlayerMove playerMove;
 
     // ── Private state ─────────────────────────────────────────────────────────
@@ -94,13 +116,17 @@ public class Pewter : MonoBehaviour
     private bool  _pewterToggled     = false;
     private float originalMass       = -1f;
     private float originalJumpVelocity;
+    private float originalSprintDrainRate;
+    private float originalAerobicRegenRate;
+    private float originalDebtAccumulationRate;
     private float _pushCooldownTimer = 0f;
-    private float _dragTimer         = 0f;   // tracks continuous flaring time
-    private float _crashTimer        = 0f;   // counts down crash recovery
+    private float _dragTimer         = 0f;
+    private float _crashTimer        = 0f;
     private bool  _isCrashing        = false;
 
     private Rigidbody            playerRigidbody;
     private HealthBarTransitions healthSystem;
+    private PlayerStamina        stamina;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -110,6 +136,8 @@ public class Pewter : MonoBehaviour
         if (playerMove  == null) playerMove  = GetComponentInParent<BasicPlayerMove>();
         healthSystem = GetComponentInParent<HealthBarTransitions>();
 
+        stamina = GetComponentInParent<PlayerStamina>();
+
         if (playerMove != null)
         {
             playerRigidbody      = playerMove.GetComponent<Rigidbody>();
@@ -117,6 +145,15 @@ public class Pewter : MonoBehaviour
             if (playerRigidbody != null)
                 originalMass = playerRigidbody.mass;
         }
+
+        if (stamina != null)
+        {
+            originalAerobicRegenRate    = stamina.aerobicRegenRate;
+            originalDebtAccumulationRate = stamina.debtAccumulationRate;
+        }
+
+        if (playerMove != null)
+            originalSprintDrainRate = playerMove.drainRate;
     }
 
     void Update()
@@ -201,15 +238,26 @@ public class Pewter : MonoBehaviour
         _isCrashing = true;
         _crashTimer  = crashDuration;
 
-        // Sudden fatigue surge: deal health damage and slow the player
+        // Sudden fatigue surge: deal health damage, drain stamina, slow the player
         if (healthSystem != null)
         {
             float newHealth = Mathf.Max(1f, healthSystem.GetCurrentHealth() - crashDamage);
             healthSystem.health = newHealth;
         }
 
+        // Tank the stamina system — all suppressed debt hits at once (2x exhaustion duration)
+        if (stamina != null)
+        {
+            stamina.aerobicRegenRate     = originalAerobicRegenRate;
+            stamina.debtAccumulationRate = originalDebtAccumulationRate;
+            stamina.TriggerCrashExhaustion(2f);
+        }
+
         if (playerMove != null)
+        {
             playerMove.externalSpeedMultiplier = crashSpeedPenalty;
+            playerMove.drainRate               = originalSprintDrainRate;
+        }
 
         // Reset physical stats (no pewter left to maintain them)
         if (playerRigidbody != null && originalMass > 0f)
@@ -268,7 +316,6 @@ public class Pewter : MonoBehaviour
 
         float t = Mathf.Clamp01((flareMult - 1f) / 9f);
 
-        // Don't override crash penalty
         if (!_isCrashing)
             playerMove.externalSpeedMultiplier = Mathf.Lerp(baseSpeedMultiplier, maxSpeedMultiplier, t);
 
@@ -276,6 +323,16 @@ public class Pewter : MonoBehaviour
 
         if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass * Mathf.Lerp(baseMassMultiplier, maxMassMultiplier, t);
+
+        // Stamina: suppress fatigue accumulation, boost recovery
+        if (stamina != null)
+        {
+            stamina.aerobicRegenRate      = originalAerobicRegenRate    * Mathf.Lerp(baseStaminaRegenMult, maxStaminaRegenMult, t);
+            stamina.debtAccumulationRate  = originalDebtAccumulationRate * Mathf.Lerp(baseSprintDrainMult, maxSprintDrainMult, t);
+        }
+
+        // Sprint drain: pewter dragging barely costs stamina at max flare
+        playerMove.drainRate = originalSprintDrainRate * Mathf.Lerp(baseSprintDrainMult, maxSprintDrainMult, t);
     }
 
     void ResetEffects()
@@ -284,9 +341,15 @@ public class Pewter : MonoBehaviour
         {
             playerMove.externalSpeedMultiplier = 1f;
             playerMove.jumpVelocity            = originalJumpVelocity;
+            playerMove.drainRate               = originalSprintDrainRate;
         }
         if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass;
+        if (stamina != null)
+        {
+            stamina.aerobicRegenRate     = originalAerobicRegenRate;
+            stamina.debtAccumulationRate = originalDebtAccumulationRate;
+        }
     }
 
     void HandleHealing(float flareMult)
@@ -309,8 +372,19 @@ public class Pewter : MonoBehaviour
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    public bool  IsBurningPewter()     => isBurning;
-    public bool  IsCrashing()          => _isCrashing;
+    public bool  IsBurningPewter() => isBurning;
+    public bool  IsCrashing()      => _isCrashing;
+
+    /// <summary>
+    /// Divides incoming knockback force. 1 = no resistance, 6 = nearly immovable.
+    /// </summary>
+    public float GetKnockbackResistance()
+    {
+        if (!isBurning) return 1f;
+        float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+        float t = Mathf.Clamp01((flareMult - 1f) / 9f);
+        return Mathf.Lerp(baseKnockbackResistance, maxKnockbackResistance, t);
+    }
 
     /// <summary>
     /// Strength multiplier for combat system to use on damage calculations.

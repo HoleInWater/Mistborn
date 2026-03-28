@@ -28,15 +28,17 @@ public class FallDamage : MonoBehaviour
     public Rigidbody playerRb;
     public Allomancer allomancer;
     public Animator animator;
+    private Pewter _pewter;
 
     private bool wasAirborne = false;
     private float maxFallVelocity = 0f;
 
     void Start()
     {
-        if (playerRb == null) playerRb = GetComponent<Rigidbody>();
+        if (playerRb  == null) playerRb  = GetComponent<Rigidbody>();
         if (allomancer == null) allomancer = GetComponent<Allomancer>();
-        if (animator == null) animator = GetComponent<Animator>();
+        if (animator   == null) animator   = GetComponent<Animator>();
+        _pewter = GetComponentInChildren<Pewter>();
     }
 
     void Update()
@@ -66,28 +68,24 @@ public class FallDamage : MonoBehaviour
     {
         if (fallSpeed < safeFallSpeed) return;
 
-        // Check Pewter
-        bool pewterActive = allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter);
+        bool pewterActive = _pewter != null && _pewter.IsBurningPewter();
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
         if (pewterActive && fallSpeed < pewterSafeFallSpeed * flare)
         {
-            // Pewter absorbs the impact — just camera shake
             CameraShakeManager.Instance?.Shake(landingShakeDuration, landingShakeMagnitude * 0.3f);
             animator?.SetTrigger("Land");
             return;
         }
 
-        // Calculate damage: KE = ½mv², scaled to gameplay
-        // Damage scales linearly from 0 at safeFallSpeed to maxFallDamage at lethalFallSpeed
         float t = Mathf.InverseLerp(safeFallSpeed, lethalFallSpeed, fallSpeed);
         float damage = Mathf.Lerp(0f, maxFallDamage, t);
 
-        // Pewter reduces remaining damage
+        // Pewter toughness reduces fall damage — scales with flare
         if (pewterActive)
         {
-            float P = Mathf.Clamp01(flare / 2.5f);
-            damage *= (1f - pewterDamageReduction * P);
+            float toughness = Mathf.Clamp01((flare - 1f) / 9f);
+            damage *= (1f - pewterDamageReduction * toughness);
         }
 
         // Skill tree reduction

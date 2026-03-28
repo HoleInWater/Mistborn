@@ -53,11 +53,13 @@ public class FlareManager : MonoBehaviour
     public int scrollStepSize = 1;
 
     [Header("Burn Rates")]
-    [Tooltip("Drain per second passed to Allomancer at intensity 1.")]
-    public float baseBurnRate = 1f;
+    // Both zeroed — individual metal scripts handle their own MAG-calibrated drain.
+    // flareBurnRate is still computed and readable but evaluates to 0.
+    [Tooltip("Drain per second passed to Allomancer. Set to 0 — metal scripts own their drain.")]
+    public float baseBurnRate = 0f;
 
-    [Tooltip("Additional drain per second per intensity step above 1.")]
-    public float burnRatePerStep = 1.5f;
+    [Tooltip("Additional drain per intensity step. Set to 0 — metal scripts own flare scaling.")]
+    public float burnRatePerStep = 0f;
 
     [Header("Force Scaling")]
     [Tooltip("Force multiplier at intensity 10.")]
