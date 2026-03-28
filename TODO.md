@@ -45,7 +45,7 @@
 - [x] `SteelPush.cs` — physics push, anchor detection, lore-accurate 1/r force, flight mechanics
 - [x] `IronPull.cs` — physics pull, anchor detection, burn state sync fixed
 - [x] Flaring works for Steel and Iron (force ×2, drain ×3)
-- [x] Coin pouch and trajectory preview
+- [ ] Coin pouch and trajectory preview
 
 ### Other Metals (Scripts exist — needs full testing/polish)
 - [ ] `Pewter.cs` — strength/speed enhancement
