@@ -25,11 +25,11 @@
 - [x] Basic movement (WASD, sprint, jump)
 - [x] Third-person camera
 - [x] Player stamina system
-- [x] Dodge roll
-- [x] Crouch
-- [x] Vault/jump
-- [x] Wall run (script exists)
-- [x] Fall damage
+- [] Dodge roll
+- [] Crouch
+- [] Vault/jump
+- [] Wall run (script exists)
+- [] Fall damage
 
 ### Allomancy Core
 - [x] `Allomancer.cs` — metal reserve management, burn toggle (B key), metal draining
