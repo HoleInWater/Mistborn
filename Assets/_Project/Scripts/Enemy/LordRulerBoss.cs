@@ -406,6 +406,9 @@ public class LordRulerBoss : MonoBehaviour, IDamageable
 
     // ── Damage & Death ───────────────────────────────────────────────────
 
+    public float GetMaxHealth()     => maxHealth;
+    public float GetCurrentHealth() => health;
+
     public void TakeDamage(float amount)
     {
         if (isDead) return;
