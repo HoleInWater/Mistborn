@@ -402,9 +402,7 @@ public class Tin : MonoBehaviour
         bool ePressed = Input.GetKeyDown(Keybinds.Ability1);
         bool qPressed = Input.GetKeyDown(Keybinds.Ability2);
 
-        bool isBurningActive = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
-
-        if (sel != null && isBurningActive)
+        if (sel != null)
         {
             bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
             bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;

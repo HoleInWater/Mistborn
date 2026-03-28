@@ -124,9 +124,9 @@ public class SteelPush : MonoBehaviour
                 return Keybinds.Ability3;   // F = primary special
             if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
                 return Keybinds.Ability4;   // V = secondary special
-            return KeyCode.None;
+            // Steel not in either active slot — still reachable on F
         }
-        return Keybinds.Ability3;           // fallback: F
+        return Keybinds.Ability3;           // F
     }
 
     public float steelBubbleRadius              = 2.5f;
