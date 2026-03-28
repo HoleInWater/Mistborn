@@ -46,7 +46,19 @@ public class MistbornTimeManager : MonoBehaviour
         // Smooth transition
         float next = Mathf.Lerp(Time.timeScale, target, Time.unscaledDeltaTime * 8f);
         Time.timeScale = Mathf.Clamp(next, 0.01f, 12f);
-        Time.fixedDeltaTime = Mathf.Max(0.0002f, 0.02f * Time.timeScale);
+
+        // fixedDeltaTime controls the physics step rate.
+        // Tin perception deliberately excludes physics — it slows animations and
+        // Time.deltaTime (visual perception) but must NOT change the physics step
+        // frequency, otherwise AddForce calls accumulate faster and the player
+        // gains an unintended speed boost.
+        // Bubbles and Atium DO need to slow physics (objects inside a bubble
+        // should genuinely move slower), so they are included here.
+        float physicsTarget = atiumModifier * metalWheelModifier; // intentionally no tinPerceptionModifier
+        foreach (var mod in activeBubbleModifiers)
+            physicsTarget *= mod;
+        physicsTarget = isPaused ? 0f : Mathf.Clamp(physicsTarget, 0.0002f, 12f);
+        Time.fixedDeltaTime = Mathf.Max(0.0002f, 0.02f * physicsTarget);
 
         currentEffectiveTimeScale = Time.timeScale;
     }
