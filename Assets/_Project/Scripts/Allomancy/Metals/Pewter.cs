@@ -1,62 +1,95 @@
 using UnityEngine;
 
 /// <summary>
-/// Implements the Pewter Allomancy ability (enhanced physical capabilities).
-/// Standardized to follow the Allomancer-centric burn system.
+/// Pewter Allomancy — passively enhances strength, speed, jump, and endurance.
+///
+/// ACTIVATION: Left Ctrl (burn session) while Pewter is in primary or secondary slot.
+/// SCALING:    All effects scale smoothly with FlareMultiplier (scroll wheel 1–10).
+/// DRAIN:      Metal depletes each frame; effects stop when reserve hits 0.
+///
+/// EFFECTS:
+///   Speed  — externalSpeedMultiplier on BasicPlayerMove (walk + sprint both scale)
+///   Jump   — jumpVelocity on BasicPlayerMove scaled at burn time
+///   Mass   — Rigidbody.mass slightly increased (lore: denser muscle)
+///   Heal   — slow health regeneration while burning
 /// </summary>
 [PlayerComponent("Allomancy Metals", order: 30)]
 public class Pewter : MonoBehaviour
 {
-    [Header("Pewter Physics — PHYSICS-MATH-BOOK.md Section 8")]
-    [Tooltip("Pewter efficiency constant k: S = S_base × (1 + k × P)")]
-    public float pewterEfficiencyK = 2f;
-    [Tooltip("Muscle growth constant α: m = m_base × (1 + α × P), handbook α≈0.5")]
-    public float muscleGrowthAlpha = 0.5f;
-    [Tooltip("Max strength multiplier cap (prevents physics instability)")]
-    public float maxStrengthMultiplier = 4f;
-    [Tooltip("Max speed multiplier cap")]
+    [Header("Speed & Jump")]
+    [Tooltip("Speed multiplier at base burn (flare = 1)")]
+    [Range(1f, 2f)]
+    public float baseSpeedMultiplier = 1.25f;
+    [Tooltip("Speed multiplier at max flare (flare = 10)")]
+    [Range(1f, 3f)]
     public float maxSpeedMultiplier = 2f;
+
+    [Tooltip("Jump multiplier at base burn")]
+    [Range(1f, 2f)]
+    public float baseJumpMultiplier = 1.35f;
+    [Tooltip("Jump multiplier at max flare")]
+    [Range(1f, 4f)]
+    public float maxJumpMultiplier = 2.5f;
+
+    [Header("Mass (Muscle Density)")]
+    [Tooltip("Rigidbody mass multiplier at base burn")]
+    [Range(1f, 1.5f)]
+    public float baseMassMultiplier = 1.05f;
+    [Tooltip("Rigidbody mass multiplier at max flare")]
+    [Range(1f, 2f)]
+    public float maxMassMultiplier = 1.4f;
+
+    [Header("Mend (Healing)")]
+    [Tooltip("Health restored per second at base burn")]
+    public float baseHealRate = 0.5f;
+    [Tooltip("Health restored per second at max flare")]
+    public float maxHealRate = 3f;
+
+    [Header("Drain")]
+    [Tooltip("Metal reserve drained per second at base burn")]
+    public float baseDrainPerSecond = 2f;
+    [Tooltip("Drain multiplier at max flare (costs more to sustain a flare)")]
+    [Range(1f, 5f)]
+    public float flareDrainMultiplier = 3f;
 
     [Header("References")]
     public Allomancer allomancer;
-    public BasicPlayerMove playerMove; 
-    
-    private bool isBurning = false;
-    private float originalMass;
-    private float originalSpeed;
-    private Rigidbody playerRigidbody;
-    
-    [Header("Pewter Mend")]
-    [Tooltip("Health restored per second while burning Pewter")]
-    public float baseHealRate = 0.5f;
+    public BasicPlayerMove playerMove;
 
+    // ── Private state ─────────────────────────────────────────────────────────
+
+    private bool   isBurning          = false;
+    private float  originalMass       = -1f;
+    private float  originalJumpVelocity;
+    private Rigidbody          playerRigidbody;
     private HealthBarTransitions healthSystem;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponentInParent<Allomancer>();
-        
-        if (playerMove == null)
-            playerMove = GetComponentInParent<BasicPlayerMove>();
-        
+        if (allomancer == null) allomancer = GetComponentInParent<Allomancer>();
+        if (playerMove  == null) playerMove  = GetComponentInParent<BasicPlayerMove>();
         healthSystem = GetComponentInParent<HealthBarTransitions>();
 
         if (playerMove != null)
         {
-            playerRigidbody = playerMove.GetComponent<Rigidbody>();
-            if (playerRigidbody != null) originalMass = playerRigidbody.mass;
-            originalSpeed = playerMove.moveSpeed;
+            playerRigidbody     = playerMove.GetComponent<Rigidbody>();
+            originalJumpVelocity = playerMove.jumpVelocity;
+            if (playerRigidbody != null)
+                originalMass = playerRigidbody.mass;
         }
     }
-    
+
     void Update()
     {
         bool wasBurning = isBurning;
+
         MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
-        bool pewterEquipped = sel == null
+        bool pewterEquipped = sel == null   // no selector → fallback: treat as equipped
             || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter
             || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter;
+
         isBurning = allomancer != null
                  && FlareManager.Instance != null && FlareManager.Instance.IsBurning
                  && pewterEquipped
@@ -64,58 +97,63 @@ public class Pewter : MonoBehaviour
 
         if (isBurning)
         {
-            // Use the unified FlareMultiplier from FlareManager (includes Duralumin 10x / Nicro 3x boosts)
-            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
-            
-            ApplyPewterEffects(flareMult);
+            float flareMult = FlareManager.Instance.FlareMultiplier;
+            ApplyEffects(flareMult);
             HandleHealing(flareMult);
+            DrainReserve(flareMult);
         }
         else if (wasBurning)
         {
-            ResetPewterEffects();
-        }
-    }
-    
-    private void HandleHealing(float flareMult)
-    {
-        if (healthSystem != null && healthSystem.GetCurrentHealth() < healthSystem.GetMaxHealth())
-        {
-            healthSystem.Heal(baseHealRate * flareMult * Time.deltaTime);
+            ResetEffects();
         }
     }
 
-    // Handbook formula: S_pewter = S_base × (1 + k × P)
-    // Where P = power level 0-1, scaled by flare multiplier
-    // Muscle mass: m_muscle = m_base × (1 + α × P)
-    void ApplyPewterEffects(float flareMult)
+    // ── Effects ───────────────────────────────────────────────────────────────
+
+    void ApplyEffects(float flareMult)
     {
         if (playerMove == null) return;
 
-        // P is normalized power level: 1.0 at base burn, higher when flaring
-        float P = Mathf.Clamp01(flareMult / 2.5f); // Normalize to 0-1 range
+        // t = 0 at base burn (flare 1), t = 1 at max flare (flare 10)
+        float t = Mathf.Clamp01((flareMult - 1f) / 9f);
 
-        // Strength/speed: S = S_base × (1 + k × P)
-        float strengthMult = Mathf.Min(1f + pewterEfficiencyK * P, maxStrengthMultiplier);
-        float speedMult    = Mathf.Min(1f + pewterEfficiencyK * P * 0.5f, maxSpeedMultiplier);
+        playerMove.externalSpeedMultiplier = Mathf.Lerp(baseSpeedMultiplier, maxSpeedMultiplier, t);
+        playerMove.jumpVelocity            = originalJumpVelocity * Mathf.Lerp(baseJumpMultiplier, maxJumpMultiplier, t);
 
-        // Muscle mass: m = m_base × (1 + α × P)
-        float massMult = 1f + muscleGrowthAlpha * P;
-
-        if (playerRigidbody != null)
-            playerRigidbody.mass = originalMass * massMult;
-
-        playerMove.moveSpeed = originalSpeed * speedMult;
+        if (playerRigidbody != null && originalMass > 0f)
+            playerRigidbody.mass = originalMass * Mathf.Lerp(baseMassMultiplier, maxMassMultiplier, t);
     }
-    
-    void ResetPewterEffects()
-    {
-        if (playerMove == null) return;
 
-        if (playerRigidbody != null)
+    void ResetEffects()
+    {
+        if (playerMove != null)
         {
+            playerMove.externalSpeedMultiplier = 1f;
+            playerMove.jumpVelocity            = originalJumpVelocity;
+        }
+        if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass;
-        }
-        
-        playerMove.moveSpeed = originalSpeed;
     }
+
+    void HandleHealing(float flareMult)
+    {
+        if (healthSystem == null) return;
+        if (healthSystem.GetCurrentHealth() >= healthSystem.GetMaxHealth()) return;
+
+        float t       = Mathf.Clamp01((flareMult - 1f) / 9f);
+        float healRate = Mathf.Lerp(baseHealRate, maxHealRate, t);
+        healthSystem.Heal(healRate * Time.deltaTime);
+    }
+
+    void DrainReserve(float flareMult)
+    {
+        if (allomancer == null) return;
+        float t     = Mathf.Clamp01((flareMult - 1f) / 9f);
+        float drain  = baseDrainPerSecond * Mathf.Lerp(1f, flareDrainMultiplier, t);
+        allomancer.DrainMetal(AllomancySkill.MetalType.Pewter, drain * Time.deltaTime);
+    }
+
+    // ── Public API ────────────────────────────────────────────────────────────
+
+    public bool IsBurningPewter() => isBurning;
 }
