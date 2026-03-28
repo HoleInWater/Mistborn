@@ -8,11 +8,12 @@
 //   the component's own script — a file the dev already owns.
 //   This file never needs to be edited by anyone.
 
-using UnityEngine;
-using UnityEditor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
+using UnityEditor;
 
 public class MistbornSetupWindow : EditorWindow
 {
