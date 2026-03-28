@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.HighDefinition;
 
 /// <summary>
 /// Pewter Allomancy (Thug / Pewterarm) — lore-accurate physical enhancement.
@@ -91,6 +93,16 @@ public class Pewter : MonoBehaviour
     [Range(1f, 3f)]
     public float fatigueInterestMultiplier = 1.5f;
 
+    [Header("Vignette")]
+    [Tooltip("Vignette intensity at base burn — subtle red rim indicating enhanced strength.")]
+    [Range(0f, 0.35f)]
+    public float vignetteIntensity = 0.13f;
+    [Tooltip("Vignette intensity at max flare — stronger crimson edge during peak pewter.")]
+    [Range(0f, 0.5f)]
+    public float vignetteFlaringIntensity = 0.28f;
+    [Tooltip("Matches Pewter's color on the metal wheel.")]
+    public Color vignetteColor = new Color(0.8f, 0.2f, 0.2f);
+
     [Header("Knockback Resistance")]
     [Tooltip("Divides incoming knockback force at base burn. 2 = half knockback.")]
     [Range(1f, 5f)]
@@ -119,6 +131,10 @@ public class Pewter : MonoBehaviour
     private HealthBarTransitions healthSystem;
     private PlayerStamina        stamina;
 
+    // HDRP vignette — own dedicated Volume so it doesn't conflict with Tin's vignette
+    private Volume   _pewterVolume;
+    private Vignette _vignette;
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     void Start()
@@ -139,6 +155,33 @@ public class Pewter : MonoBehaviour
 
         if (playerMove != null)
             originalSprintDrainRate = playerMove.drainRate;
+
+        SetupVignette();
+    }
+
+    void OnDestroy()
+    {
+        if (_pewterVolume != null)
+            Destroy(_pewterVolume.gameObject);
+    }
+
+    void SetupVignette()
+    {
+        var volObj = new GameObject("Pewter_Volume");
+        _pewterVolume          = volObj.AddComponent<Volume>();
+        _pewterVolume.isGlobal = true;
+        _pewterVolume.weight   = 1f;
+        _pewterVolume.priority = 1f; // sits above the scene's base Global Volume
+        DontDestroyOnLoad(volObj);
+
+        var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+        _pewterVolume.profile = profile;
+
+        _vignette = profile.Add<Vignette>(true);
+        _vignette.color.overrideState     = true;
+        _vignette.color.value             = vignetteColor;
+        _vignette.intensity.overrideState = true;
+        _vignette.intensity.value         = 0f;
     }
 
     void Update()
@@ -181,6 +224,8 @@ public class Pewter : MonoBehaviour
                     playerMove.externalSpeedMultiplier = 1f;
             }
         }
+
+        UpdateVignette();
 
         if (isBurning)
         {
@@ -291,6 +336,25 @@ public class Pewter : MonoBehaviour
         SoundManager.Instance?.PlayPushSound();
 
         _pushCooldownTimer = pushCooldown;
+    }
+
+    // ── Vignette ──────────────────────────────────────────────────────────────
+
+    void UpdateVignette()
+    {
+        if (_vignette == null) return;
+
+        float targetIntensity = 0f;
+        if (isBurning)
+        {
+            float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+            float t = Mathf.Clamp01((flareMult - 1f) / 9f);
+            targetIntensity      = Mathf.Lerp(vignetteIntensity, vignetteFlaringIntensity, t);
+            _vignette.color.value = vignetteColor;
+        }
+
+        _vignette.intensity.value = Mathf.Lerp(
+            _vignette.intensity.value, targetIntensity, Time.deltaTime * 5f);
     }
 
     // ── Effects ───────────────────────────────────────────────────────────────
