@@ -43,11 +43,28 @@ public class MetalSelector : MonoBehaviour
     
     void Update()
     {
-        // OLD CODE REMOVED: Scroll Wheel metal selection has been migrated exclusively to the 
+        // OLD CODE REMOVED: Scroll Wheel metal selection has been migrated exclusively to the
         // new MetalWheelController GUI system. This prevents catastrophic input collisions
         // when the user attempts to Flare their metals using the scroll wheel.
-        
-        // Handle metal swap
+
+        // Auto-switch slot based on ability keys:
+        //   E or F pressed → activate primary slot (if not already active)
+        //   Q or V pressed → activate secondary slot (if not already active)
+        bool primaryKeyPressed  = Input.GetKeyDown(Keybinds.Ability1) || Input.GetKeyDown(Keybinds.Ability3);
+        bool secondaryKeyPressed = Input.GetKeyDown(Keybinds.Ability2) || Input.GetKeyDown(Keybinds.Ability4);
+
+        if (primaryKeyPressed && !isPrimaryActive)
+        {
+            isPrimaryActive = true;
+            UpdateActiveMetal();
+        }
+        else if (secondaryKeyPressed && isPrimaryActive)
+        {
+            isPrimaryActive = false;
+            UpdateActiveMetal();
+        }
+
+        // Manual swap key still works as before.
         if (Input.GetKeyDown(swapMetalsKey))
         {
             SwapMetals();
