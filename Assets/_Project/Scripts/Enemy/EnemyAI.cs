@@ -55,6 +55,12 @@ public class EnemyAI : MonoBehaviour
     private Vector3 flankingPosition;
     private EnemySenses senses;
     private EnemyHealth enemyHealth;
+    private EnemyHitFlash hitFlash;
+
+    [Header("Investigate")]
+    public float investigateWaitTime = 3f;   // seconds spent searching at last-known position
+    private Vector3 lastKnownPlayerPosition;
+    private float investigateTimer;
 
     void Start()
     {
@@ -63,6 +69,7 @@ public class EnemyAI : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         senses = GetComponent<EnemySenses>();
         enemyHealth = GetComponent<EnemyHealth>();
+        hitFlash = GetComponent<EnemyHitFlash>();
 
         ApplyEnemyTypeDefaults();
 
@@ -170,10 +177,11 @@ public class EnemyAI : MonoBehaviour
 
         switch (currentState)
         {
-            case State.Idle: if (autoPatrol) currentState = State.Patrol; break;
-            case State.Patrol: HandlePatrol(); break;
-            case State.Chase: HandleChase(); break;
-            case State.Attack: HandleAttack(); break;
+            case State.Idle:        if (autoPatrol) currentState = State.Patrol; break;
+            case State.Patrol:      HandlePatrol(); break;
+            case State.Chase:       HandleChase(); break;
+            case State.Attack:      HandleAttack(); break;
+            case State.Investigate: HandleInvestigate(); break;
         }
 
         UpdateAnimations();
@@ -197,10 +205,19 @@ public class EnemyAI : MonoBehaviour
             detected = dist <= detectionRange;
         }
 
-        if (detected && currentState != State.Attack)
-            currentState = State.Chase;
-        else if (!detected && currentState == State.Chase)
-            currentState = State.Patrol;
+        if (detected)
+        {
+            lastKnownPlayerPosition = target.position;
+            if (currentState != State.Attack)
+                currentState = State.Chase;
+        }
+        else if (!detected && (currentState == State.Chase || currentState == State.Attack))
+        {
+            // Lost sight/sound — investigate the last known position before giving up
+            currentState = State.Investigate;
+            investigateTimer = investigateWaitTime;
+            if (navAgent != null) navAgent.SetDestination(lastKnownPlayerPosition);
+        }
     }
 
     void HandlePatrol()
@@ -261,6 +278,28 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    void HandleInvestigate()
+    {
+        if (navAgent == null) return;
+        navAgent.speed = moveSpeed; // walk, not run
+
+        bool reachedDestination = !navAgent.pathPending
+                                  && navAgent.remainingDistance <= navAgent.stoppingDistance + 0.5f;
+        if (!reachedDestination) return;
+
+        // Arrived at last known position — wait and look around
+        investigateTimer -= Time.deltaTime;
+
+        // Slowly rotate while waiting (looking around)
+        transform.Rotate(0f, 45f * Time.deltaTime, 0f);
+
+        if (investigateTimer <= 0f)
+        {
+            currentState = State.Patrol;
+            if (navAgent != null) navAgent.speed = moveSpeed;
+        }
+    }
+
     void PerformAttack()
     {
         if (useMeleeAttacks)
@@ -296,10 +335,19 @@ public class EnemyAI : MonoBehaviour
                 if (dist < 15f)
                 {
                     BasicPlayerMove pm = target.GetComponent<BasicPlayerMove>();
-                    if (pm != null) pm.externalSpeedMultiplier = 0.8f;
+                    if (pm != null) StartCoroutine(ZincSlowCoroutine(pm, 0.8f, 3f));
                 }
                 break;
         }
+    }
+
+    IEnumerator ZincSlowCoroutine(BasicPlayerMove pm, float slowMultiplier, float duration)
+    {
+        pm.externalSpeedMultiplier = slowMultiplier;
+        yield return new WaitForSeconds(duration);
+        // Only restore if this enemy's slow is still the active one
+        if (Mathf.Approximately(pm.externalSpeedMultiplier, slowMultiplier))
+            pm.externalSpeedMultiplier = 1f;
     }
 
     public void TakeDamage(float damage, string source = "Unknown")
@@ -307,8 +355,10 @@ public class EnemyAI : MonoBehaviour
         if (health <= 0) return;
         health -= damage;
         if (enemyHealth != null) enemyHealth.currentHealth = health; // keep pools in sync
+        hitFlash?.Flash();
         if (health <= 0) Die();
-        else if (currentState != State.Chase && currentState != State.Attack)
+        else if (currentState != State.Chase && currentState != State.Attack
+                 && currentState != State.Investigate)
             currentState = State.Chase;
     }
 

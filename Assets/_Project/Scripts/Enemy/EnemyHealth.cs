@@ -3,16 +3,13 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour, IDamageable
 {
     [Header("Health Settings")]
-    // NOTE: Consider adding [Range(1f, 1000f)] attribute for maxHealth
     public float maxHealth = 50f;
-    // NOTE: Consider adding [SerializeField] for currentHealth (private field)
     public float currentHealth = 50f;
-    
+
     [Header("Death")]
     public bool dropLoot = true;
     public GameObject lootPrefab;
-    // NOTE: Consider adding [Range(0f, 1f)] attribute for lootDropChance
-    public float lootDropChance = 0.5f;
+    [Range(0f, 1f)] public float lootDropChance = 0.5f;
     public GameObject deathEffect;
     
     public bool isDead { get; set; } = false;
