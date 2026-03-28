@@ -32,11 +32,11 @@
 - [ ] Fall damage
 
 ### Allomancy Core
-- [x] `Allomancer.cs` — metal reserve management, burn toggle (B key), metal draining
+- [x] `Allomancer.cs` — metal reserve management, burn toggle (left ctrl key), metal draining
 - [x] `AllomanticTarget.cs` — marks objects as pushable/pullable
 - [x] `MetalSelector.cs` — 2-metal primary/secondary system, swap key (Left Alt), instant HUD sync
 - [x] `MetalReserve.cs` / `MetalRingVisual.cs` — 2-bar HUD + proportional arc ring (bottom-right)
-- [x] `FlareManager.cs` — flaring (Left Ctrl), synced with B key burn toggle
+- [x] `FlareManager.cs` — Scroll while burning
 - [x] `AllomanticSight.cs` — Tab toggles blue lines to all metal in range
 - [x] `RadialMetalMenu.cs` — scroll wheel opens metal selection wheel
 - [x] `MetalLineRenderer.cs` — blue line visuals to metals
