@@ -1408,8 +1408,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   currentStamina: 0
-  regenRate: 15
+  lactateThreshold: 0.5
+  maxOxygenDebt: 40
+  debtAccumulationRate: 8
+  debtRecoveryRate: 5
+  aerobicRegenRate: 20
+  anaerobicRegenRate: 7
   regenDelay: 2
+  exhaustionDuration: 3
+  exhaustionSpeedFactor: 0.4
   uiDocument: {fileID: 551459339}
 --- !u!114 &641062196
 MonoBehaviour:
@@ -1456,6 +1463,7 @@ MonoBehaviour:
   chestTransform: {fileID: 1411527781}
   playerTag: Player
   playerCamera: {fileID: 53509035}
+  metalCostPerSecond: 1
   maxLines: 5
 --- !u!114 &641062198
 MonoBehaviour:
@@ -1592,6 +1600,8 @@ MonoBehaviour:
   metalProgressBarPrefix: Metal_
   maxMetal: 100
   passiveRecoveryRate: 5
+  previewMode: 0
+  lowReserveThreshold: 20
 --- !u!114 &641062201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1618,6 +1628,7 @@ MonoBehaviour:
   allomancer: {fileID: 641062198}
   playerRigidbody: {fileID: 641062184}
   chestTransform: {fileID: 1411527781}
+  metalSelector: {fileID: 0}
   pullEffectPrefab: {fileID: 0}
   shakeMagnitude: 0.1
   shakeDuration: 0.1
@@ -1661,6 +1672,7 @@ MonoBehaviour:
   allomancer: {fileID: 641062198}
   playerRigidbody: {fileID: 641062184}
   chestTransform: {fileID: 1411527781}
+  metalSelector: {fileID: 0}
   shakeMagnitude: 0.1
   shakeDuration: 0.1
   shakeForceThreshold: 100
@@ -1719,20 +1731,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188f0c44ad7cbd64bba7e26e82a995d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Tin
-  baseMetalCostPerSecond: 1
-  fovIncreaseBase: 5
-  fovIncreaseMax: 20
-  audioVolumeMultiplierBase: 1.2
-  audioVolumeMultiplierMax: 3
+  flaringThreshold: 2
+  fovFocusDegrees: 3
+  fovFlaringExtra: 4
+  farClipBonus: 600
   nightVisionIntensity: 0.5
   mistPiercingStrength: 0.7
-  reflexSpeedBoost: 1.15
+  audioVolumeBase: 1.3
+  audioVolumeFlare: 2.4
+  tinVignetteIntensity: 0.11
+  tinVignetteFlaringIntensity: 0.2
+  tinVignetteColor: {r: 0.65, g: 0.82, b: 1, a: 1}
+  scentRadius: 22
+  scentPingInterval: 1.5
+  scentPingClip: {fileID: 0}
+  scentPingVolume: 0.1
+  vibrationRadius: 14
+  vibrationSpeedThreshold: 0.35
+  vibrationShakeMagnitude: 0.008
+  heartbeatRange: 9
+  heartbeatInterval: 0.85
+  heartbeatClip: {fileID: 0}
+  heartbeatVolume: 0.13
+  flareEntryFOVPulse: 7
+  flareEntryDuration: 0.25
   overloadRecoveryRate: 2
-  visualOverloadThreshold: 0.8
-  audioOverloadThreshold: 0.8
+  overloadImpairThreshold: 0.3
+  baseMetalCostPerSecond: 1
+  globalVolume: {fileID: 0}
   playerCamera: {fileID: 0}
   allomancer: {fileID: 0}
-  globalVolume: {fileID: 0}
 --- !u!114 &641062205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2247,7 +2275,7 @@ Light:
   serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 100000
+  m_Intensity: 5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
