@@ -7,7 +7,12 @@ using System.Collections.Generic;
 /// Core enemy AI controller with type-specific stats and behavior.
 /// Supports Guard, Coinshot, Lurcher, Thug, Smoker, Rioter, Seeker,
 /// Koloss, SteelInquisitor, NobleGuard, Mistwraith, Obligator, SkaaRebel.
+///
+/// Requires AIController so enemies auto-register with MistbornRegistry —
+/// letting Tin heartbeat / vibration and Bronze Seeker detection find them.
+/// AIController defers its own state machine when EnemyAI is present.
 /// </summary>
+[RequireComponent(typeof(AIController))]
 public class EnemyAI : MonoBehaviour
 {
     [Header("Enemy Type")]
@@ -48,14 +53,25 @@ public class EnemyAI : MonoBehaviour
     private Vector3 patrolCenter;
     private bool isFlanking;
     private Vector3 flankingPosition;
+    private EnemySenses senses;
+    private EnemyHealth enemyHealth;
 
     void Start()
     {
         patrolCenter = transform.position;
         if (navAgent == null) navAgent = GetComponent<NavMeshAgent>();
         if (animator == null) animator = GetComponent<Animator>();
+        senses = GetComponent<EnemySenses>();
+        enemyHealth = GetComponent<EnemyHealth>();
 
         ApplyEnemyTypeDefaults();
+
+        // Sync EnemyHealth pool with our type-based health value
+        if (enemyHealth != null)
+        {
+            enemyHealth.maxHealth     = health;
+            enemyHealth.currentHealth = health;
+        }
 
         if (navAgent != null)
         {
@@ -168,10 +184,22 @@ public class EnemyAI : MonoBehaviour
         if (target == null) target = GameObject.FindGameObjectWithTag("Player")?.transform;
         if (target == null) return;
 
-        float dist = Vector3.Distance(transform.position, target.position);
-        if (dist <= detectionRange && currentState != State.Attack)
+        bool detected;
+        if (senses != null)
+        {
+            // Physics-based: sight cone + hearing ring + suspicion meter
+            detected = senses.CanDetectPlayer;
+        }
+        else
+        {
+            // Fallback: raw sphere range
+            float dist = Vector3.Distance(transform.position, target.position);
+            detected = dist <= detectionRange;
+        }
+
+        if (detected && currentState != State.Attack)
             currentState = State.Chase;
-        else if (dist > detectionRange * 1.5f && currentState == State.Chase)
+        else if (!detected && currentState == State.Chase)
             currentState = State.Patrol;
     }
 
@@ -278,6 +306,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (health <= 0) return;
         health -= damage;
+        if (enemyHealth != null) enemyHealth.currentHealth = health; // keep pools in sync
         if (health <= 0) Die();
         else if (currentState != State.Chase && currentState != State.Attack)
             currentState = State.Chase;
@@ -286,6 +315,8 @@ public class EnemyAI : MonoBehaviour
     void Die()
     {
         currentState = State.Dead;
+        health = 0;
+        if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }
         animator?.SetBool("IsDead", true);
         if (navAgent != null) navAgent.isStopped = true;
 

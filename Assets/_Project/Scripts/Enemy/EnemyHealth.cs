@@ -1,5 +1,3 @@
-// NOTE: Lines 22, 35, 47 contain Debug.Log which should be removed for production
-// NOTE: Consider adding [RequireComponent(typeof(Collider))] attribute for trigger detection
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour, IDamageable
@@ -17,18 +15,19 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public float lootDropChance = 0.5f;
     public GameObject deathEffect;
     
-    public bool isDead { get; private set; } = false;
-    
+    public bool isDead { get; set; } = false;
+
     public void TakeDamage(float amount)
     {
         if (isDead) return;
-        
+
+        // If EnemyAI is present it owns health — route damage through it so
+        // it can react (transition to Chase, trigger death sequence, grant XP).
+        EnemyAI ai = GetComponent<EnemyAI>();
+        if (ai != null) { ai.TakeDamage(amount); return; }
+
         currentHealth -= amount;
-        
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        if (currentHealth <= 0) Die();
     }
     
     void Die()

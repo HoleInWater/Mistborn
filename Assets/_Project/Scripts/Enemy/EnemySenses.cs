@@ -25,7 +25,6 @@ using UnityEngine;
 ///   The enemy alerts (CanDetectPlayer = true) once suspicion ≥ 1.
 ///   Suspicion decays when the player is neither seen nor heard.
 /// </summary>
-[RequireComponent(typeof(AIController))]
 public class EnemySenses : MonoBehaviour
 {
     // ── Sight ─────────────────────────────────────────────────────────────────

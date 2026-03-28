@@ -34,6 +34,7 @@ public class AIController : MonoBehaviour
     private Transform player;
     private NavMeshAgent navAgent;
     private EnemySenses senses;         // optional — falls back to range-only detection
+    private bool deferToEnemyAI;        // EnemyAI drives behaviour when present; we only register
     private float originalSpeed;
     private float aggressionMultiplier = 1f;
     private ParticleSystem auraParticles;
@@ -43,6 +44,10 @@ public class AIController : MonoBehaviour
 
     void Start()
     {
+        // If EnemyAI is on the same object it owns the state machine.
+        // AIController still registers with the registry so Tin / Seeker can find this enemy.
+        deferToEnemyAI = GetComponent<EnemyAI>() != null;
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
         else Debug.LogWarning("[AIController] No GameObject tagged 'Player' found in scene.");
@@ -62,13 +67,17 @@ public class AIController : MonoBehaviour
 
     void Update()
     {
-        UpdateSpeed();
-
+        // Aura + emotion decay run regardless so Zinc/Brass can still affect this enemy
         if (auraExpiryTimer > 0f)
         {
             auraExpiryTimer -= Time.deltaTime;
             if (auraExpiryTimer <= 0f) ResetAura();
         }
+
+        // EnemyAI owns the state machine — skip movement/attack logic here
+        if (deferToEnemyAI) return;
+
+        UpdateSpeed();
 
         if (attackTimer > 0f) attackTimer -= Time.deltaTime;
 
