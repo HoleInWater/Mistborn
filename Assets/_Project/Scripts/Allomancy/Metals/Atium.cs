@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections.Generic;
 
 /// <summary>
@@ -72,6 +73,9 @@ public class Atium : MonoBehaviour
         var enemies = MistbornRegistry.ActiveEnemies;
         HashSet<GameObject> currentTargets = new HashSet<GameObject>();
 
+        // Flare scales how far ahead we see — max flare reveals ~2× the future window
+        float leadTime = shadowLeadTime * Mathf.Lerp(1f, 2f, (flareMult - 1f) / 9f);
+
         foreach (var enemy in enemies)
         {
             if (enemy == null) continue;
@@ -79,7 +83,7 @@ public class Atium : MonoBehaviour
             if (dist <= currentRange)
             {
                 currentTargets.Add(enemy.gameObject);
-                UpdateShadow(enemy.gameObject);
+                UpdateShadow(enemy.gameObject, leadTime);
             }
         }
 
@@ -96,7 +100,7 @@ public class Atium : MonoBehaviour
         }
     }
 
-    void UpdateShadow(GameObject target)
+    void UpdateShadow(GameObject target, float leadTime)
     {
         if (!activeGhosts.ContainsKey(target))
         {
@@ -106,18 +110,23 @@ public class Atium : MonoBehaviour
         }
 
         GhostRenderer ghost = activeGhosts[target];
-        
-        // Offset logically based on current velocity to represent "future"
-        Rigidbody rb = target.GetComponent<Rigidbody>();
+
         Vector3 futurePos = target.transform.position;
+        Rigidbody rb = target.GetComponent<Rigidbody>();
+
         if (rb != null)
         {
-            futurePos += rb.linearVelocity * 0.4f; // Look 400ms into the future
+            // Physics-driven object: extrapolate from current velocity
+            futurePos += rb.linearVelocity * leadTime;
         }
         else
         {
-            // Fallback for non-rigidbody movement
-            futurePos += target.transform.forward * 2f;
+            // NavMesh-driven AI: use agent velocity for accurate prediction
+            NavMeshAgent agent = target.GetComponent<NavMeshAgent>();
+            if (agent != null)
+                futurePos += agent.velocity * leadTime;
+            else
+                futurePos += target.transform.forward * leadTime * 4f; // static fallback
         }
 
         ghost.UpdateTransform(futurePos, target.transform.rotation);
