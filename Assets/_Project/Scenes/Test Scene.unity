@@ -780,7 +780,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
+  - {fileID: 2100000, guid: 611c09174e613d945b259301cd5f14e3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1172,7 +1172,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
+  - {fileID: 2100000, guid: 611c09174e613d945b259301cd5f14e3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1370,8 +1370,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
   maxStamina: 100
   currentStamina: 0
-  regenRate: 15
+  lactateThreshold: 0.5
+  maxOxygenDebt: 40
+  debtAccumulationRate: 8
+  debtRecoveryRate: 5
+  aerobicRegenRate: 20
+  anaerobicRegenRate: 7
   regenDelay: 2
+  exhaustionDuration: 3
+  exhaustionSpeedFactor: 0.4
   uiDocument: {fileID: 551459339}
 --- !u!114 &641062196
 MonoBehaviour:
@@ -1614,7 +1621,6 @@ MonoBehaviour:
   tinVignetteIntensity: 0.11
   tinVignetteFlaringIntensity: 0.2
   tinVignetteColor: {r: 0.65, g: 0.82, b: 1, a: 1}
-  reflexSpeedBoost: 1.15
   scentRadius: 22
   scentPingInterval: 1.5
   scentPingClip: {fileID: 0}
@@ -1728,7 +1734,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
+  - {fileID: 2100000, guid: 84313cae6ebef0448b6557955ff1cadb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1867,7 +1873,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fab65050e5d05864c9cc4f03e8b73292, type: 2}
+  - {fileID: 2100000, guid: 9f9adf7aa5c72f14582e9be49021b374, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2319,7 +2325,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 0}
-  sceneGUID: 0fa3e55e0df211c4c975c586e9620917
+  sceneGUID: 7d7c0512cf1b6034abc70fe06fa7b985
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -2367,8 +2373,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 13
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 100000
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Intensity: 3
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -2411,7 +2417,7 @@ Light:
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 6570
+  m_ColorTemperature: 1500
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 9.317011e-25, y: 1.1673142e-10, z: -146.6951, w: 1.5368989e-25}
   m_UseBoundingSphereOverride: 0
@@ -2911,7 +2917,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
+  - {fileID: 2100000, guid: 611c09174e613d945b259301cd5f14e3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3086,6 +3092,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1413854805}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1520403190
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1520403192}
+  - component: {fileID: 1520403191}
+  m_Layer: 0
+  m_Name: Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1520403191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520403190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 47e835f43da34fe498819c0c6ca0d40a, type: 2}
+--- !u!4 &1520403192
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520403190}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1562288604
 GameObject:
   m_ObjectHideFlags: 0
@@ -3291,7 +3346,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: edcb51d444afd4d46b79703ebe8a41ef, type: 2}
+  - {fileID: 2100000, guid: 611c09174e613d945b259301cd5f14e3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3498,7 +3553,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
+  - {fileID: 2100000, guid: 84313cae6ebef0448b6557955ff1cadb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3994,7 +4049,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f5d29820ff2d76345b3d9464ac4fdb86, type: 2}
+  - {fileID: 2100000, guid: 84313cae6ebef0448b6557955ff1cadb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4198,3 +4253,4 @@ SceneRoots:
   - {fileID: 938101384}
   - {fileID: 106254352}
   - {fileID: 7994489}
+  - {fileID: 1520403192}
