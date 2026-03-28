@@ -57,7 +57,7 @@ public class TemporalAllomancy : MonoBehaviour
         if (allomancer.IsMetalBurning(AllomancySkill.MetalType.Gold))
         {
             UpdateGoldShadow();
-            allomancer.DrainMetal(AllomancySkill.MetalType.Gold, 0.167f * Time.deltaTime); // MAG: 10 min/charge
+            allomancer.DrainMetal(AllomancySkill.MetalType.Gold, 0.667f * Time.deltaTime); // MAG: 10 in-game min = 2.5 real min
         }
         else if (goldGhost != null)
         {
@@ -69,7 +69,7 @@ public class TemporalAllomancy : MonoBehaviour
         if (allomancer.IsMetalBurning(AllomancySkill.MetalType.Electrum))
         {
             UpdateElectrumShadows();
-            allomancer.DrainMetal(AllomancySkill.MetalType.Electrum, 0.167f * Time.deltaTime); // MAG: 10 min/charge
+            allomancer.DrainMetal(AllomancySkill.MetalType.Electrum, 0.667f * Time.deltaTime); // MAG: 10 in-game min = 2.5 real min
         }
         else
         {
