@@ -9,6 +9,8 @@ public class EnemySpawner : MonoBehaviour
 {
     [Header("Spawn Settings")]
     public GameObject[] enemyPrefabs;
+    [Tooltip("Used by EnemyFactory when enemyPrefabs is empty — lets you test without any prefabs.")]
+    public EnemyAI.EnemyType defaultEnemyType = EnemyAI.EnemyType.Guard;
     public int maxEnemies = 8;
     public float spawnInterval = 10f;
     public float spawnRadius = 15f;
@@ -72,13 +74,23 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemy()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0) return;
-
-        GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
         Vector3 spawnPos = GetRandomSpawnPosition();
+        EnemyAI ai;
 
-        GameObject enemy = Instantiate(prefab, spawnPos, Quaternion.identity);
-        EnemyAI ai = enemy.GetComponent<EnemyAI>();
+        if (enemyPrefabs != null && enemyPrefabs.Length > 0)
+        {
+            // Prefab path
+            GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+            GameObject enemy  = Instantiate(prefab, spawnPos, Quaternion.identity);
+            ai = enemy.GetComponent<EnemyAI>();
+        }
+        else
+        {
+            // Prefab-free path: build the enemy entirely in code via EnemyFactory.
+            // Useful for testing without any asset setup in the editor.
+            ai = EnemyFactory.Create(defaultEnemyType, spawnPos);
+        }
+
         if (ai != null) activeEnemies.Add(ai);
     }
 

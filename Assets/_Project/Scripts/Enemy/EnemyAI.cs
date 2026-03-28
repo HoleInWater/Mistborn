@@ -67,6 +67,7 @@ public class EnemyAI : MonoBehaviour
     [Tooltip("Health fraction below which cowardly enemies flee. Set 0 to disable.")]
     [Range(0f, 0.5f)] public float fleeHealthThreshold = 0.25f;
     private bool canFlee = true;   // set false per type in ApplyEnemyTypeDefaults
+    private float startingHealth;  // recorded after ApplyEnemyTypeDefaults for GetMaxHealth()
 
     [Header("Group Alert")]
     [Tooltip("Radius in which this enemy wakes up nearby allies when it first spots the player.")]
@@ -83,6 +84,7 @@ public class EnemyAI : MonoBehaviour
         aiCtrl    = GetComponent<AIController>();
 
         ApplyEnemyTypeDefaults();
+        startingHealth = health;
 
         // Sync EnemyHealth pool with our type-based health value
         if (enemyHealth != null)
@@ -93,8 +95,8 @@ public class EnemyAI : MonoBehaviour
 
         if (navAgent != null)
         {
-            navAgent.speed = moveSpeed;
-            navAgent.stoppingDistance = attackRange - 1f;
+            navAgent.speed            = moveSpeed;
+            navAgent.stoppingDistance = Mathf.Max(0.1f, attackRange - 0.5f);
         }
 
         if (autoPatrol && enemyType != EnemyType.Koloss)
@@ -211,8 +213,7 @@ public class EnemyAI : MonoBehaviour
     float GetMaxHealth()
     {
         if (enemyHealth != null && enemyHealth.maxHealth > 0f) return enemyHealth.maxHealth;
-        // Fallback: approximate from starting health by type
-        return Mathf.Max(health, 1f);
+        return Mathf.Max(startingHealth, 1f);
     }
 
     void DetectTarget()
@@ -260,6 +261,9 @@ public class EnemyAI : MonoBehaviour
     void HandlePatrol()
     {
         if (navAgent == null || !navAgent.enabled) return;
+        navAgent.isStopped = false;
+        navAgent.speed = moveSpeed;
+
         if (!navAgent.pathPending && navAgent.remainingDistance < 0.5f)
         {
             Vector3 randomDir = Random.insideUnitSphere * patrolRadius + patrolCenter;
@@ -273,6 +277,7 @@ public class EnemyAI : MonoBehaviour
     void HandleChase()
     {
         if (target == null || navAgent == null) return;
+        navAgent.isStopped = false;
         navAgent.speed = runSpeed;
 
         float dist = Vector3.Distance(transform.position, target.position);
@@ -306,6 +311,8 @@ public class EnemyAI : MonoBehaviour
         float dist = Vector3.Distance(transform.position, target.position);
         if (dist > attackRange * 1.5f) { currentState = State.Chase; return; }
 
+        // Stop moving while striking — prevents sliding through the player
+        if (navAgent != null) navAgent.isStopped = true;
         transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
 
         if (Time.time - lastAttackTime >= attackCooldown)
@@ -553,6 +560,13 @@ public class EnemyAI : MonoBehaviour
         if (animator == null) return;
         float speed = navAgent != null ? navAgent.velocity.magnitude : 0f;
         animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
+
+        // State booleans — drive Animator Controller transitions
+        animator.SetBool("IsChasing",       currentState == State.Chase);
+        animator.SetBool("IsAttacking",     currentState == State.Attack);
+        animator.SetBool("IsFleeing",       currentState == State.Flee);
+        animator.SetBool("IsInvestigating", currentState == State.Investigate);
+        animator.SetBool("IsDead",          currentState == State.Dead);
     }
 
     public void ApplyKnockback(Vector3 direction, float force)
