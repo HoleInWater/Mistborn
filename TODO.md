@@ -6,7 +6,7 @@
 
 ## Current Script Priorities
 
-1. **Tin Allomancy** — full 5-sense implementation (sight, sound, smell, taste, touch ranges)
+1. **Metals** — allomancy metals and works
 2. **Particle Effects** — metal burn/flare VFX prefabs for all active metals
 3. **Finsih Animation Controllers** — character animation state machines (movement, combat, allomancy)
 4. **Enemy Polish** — Koloss, SteelInquisitor, Hazekiller need testing and tuning
@@ -25,11 +25,11 @@
 - [x] Basic movement (WASD, sprint, jump)
 - [x] Third-person camera
 - [x] Player stamina system
-- [] Dodge roll
-- [] Crouch
-- [] Vault/jump
-- [] Wall run (script exists)
-- [] Fall damage
+- [ ] Dodge roll
+- [ ] Crouch
+- [ ] Vault/jump
+- [ ] Wall run (script exists)
+- [ ] Fall damage
 
 ### Allomancy Core
 - [x] `Allomancer.cs` — metal reserve management, burn toggle (B key), metal draining
@@ -48,18 +48,18 @@
 - [x] Coin pouch and trajectory preview
 
 ### Other Metals (Scripts exist — needs full testing/polish)
-- [x] `Pewter.cs` — strength/speed enhancement
-- [ ] `Tin.cs` — script exists, full 5-sense implementation incomplete ← **PRIORITY**
-- [x] `Zinc.cs` — riot emotions
-- [x] `Brass.cs` — soothe emotions
-- [x] `Copper.cs` — hide allomantic pulses
-- [x] `Bronze.cs` — detect burning
-- [x] `Aluminum.cs` — purge own metals
-- [x] `Duralumin.cs` — mega burst
-- [x] `Chromium.cs` — leech others' metals
-- [x] `Nicrosil.cs` — amplify others
-- [x] `Bendalloy.cs` + `TimeBubble.cs` — speed time bubble
-- [x] `Cadmium.cs` — slow time bubble
+- [ ] `Pewter.cs` — strength/speed enhancement
+- [x] `Tin.cs` — script exists, full 5-sense implementation incomplete ← **PRIORITY**
+- [ ] `Zinc.cs` — riot emotions
+- [ ] `Brass.cs` — soothe emotions
+- [ ] `Copper.cs` — hide allomantic pulses
+- [ ] `Bronze.cs` — detect burning
+- [ ] `Aluminum.cs` — purge own metals
+- [ ] `Duralumin.cs` — mega burst
+- [ ] `Chromium.cs` — leech others' metals
+- [ ] `Nicrosil.cs` — amplify others
+- [ ] `Bendalloy.cs` + `TimeBubble.cs` — speed time bubble
+- [ ] `Cadmium.cs` — slow time bubble
 - [ ] `Atium.cs` — see enemy futures (stub, unimplemented)
 - [ ] `Malatium.cs` — see future selves (stub, unimplemented)
 - [ ] `Gold.cs` — see past self (stub, unimplemented)
@@ -68,40 +68,33 @@
 ### Combat
 - [x] `IDamageable` interface
 - [x] Player health system
-- [x] Player combat (melee)
-- [x] Enemy health bars (UI)
-- [x] Damage numbers UI
+- [ ] Player combat (melee)
+- [ ] Enemy health bars (UI)
+- [ ] Damage numbers UI
 
 ### Enemies
-- [x] `EnemyAI.cs` — patrol, chase, flee, NavMesh (crash fix applied)
-- [x] `KolossAI.cs` — charge attack, ground slam
-- [x] `SteelInquisitorAI.cs` — multi-phase boss
-- [x] `LordRulerBoss.cs` — final boss
-- [x] `HazekillerAI.cs` — elite enemy
-- [x] `EnemySeeker.cs` — detects allomancy
+- [ ] `EnemyAI.cs` — patrol, chase, flee, NavMesh (crash fix applied)
+- [ ] `KolossAI.cs` — charge attack, ground slam
+- [ ] `SteelInquisitorAI.cs` — multi-phase boss
+- [ ] `LordRulerBoss.cs` — final boss
+- [ ] `HazekillerAI.cs` — elite enemy
+- [ ] `EnemySeeker.cs` — detects allomancy
 - [ ] All enemies need playtesting and tuning against the actual player
 
 ### HUD / UI
 - [x] Health and Stamina bars (top-left, UIToolkit)
 - [x] 2-metal bars with active/secondary highlight (bottom-right)
 - [x] Proportional arc ring indicator (bottom-right corner)
-- [x] Pause menu
-- [x] Dialogue manager (script)
-- [x] Tutorial system (script)
-- [x] Achievement system (script)
-- [x] Minimap system (script)
+- [ ] Pause menu
+- [ ] Dialogue manager (script)
+- [ ] Tutorial system (script)
+- [ ] Achievement system (script)
+- [ ] Minimap system (script)
 - [ ] All UI systems need scene hookup and playtesting
 
 ---
 
 ## In Progress / Up Next
-
-### Tin Allomancy
-- [ ] Enhanced sight range and clarity (highlight interactable objects)
-- [ ] Enhanced hearing (ambient audio range, footstep detection radius)
-- [ ] Sensitivity downside — bright lights cause pain, loud sounds stun
-- [ ] Tin Savant risk: prolonged flaring damages player
-- [ ] Visual post-processing effect when Tin is active
 
 ### Particle Effects
 - [ ] Metal burn particle (emitter around player when burning)
@@ -111,7 +104,7 @@
 - [ ] Pewter body glow while active
 - [ ] Time bubble edge effect (Bendalloy/Cadmium)
 
-### Animation Controllers
+### Finish Animation Controllers
 - [ ] Player — idle, walk, run, jump, fall, land
 - [ ] Player — push/pull stance and follow-through
 - [ ] Player — flare reaction
@@ -124,44 +117,6 @@
 - [ ] Lighting — ash/soot atmosphere, mist effects
 - [ ] Enemy patrol routes set up in scene
 - [ ] At least one indoor area (keep interior)
-
----
-
-## Backlog (Phase 3+)
-
-### Enemy Variety
-- [ ] Noble Guard — armored, shield block
-- [ ] Coinshot enemy — ranged Allomancer
-- [ ] Kandra — shapeshifter, disguises as NPCs
-- [ ] Mist Spirit — phasing ghost
-
-### World & Story
-- [ ] Dialogue system scene hookup (DialogueManager.cs exists)
-- [ ] Quest system
-- [ ] Faction system (nobility vs skaa)
-- [ ] NPC interactions
-
-### Polish
-- [ ] Screen shake on heavy impact
-- [ ] Camera collision
-- [ ] Camera lag (cinematic feel)
-- [ ] Coyote time (0.15s after edge)
-- [ ] Jump buffering (0.2s before landing)
-- [ ] Air control while flying via push/pull
-
-### Systems
-- [ ] Save/Load scene hookup (SaveLoadSystem.cs exists)
-- [ ] Audio — sound files, mixer, 3D spatial audio
-- [ ] Skill tree scene hookup
-- [ ] Metal pickup/vial system scene hookup
-- [ ] Performance optimization (object pooling audit, LODs)
-
-### Future (Post-MVP)
-- [ ] Feruchemy system
-- [ ] Compounding (burn a Feruchemical charge as an Allomantic metal)
-- [ ] Multiplayer
-- [ ] Character customization
-- [ ] Full Luthadel map (multiple districts)
 
 ---
 
