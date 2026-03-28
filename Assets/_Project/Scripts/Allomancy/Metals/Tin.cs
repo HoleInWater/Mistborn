@@ -404,9 +404,9 @@ public class Tin : MonoBehaviour
             bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
             bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
 
-            if (tinIsPrimary   && Input.GetKeyDown(Keybinds.SteelPush))  // E — prime
+            if (tinIsPrimary   && Input.GetKeyDown(Keybinds.Ability1))  // E — primary slot
                 _tinToggled = !_tinToggled;
-            if (tinIsSecondary && Input.GetKeyDown(Keybinds.IronPull))   // Q — second
+            if (tinIsSecondary && Input.GetKeyDown(Keybinds.Ability2))  // Q — secondary slot
                 _tinToggled = !_tinToggled;
         }
 

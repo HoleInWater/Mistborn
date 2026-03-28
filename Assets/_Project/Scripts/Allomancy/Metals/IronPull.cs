@@ -102,12 +102,12 @@ public class IronPull : MonoBehaviour
         if (metalSelector != null)
         {
             if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.SteelPush;   // E = primary slot
+                return Keybinds.Ability1;   // E = primary slot
             if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.IronPull;    // Q = secondary slot
+                return Keybinds.Ability2;   // Q = secondary slot
             return KeyCode.None;             // Iron not equipped in either slot
         }
-        return Keybinds.IronPull;            // fallback if no selector
+        return Keybinds.Ability2;            // fallback if no selector
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────

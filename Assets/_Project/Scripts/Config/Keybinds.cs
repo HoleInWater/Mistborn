@@ -39,7 +39,12 @@ public static class Keybinds
 
     // Allomancy (original from handoff)
     public static KeyCode SteelPush = KeyCode.E;
-    public static KeyCode IronPull = KeyCode.Q;
+    public static KeyCode IronPull  = KeyCode.Q;
+
+    // Generic ability slot keys — E activates whichever metal is PRIMARY,
+    // Q activates whichever metal is SECONDARY. All metal scripts should use these.
+    public static KeyCode Ability1 = KeyCode.E;  // primary slot
+    public static KeyCode Ability2 = KeyCode.Q;  // secondary slot
     public static KeyCode SteelBubble = KeyCode.F;
     public static KeyCode MetalSight = KeyCode.T;
     public static KeyCode BurnToggle = KeyCode.B;

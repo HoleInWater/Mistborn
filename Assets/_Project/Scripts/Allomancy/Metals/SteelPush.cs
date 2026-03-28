@@ -109,9 +109,9 @@ public class SteelPush : MonoBehaviour
         if (metalSelector != null)
         {
             if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.SteelPush;   // E = primary slot
+                return Keybinds.Ability1;   // E = primary slot
             if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.IronPull;    // Q = secondary slot
+                return Keybinds.Ability2;   // Q = secondary slot
             return KeyCode.None;             // Steel not equipped in either slot
         }
         return Keybinds.SteelPush;           // fallback if no selector
