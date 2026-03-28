@@ -77,12 +77,12 @@ public class VinAI : MonoBehaviour
             attackTimer = attackCooldown;
             animator?.SetTrigger("Attack");
             transform.LookAt(new Vector3(currentEnemy.position.x, transform.position.y, currentEnemy.position.z));
-            currentEnemy.GetComponent<IDamageable>()?.TakeDamage(meleeDamage);
+            currentEnemy.GetComponentInParent<IDamageable>()?.TakeDamage(meleeDamage);
         }
         else if (dist < rangedRange)
         {
             attackTimer = attackCooldown * 1.5f;
-            currentEnemy.GetComponent<IDamageable>()?.TakeDamage(coinDamage);
+            currentEnemy.GetComponentInParent<IDamageable>()?.TakeDamage(coinDamage);
             SoundManager.Instance?.PlayPushSound();
         }
         else

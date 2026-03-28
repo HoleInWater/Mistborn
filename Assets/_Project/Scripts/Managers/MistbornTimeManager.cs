@@ -43,9 +43,10 @@ public class MistbornTimeManager : MonoBehaviour
                 target *= mod;
         }
 
-        // Smooth transition
+        // Smooth transition — allow true 0 when paused, otherwise floor at 0.01
         float next = Mathf.Lerp(Time.timeScale, target, Time.unscaledDeltaTime * 8f);
-        Time.timeScale = Mathf.Clamp(next, 0.01f, 12f);
+        float minScale = isPaused ? 0f : 0.01f;
+        Time.timeScale = Mathf.Clamp(next, minScale, 12f);
 
         // fixedDeltaTime controls the physics step rate.
         // Tin perception deliberately excludes physics — it slows animations and

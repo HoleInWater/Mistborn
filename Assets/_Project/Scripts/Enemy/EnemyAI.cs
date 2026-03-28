@@ -445,7 +445,7 @@ public class EnemyAI : MonoBehaviour
         if (useMeleeAttacks)
         {
             animator?.SetTrigger("Attack");
-            IDamageable damageable = target.GetComponent<IDamageable>();
+            IDamageable damageable = target.GetComponentInParent<IDamageable>();
             damageable?.TakeDamage(attackDamage);
         }
 

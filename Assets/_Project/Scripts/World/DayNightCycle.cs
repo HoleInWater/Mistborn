@@ -37,6 +37,23 @@ public class DayNightCycle : MonoBehaviour
     public float duskStart = 18f;
     public float dawnEnd = 8f;
 
+    [Header("Scadrial Lore — Ash & Sun")]
+    [Tooltip("Luthadel's implied latitude (degrees). Higher = lower noon sun. ~45 matches temperate Final Empire.")]
+    [Range(20f, 65f)]
+    public float luthedalLatitudeDeg = 45f;
+
+    [Tooltip("Solar declination (degrees). 0 = equinox. Positive = summer solstice arc (higher noon sun).")]
+    [Range(-23.5f, 23.5f)]
+    public float solarDeclination = 0f;
+
+    [Tooltip("Ash attenuation from the Ashmounts. 0 = no ash (clear sky), 1 = maximum ash cover.")]
+    [Range(0f, 1f)]
+    public float ashAttenuation = 0.45f;
+
+    [Tooltip("How much the ash tints the sun color toward sepia/red during the day.")]
+    [Range(0f, 1f)]
+    public float ashColorTint = 0.6f;
+
     private SkyController skyController;
 
     void Awake()
@@ -47,14 +64,19 @@ public class DayNightCycle : MonoBehaviour
 
         if (sunColorGradient == null)
         {
+            // Lore-accurate Final Empire palette:
+            // Ash particles scatter blue light → sunrises/sunsets are deep red-orange.
+            // Midday is not clean white but a washed-out sepia from constant ash haze.
             sunColorGradient = new Gradient();
             sunColorGradient.SetKeys(
                 new GradientColorKey[] {
-                    new GradientColorKey(new Color(0.1f, 0.1f, 0.2f), 0f),    // midnight
-                    new GradientColorKey(new Color(0.8f, 0.4f, 0.2f), 0.25f), // dawn
-                    new GradientColorKey(new Color(1f, 0.95f, 0.8f), 0.5f),   // noon
-                    new GradientColorKey(new Color(0.9f, 0.5f, 0.2f), 0.75f), // dusk
-                    new GradientColorKey(new Color(0.1f, 0.1f, 0.2f), 1f)     // midnight
+                    new GradientColorKey(new Color(0.08f, 0.06f, 0.12f), 0f),    // midnight — cold dark
+                    new GradientColorKey(new Color(0.75f, 0.22f, 0.05f), 0.22f), // pre-dawn — dark blood red
+                    new GradientColorKey(new Color(0.95f, 0.50f, 0.15f), 0.26f), // sunrise — fiery orange (ash scatter)
+                    new GradientColorKey(new Color(0.98f, 0.82f, 0.58f), 0.5f),  // noon — warm sepia (ash filter)
+                    new GradientColorKey(new Color(0.95f, 0.45f, 0.10f), 0.74f), // sunset — deep amber-orange
+                    new GradientColorKey(new Color(0.60f, 0.12f, 0.05f), 0.78f), // post-sunset — dying ember red
+                    new GradientColorKey(new Color(0.08f, 0.06f, 0.12f), 1f)     // midnight
                 },
                 new GradientAlphaKey[] { new GradientAlphaKey(1, 0), new GradientAlphaKey(1, 1) }
             );
@@ -62,14 +84,15 @@ public class DayNightCycle : MonoBehaviour
 
         if (ambientColorGradient == null)
         {
+            // Ambient reflects the ash-filtered sky: brown-grey during day, cold dark at night.
             ambientColorGradient = new Gradient();
             ambientColorGradient.SetKeys(
                 new GradientColorKey[] {
-                    new GradientColorKey(new Color(0.05f, 0.05f, 0.1f), 0f),
-                    new GradientColorKey(new Color(0.3f, 0.3f, 0.35f), 0.25f),
-                    new GradientColorKey(new Color(0.5f, 0.5f, 0.5f), 0.5f),
-                    new GradientColorKey(new Color(0.3f, 0.25f, 0.2f), 0.75f),
-                    new GradientColorKey(new Color(0.05f, 0.05f, 0.1f), 1f)
+                    new GradientColorKey(new Color(0.04f, 0.03f, 0.06f), 0f),   // midnight
+                    new GradientColorKey(new Color(0.25f, 0.15f, 0.10f), 0.25f), // dawn — reddish
+                    new GradientColorKey(new Color(0.42f, 0.38f, 0.30f), 0.5f),  // noon — ashy brown-grey
+                    new GradientColorKey(new Color(0.28f, 0.18f, 0.10f), 0.75f), // dusk — warm brown
+                    new GradientColorKey(new Color(0.04f, 0.03f, 0.06f), 1f)
                 },
                 new GradientAlphaKey[] { new GradientAlphaKey(1, 0), new GradientAlphaKey(1, 1) }
             );
@@ -123,37 +146,81 @@ public class DayNightCycle : MonoBehaviour
             directionalLight = skyController.GetSunLight();
         if (directionalLight == null) return;
 
-        // Rotate: 0h = below horizon, 6h = sunrise, 12h = overhead, 18h = sunset
-        float sunAngle = (t * 360f) - 90f;
-        directionalLight.transform.rotation = Quaternion.Euler(sunAngle, 170f, 0f);
+        // ── Lore-accurate latitude-based sun arc ─────────────────────────
+        //
+        // Luthadel is at a temperate mid-latitude (~45°N implied by lore).
+        // The Lord Ruler preserved a normal day/night cycle but Scadrial was
+        // nudged closer to the sun, making it inherently more intense.
+        //
+        // Astronomical formula (simplified, assumes circular orbit / equinox):
+        //   hour angle H = (hour - 12) * 15°
+        //   sin(altitude) = sin(lat)*sin(decl) + cos(lat)*cos(decl)*cos(H)
+        //
+        // This produces the CORRECT non-linear rate of change:
+        //   - Sun moves faster near the horizon (sunrise/sunset)
+        //   - Sun moves slower near zenith (around noon)
+        //   - At 45°N latitude, noon elevation ≈ 45° (not straight overhead)
+        //
+        float latRad  = luthedalLatitudeDeg * Mathf.Deg2Rad;
+        float declRad = solarDeclination * Mathf.Deg2Rad;
+        float hourAngleRad = (currentHour - 12f) * 15f * Mathf.Deg2Rad;
 
-        // Color
+        float sinAlt = Mathf.Sin(latRad)  * Mathf.Sin(declRad)
+                     + Mathf.Cos(latRad)  * Mathf.Cos(declRad) * Mathf.Cos(hourAngleRad);
+        float altitudeDeg = Mathf.Asin(Mathf.Clamp(sinAlt, -1f, 1f)) * Mathf.Rad2Deg;
+
+        // Azimuth: sun rises east (~90°), transits south (~170°), sets west (~250°).
+        // Approximate with a smooth east→south→west sweep over the day arc.
+        // When sun is below horizon the azimuth still tracks but intensity is 0.
+        float azimuthDeg;
+        {
+            // cosAz = (sin(decl) - sin(alt)*sin(lat)) / (cos(alt)*cos(lat))
+            float cosAlt = Mathf.Cos(altitudeDeg * Mathf.Deg2Rad);
+            float denom = cosAlt * Mathf.Cos(latRad);
+            float cosAz = denom > 0.0001f
+                ? (Mathf.Sin(declRad) - sinAlt * Mathf.Sin(latRad)) / denom
+                : 0f;
+            cosAz = Mathf.Clamp(cosAz, -1f, 1f);
+            float az = Mathf.Acos(cosAz) * Mathf.Rad2Deg;
+            // Before solar noon the sun is in the east half (az < 180°),
+            // after noon it is in the west half (az > 180°)
+            azimuthDeg = currentHour < 12f ? az : (360f - az);
+        }
+
+        // X = altitude (0° horizon → positive = above), Y = azimuth
+        // HDRP directional light: positive X pitch tilts the light downward
+        directionalLight.transform.rotation = Quaternion.Euler(altitudeDeg, azimuthDeg, 0f);
+
+        // Color — lore-accurate ash-filtered palette
         if (sunColorGradient != null)
             directionalLight.color = sunColorGradient.Evaluate(t);
 
-        // Intensity fraction (0=moon, 1=full sun) — SkyController converts to lux
-        float intensityFraction;
-        if (currentHour >= dawnEnd && currentHour <= duskStart)
+        // ── Intensity: raw solar + ash attenuation ────────────────────────
+        //
+        // Scadrial is closer to its star → raw solar flux is higher than Earth.
+        // The Ashmounts spew constant particulates that scatter/absorb ~45% of
+        // daylight, keeping the surface from overheating. This is modeled as:
+        //   effectiveFraction = rawFraction × (1 − ashAttenuation)
+        //
+        float rawFraction = Mathf.Clamp01(sinAlt);   // 0 below horizon, linear above
+
+        // Atmospheric reddening near horizon: ash scatter is stronger at low angles
+        // (longer path through ash layer). Tint the light color warmer when the sun
+        // is near the horizon — this is already baked into the gradient but we can
+        // amplify it based on actual computed altitude.
+        if (sunColorGradient != null && altitudeDeg < 15f && altitudeDeg > -5f)
         {
-            intensityFraction = 1f;
-        }
-        else if (currentHour > duskStart && currentHour <= nightStart)
-        {
-            float fade = (currentHour - duskStart) / Mathf.Max(nightStart - duskStart, 0.001f);
-            intensityFraction = Mathf.Lerp(1f, 0f, fade);
-        }
-        else if (currentHour >= nightEnd && currentHour < dawnEnd)
-        {
-            float fade = (currentHour - nightEnd) / Mathf.Max(dawnEnd - nightEnd, 0.001f);
-            intensityFraction = Mathf.Lerp(0f, 1f, fade);
-        }
-        else
-        {
-            intensityFraction = 0f; // night
+            float horizonBlend = 1f - Mathf.Clamp01((altitudeDeg + 5f) / 20f);
+            Color ashHorizon = new Color(0.95f, 0.35f, 0.05f); // deep ash-red
+            directionalLight.color = Color.Lerp(directionalLight.color, ashHorizon, horizonBlend * ashColorTint);
         }
 
-        // Drive HDRP physical lux through SkyController
-        skyController?.SetSunIntensityFraction(intensityFraction);
+        float effectiveFraction = rawFraction * (1f - ashAttenuation);
+
+        // Smooth the fraction slightly so rapid sun dips don't cause intensity flicker
+        effectiveFraction = Mathf.SmoothStep(0f, 1f, effectiveFraction);
+
+        skyController?.SetSunIntensityFraction(effectiveFraction);
     }
 
     void UpdateAmbient(float t)
@@ -179,6 +246,18 @@ public class DayNightCycle : MonoBehaviour
     }
 
     // ── Public API ───────────────────────────────────────────────────────
+
+    /// <summary>True when the sun is geometrically above the horizon (computed from latitude/declination).</summary>
+    public bool IsSunAboveHorizon()
+    {
+        float latRad  = luthedalLatitudeDeg * Mathf.Deg2Rad;
+        float declRad = solarDeclination * Mathf.Deg2Rad;
+        float H = (currentHour - 12f) * 15f * Mathf.Deg2Rad;
+        float sinAlt = Mathf.Sin(latRad) * Mathf.Sin(declRad)
+                     + Mathf.Cos(latRad) * Mathf.Cos(declRad) * Mathf.Cos(H);
+        return sinAlt > 0f;
+    }
+
     public bool IsNight() => currentHour < nightEnd || currentHour > nightStart;
     public bool IsDusk() => currentHour > duskStart && currentHour <= nightStart;
     public bool IsDawn() => currentHour >= nightEnd && currentHour < dawnEnd;

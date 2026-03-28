@@ -84,7 +84,7 @@ public class GroundSlam : MonoBehaviour
         {
             if (hit.transform == transform) continue;
 
-            IDamageable damageable = hit.GetComponent<IDamageable>();
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 float dist = Vector3.Distance(transform.position, hit.transform.position);

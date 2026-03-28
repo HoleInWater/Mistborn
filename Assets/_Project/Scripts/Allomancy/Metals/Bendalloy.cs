@@ -61,7 +61,9 @@ public class Bendalloy : MonoBehaviour
 
         currentBubble = go.AddComponent<TimeBubble>();
         // Lore: Duralumin-Bendalloy is extremely fast.
+        // Set fields before Start() runs (next frame) so registration uses correct values.
         currentBubble.timeScaleMultiplier = timeScaleMultiplier * flareMult;
+        currentBubble.creator = transform;
     }
 
     private void SetupTransparentMaterial(Material m)

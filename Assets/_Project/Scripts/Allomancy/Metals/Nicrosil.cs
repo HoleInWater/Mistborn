@@ -78,8 +78,8 @@ public class Nicrosil : MonoBehaviour
 
     void NicroburstTarget(Allomancer target, GameObject targetObj)
     {
-        bool isEnemy = targetObj.GetComponent<EnemyAI>() != null
-            || targetObj.GetComponent<AIController>() != null;
+        bool isEnemy = targetObj.GetComponentInParent<EnemyAI>() != null
+            || targetObj.GetComponentInParent<AIController>() != null;
 
         if (isEnemy)
         {

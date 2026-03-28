@@ -329,7 +329,7 @@ public class HazekillerAI : MonoBehaviour, IDamageable
             lastAttackTime = Time.time;
             animator?.SetTrigger("Attack");
 
-            IDamageable target = player.GetComponent<IDamageable>();
+            IDamageable target = player.GetComponentInParent<IDamageable>();
             target?.TakeDamage(attackDamage);
 
             // Shield bash staggers if close

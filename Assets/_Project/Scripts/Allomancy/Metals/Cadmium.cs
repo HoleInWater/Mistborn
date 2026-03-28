@@ -61,7 +61,9 @@ public class Cadmium : MonoBehaviour
 
         currentBubble = go.AddComponent<TimeBubble>();
         // Lore: Duralumin-Cadmium is extremely slow.
+        // Set fields before Start() runs (next frame) so registration uses correct values.
         currentBubble.timeScaleMultiplier = Mathf.Clamp(timeScaleMultiplier / flareMult, 0.01f, 1f);
+        currentBubble.creator = transform;
     }
 
     private void SetupTransparentMaterial(Material m)

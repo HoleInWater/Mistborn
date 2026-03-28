@@ -320,7 +320,7 @@ public class LordRulerBoss : MonoBehaviour, IDamageable
         foreach (var hit in hits)
         {
             if (hit.transform == transform) continue;
-            IDamageable target = hit.GetComponent<IDamageable>();
+            IDamageable target = hit.GetComponentInParent<IDamageable>();
             target?.TakeDamage(atiumBurstDamage);
 
             Rigidbody rb = hit.attachedRigidbody;
@@ -384,7 +384,7 @@ public class LordRulerBoss : MonoBehaviour, IDamageable
         lastAttackTime = Time.time;
 
         animator?.SetTrigger("Attack");
-        IDamageable target = player.GetComponent<IDamageable>();
+        IDamageable target = player.GetComponentInParent<IDamageable>();
         target?.TakeDamage(damage);
 
         if (playerRb != null)

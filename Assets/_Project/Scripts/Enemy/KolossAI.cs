@@ -173,7 +173,7 @@ public class KolossAI : MonoBehaviour
             lastAttackTime = Time.time;
             animator?.SetTrigger("Attack");
 
-            IDamageable target = player.GetComponent<IDamageable>();
+            IDamageable target = player.GetComponentInParent<IDamageable>();
             target?.TakeDamage(currentDamage);
 
             // Koloss attacks have knockback
@@ -197,7 +197,7 @@ public class KolossAI : MonoBehaviour
         {
             if (hit.transform == transform) continue;
 
-            IDamageable damageable = hit.GetComponent<IDamageable>();
+            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 float dist = Vector3.Distance(transform.position, hit.transform.position);
