@@ -59,9 +59,10 @@ public class Pewter : MonoBehaviour
     // ── Private state ─────────────────────────────────────────────────────────
 
     private bool   isBurning          = false;
+    private bool   _pewterToggled     = false;
     private float  originalMass       = -1f;
     private float  originalJumpVelocity;
-    private Rigidbody          playerRigidbody;
+    private Rigidbody            playerRigidbody;
     private HealthBarTransitions healthSystem;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -85,15 +86,28 @@ public class Pewter : MonoBehaviour
     {
         bool wasBurning = isBurning;
 
-        MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
-        bool pewterEquipped = sel == null   // no selector → fallback: treat as equipped
-            || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter
-            || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter;
+        MetalSelector sel        = allomancer?.GetComponent<MetalSelector>();
+        bool burnSession         = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        bool ePressed            = Input.GetKeyDown(Keybinds.Ability1);
+        bool qPressed            = Input.GetKeyDown(Keybinds.Ability2);
 
-        isBurning = allomancer != null
-                 && FlareManager.Instance != null && FlareManager.Instance.IsBurning
-                 && pewterEquipped
-                 && allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter) > 0;
+        // Releasing Left Ctrl ends the burn session — toggle resets.
+        if (!burnSession) _pewterToggled = false;
+
+        if (sel != null && burnSession)
+        {
+            if (sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter && ePressed) _pewterToggled = !_pewterToggled;
+            if (sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter && qPressed) _pewterToggled = !_pewterToggled;
+        }
+
+        float reserve = allomancer != null
+            ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter)
+            : 0f;
+
+        // Auto-off when reserve depletes.
+        if (reserve <= 0f) _pewterToggled = false;
+
+        isBurning = allomancer != null && _pewterToggled && reserve > 0f;
 
         if (isBurning)
         {
