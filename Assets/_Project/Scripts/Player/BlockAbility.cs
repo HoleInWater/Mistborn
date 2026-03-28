@@ -6,6 +6,7 @@ using UnityEngine;
 /// and adds a short parry window at the start.
 /// PHYSICS-MATH-BOOK.md Section 8: S = S_base × (1 + k × P)
 /// </summary>
+[PlayerComponent("Combat", order: 40)]
 public class BlockAbility : MonoBehaviour
 {
     [Header("Block Settings")]

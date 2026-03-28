@@ -4,6 +4,7 @@ using UnityEngine;
 /// Implements the Pewter Allomancy ability (enhanced physical capabilities).
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 30)]
 public class Pewter : MonoBehaviour
 {
     [Header("Pewter Physics — PHYSICS-MATH-BOOK.md Section 8")]

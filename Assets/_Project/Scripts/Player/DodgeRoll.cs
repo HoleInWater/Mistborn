@@ -5,6 +5,7 @@ using System.Collections;
 /// Dodge roll with invincibility frames. Costs stamina.
 /// Can be enhanced by burning Pewter (faster recovery, longer i-frames).
 /// </summary>
+[PlayerComponent("Movement", order: 30)]
 public class DodgeRoll : MonoBehaviour
 {
     [Header("Dodge Settings")]

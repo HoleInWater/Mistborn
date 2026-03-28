@@ -24,6 +24,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
+[PlayerComponent("Allomancy Metals", order: 10)]
 public class SteelPush : MonoBehaviour
 {
     // ── Helpers ───────────────────────────────────────────────────────────────

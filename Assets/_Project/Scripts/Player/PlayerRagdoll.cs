@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// Transitions between animated and ragdoll states smoothly.
 /// Pewter prevents ragdoll from light impacts.
 /// </summary>
+[PlayerComponent("Progression", order: 40, optional: true)]
 public class PlayerRagdoll : MonoBehaviour
 {
     [Header("Settings")]

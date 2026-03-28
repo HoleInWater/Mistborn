@@ -5,6 +5,7 @@ using UnityEngine;
 /// Uses lore-accurate physics: pulling toward a heavier anchor launches the player.
 /// Middle mouse button to fire, hold to swing.
 /// </summary>
+[PlayerComponent("Movement", order: 80)]
 public class GrappleSystem : MonoBehaviour
 {
     [Header("Grapple Settings")]

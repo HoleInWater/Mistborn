@@ -20,6 +20,7 @@
 
 using UnityEngine;
 
+[PlayerComponent("Allomancy", order: 10)]
 public class Allomancer : MonoBehaviour
 {
     [Header("Metal State")]

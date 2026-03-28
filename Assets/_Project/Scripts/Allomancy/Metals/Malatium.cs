@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// Allows seeing a person’s past or what they could have been.
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 100)]
 public class Malatium : MonoBehaviour
 {
     [Header("Settings")]

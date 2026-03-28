@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Copper Allomancy ability (Smoker).
 /// Lore: Creates a "Coppercloud" that hides Allomantic pulses from Bronze seekers.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 70)]
 public class Copper : MonoBehaviour
 {
     [Header("Settings")]

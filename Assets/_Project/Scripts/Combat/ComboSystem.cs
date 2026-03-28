@@ -2,6 +2,7 @@
 // NOTE: Consider adding [RequireComponent(typeof(PlayerCombat))] attribute for dependency
 using UnityEngine;
 
+[PlayerComponent("Combat", order: 20)]
 public class ComboSystem : MonoBehaviour
 {
     [Header("Combo Settings")]

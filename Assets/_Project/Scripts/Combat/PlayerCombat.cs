@@ -4,6 +4,7 @@ using UnityEngine;
 /// Player combat system with light/heavy attacks, Allomancy integration,
 /// and Pewter strength scaling from PHYSICS-MATH-BOOK.md Section 8.
 /// </summary>
+[PlayerComponent("Combat", order: 10)]
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Combat Settings")]

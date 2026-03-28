@@ -5,6 +5,7 @@ using UnityEngine;
 /// Enhanced by Steel Pushing off wall anchors for extended runs.
 /// Uses physics-based gravity reduction during wall contact.
 /// </summary>
+[PlayerComponent("Movement", order: 60)]
 public class WallRun : MonoBehaviour
 {
     [Header("Wall Run Settings")]

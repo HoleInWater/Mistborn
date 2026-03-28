@@ -5,6 +5,7 @@ using UnityEngine;
 /// Creates a "Slow Bubble" where time flows slower for those inside.
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 180)]
 public class Cadmium : MonoBehaviour
 {
     [Header("Settings — PHYSICS-MATH-BOOK.md Section 9")]

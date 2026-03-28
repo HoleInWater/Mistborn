@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Zinc Allomancy ability (Riot emotions).
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 50)]
 public class Zinc : MonoBehaviour
 {
     [Header("Settings")]

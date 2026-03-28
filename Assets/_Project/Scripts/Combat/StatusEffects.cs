@@ -6,6 +6,7 @@ using System.Collections.Generic;
 /// Allomancy metals apply status effects: Pewter=StrengthBuff, Tin=SensoryOverload,
 /// Zinc=RiotDebuff, Brass=SootheDebuff, etc.
 /// </summary>
+[PlayerComponent("Combat", order: 60)]
 public class StatusEffects : MonoBehaviour
 {
     [System.Serializable]

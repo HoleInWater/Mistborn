@@ -1,6 +1,7 @@
 // NOTE: Lines 47 and 57 contain Debug.Log which should be removed for production
 using UnityEngine;
 
+[PlayerComponent("Movement", order: 50)]
 public class VaultJump : MonoBehaviour
 {
     [Header("Vault Settings")]

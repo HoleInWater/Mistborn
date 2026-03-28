@@ -5,6 +5,7 @@ using UnityEngine;
 /// Lore: The external version of Aluminum. Requires physical contact.
 /// Also disrupts enemy Feruchemy and Compounding temporarily.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 150)]
 public class Chromium : MonoBehaviour
 {
     [Header("Settings")]

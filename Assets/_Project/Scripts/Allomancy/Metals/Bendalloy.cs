@@ -5,6 +5,7 @@ using UnityEngine;
 /// Creates a "Speed Bubble" where time flows faster for those inside.
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 170)]
 public class Bendalloy : MonoBehaviour
 {
     [Header("Settings — PHYSICS-MATH-BOOK.md Section 9")]

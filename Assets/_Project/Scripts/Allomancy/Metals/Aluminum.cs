@@ -6,6 +6,7 @@ using UnityEngine;
 /// useful for purging unwanted metals (e.g., poisoned alloys) or resetting Duralumin priming.
 /// Also clears active Feruchemy storage and Compounding.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 130)]
 public class Aluminum : MonoBehaviour
 {
     [Header("Settings")]

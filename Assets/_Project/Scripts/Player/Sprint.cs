@@ -5,6 +5,7 @@ using UnityEngine;
 /// Pewter burning reduces stamina drain and increases sprint speed.
 /// Steel Feruchemy tapping further boosts speed.
 /// </summary>
+[PlayerComponent("Movement", order: 20)]
 public class Sprint : MonoBehaviour
 {
     [Header("Speed Settings — WorldScale: 2u = 5ft")]

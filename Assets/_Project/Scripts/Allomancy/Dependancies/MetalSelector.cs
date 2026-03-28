@@ -5,6 +5,7 @@ using System.Collections;
 /// Handles metal selection via scroll wheel for Allomancy system
 /// Supports two-metal selection for quick switching (primary and secondary)
 /// </summary>
+[PlayerComponent("Allomancy", order: 30)]
 public class MetalSelector : MonoBehaviour
 {
     [Header("Selection")]

@@ -5,6 +5,7 @@ using UnityEngine;
 /// Atium burning extends lock-on range and shows target's predicted movement.
 /// Tab key to cycle between targets while locked on.
 /// </summary>
+[PlayerComponent("Combat", order: 30)]
 public class LockOnSystem : MonoBehaviour
 {
     [Header("Settings")]

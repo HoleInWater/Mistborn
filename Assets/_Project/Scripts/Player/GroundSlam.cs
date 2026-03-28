@@ -5,6 +5,7 @@ using UnityEngine;
 /// Deals AOE damage on impact, enhanced by Pewter burning.
 /// Uses PHYSICS-MATH-BOOK.md Section 8 for Pewter strength scaling.
 /// </summary>
+[PlayerComponent("Movement", order: 120)]
 public class GroundSlam : MonoBehaviour
 {
     [Header("Slam Settings")]

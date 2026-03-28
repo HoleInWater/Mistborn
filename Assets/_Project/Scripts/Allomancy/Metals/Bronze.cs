@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Bronze Allomancy ability (Seeker).
 /// Detects nearby Allomantic pulses unless hidden by a Copper cloud.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 80)]
 public class Bronze : MonoBehaviour
 {
     [Header("Settings")]

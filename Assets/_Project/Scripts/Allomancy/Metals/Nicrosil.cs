@@ -9,6 +9,7 @@ using UnityEngine;
 /// BUG FIX: Enemy drain loop was hardcoded to `i < 16`, skipping Chromium and Nicrosil.
 /// Fixed to use Enum.GetValues so all metals are always covered.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 160)]
 public class Nicrosil : MonoBehaviour
 {
     [Header("Settings")]

@@ -7,6 +7,7 @@ using UnityEngine;
 /// AND the Duralumin reserves. A single Duralumin-enhanced Steel Push can launch a person
 /// across the city. A Duralumin-Pewter flare gives brief superhuman strength.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 140)]
 public class Duralumin : MonoBehaviour
 {
     [Header("Settings")]

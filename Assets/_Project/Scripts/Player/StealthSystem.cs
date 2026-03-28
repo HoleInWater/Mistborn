@@ -2,6 +2,7 @@
 // NOTE: Consider adding [RequireComponent(typeof(CapsuleCollider))] attribute for crouching
 using UnityEngine;
 
+[PlayerComponent("Combat", order: 50)]
 public class StealthSystem : MonoBehaviour
 {
     [Header("Stealth Settings")]

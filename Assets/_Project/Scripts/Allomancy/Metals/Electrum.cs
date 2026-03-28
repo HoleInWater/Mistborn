@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Electrum Allomancy ability (Oracle).
 /// Lore: Shows multiple "Future Shadows" of the player to prevent Atium-strikes.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 120)]
 public class Electrum : MonoBehaviour
 {
     [Header("Settings")]

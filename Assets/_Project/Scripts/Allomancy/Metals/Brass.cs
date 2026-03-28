@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Brass Allomancy ability (Soothe emotions).
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 60)]
 public class Brass : MonoBehaviour
 {
     [Header("Settings")]

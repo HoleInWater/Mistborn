@@ -6,6 +6,7 @@ using UnityEngine;
 /// Burning Pewter at the moment of impact negates most fall damage.
 /// Uses KE = ½mv² from PHYSICS-MATH-BOOK.md Section 1.
 /// </summary>
+[PlayerComponent("Movement", order: 110)]
 public class FallDamage : MonoBehaviour
 {
     [Header("Settings")]

@@ -22,6 +22,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+[PlayerComponent("Allomancy Metals", order: 20)]
 public class IronPull : MonoBehaviour
 {
     // ── Helpers ───────────────────────────────────────────────────────────────

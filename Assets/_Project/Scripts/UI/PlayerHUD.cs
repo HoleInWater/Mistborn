@@ -5,6 +5,7 @@ using UnityEngine.UI;
 /// Master HUD controller — XP bar, coin counter, quest tracker, compass markers.
 /// Single Update loop drives all lightweight HUD elements for performance.
 /// </summary>
+[PlayerComponent("UI", order: 20)]
 public class PlayerHUD : MonoBehaviour
 {
     [Header("XP & Level")]

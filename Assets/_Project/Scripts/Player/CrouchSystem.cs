@@ -5,6 +5,7 @@ using UnityEngine;
 /// Handles collider shrink, speed reduction, and stealth bonus.
 /// Left Ctrl to toggle crouch. Can't crouch while sprinting.
 /// </summary>
+[PlayerComponent("Movement", order: 40)]
 public class CrouchSystem : MonoBehaviour
 {
     [Header("Crouch Settings")]

@@ -27,6 +27,7 @@
 
 using UnityEngine;
 
+[PlayerComponent("Allomancy", order: 20)]
 public class FlareManager : MonoBehaviour
 {
     // ── Singleton ─────────────────────────────────────────────────────────────

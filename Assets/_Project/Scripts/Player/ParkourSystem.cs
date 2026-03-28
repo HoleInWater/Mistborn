@@ -5,6 +5,7 @@ using System.Collections;
 /// Mistborn parkour system: vault, mantle, slide, and Allomancy-assisted traversal.
 /// Designed for rooftop-to-rooftop movement in Luthadel.
 /// </summary>
+[PlayerComponent("Movement", order: 70)]
 public class ParkourSystem : MonoBehaviour
 {
     // ── Vault ────────────────────────────────────────────────────────────

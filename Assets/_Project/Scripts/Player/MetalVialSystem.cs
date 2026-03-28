@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// Drinking a vial restores that metal's reserve. Metal purity matters — impure metals
 /// cause illness (detected by Tin-enhanced taste).
 /// </summary>
+[PlayerComponent("Allomancy Support", order: 40)]
 public class MetalVialSystem : MonoBehaviour
 {
     [System.Serializable]

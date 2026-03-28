@@ -4,6 +4,7 @@ using UnityEngine;
 /// Extra movement mechanics: swimming, ladders, ziplines.
 /// Each is a trigger-zone based system that overrides normal movement.
 /// </summary>
+[PlayerComponent("Movement", order: 90)]
 public class MovementExtras : MonoBehaviour
 {
     // ── Swimming ─────────────────────────────────────────────────────────

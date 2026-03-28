@@ -19,6 +19,7 @@ using UnityEngine.UIElements;
 ///
 /// FeruchemyController compatibility: regenRate is a property that aliases aerobicRegenRate.
 /// </summary>
+[PlayerComponent("Movement", order: 100)]
 public class PlayerStamina : MonoBehaviour
 {
     // ── Stamina Pool ──────────────────────────────────────────────────────────

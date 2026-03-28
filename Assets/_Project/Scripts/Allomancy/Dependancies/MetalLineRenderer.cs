@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// mesh highlight (material tint). All others show lines only, no mesh change.
 /// Lore: Mistborn see translucent blue lines to every nearby metal source.
 /// </summary>
+[PlayerComponent("Allomancy", order: 50)]
 public class MetalLineRenderer : MonoBehaviour
 {
     [Header("Settings")]

@@ -1,6 +1,7 @@
 // NOTE: Consider adding [RequireComponent(typeof(Rigidbody))] attribute for physics
 using UnityEngine;
  
+[PlayerComponent("Movement", order: 10)]
 public class BasicPlayerMove : MonoBehaviour
 {
     [Header("Movement")]

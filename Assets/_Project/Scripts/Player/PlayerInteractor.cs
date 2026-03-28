@@ -4,6 +4,7 @@ using TMPro; // Assuming TMP is used for HUD
 /// <summary>
 /// Handles player-initiated interactions with the world.
 /// </summary>
+[PlayerComponent("Progression", order: 30)]
 public class PlayerInteractor : MonoBehaviour
 {
     [Header("Settings")]

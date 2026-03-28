@@ -6,6 +6,7 @@ using UnityEngine.UI;
 /// Player moves mouse to select, release Tab to confirm.
 /// Shows metal name, description, reserve amount, and burning status.
 /// </summary>
+[PlayerComponent("Allomancy Support", order: 20)]
 public class RadialMetalMenu : MonoBehaviour
 {
     [Header("UI")]

@@ -6,6 +6,7 @@ using UnityEngine;
 /// Add to Player GameObject. Only touches Allomancy components.
 /// </summary>
 [DefaultExecutionOrder(-100)]
+[PlayerComponent("Core", order: 10)]
 public class PlayerAutoSetup : MonoBehaviour
 {
     void Awake()

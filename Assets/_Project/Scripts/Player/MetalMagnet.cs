@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// from PHYSICS-MATH-BOOK.md. Light objects (coins, clips) drift toward the player;
 /// heavy objects only move if the force exceeds their friction.
 /// </summary>
+[PlayerComponent("Allomancy Support", order: 30)]
 public class MetalMagnet : MonoBehaviour
 {
     [Header("Magnet Settings")]

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 /// Shows "Atium Shadows" (future ghosts) of nearby entities.
 /// Standardized to follow the Allomancer-centric burn system.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 90)]
 public class Atium : MonoBehaviour
 {
     [Header("Settings")]

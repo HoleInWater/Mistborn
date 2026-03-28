@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Implements the Gold Allomancy ability (Augur).
 /// Lore: Shows a "Gold Shadow" (potential past/alternate self) of the player.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 110)]
 public class Gold : MonoBehaviour
 {
     [Header("Settings")]

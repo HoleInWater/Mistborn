@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
+[PlayerComponent("Progression", order: 20)]
 public class InventoryItem
 {
     public string itemId;

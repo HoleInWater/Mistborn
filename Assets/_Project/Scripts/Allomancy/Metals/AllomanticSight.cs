@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+[PlayerComponent("Allomancy Support", order: 10)]
 public class AllomanticSight : MonoBehaviour
 {
     // ===== SETTINGS =====

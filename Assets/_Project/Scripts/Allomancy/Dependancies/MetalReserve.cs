@@ -10,6 +10,7 @@ using System.Collections.Generic;
 /// Preview mode auto-enables when no Allomancer is present so the ring is
 /// always visible and spinning as soon as the scene loads.
 /// </summary>
+[PlayerComponent("Allomancy", order: 40)]
 public class MetalReserve : MonoBehaviour
 {
     [Header("UI Settings")]

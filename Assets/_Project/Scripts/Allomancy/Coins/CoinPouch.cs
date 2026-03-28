@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Coinshot's primary weapon system. Carries coins that can be individually Pushed.
 /// Supports: single throw, shotgun spread, ground bounce, and rapid-fire trail.
 /// </summary>
+[PlayerComponent("Allomancy Support", order: 50)]
 public class CoinPouch : MonoBehaviour
 {
     [Header("Coin Inventory")]

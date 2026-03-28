@@ -6,6 +6,7 @@ using UnityEngine.UI;
 /// Rendered as a compact vertical bar stack on the left side of screen.
 /// Updates throttled to 10fps for performance.
 /// </summary>
+[PlayerComponent("UI", order: 10)]
 public class AllomancyHUD : MonoBehaviour
 {
     [Header("UI References")]

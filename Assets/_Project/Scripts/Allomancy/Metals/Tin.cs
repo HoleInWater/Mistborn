@@ -29,6 +29,7 @@ using UnityEngine.AI;
 /// <summary>
 /// Tin Allomancy — enhances all five senses with lore-accurate benefits and costs.
 /// </summary>
+[PlayerComponent("Allomancy Metals", order: 40)]
 public class Tin : MonoBehaviour
 {
     // ── State ─────────────────────────────────────────────────────────────────

@@ -1,144 +1,196 @@
 // MistbornSetupWindow.cs
 //
-// Main EditorWindow. Opens from Mistborn > Auto Setup Player.
-// Discovers all IPlayerSetupModule implementations via reflection — no manual
-// registration, zero conflicts when adding new modules.
+// Opens from Mistborn > Auto Setup Player.
+//
+// HOW IT WORKS — zero-conflict design:
+//   Scans every MonoBehaviour in the project for [PlayerComponent].
+//   Adding a new component to the setup means adding ONE attribute to
+//   the component's own script — a file the dev already owns.
+//   This file never needs to be edited by anyone.
 
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using MistbornEditor;
+using System.Reflection;
 
 public class MistbornSetupWindow : EditorWindow
 {
-    // ── Module discovery ──────────────────────────────────────────────────────
+    // ── Discovered component list ─────────────────────────────────────────────
 
-    private List<IPlayerSetupModule> _modules;
-    private Dictionary<IPlayerSetupModule, bool> _enabled; // per-module toggle
-
-    private void DiscoverModules()
+    private struct Entry
     {
-        _modules = System.AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(a => { try { return a.GetTypes(); } catch { return System.Type.EmptyTypes; } })
-            .Where(t => typeof(IPlayerSetupModule).IsAssignableFrom(t)
-                     && !t.IsInterface && !t.IsAbstract)
-            .Select(t => (IPlayerSetupModule)System.Activator.CreateInstance(t))
-            .OrderBy(m => m.ModuleName)
-            .ToList();
-
-        _enabled = _modules.ToDictionary(m => m, _ => true);
+        public Type   ComponentType;
+        public string Group;
+        public int    Order;
+        public bool   Enabled;   // checkbox state
     }
 
-    // ── State ─────────────────────────────────────────────────────────────────
+    private List<Entry>                   _entries;
+    private Dictionary<string, bool>      _groupFoldouts = new();
+    private Vector2                       _scroll;
 
-    private GameObject     _player;
-    private SetupLog       _lastLog;
-    private Vector2        _logScroll;
-    private bool           _ran = false;
+    // ── Setup state ───────────────────────────────────────────────────────────
 
-    // ── Menu entry ────────────────────────────────────────────────────────────
+    private GameObject _player;
+    private List<(string label, bool isNew)> _log;
+    private bool _ran;
+
+    // ── Menu ──────────────────────────────────────────────────────────────────
 
     [MenuItem("Mistborn/Auto Setup Player")]
     public static void Open()
     {
-        var win = GetWindow<MistbornSetupWindow>("Mistborn — Auto Setup Player");
-        win.minSize = new Vector2(420, 540);
-        win.Show();
+        var w = GetWindow<MistbornSetupWindow>("Auto Setup Player");
+        w.minSize = new Vector2(400, 520);
+        w.Show();
+    }
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    void OnEnable()
+    {
+        ScanComponents();
+        TryFindPlayer();
+    }
+
+    void ScanComponents()
+    {
+        _entries = new List<Entry>();
+
+        foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+        {
+            IEnumerable<Type> types;
+            try { types = assembly.GetTypes(); }
+            catch { continue; }
+
+            foreach (var type in types)
+            {
+                if (!typeof(MonoBehaviour).IsAssignableFrom(type)) continue;
+                var attr = type.GetCustomAttribute<PlayerComponentAttribute>();
+                if (attr == null) continue;
+
+                _entries.Add(new Entry
+                {
+                    ComponentType = type,
+                    Group         = attr.Group,
+                    Order         = attr.Order,
+                    Enabled       = !attr.Optional,
+                });
+            }
+        }
+
+        _entries = _entries
+            .OrderBy(e => e.Group)
+            .ThenBy(e => e.Order)
+            .ThenBy(e => e.ComponentType.Name)
+            .ToList();
     }
 
     // ── GUI ───────────────────────────────────────────────────────────────────
 
-    private void OnEnable()
-    {
-        DiscoverModules();
-        TryAutoFindPlayer();
-    }
-
-    private void OnGUI()
+    void OnGUI()
     {
         DrawHeader();
-        GUILayout.Space(6);
+        GUILayout.Space(4);
         DrawPlayerPicker();
-        GUILayout.Space(6);
-        DrawModuleList();
-        GUILayout.Space(6);
+        GUILayout.Space(4);
+
+        _scroll = EditorGUILayout.BeginScrollView(_scroll);
+        DrawComponentList();
+        EditorGUILayout.EndScrollView();
+
+        GUILayout.Space(4);
         DrawRunButton();
 
-        if (_ran && _lastLog != null)
+        if (_ran && _log != null)
         {
-            GUILayout.Space(8);
+            GUILayout.Space(6);
             DrawLog();
         }
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
-
     void DrawHeader()
     {
-        var headerStyle = new GUIStyle(EditorStyles.boldLabel)
-        {
-            fontSize  = 14,
-            alignment = TextAnchor.MiddleCenter,
-        };
-        GUILayout.Space(8);
-        GUILayout.Label("⚙  Mistborn Auto Setup Player", headerStyle);
-
-        var subStyle = new GUIStyle(EditorStyles.miniLabel)
-        {
-            alignment = TextAnchor.MiddleCenter,
-            wordWrap  = true,
-        };
-        GUILayout.Label(
-            "Adds all required components and wires up references on the selected player GameObject.",
-            subStyle);
+        GUILayout.Space(6);
+        var h = new GUIStyle(EditorStyles.boldLabel) { fontSize = 13, alignment = TextAnchor.MiddleCenter };
+        GUILayout.Label("Mistborn — Auto Setup Player", h);
 
         EditorGUILayout.HelpBox(
-            "Safe to run multiple times — components that already exist are skipped, "
-          + "never duplicated.",
+            "Adds [PlayerComponent]-tagged scripts to the player. " +
+            "Existing components are never duplicated. Safe to run repeatedly.",
             MessageType.Info);
     }
 
     void DrawPlayerPicker()
     {
-        EditorGUILayout.LabelField("Player GameObject", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Player", EditorStyles.boldLabel);
         using (new EditorGUILayout.HorizontalScope())
         {
             _player = (GameObject)EditorGUILayout.ObjectField(_player, typeof(GameObject), true);
-            if (GUILayout.Button("Find by Tag", GUILayout.Width(110)))
-                TryAutoFindPlayer();
+            if (GUILayout.Button("Find by Tag", GUILayout.Width(100)))
+                TryFindPlayer();
         }
-
         if (_player == null)
-        {
-            EditorGUILayout.HelpBox("Assign a player GameObject or click 'Find by Tag'.",
-                MessageType.Warning);
-        }
+            EditorGUILayout.HelpBox("Assign a player or click Find by Tag.", MessageType.Warning);
     }
 
-    void DrawModuleList()
+    void DrawComponentList()
     {
-        EditorGUILayout.LabelField("Setup Modules", EditorStyles.boldLabel);
-
-        using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+        if (_entries.Count == 0)
         {
-            using (new EditorGUILayout.HorizontalScope())
+            EditorGUILayout.HelpBox(
+                "No [PlayerComponent] attributes found. Add [PlayerComponent] to any " +
+                "MonoBehaviour to include it here.",
+                MessageType.Warning);
+            return;
+        }
+
+        // Select-all / none row
+        EditorGUILayout.LabelField($"Components  ({_entries.Count} found)", EditorStyles.boldLabel);
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("All",  EditorStyles.miniButtonLeft,  GUILayout.Width(44)))
+                SetAll(true);
+            if (GUILayout.Button("None", EditorStyles.miniButtonRight, GUILayout.Width(44)));
+                SetAll(false);
+        }
+        GUILayout.Space(3);
+
+        // Draw grouped
+        string currentGroup = null;
+        bool   groupEnabled = true;
+
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var e = _entries[i];
+
+            if (e.Group != currentGroup)
             {
-                if (GUILayout.Button("All",  EditorStyles.miniButtonLeft,  GUILayout.Width(50)))
-                    foreach (var k in _modules) _enabled[k] = true;
-                if (GUILayout.Button("None", EditorStyles.miniButtonRight, GUILayout.Width(50)))
-                    foreach (var k in _modules) _enabled[k] = false;
-                GUILayout.FlexibleSpace();
-                GUILayout.Label($"{_modules.Count} modules found", EditorStyles.miniLabel);
+                currentGroup = e.Group;
+                if (!_groupFoldouts.ContainsKey(currentGroup))
+                    _groupFoldouts[currentGroup] = true;
+
+                groupEnabled = _groupFoldouts[currentGroup] =
+                    EditorGUILayout.Foldout(_groupFoldouts[currentGroup], currentGroup, true,
+                        EditorStyles.foldoutHeader);
             }
 
-            GUILayout.Space(3);
-            foreach (var m in _modules)
+            if (!groupEnabled) continue;
+
+            using (new EditorGUILayout.HorizontalScope())
             {
-                using (new EditorGUILayout.HorizontalScope())
+                GUILayout.Space(16);
+                var entry = _entries[i];
+                entry.Enabled = EditorGUILayout.ToggleLeft(entry.ComponentType.Name, entry.Enabled);
+                _entries[i] = entry;
+
+                // Show "already on player" hint
+                if (_player != null && _player.GetComponent(entry.ComponentType) != null)
                 {
-                    _enabled[m] = EditorGUILayout.ToggleLeft(
-                        new GUIContent(m.ModuleName, m.Description), _enabled[m]);
+                    var s = new GUIStyle(EditorStyles.miniLabel);
+                    s.normal.textColor = new Color(0.4f, 0.7f, 0.4f);
+                    GUILayout.Label("✓", s, GUILayout.Width(16));
                 }
             }
         }
@@ -147,66 +199,54 @@ public class MistbornSetupWindow : EditorWindow
     void DrawRunButton()
     {
         GUI.enabled = _player != null;
-
-        var btnStyle = new GUIStyle(GUI.skin.button) { fontSize = 13, fixedHeight = 34 };
-        Color prev = GUI.backgroundColor;
+        var prev = GUI.backgroundColor;
         GUI.backgroundColor = new Color(0.35f, 0.65f, 1f);
-
-        if (GUILayout.Button("▶  Run Setup", btnStyle))
+        var btn = new GUIStyle(GUI.skin.button) { fontSize = 12, fixedHeight = 32 };
+        if (GUILayout.Button("▶  Add Components to Player", btn))
             RunSetup();
-
         GUI.backgroundColor = prev;
         GUI.enabled = true;
     }
 
     void DrawLog()
     {
-        EditorGUILayout.LabelField("Results", EditorStyles.boldLabel);
+        int added   = _log.Count(l => l.isNew);
+        int skipped = _log.Count(l => !l.isNew);
 
-        int added   = _lastLog.Entries.Count(e => e.isNew);
-        int skipped = _lastLog.Entries.Count(e => !e.isNew);
+        var addStyle = new GUIStyle(EditorStyles.boldLabel);
+        addStyle.normal.textColor = new Color(0.25f, 0.85f, 0.25f);
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            var addStyle  = new GUIStyle(EditorStyles.boldLabel);
-            addStyle.normal.textColor = new Color(0.2f, 0.8f, 0.2f);
-            var skipStyle = new GUIStyle(EditorStyles.miniLabel);
-
             GUILayout.Label($"✓ {added} added", addStyle);
-            GUILayout.Space(12);
-            GUILayout.Label($"{skipped} already present", skipStyle);
+            GUILayout.Space(10);
+            GUILayout.Label($"{skipped} already present", EditorStyles.miniLabel);
         }
 
-        _logScroll = EditorGUILayout.BeginScrollView(_logScroll,
-            GUILayout.Height(Mathf.Min(_lastLog.Entries.Count * 17 + 10, 220)));
-
-        string lastModule = "";
-        foreach (var (module, message, isNew) in _lastLog.Entries)
+        foreach (var (label, isNew) in _log)
         {
-            if (module != lastModule)
-            {
-                GUILayout.Space(4);
-                EditorGUILayout.LabelField($"── {module}", EditorStyles.miniBoldLabel);
-                lastModule = module;
-            }
-
-            var style = new GUIStyle(EditorStyles.miniLabel);
-            if (isNew) style.normal.textColor = new Color(0.3f, 0.9f, 0.3f);
-            else if (message.StartsWith("⚠")) style.normal.textColor = new Color(1f, 0.7f, 0.2f);
-
-            EditorGUILayout.LabelField(message, style);
+            var s = new GUIStyle(EditorStyles.miniLabel);
+            if (isNew) s.normal.textColor = new Color(0.3f, 0.9f, 0.3f);
+            EditorGUILayout.LabelField(label, s);
         }
-
-        EditorGUILayout.EndScrollView();
     }
 
     // ── Logic ─────────────────────────────────────────────────────────────────
 
-    void TryAutoFindPlayer()
+    void TryFindPlayer()
     {
         if (_player != null) return;
-        var go = GameObject.FindGameObjectWithTag("Player");
-        if (go != null) _player = go;
+        _player = GameObject.FindGameObjectWithTag("Player");
+    }
+
+    void SetAll(bool value)
+    {
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            var e = _entries[i];
+            e.Enabled = value;
+            _entries[i] = e;
+        }
     }
 
     void RunSetup()
@@ -215,25 +255,25 @@ public class MistbornSetupWindow : EditorWindow
 
         Undo.RegisterFullObjectHierarchyUndo(_player, "Mistborn Auto Setup Player");
 
-        _lastLog = new SetupLog();
-        _ran     = true;
+        _log = new List<(string, bool)>();
+        _ran = true;
 
-        foreach (var module in _modules)
+        foreach (var entry in _entries)
         {
-            if (!_enabled[module]) continue;
-            _lastLog.BeginModule(module.ModuleName);
-            try
+            if (!entry.Enabled) continue;
+
+            if (_player.GetComponent(entry.ComponentType) != null)
             {
-                module.Setup(_player, _lastLog);
+                _log.Add(($"  {entry.ComponentType.Name}", false));
             }
-            catch (System.Exception ex)
+            else
             {
-                _lastLog.Warn($"Exception in {module.ModuleName}: {ex.Message}");
+                _player.AddComponent(entry.ComponentType);
+                _log.Add(($"+ {entry.ComponentType.Name}", true));
             }
         }
 
         EditorUtility.SetDirty(_player);
-        Debug.Log($"[MistbornAutoSetup] Finished — {_lastLog.Entries.Count(e => e.isNew)} components added.");
         Repaint();
     }
 }

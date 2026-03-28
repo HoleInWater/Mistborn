@@ -4,6 +4,7 @@ using System;
 /// <summary>
 /// Manages player experience, level, and skill points.
 /// </summary>
+[PlayerComponent("Progression", order: 10)]
 public class PlayerExperience : MonoBehaviour
 {
     public static PlayerExperience Instance { get; private set; }
