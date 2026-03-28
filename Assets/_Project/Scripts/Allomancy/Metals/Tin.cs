@@ -399,14 +399,24 @@ public class Tin : MonoBehaviour
         // E toggles Tin when it is the primary selected metal.
         // Q toggles Tin when it is the secondary selected metal.
         MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
+        bool ePressed = Input.GetKeyDown(Keybinds.Ability1);
+        bool qPressed = Input.GetKeyDown(Keybinds.Ability2);
+
+        if (ePressed || qPressed)
+        {
+            AllomancySkill.MetalType primary   = sel != null ? sel.GetPrimaryMetal()   : AllomancySkill.MetalType.Steel;
+            AllomancySkill.MetalType secondary = sel != null ? sel.GetSecondaryMetal() : AllomancySkill.MetalType.Iron;
+            Debug.Log($"[TIN] Key pressed. E={ePressed} Q={qPressed}  primary={primary}  secondary={secondary}  tinToggled={_tinToggled}  sel={sel != null}");
+        }
+
         if (sel != null)
         {
             bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
             bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
 
-            if (tinIsPrimary   && Input.GetKeyDown(Keybinds.Ability1))  // E — primary slot
+            if (tinIsPrimary   && ePressed)  // E — primary slot
                 _tinToggled = !_tinToggled;
-            if (tinIsSecondary && Input.GetKeyDown(Keybinds.Ability2))  // Q — secondary slot
+            if (tinIsSecondary && qPressed)  // Q — secondary slot
                 _tinToggled = !_tinToggled;
         }
 

@@ -224,28 +224,23 @@ public class SteelPush : MonoBehaviour
         }
 
         // ── Steel Bubble: radial push (F key, no burn gate required) ────────────
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            Debug.Log($"[BUBBLE] F pressed. enableSteelBubble={enableSteelBubble}  steelBubbleKey={steelBubbleKey}  cooldown={steelBubbleCooldownTimer:F2}  allomancer={allomancer != null}  reserve={(allomancer != null ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) : -1f):F1}");
-        }
+        bool fPressed = Input.GetKeyDown(KeyCode.F);
 
-        if (enableSteelBubble)
-        {
-            bool bubbleDown = Input.GetKeyDown(KeyCode.F);
+        if (fPressed)
+            Debug.Log($"[BUBBLE] F pressed. enable={enableSteelBubble}  cooldown={steelBubbleCooldownTimer:F2}  allomancer={allomancer != null}  reserve={(allomancer != null ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) : -1f):F1}");
 
-            if (bubbleDown && steelBubbleCooldownTimer <= 0f)
+        if (enableSteelBubble && fPressed && steelBubbleCooldownTimer <= 0f)
+        {
+            if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
             {
-                if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
-                {
-                    Debug.Log("[BUBBLE] Blocked: Steel reserve empty or allomancer null.");
-                }
-                else
-                {
-                    Debug.Log("[BUBBLE] Firing!");
-                    PushMetalsInBubble();
-                    allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * steelBubbleMetalCostMultiplier);
-                    steelBubbleCooldownTimer = steelBubbleCooldown;
-                }
+                Debug.Log("[BUBBLE] Blocked: Steel reserve empty.");
+            }
+            else
+            {
+                Debug.Log("[BUBBLE] Firing!");
+                PushMetalsInBubble();
+                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * steelBubbleMetalCostMultiplier);
+                steelBubbleCooldownTimer = steelBubbleCooldown;
             }
         }
 
