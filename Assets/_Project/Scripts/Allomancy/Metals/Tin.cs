@@ -188,23 +188,6 @@ public class Tin : MonoBehaviour
     [Range(0f, 0.35f)]
     private float heartbeatVolume = 0.13f;
 
-    // ── Perception Time Dilation ──────────────────────────────────────────────
-
-    [Header("Perception — World Time Dilation")]
-    [SerializeField]
-    [Tooltip("Time scale applied to the world while burning Tin normally. " +
-             "Player movement speed is compensated so they still move at the same real-world speed. " +
-             "Everything else — enemies, physics, animations — runs at this fraction. " +
-             "Lore: heightened senses give you faster reactions, not faster legs.")]
-    [Range(0.70f, 0.99f)]
-    private float burningPerceptionScale = 0.90f;
-
-    [SerializeField]
-    [Tooltip("Time scale while Flaring Tin. Stronger dilation. " +
-             "Lore: tin-savant Spook experiences combat in near-slow-motion.")]
-    [Range(0.50f, 0.88f)]
-    private float flaringPerceptionScale = 0.76f;
-
     // ── Flare Entry Effect ────────────────────────────────────────────────────
 
     [Header("Flare Entry — Zoom Snap")]
@@ -296,7 +279,7 @@ public class Tin : MonoBehaviour
     // Full-screen overexposure overlay (created at runtime)
     private Image overexposureOverlay;
 
-    // Speed management: overload penalty is computed each frame and applied in ApplyPerceptionEffect
+    // Overload speed penalty (0–1). Written by ApplyPhysicalOverload, applied directly there.
     private float overloadSpeedFactor = 1f;
 
     // Vibration detection throttle + NavMeshAgent cache
@@ -500,8 +483,7 @@ public class Tin : MonoBehaviour
         // Overload effects applied every frame (pain lingers after stopping)
         ApplyOverloadVisuals();
         ApplyOverloadAudio();
-        ApplyPhysicalOverload();      // computes overloadSpeedFactor, does NOT set playerMove speed
-        ApplyPerceptionEffect();      // sets time scale + resolves final player speed
+        ApplyPhysicalOverload();
     }
 
     // ── State Transition Hooks ────────────────────────────────────────────────
@@ -549,8 +531,6 @@ public class Tin : MonoBehaviour
         if (lowPass  != null) lowPass.enabled  = false;
         if (highPass != null) highPass.enabled = false;
 
-        // Restore world time scale
-        MistbornTimeManager.Instance?.ClearTinModifier();
         // Only clear the speed multiplier if Tin was the one penalizing it
         if (playerMove != null && overloadSpeedFactor < 1f)
             playerMove.externalSpeedMultiplier = 1f;
@@ -835,26 +815,23 @@ public class Tin : MonoBehaviour
 
     private void ApplyPhysicalOverload()
     {
-        // Lore note: Tin does NOT boost speed — that is Pewter's domain.
+        // Tin does NOT boost speed — that is Pewter's domain.
         // Tin overload CAN slow you: sensory pain is genuinely debilitating.
-        // Speed is NOT set here — it's applied by ApplyPerceptionEffect after this method
-        // so the perception compensation and overload penalty share a single write.
 
         float totalOverload = Mathf.Clamp01(currentOverloadVisual + currentOverloadAudio);
 
         if (totalOverload > overloadImpairThreshold)
         {
-            // Compute penalty factor (written to overloadSpeedFactor — applied later)
             overloadSpeedFactor = Mathf.Lerp(
                 1f, 0.4f,
                 (totalOverload - overloadImpairThreshold) / (1f - overloadImpairThreshold)
             );
-
-            // 90%+ overload: intermittent movement stagger
             if (totalOverload > 0.9f && Mathf.Sin(Time.time * 7f) > 0.5f)
                 overloadSpeedFactor *= 0.1f;
 
-            // Camera roll/tilt at severe overload — disorienting
+            if (playerMove != null)
+                playerMove.externalSpeedMultiplier = overloadSpeedFactor;
+
             if (totalOverload > 0.65f && playerCamera != null)
             {
                 float tilt = Mathf.Sin(Time.time * 1.8f) * (totalOverload * 5f);
@@ -863,48 +840,14 @@ public class Tin : MonoBehaviour
         }
         else
         {
+            // Clear any overload speed penalty Tin applied — never write above 1
+            if (playerMove != null && overloadSpeedFactor < 1f)
+                playerMove.externalSpeedMultiplier = 1f;
             overloadSpeedFactor = 1f;
 
-            // Smoothly return camera roll to neutral
             if (playerCamera != null)
                 playerCamera.transform.localRotation = Quaternion.Lerp(
                     playerCamera.transform.localRotation, Quaternion.identity, Time.deltaTime * 5f);
-        }
-    }
-
-    /// <summary>
-    /// Slows the world time-scale via MistbornTimeManager.
-    /// Tin does NOT change the player's speed — the player slows proportionally
-    /// with the world. The perception advantage comes from enemies being relatively
-    /// slower, not from the player being compensated faster.
-    ///
-    /// Tin only writes to externalSpeedMultiplier for the overload PENALTY path.
-    /// </summary>
-    private void ApplyPerceptionEffect()
-    {
-        if (CurrentState == TinState.Off)
-        {
-            MistbornTimeManager.Instance?.ClearTinModifier();
-            // Clear any overload speed penalty Tin may have applied
-            if (playerMove != null && overloadSpeedFactor >= 1f
-                && playerMove.externalSpeedMultiplier < 1f)
-                playerMove.externalSpeedMultiplier = 1f;
-            return;
-        }
-
-        float targetScale = CurrentState == TinState.Flaring
-            ? flaringPerceptionScale
-            : burningPerceptionScale;
-
-        MistbornTimeManager.Instance?.SetTinModifier(targetScale);
-
-        // Apply overload speed penalty only — never a speed boost
-        if (playerMove != null)
-        {
-            if (overloadSpeedFactor < 1f)
-                playerMove.externalSpeedMultiplier = overloadSpeedFactor;
-            else if (playerMove.externalSpeedMultiplier < 1f)
-                playerMove.externalSpeedMultiplier = 1f; // clear a previous penalty
         }
     }
 
