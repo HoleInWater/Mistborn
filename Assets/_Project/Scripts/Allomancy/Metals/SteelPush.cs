@@ -120,13 +120,13 @@ public class SteelPush : MonoBehaviour
     {
         if (metalSelector != null)
         {
-            // F (SteelBubble) is active whenever Steel is equipped in either slot.
-            // Returns None only when Steel isn't selected at all.
-            bool steelEquipped = metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel
-                              || metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel;
-            if (!steelEquipped) return KeyCode.None;
+            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Steel)
+                return Keybinds.Ability3;   // F = primary special
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
+                return Keybinds.Ability4;   // V = secondary special
+            return KeyCode.None;
         }
-        return Keybinds.SteelBubble;
+        return Keybinds.Ability3;           // fallback: F
     }
 
     public float steelBubbleRadius              = 2.5f;
@@ -224,9 +224,10 @@ public class SteelPush : MonoBehaviour
         }
 
         // ── Steel Bubble: radial push (F key, no burn gate required) ────────────
-        bool fPressed = Input.GetKeyDown(KeyCode.F);
+        KeyCode bubbleKey = steelBubbleKey;
+        bool bubblePressed = bubbleKey != KeyCode.None && Input.GetKeyDown(bubbleKey);
 
-        if (enableSteelBubble && fPressed && steelBubbleCooldownTimer <= 0f)
+        if (enableSteelBubble && bubblePressed && steelBubbleCooldownTimer <= 0f)
         {
             if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {

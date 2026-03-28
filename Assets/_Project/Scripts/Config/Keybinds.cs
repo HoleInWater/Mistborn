@@ -41,10 +41,13 @@ public static class Keybinds
     public static KeyCode SteelPush = KeyCode.E;
     public static KeyCode IronPull  = KeyCode.Q;
 
-    // Generic ability slot keys — E activates whichever metal is PRIMARY,
-    // Q activates whichever metal is SECONDARY. All metal scripts should use these.
-    public static KeyCode Ability1 = KeyCode.E;  // primary slot
-    public static KeyCode Ability2 = KeyCode.Q;  // secondary slot
+    // Generic ability slot keys. All metal scripts should use these.
+    //   Ability1 / Ability2 — main action   (E = primary,  Q = secondary)
+    //   Ability3 / Ability4 — special action (F = primary,  V = secondary)
+    public static KeyCode Ability1 = KeyCode.E;  // primary main action
+    public static KeyCode Ability2 = KeyCode.Q;  // secondary main action
+    public static KeyCode Ability3 = KeyCode.F;  // primary special action
+    public static KeyCode Ability4 = KeyCode.V;  // secondary special action  (note: shares V with CoinShotgun — contextual)
     public static KeyCode SteelBubble = KeyCode.F;
     public static KeyCode MetalSight = KeyCode.T;
     public static KeyCode BurnToggle = KeyCode.B;
