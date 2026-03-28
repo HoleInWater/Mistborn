@@ -103,6 +103,16 @@ public class Pewter : MonoBehaviour
     [Tooltip("Matches Pewter's color on the metal wheel.")]
     public Color vignetteColor = new Color(0.8f, 0.2f, 0.2f);
 
+    [Header("Damage Reduction")]
+    [Tooltip("Fraction of incoming damage taken at base burn. 0.65 = 35% reduction. " +
+             "Lore: Pewter doubles durability — halving damage is conservative but fair.")]
+    [Range(0.2f, 1f)]
+    public float baseDamageMultiplier = 0.65f;
+    [Tooltip("Fraction of incoming damage taken at max flare. 0.3 = 70% reduction. " +
+             "Lore: Pewter dragging — you can survive things that would kill anyone else.")]
+    [Range(0.1f, 0.8f)]
+    public float maxDamageMultiplier = 0.30f;
+
     [Header("Knockback Resistance")]
     [Tooltip("Divides incoming knockback force at base burn. 2 = half knockback.")]
     [Range(1f, 5f)]
@@ -275,6 +285,9 @@ public class Pewter : MonoBehaviour
             healthSystem.health = newHealth;
         }
 
+        if (healthSystem != null)
+            healthSystem.incomingDamageMultiplier = 1f;
+
         // Crash is the punishment — clear the suppressed fatigue bank and trigger crash exhaustion
         if (stamina != null)
         {
@@ -373,6 +386,10 @@ public class Pewter : MonoBehaviour
         if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass * Mathf.Lerp(baseMassMultiplier, maxMassMultiplier, t);
 
+        // Damage reduction — Pewter toughness
+        if (healthSystem != null)
+            healthSystem.incomingDamageMultiplier = Mathf.Lerp(baseDamageMultiplier, maxDamageMultiplier, t);
+
         // Stamina: fully suppress drain while Pewter is active — fatigue banks silently
         if (stamina != null)
             stamina.SuppressDrain = true;
@@ -390,6 +407,9 @@ public class Pewter : MonoBehaviour
         }
         if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass;
+        if (healthSystem != null)
+            healthSystem.incomingDamageMultiplier = 1f;
+
         if (stamina != null)
         {
             // Release suppression — deferred fatigue hits now with interest

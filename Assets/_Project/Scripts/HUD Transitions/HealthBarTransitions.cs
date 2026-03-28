@@ -13,6 +13,12 @@ public class HealthBarTransitions : MonoBehaviour
     public float regenPerSecond = 5f;
     private bool isTouchingEnemy = false;
 
+    /// <summary>
+    /// Multiplier applied to all incoming damage (0–1). Set by Pewter.cs while burning.
+    /// 1 = no reduction. 0.5 = half damage. Reset to 1 when Pewter stops.
+    /// </summary>
+    public float incomingDamageMultiplier = 1f;
+
 
     private ProgressBar _progressBar;
 
@@ -49,7 +55,7 @@ public class HealthBarTransitions : MonoBehaviour
             // Mark that we're touching and decrease health continuously while touching the enemy
             isTouchingEnemy = true;
             timeNotTouchedEnemy = 0f;
-            DecreaseHealth(damagePerSecondWhileTouching * Time.deltaTime);
+            DecreaseHealth(damagePerSecondWhileTouching * incomingDamageMultiplier * Time.deltaTime);
         }
     }
 
@@ -109,6 +115,6 @@ public class HealthBarTransitions : MonoBehaviour
     // Add this so the Combat script can damage the health bar
     public void TakeDamage(float damage)
     {
-        DecreaseHealth(damage);
+        DecreaseHealth(damage * incomingDamageMultiplier);
     }
 }

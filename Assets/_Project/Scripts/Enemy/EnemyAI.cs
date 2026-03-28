@@ -467,11 +467,21 @@ public class EnemyAI : MonoBehaviour
         {
             case AllomancySkill.MetalType.Steel:
                 Rigidbody targetRb = target.GetComponent<Rigidbody>();
-                if (targetRb != null) targetRb.AddForce(dir * 80f, ForceMode.Impulse);
+                if (targetRb != null)
+                {
+                    Pewter targetPewter = target.GetComponentInParent<Pewter>();
+                    float steelResist   = targetPewter != null ? targetPewter.GetKnockbackResistance() : 1f;
+                    targetRb.AddForce(dir * 80f / steelResist, ForceMode.Impulse);
+                }
                 break;
             case AllomancySkill.MetalType.Iron:
                 Rigidbody playerRb = target.GetComponent<Rigidbody>();
-                if (playerRb != null) playerRb.AddForce(-dir * 50f, ForceMode.Impulse);
+                if (playerRb != null)
+                {
+                    Pewter playerPewter = target.GetComponentInParent<Pewter>();
+                    float ironResist    = playerPewter != null ? playerPewter.GetKnockbackResistance() : 1f;
+                    playerRb.AddForce(-dir * 50f / ironResist, ForceMode.Impulse);
+                }
                 break;
             case AllomancySkill.MetalType.Zinc:
                 if (dist < 15f)
