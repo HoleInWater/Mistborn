@@ -231,12 +231,7 @@ public class SteelPush : MonoBehaviour
 
             if (bubbleDown && steelBubbleCooldownTimer <= 0f)
             {
-                if (!IsBurning)
-                {
-                    if (debugPushOperations)
-                        Debug.Log("[BUBBLE] Blocked: not burning Steel. Toggle burning with Left Ctrl.");
-                }
-                else if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
+                if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
                 {
                     if (debugPushOperations)
                         Debug.Log("[BUBBLE] Blocked: Steel reserve empty.");

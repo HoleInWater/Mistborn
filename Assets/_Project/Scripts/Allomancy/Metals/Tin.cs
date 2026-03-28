@@ -42,6 +42,9 @@ public class Tin : MonoBehaviour
     /// </summary>
     public TinState CurrentState { get; private set; } = TinState.Off;
 
+    // E/Q key toggle — independent of B key and Left Ctrl burn gate
+    private bool _tinToggled = false;
+
     // ── Flare Threshold ───────────────────────────────────────────────────────
 
     [Header("Flare Settings")]
@@ -392,16 +395,27 @@ public class Tin : MonoBehaviour
             ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Tin)
             : 0f;
 
-        // Tin activates via TWO paths:
-        //
-        //   Path A — Left Ctrl (FlareManager): fires when Tin is in either equipped slot.
-        //            Lore: a Mistborn burns multiple metals simultaneously.
-        //
-        //   Path B — B key (Allomancer BurnToggle): fires when Tin is the currently
-        //            active metal (e.g. player swapped to the secondary Tin slot).
-        //            This is the path that was missing, causing Tin to fail as secondary.
-        //
+        // ── E / Q toggle input ─────────────────────────────────────────────────
+        // E toggles Tin when it is the primary selected metal.
+        // Q toggles Tin when it is the secondary selected metal.
         MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
+        if (sel != null)
+        {
+            bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
+            bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
+
+            if (tinIsPrimary   && Input.GetKeyDown(Keybinds.SteelPush))  // E — prime
+                _tinToggled = !_tinToggled;
+            if (tinIsSecondary && Input.GetKeyDown(Keybinds.IronPull))   // Q — second
+                _tinToggled = !_tinToggled;
+        }
+
+        // Tin activates via THREE paths:
+        //
+        //   Path A — E/Q toggle: press once to turn on, press again to turn off.
+        //   Path B — Left Ctrl (FlareManager): fires when Tin is in either slot.
+        //   Path C — B key (Allomancer BurnToggle): fires when Tin is the active metal.
+        //
         bool tinEquipped = sel == null
             || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin
             || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
@@ -415,7 +429,7 @@ public class Tin : MonoBehaviour
 
         bool burningTin = allomancer != null
                        && tinReserve > 0f
-                       && (burningViaFlare || burningViaSelection);
+                       && (burningViaFlare || burningViaSelection || _tinToggled);
 
         float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
@@ -430,7 +444,10 @@ public class Tin : MonoBehaviour
         // ── Detect reserve depletion this frame ───────────────────────────
 
         if (CurrentState != TinState.Off && tinReserve <= 0f)
+        {
             metalRanOut = true;
+            _tinToggled = false;   // auto-off when reserve depleted
+        }
 
         // ── State transition hooks ─────────────────────────────────────────
 
