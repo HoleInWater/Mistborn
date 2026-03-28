@@ -41,6 +41,7 @@ public class PlayerHUD : MonoBehaviour
     private CoinPouch coins;
     private MetalVialSystem vials;
     private StatusEffects statusEffects;
+    private int _lastStatusEffectCount = -1;
     private Camera mainCam;
     private MetalLineRenderer metalLineRenderer;
     private float hudUpdateTimer;
@@ -183,16 +184,30 @@ public class PlayerHUD : MonoBehaviour
     {
         if (statusEffects == null || statusEffectContainer == null || statusEffectIconPrefab == null) return;
 
-        // Simple: show text for each active effect
-        foreach (Transform child in statusEffectContainer)
-            Destroy(child.gameObject);
+        var effects = statusEffects.activeEffects;
+        int count = effects.Count;
 
-        foreach (var effect in statusEffects.activeEffects)
+        // Rebuild icons only when effect count changes — avoids per-tick Destroy/Instantiate churn
+        if (count != _lastStatusEffectCount)
         {
-            GameObject icon = Instantiate(statusEffectIconPrefab, statusEffectContainer);
-            Text text = icon.GetComponentInChildren<Text>();
+            foreach (Transform child in statusEffectContainer)
+                Destroy(child.gameObject);
+
+            for (int i = 0; i < count; i++)
+                Instantiate(statusEffectIconPrefab, statusEffectContainer);
+
+            _lastStatusEffectCount = count;
+        }
+
+        // Update text on existing icons every tick (cheap — just string assignment)
+        int idx = 0;
+        foreach (Transform child in statusEffectContainer)
+        {
+            if (idx >= count) break;
+            Text text = child.GetComponentInChildren<Text>();
             if (text != null)
-                text.text = $"{effect.displayName} {effect.RemainingTime:F0}s";
+                text.text = $"{effects[idx].displayName} {effects[idx].RemainingTime:F0}s";
+            idx++;
         }
     }
 

@@ -78,7 +78,7 @@ public class SoundManager : MonoBehaviour
     {
         if (skillUnlockSound.Length > 0 && sfxSource != null)
         {
-            AudioClip clip = skillUnlockSound[0];
+            AudioClip clip = skillUnlockSound[Random.Range(0, skillUnlockSound.Length)];
             sfxSource.PlayOneShot(clip, sfxVolume);
         }
     }

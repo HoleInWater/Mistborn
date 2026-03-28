@@ -224,6 +224,13 @@ public class Allomancer : MonoBehaviour
 
     public void DrainMetal(AllomancySkill.MetalType metal, float amount)
     {
+        // Metal Efficiency skills reduce drain across all metals (single hook for all 16)
+        if (AllomanticSkillTree.Instance != null)
+        {
+            float efficiency = AllomanticSkillTree.Instance.GetMetalEfficiencyBonus(metal);
+            amount *= Mathf.Clamp01(1f - efficiency);
+        }
+
         metalReserves[(int)metal] = Mathf.Max(0, metalReserves[(int)metal] - amount);
         UpdateHUD(metal);
         canBurnMetal = metalReserves[(int)GetCurrentMetal()] > 0;

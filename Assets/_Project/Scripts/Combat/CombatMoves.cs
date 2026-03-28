@@ -74,6 +74,14 @@ public class CombatComboSystem : MonoBehaviour
         if (_pewter != null && _pewter.IsBurningPewter())
             damage *= _pewter.GetStrengthMultiplier();
 
+        // Combat_Damage1 (+10%) and Combat_Damage2 (+20%) skill tree bonuses
+        if (AllomanticSkillTree.Instance != null)
+        {
+            float combatBonus = AllomanticSkillTree.Instance.GetSkillValue("Combat_Damage1")
+                              + AllomanticSkillTree.Instance.GetSkillValue("Combat_Damage2");
+            damage *= (1f + combatBonus);
+        }
+
         return damage;
     }
 

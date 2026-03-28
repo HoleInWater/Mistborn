@@ -96,7 +96,12 @@ public class HealthBarTransitions : MonoBehaviour
         // Start regenerating after delay
         if (timeNotTouchedEnemy >= regenDelayAfterTouch)
         {
-            IncreaseHealth(regenPerSecond * Time.deltaTime);
+            // Surv_HealthRegen + Surv_HealthRegen2 skills stack additively
+            float regenMult = 1f;
+            if (AllomanticSkillTree.Instance != null)
+                regenMult += AllomanticSkillTree.Instance.GetSkillValue("Surv_HealthRegen")
+                           + AllomanticSkillTree.Instance.GetSkillValue("Surv_HealthRegen2");
+            IncreaseHealth(regenPerSecond * regenMult * Time.deltaTime);
         }
     }
     
@@ -115,6 +120,10 @@ public class HealthBarTransitions : MonoBehaviour
     // Add this so the Combat script can damage the health bar
     public void TakeDamage(float damage)
     {
-        DecreaseHealth(damage * incomingDamageMultiplier);
+        // Surv_DamageReduction skill: flat % off all incoming damage
+        float skillReduction = AllomanticSkillTree.Instance != null
+            ? AllomanticSkillTree.Instance.GetSkillValue("Surv_DamageReduction")
+            : 0f;
+        DecreaseHealth(damage * incomingDamageMultiplier * (1f - skillReduction));
     }
 }
