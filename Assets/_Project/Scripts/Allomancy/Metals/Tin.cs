@@ -533,9 +533,11 @@ public class Tin : MonoBehaviour
         if (lowPass  != null) lowPass.enabled  = false;
         if (highPass != null) highPass.enabled = false;
 
-        // Restore world time scale and player speed
+        // Restore world time scale
         MistbornTimeManager.Instance?.ClearTinModifier();
-        if (playerMove != null) playerMove.externalSpeedMultiplier = 1f;
+        // Only clear the speed multiplier if Tin was the one penalizing it
+        if (playerMove != null && overloadSpeedFactor < 1f)
+            playerMove.externalSpeedMultiplier = 1f;
         overloadSpeedFactor = 1f;
 
         // Lore-critical: when metal RUNS OUT, the contrast between Tin-vision and normal
@@ -855,19 +857,21 @@ public class Tin : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the world time-scale via MistbornTimeManager and compensates the player's
-    /// movement speed so they remain at their normal real-world speed while enemies,
-    /// physics, and animations run slower.
+    /// Slows the world time-scale via MistbornTimeManager.
+    /// Tin does NOT change the player's speed — the player slows proportionally
+    /// with the world. The perception advantage comes from enemies being relatively
+    /// slower, not from the player being compensated faster.
     ///
-    /// Overload penalty (from ApplyPhysicalOverload) overrides the compensation when active —
-    /// a Tineye in pain is slowed even in their perception-dilated world.
+    /// Tin only writes to externalSpeedMultiplier for the overload PENALTY path.
     /// </summary>
     private void ApplyPerceptionEffect()
     {
         if (CurrentState == TinState.Off)
         {
             MistbornTimeManager.Instance?.ClearTinModifier();
-            if (playerMove != null && playerMove.externalSpeedMultiplier != 1f)
+            // Clear any overload speed penalty Tin may have applied
+            if (playerMove != null && overloadSpeedFactor >= 1f
+                && playerMove.externalSpeedMultiplier < 1f)
                 playerMove.externalSpeedMultiplier = 1f;
             return;
         }
@@ -878,20 +882,14 @@ public class Tin : MonoBehaviour
 
         MistbornTimeManager.Instance?.SetTinModifier(targetScale);
 
-        if (playerMove == null) return;
-
-        // Get the actual current time scale (may be further modified by bubbles, Atium, etc.)
-        float effectiveScale = MistbornTimeManager.Instance != null
-            ? MistbornTimeManager.Instance.GetEffectiveTimeScale()
-            : targetScale;
-
-        // Compensate so player moves at their normal real-world speed (1/timeScale)
-        float compensation = 1f / Mathf.Max(effectiveScale, 0.1f);
-
-        // Overload penalty overrides compensation — pain impairs even in slow-world
-        playerMove.externalSpeedMultiplier = overloadSpeedFactor < 1f
-            ? overloadSpeedFactor
-            : compensation;
+        // Apply overload speed penalty only — never a speed boost
+        if (playerMove != null)
+        {
+            if (overloadSpeedFactor < 1f)
+                playerMove.externalSpeedMultiplier = overloadSpeedFactor;
+            else if (playerMove.externalSpeedMultiplier < 1f)
+                playerMove.externalSpeedMultiplier = 1f; // clear a previous penalty
+        }
     }
 
     // ── Heartbeat Detection ───────────────────────────────────────────────────
