@@ -66,7 +66,7 @@
 - [ ] `Electrum.cs` — see your own future (stub, unimplemented)
 
 ### Combat
-- [x] `IDamageable` interface
+- [ ] `IDamageable` interface
 - [x] Player health system
 - [ ] Player combat (melee)
 - [ ] Enemy health bars (UI)
