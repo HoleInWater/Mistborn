@@ -2,11 +2,18 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
+/// <summary>
+/// Drives the Allomancy HUD:
+///   - Two ProgressBars for the currently selected primary/secondary metals.
+///   - A spinning ring indicator in the bottom-right corner.
+///
+/// Preview mode auto-enables when no Allomancer is present so the ring is
+/// always visible and spinning as soon as the scene loads.
+/// </summary>
 public class MetalReserve : MonoBehaviour
 {
     [Header("UI Settings")]
     public UIDocument uiDocument;
-    public string metalProgressBarPrefix = "Metal_";
 
     [Header("Metal Settings")]
     public float maxMetal = 100f;
@@ -14,164 +21,260 @@ public class MetalReserve : MonoBehaviour
     [Header("Recovery Settings")]
     public float passiveRecoveryRate = 0.5f;
 
+    [Header("Reserve Warning")]
+    [Tooltip("Reserve percentage below which the low-reserve warning class is applied.")]
+    public float lowReserveThreshold = 20f;
+
     [Header("Preview Mode")]
-    [Tooltip("When enabled (or auto-triggered when no Allomancer is found), bars animate with test data so the HUD is visible without full game setup.")]
+    [Tooltip("Auto-enabled when no Allomancer is found. Animates bars and ring without full game setup.")]
     public bool previewMode = false;
 
-    private Dictionary<AllomancySkill.MetalType, ProgressBar> _metalBars = new Dictionary<AllomancySkill.MetalType, ProgressBar>();
-    private float[] _lastDisplayedReserves = new float[20]; // Buffer for 18+ metals
+    // ── UI elements ────────────────────────────────────────────────────────────
+
+    private ProgressBar    _primaryBar;
+    private ProgressBar    _secondaryBar;
+    private VisualElement  _ringSpinner;
+    private Label          _metalNameLabel;
+    private Label          _metalPctLabel;
+
+    // ── Selection state ────────────────────────────────────────────────────────
+
+    private AllomancySkill.MetalType _primaryMetal   = AllomancySkill.MetalType.Steel;
+    private AllomancySkill.MetalType _secondaryMetal = AllomancySkill.MetalType.Iron;
+    private AllomancySkill.MetalType _activeMetal    = AllomancySkill.MetalType.Steel;
+
+    // ── Spin / preview ─────────────────────────────────────────────────────────
+
+    private float   _spinAngle      = 0f;
     private float[] _previewReserves;
+
+    // ── Legacy compat (Allomancer.cs calls these) ──────────────────────────────
+    public float currentMetal { get; set; }
+
+    // Kept so existing callers that do metalReserve.UpdateAllBars() don't break.
+    // Not used internally anymore.
+    private Dictionary<AllomancySkill.MetalType, ProgressBar> _metalBars =
+        new Dictionary<AllomancySkill.MetalType, ProgressBar>();
+
+    // ── Per-metal fill colours (matches HUD.uss) ───────────────────────────────
+
+    private static readonly Color[] MetalColors =
+    {
+        new Color(0.63f, 0.71f, 0.82f), // Steel
+        new Color(0.39f, 0.47f, 0.63f), // Iron
+        new Color(0.71f, 0.69f, 0.65f), // Pewter
+        new Color(0.84f, 0.84f, 0.78f), // Tin
+        new Color(0.82f, 0.73f, 0.31f), // Zinc
+        new Color(0.73f, 0.58f, 0.18f), // Brass
+        new Color(0.75f, 0.41f, 0.18f), // Copper
+        new Color(0.65f, 0.43f, 0.16f), // Bronze
+        new Color(0.86f, 0.86f, 0.94f), // Atium
+        new Color(0.67f, 0.31f, 0.16f), // Malatium
+        new Color(1.00f, 0.78f, 0.00f), // Gold
+        new Color(0.90f, 0.88f, 0.67f), // Electrum
+        new Color(0.82f, 0.82f, 0.82f), // Aluminum
+        new Color(0.35f, 0.35f, 0.43f), // Duralumin
+        new Color(0.94f, 0.63f, 0.24f), // Bendalloy
+        new Color(0.31f, 0.63f, 0.86f), // Cadmium
+        new Color(0.47f, 0.73f, 0.69f), // Chromium
+        new Color(0.61f, 0.47f, 0.75f), // Nicrosil
+    };
+
+    static Color MetalColor(AllomancySkill.MetalType m)
+    {
+        int i = (int)m;
+        return i >= 0 && i < MetalColors.Length ? MetalColors[i] : Color.white;
+    }
+
+    // ── Unity lifecycle ────────────────────────────────────────────────────────
 
     void Start()
     {
         SetupUI();
 
-        // Auto-enable preview mode if no Allomancer is present on the same GameObject
-        if (!previewMode && GetComponent<Allomancer>() == null && GetComponentInParent<Allomancer>() == null)
+        if (!previewMode
+            && GetComponent<Allomancer>() == null
+            && GetComponentInParent<Allomancer>() == null)
+        {
             previewMode = true;
+        }
 
         if (previewMode)
         {
-            int metalCount = System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
-            _previewReserves = new float[metalCount];
-            // Stagger starting phase per metal so they don't all pulse together
-            for (int i = 0; i < metalCount; i++)
-                _previewReserves[i] = (i * (100f / metalCount)) % 100f;
+            int count = System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
+            _previewReserves = new float[count];
+            for (int i = 0; i < count; i++) _previewReserves[i] = maxMetal;
         }
     }
 
     void Update()
     {
+        // Spin the ring arc continuously
+        _spinAngle = (_spinAngle + Time.deltaTime * 180f) % 360f;
+        if (_ringSpinner != null)
+            _ringSpinner.style.rotate = new Rotate(Angle.Degrees(_spinAngle));
+
         if (!previewMode) return;
 
-        int count = System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
-        if (_previewReserves == null || _previewReserves.Length < count) return;
+        // Preview: slowly drain the primary metal and cycle it back to full
+        if (_previewReserves == null) return;
+        int idx = (int)_primaryMetal;
+        _previewReserves[idx] -= Time.deltaTime * 10f;
+        if (_previewReserves[idx] < 0f) _previewReserves[idx] = maxMetal;
 
-        // Each bar cycles at a slightly different rate so they're visually distinct
-        for (int i = 0; i < count; i++)
-        {
-            float speed = 8f + i * 1.3f;            // different depletion speeds per metal
-            _previewReserves[i] -= Time.deltaTime * speed;
-            if (_previewReserves[i] < 0f) _previewReserves[i] = maxMetal;
-        }
-
-        // Force update by clearing the cache so UpdateAllBars always writes
-        for (int i = 0; i < _lastDisplayedReserves.Length; i++)
-            _lastDisplayedReserves[i] = -1f;
-
-        UpdateAllBars(_previewReserves);
-
-        // Highlight bar 0 (Steel) as "active" for visual preview
-        AllomancySkill.MetalType[] metals = (AllomancySkill.MetalType[])System.Enum.GetValues(typeof(AllomancySkill.MetalType));
-        if (metals.Length >= 2)
-            HighlightSelection(metals[0], metals[1], true);
+        // Force redraw every frame in preview (skip the dirty-check cache)
+        UpdateBarsAndRing(_previewReserves, skipCache: true);
     }
+
+    // ── Setup ──────────────────────────────────────────────────────────────────
 
     private void SetupUI()
     {
         if (uiDocument == null) return;
-        
         var root = uiDocument.rootVisualElement;
-        _metalBars.Clear();
 
-        foreach (AllomancySkill.MetalType metal in System.Enum.GetValues(typeof(AllomancySkill.MetalType)))
-        {
-            string barName = metalProgressBarPrefix + metal.ToString();
-            ProgressBar bar = root.Q<ProgressBar>(barName);
+        _primaryBar     = root.Q<ProgressBar>("PrimaryMetalBar");
+        _secondaryBar   = root.Q<ProgressBar>("SecondaryMetalBar");
+        _ringSpinner    = root.Q<VisualElement>("MetalRingSpinner");
+        _metalNameLabel = root.Q<Label>("MetalName");
+        _metalPctLabel  = root.Q<Label>("MetalPct");
 
-            if (bar != null)
-            {
-                bar.lowValue = 0;
-                bar.highValue = maxMetal;
-                _metalBars.Add(metal, bar);
-            }
-            // Bar not found in UIDocument — will be null for this metal
-        }
+        if (_primaryBar   != null) { _primaryBar.lowValue   = 0; _primaryBar.highValue   = maxMetal; }
+        if (_secondaryBar != null) { _secondaryBar.lowValue = 0; _secondaryBar.highValue = maxMetal; }
+
+        // Init ring label
+        if (_metalNameLabel != null) _metalNameLabel.text = _activeMetal.ToString().ToUpper();
+        if (_metalPctLabel  != null) _metalPctLabel.text  = "100%";
+
+        ApplyBarFillColor(_primaryBar,   _primaryMetal);
+        ApplyBarFillColor(_secondaryBar, _secondaryMetal);
+        ApplyRingColor(_activeMetal);
     }
 
-    [Header("Reserve Warning")]
-    [Tooltip("Reserve percentage below which the low-reserve warning class is applied.")]
-    public float lowReserveThreshold = 20f;
+    // ── Public API (called by Allomancer.cs) ───────────────────────────────────
 
-    /// <summary>
-    /// Updates all metal bars based on the provided reserves array.
-    /// Applies low-reserve warning styling when a bar drops below the threshold.
-    /// </summary>
+    /// <summary>Updates both selected metal bars and the ring from the full reserves array.</summary>
     public void UpdateAllBars(float[] reserves)
     {
-        if (_metalBars.Count == 0) SetupUI();
-
-        foreach (var kvp in _metalBars)
-        {
-            int index = (int)kvp.Key;
-            if (index < 0 || index >= reserves.Length) continue;
-            float currentValue = reserves[index];
-
-            if (!Mathf.Approximately(_lastDisplayedReserves[index], currentValue))
-            {
-                kvp.Value.value = currentValue;
-                kvp.Value.title = $"{kvp.Key}: {Mathf.FloorToInt(currentValue)}";
-                _lastDisplayedReserves[index] = currentValue;
-
-                // Low-reserve warning — turns the fill red when nearly empty
-                if (currentValue < lowReserveThreshold)
-                    kvp.Value.AddToClassList("low-reserve");
-                else
-                    kvp.Value.RemoveFromClassList("low-reserve");
-            }
-        }
+        if (_primaryBar == null) SetupUI();
+        UpdateBarsAndRing(reserves, skipCache: false);
     }
 
     /// <summary>
-    /// Highlights the active and secondary metals. All bars remain visible —
-    /// active gets a bright white border, secondary gets a dotted grey border,
-    /// everything else is shown at reduced opacity so the full picture is readable.
+    /// Swaps which metal is highlighted as active vs secondary.
+    /// Updates bar border styles and the ring colour/label.
     /// </summary>
-    public void HighlightSelection(AllomancySkill.MetalType primary, AllomancySkill.MetalType secondary, bool isPrimaryActive)
+    public void HighlightSelection(AllomancySkill.MetalType primary,
+                                   AllomancySkill.MetalType secondary,
+                                   bool isPrimaryActive)
     {
-        if (_metalBars.Count == 0) SetupUI();
+        if (_primaryBar == null) SetupUI();
 
-        AllomancySkill.MetalType active = isPrimaryActive ? primary : secondary;
-        AllomancySkill.MetalType passive = isPrimaryActive ? secondary : primary;
+        bool primaryChanged  = primary   != _primaryMetal;
+        bool secondaryChanged = secondary != _secondaryMetal;
+        bool activeChanged   = (isPrimaryActive ? primary : secondary) != _activeMetal;
 
-        foreach (var kvp in _metalBars)
-        {
-            var bar = kvp.Value;
-            bar.RemoveFromClassList("active-metal");
-            bar.RemoveFromClassList("secondary-metal");
+        _primaryMetal   = primary;
+        _secondaryMetal = secondary;
+        _activeMetal    = isPrimaryActive ? primary : secondary;
 
-            // All bars stay visible — dim inactive ones slightly
-            if (kvp.Key == active)
-            {
-                bar.AddToClassList("active-metal");
-                bar.style.opacity = 1f;
-            }
-            else if (kvp.Key == passive)
-            {
-                bar.AddToClassList("secondary-metal");
-                bar.style.opacity = 0.85f;
-            }
-            else
-            {
-                bar.style.opacity = 0.45f;
-            }
-        }
+        // Bar border classes
+        SetBarSelectionClasses(_primaryBar,   isPrimaryActive);
+        SetBarSelectionClasses(_secondaryBar, !isPrimaryActive);
+
+        if (primaryChanged)  ApplyBarFillColor(_primaryBar,   _primaryMetal);
+        if (secondaryChanged) ApplyBarFillColor(_secondaryBar, _secondaryMetal);
+        if (activeChanged)   ApplyRingColor(_activeMetal);
+
+        if (_metalNameLabel != null)
+            _metalNameLabel.text = _activeMetal.ToString().ToUpper();
     }
 
-    /// <summary>
-    /// visualizes the Duralumin/Nicrosil primed state.
-    /// </summary>
+    /// <summary>Shows/hides the gold burst-primed ring glow for Duralumin/Nicrosil.</summary>
     public void VisualizePrimedState(AllomancySkill.MetalType metal, bool isPrimed)
     {
-        if (_metalBars.TryGetValue(metal, out ProgressBar bar))
+        ProgressBar bar = metal == _primaryMetal   ? _primaryBar
+                        : metal == _secondaryMetal ? _secondaryBar
+                        : null;
+
+        if (bar != null)
         {
             if (isPrimed) bar.AddToClassList("burst-primed");
-            else bar.RemoveFromClassList("burst-primed");
+            else          bar.RemoveFromClassList("burst-primed");
+        }
+
+        if (metal == _activeMetal && _ringSpinner != null)
+        {
+            if (isPrimed) _ringSpinner.AddToClassList("burst-primed");
+            else          _ringSpinner.RemoveFromClassList("burst-primed");
         }
     }
 
-    // Legacy API — delegates to Allomancer for actual reserve management
-    public float currentMetal { get; set; }
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    private void UpdateBarsAndRing(float[] reserves, bool skipCache)
+    {
+        UpdateSingleBar(_primaryBar,   _primaryMetal,   reserves);
+        UpdateSingleBar(_secondaryBar, _secondaryMetal, reserves);
+
+        int activeIdx = (int)_activeMetal;
+        if (activeIdx >= 0 && activeIdx < reserves.Length)
+        {
+            float pct = reserves[activeIdx] / maxMetal;
+            if (_metalPctLabel != null)
+                _metalPctLabel.text = $"{Mathf.FloorToInt(pct * 100f)}%";
+
+            // Update ring arc colour based on reserve level
+            Color arcColor = pct > 0.5f
+                ? Color.Lerp(new Color(1f, 0.85f, 0f), MetalColor(_activeMetal), (pct - 0.5f) * 2f)
+                : Color.Lerp(new Color(0.8f, 0.1f, 0.05f), new Color(1f, 0.85f, 0f), pct * 2f);
+
+            if (_ringSpinner != null)
+            {
+                _ringSpinner.style.borderTopColor   = arcColor;
+                _ringSpinner.style.borderRightColor = arcColor;
+            }
+        }
+    }
+
+    private void UpdateSingleBar(ProgressBar bar, AllomancySkill.MetalType metal, float[] reserves)
+    {
+        if (bar == null) return;
+        int idx = (int)metal;
+        if (idx < 0 || idx >= reserves.Length) return;
+
+        float val = reserves[idx];
+        bar.value = val;
+        bar.title = $"{metal}  {Mathf.FloorToInt(val)}";
+
+        if (val < lowReserveThreshold) bar.AddToClassList("low-reserve");
+        else                           bar.RemoveFromClassList("low-reserve");
+    }
+
+    private void SetBarSelectionClasses(ProgressBar bar, bool isActive)
+    {
+        if (bar == null) return;
+        bar.RemoveFromClassList("active-metal");
+        bar.RemoveFromClassList("secondary-metal");
+        bar.AddToClassList(isActive ? "active-metal" : "secondary-metal");
+    }
+
+    private void ApplyBarFillColor(ProgressBar bar, AllomancySkill.MetalType metal)
+    {
+        if (bar == null) return;
+        var fill = bar.Q(className: "unity-progress-bar__progress");
+        if (fill != null) fill.style.backgroundColor = MetalColor(metal);
+    }
+
+    private void ApplyRingColor(AllomancySkill.MetalType metal)
+    {
+        if (_ringSpinner == null) return;
+        Color c = MetalColor(metal);
+        _ringSpinner.style.borderTopColor   = c;
+        _ringSpinner.style.borderRightColor = c;
+    }
+
+    // ── Legacy API ─────────────────────────────────────────────────────────────
 
     public void Drain(float amount)
     {
@@ -185,8 +288,5 @@ public class MetalReserve : MonoBehaviour
         if (allo != null) allo.RefillMetal(allo.GetCurrentMetal(), amount);
     }
 
-    public void SetCurrentMetal(float amount)
-    {
-        currentMetal = amount;
-    }
+    public void SetCurrentMetal(float amount) => currentMetal = amount;
 }

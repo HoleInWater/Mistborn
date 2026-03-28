@@ -1,210 +1,209 @@
 /* ═══════════════════════════════════════════════════════════════════
    HUD.uss — Mistborn Allomancy HUD
-   All 18 metal reserve bars displayed simultaneously in two columns.
-   Active / secondary metals are highlighted; low reserves pulse red.
+   - Health / Stamina bars (top-left, large)
+   - Two selected metal bars (bottom-right, above ring)
+   - Spinning ring indicator (bottom-right corner)
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Health ────────────────────────────────────────────────────── */
 
-#Health .unity-progress-bar__progress {
-    background-color: rgb(200, 30, 30);
+#Health .unity-progress-bar__container {
+    height: 28px;
 }
 
 #Health .unity-progress-bar__background {
-    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.75);
+    border-width: 1px;
+    border-color: rgb(100, 20, 20);
+    border-radius: 4px;
+}
+
+#Health .unity-progress-bar__progress {
+    background-color: rgb(200, 30, 30);
+    border-radius: 3px;
+}
+
+#Health .unity-progress-bar__title {
+    font-size: 14px;
+    -unity-font-style: bold;
     color: rgb(255, 255, 255);
-    font-size: 20px;
+    -unity-text-align: middle-left;
+    padding-left: 6px;
 }
 
 /* ── Stamina ───────────────────────────────────────────────────── */
 
-#Stamina .unity-progress-bar__progress {
-    background-color: rgb(27, 220, 0);
+#Stamina .unity-progress-bar__container {
+    height: 22px;
 }
 
 #Stamina .unity-progress-bar__background {
-    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.75);
+    border-width: 1px;
+    border-color: rgb(20, 80, 20);
+    border-radius: 4px;
 }
 
-/* ── Metal Container ───────────────────────────────────────────── */
-/*
-   Two-column layout: flex-direction column + wrap so bars fill
-   left column top-to-bottom then spill into the right column.
-   Height is constrained so exactly 9 bars fit per column.
-*/
+#Stamina .unity-progress-bar__progress {
+    background-color: rgb(27, 220, 0);
+    border-radius: 3px;
+}
 
-.MetalContainer {
+#Stamina .unity-progress-bar__title {
+    font-size: 11px;
+    -unity-font-style: bold;
+    color: rgba(255, 255, 255, 0.8);
+    -unity-text-align: middle-left;
+    padding-left: 6px;
+}
+
+/* ── Two selected metal bars (bottom-right, above ring) ────────── */
+
+.SelectedMetals {
     flex-direction: column;
-    flex-wrap: wrap;
-    width: 240px;      /* fits two 110px columns with gap */
-    height: 270px;     /* 9 bars × 28px + gaps = ~270px   */
-    align-items: flex-start;
     position: absolute;
-    bottom: 20px;
+    bottom: 130px;
     right: 16px;
+    width: 180px;
 }
 
-/* ── Individual metal bar ──────────────────────────────────────── */
-
-.MetalBar {
-    width: 110px;
-    height: 22px;
-    margin-bottom: 4px;
-    margin-right: 8px;
-    padding: 0;
+.SelectedMetalBar {
+    width: 176px;
+    height: 26px;
+    margin-bottom: 5px;
     transition-property: opacity;
-    transition-duration: 0.2s;
+    transition-duration: 0.15s;
 }
 
-.MetalBar .unity-progress-bar__container {
+.SelectedMetalBar .unity-progress-bar__container {
     height: 100%;
 }
 
-.MetalBar .unity-progress-bar__background {
-    background-color: rgb(18, 18, 18);
+.SelectedMetalBar .unity-progress-bar__background {
+    background-color: rgb(14, 14, 14);
     border-width: 1px;
     border-color: rgb(55, 55, 55);
+    border-radius: 3px;
+}
+
+.SelectedMetalBar .unity-progress-bar__progress {
+    background-color: rgb(160, 180, 210);
     border-radius: 2px;
 }
 
-.MetalBar .unity-progress-bar__progress {
-    border-radius: 2px;
-    /* Each metal overrides this colour below */
-}
-
-.MetalBar .unity-progress-bar__title {
-    font-size: 8px;
+.SelectedMetalBar .unity-progress-bar__title {
+    font-size: 11px;
     -unity-font-style: bold;
-    color: rgba(255, 255, 255, 0.55);
-    -unity-text-align: upper-left;
-    padding-left: 3px;
+    color: rgba(255, 255, 255, 0.65);
+    -unity-text-align: middle-left;
+    padding-left: 5px;
 }
 
-/* ── Active metal (currently burning) ─────────────────────────── */
-
-.MetalBar.active-metal .unity-progress-bar__background {
+/* Active metal — bright white border */
+.SelectedMetalBar.active-metal .unity-progress-bar__background {
     border-color: rgb(255, 255, 255);
     border-width: 2px;
-    background-color: rgb(40, 40, 40);
+    background-color: rgb(30, 30, 30);
 }
 
-.MetalBar.active-metal .unity-progress-bar__title {
+.SelectedMetalBar.active-metal .unity-progress-bar__title {
     color: rgb(255, 255, 255);
+    font-size: 12px;
 }
 
-/* ── Secondary metal (equipped in other slot) ──────────────────── */
-
-.MetalBar.secondary-metal .unity-progress-bar__background {
-    border-color: rgb(160, 160, 160);
+/* Secondary metal — grey dotted border */
+.SelectedMetalBar.secondary-metal .unity-progress-bar__background {
+    border-color: rgb(150, 150, 150);
     border-width: 1.5px;
     border-style: dotted;
 }
 
-.MetalBar.secondary-metal .unity-progress-bar__title {
-    color: rgba(255, 255, 255, 0.8);
+.SelectedMetalBar.secondary-metal .unity-progress-bar__title {
+    color: rgba(255, 255, 255, 0.75);
 }
 
-/* ── Duralumin / Nicrosil burst-primed ─────────────────────────── */
+/* Low reserve — red fill */
+.SelectedMetalBar.low-reserve .unity-progress-bar__progress {
+    background-color: rgb(180, 30, 10) !important;
+}
 
-.MetalBar.burst-primed .unity-progress-bar__background {
+.SelectedMetalBar.low-reserve .unity-progress-bar__title {
+    color: rgb(255, 80, 60);
+}
+
+/* Duralumin / Nicrosil primed — gold border */
+.SelectedMetalBar.burst-primed .unity-progress-bar__background {
     border-color: rgb(255, 200, 50);
     border-width: 2px;
 }
 
-/* ── Low reserve warning (< 20%) ──────────────────────────────── */
-/* Applied via MetalReserve.cs when reserve drops below threshold  */
+/* ── Spinning ring indicator (bottom-right corner) ─────────────── */
 
-.MetalBar.low-reserve .unity-progress-bar__progress {
-    background-color: rgb(180, 30, 10) !important;
+.MetalRingContainer {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 90px;
+    height: 90px;
 }
 
-.MetalBar.low-reserve .unity-progress-bar__title {
-    color: rgb(255, 80, 60);
+/* Dim background circle */
+.MetalRingBg {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border-width: 5px;
+    border-color: rgba(50, 50, 50, 0.6);
+    background-color: rgba(0, 0, 0, 0.45);
 }
 
-/* ── Per-metal progress colours ───────────────────────────────── */
-/* Physical pair — blue-silver tones */
-
-#Metal_Steel .unity-progress-bar__progress {
-    background-color: rgb(160, 180, 210);
+/* The spinning arc — top + right borders visible, bottom + left hidden */
+.MetalRingSpinner {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    border-top-color: rgb(160, 180, 210);
+    border-right-color: rgb(160, 180, 210);
+    background-color: rgba(0, 0, 0, 0);
+    /* Rotated each frame by MetalReserve.cs */
 }
 
-#Metal_Iron .unity-progress-bar__progress {
-    background-color: rgb(100, 120, 160);
+/* Primed state — gold arc */
+.MetalRingSpinner.burst-primed {
+    border-top-color: rgb(255, 200, 50);
+    border-right-color: rgb(255, 200, 50);
 }
 
-/* Physical pair — warm grey */
-
-#Metal_Pewter .unity-progress-bar__progress {
-    background-color: rgb(180, 175, 165);
+/* Metal name — centered in ring */
+.MetalName {
+    position: absolute;
+    left: 0px;
+    top: 26px;
+    width: 90px;
+    -unity-text-align: middle-center;
+    font-size: 9px;
+    -unity-font-style: bold;
+    color: rgb(200, 200, 200);
 }
 
-#Metal_Tin .unity-progress-bar__progress {
-    background-color: rgb(215, 215, 200);
-}
-
-/* Mental pair — amber / brass */
-
-#Metal_Zinc .unity-progress-bar__progress {
-    background-color: rgb(210, 185, 80);
-}
-
-#Metal_Brass .unity-progress-bar__progress {
-    background-color: rgb(185, 148, 45);
-}
-
-/* Mental pair — copper tones */
-
-#Metal_Copper .unity-progress-bar__progress {
-    background-color: rgb(190, 105, 45);
-}
-
-#Metal_Bronze .unity-progress-bar__progress {
-    background-color: rgb(165, 110, 40);
-}
-
-/* Enhancement pair — neutral / deep grey */
-
-#Metal_Aluminum .unity-progress-bar__progress {
-    background-color: rgb(210, 210, 210);
-}
-
-#Metal_Duralumin .unity-progress-bar__progress {
-    background-color: rgb(90, 90, 110);
-}
-
-#Metal_Chromium .unity-progress-bar__progress {
-    background-color: rgb(120, 185, 175);
-}
-
-#Metal_Nicrosil .unity-progress-bar__progress {
-    background-color: rgb(155, 120, 190);
-}
-
-/* Temporal pair — warm time-distortion colours */
-
-#Metal_Bendalloy .unity-progress-bar__progress {
-    background-color: rgb(240, 160, 60);
-}
-
-#Metal_Cadmium .unity-progress-bar__progress {
-    background-color: rgb(80, 160, 220);
-}
-
-/* God Metals — distinctive */
-
-#Metal_Atium .unity-progress-bar__progress {
-    background-color: rgb(220, 220, 240);  /* ethereal silver-white */
-}
-
-#Metal_Malatium .unity-progress-bar__progress {
-    background-color: rgb(170, 80, 40);    /* deep rust */
-}
-
-#Metal_Gold .unity-progress-bar__progress {
-    background-color: rgb(255, 200, 0);
-}
-
-#Metal_Electrum .unity-progress-bar__progress {
-    background-color: rgb(230, 225, 170);
+/* Reserve percentage — below name */
+.MetalPct {
+    position: absolute;
+    left: 0px;
+    top: 42px;
+    width: 90px;
+    -unity-text-align: middle-center;
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
 }
