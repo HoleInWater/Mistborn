@@ -408,14 +408,30 @@ public class Tin : MonoBehaviour
             ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Tin)
             : 0f;
 
-        // Burn gate matches Pewter/Steel/Iron pattern: Left Ctrl (FlareManager) activates Tin.
-        // Tin activates whenever burning is toggled on AND Tin reserve is available.
-        // Does not require Tin to be the "current metal" — Mistborns burn multiple metals
-        // simultaneously. If you want to gate behind selection, check MetalSelector here.
+        // Tin activates via TWO paths:
+        //
+        //   Path A — Left Ctrl (FlareManager): fires when Tin is in either equipped slot.
+        //            Lore: a Mistborn burns multiple metals simultaneously.
+        //
+        //   Path B — B key (Allomancer BurnToggle): fires when Tin is the currently
+        //            active metal (e.g. player swapped to the secondary Tin slot).
+        //            This is the path that was missing, causing Tin to fail as secondary.
+        //
+        MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
+        bool tinEquipped = sel == null
+            || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin
+            || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
+
+        bool burningViaFlare     = FlareManager.Instance != null
+                                && FlareManager.Instance.IsBurning
+                                && tinEquipped;
+
+        bool burningViaSelection = allomancer.IsBurning()
+                                && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Tin;
+
         bool burningTin = allomancer != null
-                       && FlareManager.Instance != null
-                       && FlareManager.Instance.IsBurning
-                       && tinReserve > 0f;
+                       && tinReserve > 0f
+                       && (burningViaFlare || burningViaSelection);
 
         float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
