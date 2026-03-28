@@ -42,35 +42,41 @@ public class PlayerStamina : MonoBehaviour
     public float maxOxygenDebt = 40f;
 
     [Tooltip("Rate at which oxygen debt accumulates per second of anaerobic effort, " +
-             "scaled by how far below the lactate threshold stamina is.")]
-    [Range(1f, 20f)]
-    public float debtAccumulationRate = 8f;
+             "scaled by how far below the lactate threshold stamina is. " +
+             "Real physiology: debt builds quickly during hard effort.")]
+    [Range(0.5f, 20f)]
+    public float debtAccumulationRate = 5f;
 
-    [Tooltip("Rate at which oxygen debt decays per second at full rest.")]
-    [Range(1f, 15f)]
-    public float debtRecoveryRate = 5f;
+    [Tooltip("Rate at which oxygen debt decays per second at full rest. " +
+             "Real physiology: O₂ debt takes 3-5 real minutes to clear → ~0.5/s at 4× time scale.")]
+    [Range(0.1f, 15f)]
+    public float debtRecoveryRate = 0.5f;
 
     // ── Recovery Rates ────────────────────────────────────────────────────────
 
     [Header("Recovery Rates (stamina/sec)")]
-    [Tooltip("Peak regen rate in the aerobic zone — no oxygen debt, stamina low.")]
-    [Range(5f, 40f)]
-    public float aerobicRegenRate = 20f;
+    [Tooltip("Peak regen rate in the aerobic zone — no oxygen debt, stamina low. " +
+             "Real physiology: full recovery in ~8 real seconds of rest → 12/s.")]
+    [Range(1f, 40f)]
+    public float aerobicRegenRate = 12f;
 
-    [Tooltip("Regen rate while paying oxygen debt — body still in recovery mode.")]
-    [Range(1f, 15f)]
-    public float anaerobicRegenRate = 7f;
+    [Tooltip("Regen rate while paying oxygen debt — body still in recovery mode. " +
+             "Slower than aerobic: ~4/s means full recovery in ~25 real seconds in debt.")]
+    [Range(0.5f, 15f)]
+    public float anaerobicRegenRate = 4f;
 
-    [Tooltip("Seconds after last drain before regen begins.")]
+    [Tooltip("Seconds after last drain before regen begins. " +
+             "Represents the brief moment before breathing rate starts dropping.")]
     [Range(0.5f, 4f)]
-    public float regenDelay = 1.5f;
+    public float regenDelay = 2f;
 
     // ── Exhaustion ────────────────────────────────────────────────────────────
 
     [Header("Exhaustion")]
-    [Tooltip("Duration of the exhaustion penalty window when stamina hits zero.")]
-    [Range(1f, 6f)]
-    public float exhaustionDuration = 3f;
+    [Tooltip("Duration of the exhaustion penalty window when stamina hits zero. " +
+             "Real physiology: collapsing from exertion is debilitating — 8 seconds minimum.")]
+    [Range(1f, 15f)]
+    public float exhaustionDuration = 8f;
 
     [Tooltip("Speed multiplier applied during exhaustion. 0.4 = 40% normal speed.")]
     [Range(0.1f, 1f)]

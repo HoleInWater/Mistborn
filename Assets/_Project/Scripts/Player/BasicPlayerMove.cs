@@ -18,7 +18,7 @@ public class BasicPlayerMove : MonoBehaviour
     public LayerMask groundLayer;
  
     [Header("Stamina Settings")]
-    public float drainRate = 25f;           // Stamina drained per second while sprinting
+    public float drainRate = 6f;            // Stamina drained per second while sprinting. 100 units / 6 = ~17 real sec sprint
  
     [Header("Camera & Smoothing")]
     public Transform cameraTransform;       // The actual camera object (child of cameraPivot)
