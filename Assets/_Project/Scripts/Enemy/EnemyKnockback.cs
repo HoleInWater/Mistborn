@@ -76,8 +76,9 @@ public class EnemyKnockback : MonoBehaviour
 
         yield return new WaitForSeconds(recoveryTime);
 
-        // Re-enable nav
+        // Restore kinematic so NavMeshAgent can resume control
         rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
         if (navAgent != null)
         {
             navAgent.enabled = true;
@@ -104,6 +105,7 @@ public class EnemyKnockback : MonoBehaviour
 
         animator?.SetBool("IsStunned", false);
         rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
 
         if (navAgent != null)
         {

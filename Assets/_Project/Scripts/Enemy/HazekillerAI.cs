@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// Lore: Hazekillers wear aluminum-lined helmets (immune to emotional Allomancy),
 /// carry non-metallic weapons (immune to Steel/Iron), and fight in coordinated squads.
 /// </summary>
-public class HazekillerAI : MonoBehaviour
+public class HazekillerAI : MonoBehaviour, IDamageable
 {
     [Header("Detection")]
     public float detectRange = 15f;
@@ -56,6 +56,9 @@ public class HazekillerAI : MonoBehaviour
 
     // ── Static Squad Registry ────────────────────────────────────────────
     private static List<HazekillerAI> allHazekillers = new List<HazekillerAI>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => allHazekillers = new List<HazekillerAI>();
 
     void Start()
     {

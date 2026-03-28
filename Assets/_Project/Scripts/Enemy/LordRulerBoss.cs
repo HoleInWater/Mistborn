@@ -11,7 +11,7 @@ using System.Collections;
 /// Phase 4: Atium Ascension (time dilation, predicted player movements)
 /// Weakness: Removing metalminds disables Compounding, making him mortal.
 /// </summary>
-public class LordRulerBoss : MonoBehaviour
+public class LordRulerBoss : MonoBehaviour, IDamageable
 {
     public enum BossPhase { Physical, Emotional, Compounding, AtiumAscension, Defeated }
 

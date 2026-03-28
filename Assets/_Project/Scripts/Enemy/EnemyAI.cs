@@ -588,14 +588,16 @@ public class EnemyAI : MonoBehaviour
         if (navAgent != null) navAgent.enabled = false;
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = false;
         rb.AddForce(direction * force, ForceMode.Impulse);
-        StartCoroutine(ReEnableNav());
+        StartCoroutine(ReEnableNav(rb));
     }
 
-    IEnumerator ReEnableNav()
+    IEnumerator ReEnableNav(Rigidbody rb)
     {
         yield return new WaitForSecondsRealtime(0.5f);
-        if (navAgent != null) navAgent.enabled = true;
+        if (rb != null) { rb.linearVelocity = Vector3.zero; rb.isKinematic = true; }
+        if (navAgent != null) { navAgent.enabled = true; navAgent.Warp(transform.position); }
     }
 
     public float GetHealth() => health;
