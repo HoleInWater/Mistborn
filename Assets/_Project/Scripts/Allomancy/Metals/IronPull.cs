@@ -191,24 +191,37 @@ public class IronPull : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;
 
-        float closestDist = float.MaxValue;
+        // Prefer objects that are (a) centered in camera view and (b) close.
+        // Score = alignment(−1..1) − normalizedDistance(0..1).
+        // This ensures a near-crosshair object at medium range beats a
+        // close-but-off-screen object, which is what Allomancy should feel like.
+        Vector3 camForward = playerCamera != null ? playerCamera.transform.forward : transform.forward;
+        float bestScore = float.MinValue;
+
         foreach (var hit in hits)
         {
             Rigidbody rb = hit.attachedRigidbody;
             if (rb == null || rb == playerRigidbody) continue;
 
-            float dist = Vector3.Distance(playerRigidbody.position, rb.position);
-            if (dist < closestDist)
-            {
-                closestDist            = dist;
-                currentTargetRigidbody = rb;
-                currentTarget          = hit.GetComponent<AllomanticTarget>();
+            // GetComponentInParent so AllomanticTarget on a root rb is found even
+            // when the collider is on a child mesh object.
+            AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
+            if (at != null && !at.canBePulled) continue;
 
-                if (currentTarget == null || currentTarget.canBePulled)
-                {
-                    hasCurrentTarget = true;
-                    isAnchored       = currentTarget != null ? currentTarget.isAnchored : rb.isKinematic;
-                }
+            Vector3 toTarget = rb.position - playerRigidbody.position;
+            float dist = toTarget.magnitude;
+            if (dist < minDistance) continue;
+
+            float alignment = Vector3.Dot(camForward, toTarget.normalized);
+            float score     = alignment - (dist / maxRange);
+
+            if (score > bestScore)
+            {
+                bestScore              = score;
+                currentTargetRigidbody = rb;
+                currentTarget          = at;
+                hasCurrentTarget       = true;
+                isAnchored             = at != null ? at.isAnchored : rb.isKinematic;
             }
         }
     }
@@ -263,6 +276,8 @@ public class IronPull : MonoBehaviour
         }
 
         // --- Visual feedback ---
+        float pullForce = isAnchored ? pullSpeed * CurrentFlareMultiplier : loosePullForce * CurrentFlareMultiplier;
+        TriggerPullTint(pullForce);
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
         SoundManager.Instance?.PlayPullSound();
 
