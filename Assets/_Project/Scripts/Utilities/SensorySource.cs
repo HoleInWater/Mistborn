@@ -8,6 +8,9 @@ public class SensorySource : MonoBehaviour
 {
     public static System.Collections.Generic.List<SensorySource> ActiveSources = new System.Collections.Generic.List<SensorySource>();
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => ActiveSources = new System.Collections.Generic.List<SensorySource>();
+
     public enum SourceType
     {
         BrightLight,
