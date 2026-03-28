@@ -620,6 +620,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 641062204}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 641062206}
   m_SourcePrefab: {fileID: 100100000, guid: c12845b0ae7dcca46b33b41e66e8deee, type: 3}
 --- !u!1 &53509032
 GameObject:
@@ -1342,6 +1345,7 @@ MonoBehaviour:
   timeNotTouchedEnemy: 0
   regenDelayAfterTouch: 10
   regenPerSecond: 5
+  incomingDamageMultiplier: 1
 --- !u!114 &641062193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1413,7 +1417,7 @@ MonoBehaviour:
   debtAccumulationRate: 8
   debtRecoveryRate: 5
   aerobicRegenRate: 20
-  anaerobicRegenRate: 7
+  anaerobicRegenRate: 5
   regenDelay: 2
   exhaustionDuration: 3
   exhaustionSpeedFactor: 0.4
@@ -1597,11 +1601,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetalReserveManager
   uiDocument: {fileID: 551459339}
-  metalProgressBarPrefix: Metal_
   maxMetal: 100
   passiveRecoveryRate: 5
-  previewMode: 0
   lowReserveThreshold: 20
+  previewMode: 0
 --- !u!114 &641062201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,6 +1790,49 @@ MonoBehaviour:
   labelOffColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
   idleAlpha: 0.3
   showNumber: 1
+--- !u!114 &641062206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 641062182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9b3897c1f8474d4bbe19997061a2d00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Pewter
+  baseStrengthMultiplier: 2
+  maxStrengthMultiplier: 3
+  baseSpeedMultiplier: 1.25
+  maxSpeedMultiplier: 2
+  baseJumpMultiplier: 1.35
+  maxJumpMultiplier: 2.5
+  baseMassMultiplier: 1.05
+  maxMassMultiplier: 1.4
+  baseHealRate: 0.5
+  maxHealRate: 3
+  baseDrainPerSecond: 2
+  flareDrainMultiplier: 3
+  dragCrashThreshold: 30
+  crashDamage: 30
+  crashSpeedPenalty: 0.4
+  crashDuration: 5
+  pushLungeForce: 50
+  pushKnockbackForce: 25
+  pushRange: 2.5
+  pushCooldown: 0.6
+  pushMetalCost: 5
+  fatigueInterestMultiplier: 1.5
+  vignetteIntensity: 0.13
+  vignetteFlaringIntensity: 0.28
+  vignetteColor: {r: 0.21568629, g: 0.21568629, b: 0.21568629, a: 1}
+  baseDamageMultiplier: 0.65
+  maxDamageMultiplier: 0.3
+  baseKnockbackResistance: 2
+  maxKnockbackResistance: 6
+  allomancer: {fileID: 641062198}
+  playerMove: {fileID: 641062193}
 --- !u!1 &659927161
 GameObject:
   m_ObjectHideFlags: 0
