@@ -56,7 +56,7 @@ public class CognitiveAllomancy : MonoBehaviour
         else if (!isCloudActive && wasClouding) activeClouds.Remove(this);
 
         if (isCloudActive)
-            allomancer.DrainMetal(AllomancySkill.MetalType.Copper, 0.5f * Time.deltaTime);
+            allomancer.DrainMetal(AllomancySkill.MetalType.Copper, 0.042f * Time.deltaTime); // MAG: 40 min/charge
 
         // Bronze seeking
         if (allomancer.IsMetalBurning(AllomancySkill.MetalType.Bronze))
@@ -67,7 +67,7 @@ public class CognitiveAllomancy : MonoBehaviour
                 pulseTimer = bronzePulseInterval;
                 SeekPulses();
             }
-            allomancer.DrainMetal(AllomancySkill.MetalType.Bronze, 0.5f * Time.deltaTime);
+            allomancer.DrainMetal(AllomancySkill.MetalType.Bronze, 0.056f * Time.deltaTime); // MAG: 30 min/charge
         }
         else
         {

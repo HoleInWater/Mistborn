@@ -41,7 +41,7 @@ public class SteelPush : MonoBehaviour
     [Header("Push Settings")]
     public float minDistance        = 1f;
     public float maxRange           = 30f;
-    public float metalCostPerSecond = 2f;
+    public float metalCostPerSecond = 0.5f;  // MAG: 20 min/charge; ~0.5 per push at ~1 push/6s
     public float pushCooldown       = 0.2f;
 
     [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]

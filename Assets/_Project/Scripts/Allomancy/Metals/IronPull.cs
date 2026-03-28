@@ -39,7 +39,7 @@ public class IronPull : MonoBehaviour
     [Header("Settings")]
     public float minDistance = 1f;
     public float maxRange = 30f;
-    public float metalCostPerSecond = 2f;
+    public float metalCostPerSecond = 0.5f;  // MAG: 20 min/charge; ~0.5 per pull at ~1 pull/6s
 
     [Header("Pull Physics — PHYSICS-MATH-BOOK.md Section 2")]
     [Tooltip("Pull speed when yanking toward anchored metal")]

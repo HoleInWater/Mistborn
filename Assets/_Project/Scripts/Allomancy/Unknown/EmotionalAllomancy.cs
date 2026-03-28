@@ -71,7 +71,7 @@ public class EmotionalAllomancy : MonoBehaviour
             emotionInfluence[ai] = Mathf.Min(emotionInfluence.GetValueOrDefault(ai, 0f) + intensity, 3f);
         }
 
-        allomancer.DrainMetal(AllomancySkill.MetalType.Zinc, 1.5f * flare * Time.deltaTime);
+        allomancer.DrainMetal(AllomancySkill.MetalType.Zinc, 0.083f * flare * Time.deltaTime); // MAG: 20 min/charge
     }
 
     void PulseSoothe()
@@ -96,7 +96,7 @@ public class EmotionalAllomancy : MonoBehaviour
             emotionInfluence[ai] = Mathf.Max(emotionInfluence.GetValueOrDefault(ai, 0f) - intensity, -3f);
         }
 
-        allomancer.DrainMetal(AllomancySkill.MetalType.Brass, 1.5f * flare * Time.deltaTime);
+        allomancer.DrainMetal(AllomancySkill.MetalType.Brass, 0.083f * flare * Time.deltaTime); // MAG: 20 min/charge
     }
 
     void DecayInfluence()

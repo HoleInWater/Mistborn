@@ -55,15 +55,15 @@ public class Pewter : MonoBehaviour
     public float maxHealRate = 5f;
 
     [Header("Drain — Fastest of 8 Basic Metals")]
-    [Tooltip("Metal reserve drained per second at base burn")]
-    public float baseDrainPerSecond = 5f;
-    [Tooltip("Drain multiplier at max flare")]
-    [Range(1f, 5f)]
-    public float flareDrainMultiplier = 4f;
+    [Tooltip("Metal reserve drained per second at base burn. MAG: 1 charge lasts 5 min → 0.33/s")]
+    public float baseDrainPerSecond = 0.33f;
+    [Tooltip("Drain multiplier at max flare. Pewter dragging burns 6x faster than base.")]
+    [Range(1f, 8f)]
+    public float flareDrainMultiplier = 6f;
 
     [Header("Pewter Drag Crash")]
-    [Tooltip("Seconds of continuous flaring before crash risk begins")]
-    public float dragCrashThreshold = 8f;
+    [Tooltip("Seconds of continuous flaring before crash risk begins. Lore: 'long time' — 30s minimum.")]
+    public float dragCrashThreshold = 30f;
     [Tooltip("Health damage dealt on crash (reserve runs out after dragging)")]
     public float crashDamage = 30f;
     [Tooltip("Speed penalty multiplier during crash recovery")]

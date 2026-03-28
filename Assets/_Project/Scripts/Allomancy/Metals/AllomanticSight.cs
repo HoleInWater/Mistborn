@@ -53,8 +53,8 @@ public class AllomanticSight : MonoBehaviour
     public Camera playerCamera;
     
     [Header("Metal Cost")]
-    [Tooltip("Tin drained per second while sight is active. Uses the Allomancer's Tin reserve.")]
-    public float metalCostPerSecond = 1f;
+    [Tooltip("Tin drained per second while sight is active. MAG: Tin lasts 1 hour/charge → 0.028/s")]
+    public float metalCostPerSecond = 0.028f;
 
     [Tooltip("Maximum number of blue lines to pool (prevents infinite growth)")]
     public int maxLines = 100;

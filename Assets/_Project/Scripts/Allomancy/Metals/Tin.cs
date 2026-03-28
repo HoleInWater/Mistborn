@@ -223,9 +223,8 @@ public class Tin : MonoBehaviour
 
     [Header("Metal Cost")]
     [SerializeField]
-    [Tooltip("Tin reserve drained per second at base burn (intensity 1). " +
-             "Tin is one of the cheaper metals in the books — keep this low.")]
-    private float baseMetalCostPerSecond = 0.9f;
+    [Tooltip("Tin reserve drained per second at base burn. MAG: 1 charge lasts 1 hour → 0.028/s")]
+    private float baseMetalCostPerSecond = 0.028f;
 
     // ── References ────────────────────────────────────────────────────────────
 
