@@ -33,6 +33,7 @@ public class AIController : MonoBehaviour
 
     private Transform player;
     private NavMeshAgent navAgent;
+    private EnemySenses senses;         // optional — falls back to range-only detection
     private float originalSpeed;
     private float aggressionMultiplier = 1f;
     private ParticleSystem auraParticles;
@@ -47,6 +48,7 @@ public class AIController : MonoBehaviour
         else Debug.LogWarning("[AIController] No GameObject tagged 'Player' found in scene.");
 
         navAgent = GetComponent<NavMeshAgent>();
+        senses = GetComponent<EnemySenses>();
         originalSpeed = moveSpeed;
         originalDetectionRange = detectionRange;
 
@@ -73,8 +75,11 @@ public class AIController : MonoBehaviour
         if (player == null) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        bool playerDetected = senses != null
+            ? senses.CanDetectPlayer
+            : distanceToPlayer <= detectionRange;
 
-        if (distanceToPlayer <= detectionRange)
+        if (playerDetected)
         {
             if (distanceToPlayer <= attackRange)
                 AttackPlayer();
