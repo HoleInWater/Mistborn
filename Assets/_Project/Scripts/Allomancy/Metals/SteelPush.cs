@@ -221,11 +221,11 @@ public class SteelPush : MonoBehaviour
             }
         }
 
-        // ── Steel Bubble: radial push (F key, no burn gate required) ────────────
+        // ── Steel Bubble: radial push (F = primary, V = secondary, requires burn session) ──
         KeyCode bubbleKey = steelBubbleKey;
         bool bubblePressed = bubbleKey != KeyCode.None && Input.GetKeyDown(bubbleKey);
 
-        if (enableSteelBubble && bubblePressed && steelBubbleCooldownTimer <= 0f)
+        if (enableSteelBubble && bubblePressed && IsBurning && steelBubbleCooldownTimer <= 0f)
         {
             if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {
