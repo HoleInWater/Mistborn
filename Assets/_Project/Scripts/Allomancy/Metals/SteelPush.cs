@@ -232,7 +232,9 @@ public class SteelPush : MonoBehaviour
             if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {
                 PushMetalsInBubble();
-                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * steelBubbleMetalCostMultiplier);
+                // Drain scales with flare — higher intensity = more metal consumed
+                allomancer.DrainMetal(AllomancySkill.MetalType.Steel,
+                    metalCostPerSecond * steelBubbleMetalCostMultiplier * CurrentFlareMultiplier);
                 steelBubbleCooldownTimer = steelBubbleCooldown;
             }
         }
@@ -344,17 +346,23 @@ public class SteelPush : MonoBehaviour
 
     void PushMetalsInBubble()
     {
+        float flareMult = CurrentFlareMultiplier;
+
+        // Radius and force both scale with flare intensity
+        float radius = steelBubbleRadius * flareMult;
         LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, steelBubbleRadius, targetLayer);
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, radius, targetLayer);
         foreach (var hitCollider in hitColliders)
         {
             Rigidbody rb = hitCollider.attachedRigidbody;
             if (rb != null && rb != playerRigidbody)
             {
                 Vector3 dir = rb.position - transform.position;
-                rb.AddForce(dir.normalized * steelBubbleForce * CurrentFlareMultiplier, ForceMode.Impulse);
+                rb.AddForce(dir.normalized * steelBubbleForce * flareMult, ForceMode.Impulse);
             }
         }
+
+        CameraShakeManager.Instance?.Shake(shakeDuration * flareMult, shakeMagnitude * flareMult);
     }
 
     void DrainMetal(float multiplier)
