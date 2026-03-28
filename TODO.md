@@ -1,324 +1,173 @@
-# MISTBORN ERA ONE — MASTER DEVELOPMENT TODO
+# Mistborn Era One — Master TODO
 
-## TODAY'S PRIORITIES (March 24th 2026)
-**MAKE THESE VISIBLE IN GITHUB - TEAM FOCUS:**
-1. **Scroll Wheel Metal Selection** - Implement mouse scroll wheel to cycle through all 16 metals
-2. **Metal Reserve Bars UI** - Create visual bars showing all metal reserves (not just current)
-3. **Complete All 16 Metals** - Finish implementation of all metals with the 2-metal selection system
-4. **Particle System** - Create particle effects for metal burning/flaring
-
-> **Total Tasks:** 400+ | **Estimated Duration:** 1,198 days | **Current Phase:** 0 - Foundation Stabilization
-
-## 📊 PROGRESS SUMMARY
-| Phase | Status | Tasks | Completed | Remaining |
-|-------|--------|-------|-----------|-----------|
-| 0 - Foundation Stabilization | ⏳ IN PROGRESS | 125+ | 12 | 113+ |
-| 1 - Steel & Iron Core Loop | 📋 PENDING | 40+ | 0 | 40+ |
-| 2 - Player Feel & Movement | 📋 PENDING | 25+ | 0 | 25+ |
-| 3 - Combat & Enemies | 📋 PENDING | 35+ | 0 | 35+ |
-| 4 - All 16 Metals | 📋 PENDING | 30+ | 0 | 30+ |
-| 5 - World & Stealth | 📋 PENDING | 20+ | 0 | 20+ |
-| 6 - Story & Quest Systems | 📋 PENDING | 15+ | 0 | 15+ |
-| 7 - UI, Audio & Polish | 📋 PENDING | 25+ | 0 | 25+ |
-| 8 - Save, Achievements & QA | 📋 PENDING | 20+ | 0 | 20+ |
-
-**✅ Completed (43/400+):**
-1. PlayerSetup.cs - Runtime script to add missing components
-2. AllomanticTarget.cs - Metal object component
-3. Allomancer.cs updated - Wired MetalHUD references
-4. PlayerCamera.cs script - Created but not fully integrated
-5. Out-of-metal state - Implemented disable push/pull when reserve hits 0
-6. Out-of-metal UI feedback - Added warning display when metal reserves hit 0
-7. Repository clean-up - Removed duplicate utility scripts, reorganized folders
-8. Added comprehensive comments to all new code
-9. Weight-proportional force for Steel Push - F = playerMass / referenceMass × baseForce
-10. Weight-proportional force for Iron Pull - Same physics as Steel Push
-11. Anchor detection for Steel Push - pushes player when target is heavy/kinematic
-12. Anchor detection for Iron Pull - pulls player when target is heavy/kinematic
-13. Physics documentation updated with canonical evidence from Coppermind wiki
-14. Cleaned up Debug.Log statements with #if UNITY_EDITOR for production builds
-15. Integrated SteelPush with Allomancer metal reserves (uses DrainMetal)
-16. Fixed flaring to drain metal 3x faster
-17. Improved force calculation: simple inverse distance with minDistance limit
-18. Integrated IronPull with Allomancer metal reserves (uses DrainMetal)
-19. Improved anchor detection using AllomanticTarget.isAnchored flag
-20. Changed detection to OverlapSphere for metal-through-walls (lore accurate)
-21. Added tooltips to force settings for calibration clarity
-22. Added optional visual effect when pushing metal
-23. Added flight mechanics: extra upward boost when pushing off anchored objects below
-24. Added impulse mode for light objects (coins) to achieve realistic velocities
-25. Added camera shake and placeholder audio system for push feedback
-26. Added flaring visual vignette effect (screen tint when flaring)
-27. Added debug logging for impulse calibration
-28. Added crosshair color change when metal is in range
-29. Added push cooldown after releasing button to prevent spam
-30. Added physics with gravity and drag for metal objects (realistic projectile motion)
-31. Added static metal registry and tagging system for efficient metal detection
-32. Researched blue lines (Spiritual Realm) from Reddit and Coppermind, updated docs
-33. Added aluminum filtering: aluminum alloys cannot be pushed/pulled (lore accurate)
-34. Added real-time debug display for calibration in editor
-35. Fixed weight-proportional force to use referenceMass instead of targetMass (lore accurate)
-36. Added steel bubble defensive ability (pushes all nearby metal away)
-37. Improved blue lines with pulsing/shimmering effect and chest-origin as per lore
-38. Implemented object pooling for blue lines to improve performance
-39. Added targeted metal detection with enhanced debug display showing specific target info
-40. Added visual differentiation in blue lines for non-pushable and anchored metals
-41. Added push prediction line showing trajectory when targeting metal objects
-42. Added push force visual feedback with color-coded screen tint and prediction line velocity coloring
-43. Fixed allomancy physics to match book lore: inverse distance (1/r) with zenith cap (max 2x), fixed syntax errors, improved debug display
-44. Fixed prediction line physics with zenith cap, added static CalculatePushForce helper method for tests
+> Last updated: 2026-03-28
 
 ---
 
-## 🔧 PHASE 0: FOUNDATION STABILIZATION
-*Get what exists actually working together*
+## Current Sprint Priorities
 
-### ✅ Already Completed
-- [x] Create PlayerSetup.cs (runtime script to add missing components)
-- [x] Create AllomanticTarget.cs script for metal objects
-- [x] Update Allomancer.cs to wire MetalHUD references
-- [x] Create PlayerCamera.cs script (not yet integrated)
-- [x] Implement out-of-metal state (disable push/pull when reserve hits 0)
-
-### 🔧 Scene & Project Cleanup
-- [ ] Open Scene 1.unity in Unity Editor
-- [ ] Locate Player GameObject (tagged 'Player')
-- [ ] Select Player GameObject in Hierarchy
-- [ ] Inspect Components in Inspector window
-- [ ] Verify BasicPlayerMove script component exists
-- [ ] Verify PlayerCamera script component exists (or will be added by PlayerSetup)
-- [ ] Verify AllomanticSight script component exists (or will be added by PlayerSetup)
-- [ ] Verify PlayerStamina script component exists
-- [ ] Verify Sprint script component exists
-- [ ] Verify HealthBarTransitions script component exists
-- [ ] Verify Animator component exists
-- [ ] Verify Rigidbody component exists
-- [ ] Verify CapsuleCollider component exists
-- [ ] Verify PlayerSetup script component exists (or add it)
-- [ ] Verify PlayerController (BasicPlayerMove) has all required fields
-- [ ] Verify PlayerStamina script is attached and configured
-- [ ] Verify Sprint script is attached and configured
-- [ ] Verify HealthBarTransitions script is attached
-- [ ] Verify Animator component has valid controller
-- [ ] Verify Rigidbody component has correct settings
-- [ ] Verify CapsuleCollider component has correct size/shape
-
-### 🔧 Physics Layer Matrix Setup
-- [ ] Open Edit → Project Settings → Tags and Layers
-- [ ] In 'Layers' section, find empty User Layer slot
-- [ ] Type 'Player' in User Layer 6
-- [ ] Type 'Metal' in User Layer 7
-- [ ] Type 'Enemy' in User Layer 8
-- [ ] Type 'World' in User Layer 9
-- [ ] Click 'Apply' to save layer names
-- [ ] Open Edit → Project Settings → Physics
-- [ ] Scroll to 'Layer Collision Matrix'
-- [ ] Configure collision matrix:
-  - Player collides with: Metal, Enemy, World
-  - Metal collides with: Player, Metal, World (NOT Enemy)
-  - Enemy collides with: Player, World
-  - World collides with: Everything
-
-### 🔧 Metal Object Prefabs
-#### Coin Prefab
-- [ ] Create empty GameObject named 'Coin'
-- [ ] Add Mesh Filter (Sphere)
-- [ ] Add Mesh Renderer with material (gold/yellow, metallic)
-- [ ] Scale to (0.02, 0.02, 0.02)
-- [ ] Add Sphere Collider
-- [ ] Add Rigidbody (mass: 0.003, drag: 0, angular drag: 0.05)
-- [ ] Add AllomanticTarget (metalType: Steel, isAnchored: false)
-- [ ] Set Tag: 'Metal' (create if missing)
-- [ ] Set Layer: 'Metal' (7)
-- [ ] Save as prefab in Assets/_Project/Prefabs/
-
-#### MetalBracket Prefab (Anchored)
-- [ ] Create empty GameObject named 'MetalBracket'
-- [ ] Add Mesh Filter (Cube)
-- [ ] Add Mesh Renderer with material (dark gray, metallic)
-- [ ] Scale to (0.1, 0.1, 0.1)
-- [ ] Add Box Collider
-- [ ] Add Rigidbody (mass: 5, isKinematic: true)
-- [ ] Add AllomanticTarget (metalType: Steel, isAnchored: true)
-- [ ] Set Tag: 'Metal'
-- [ ] Set Layer: 'Metal'
-- [ ] Save as prefab
-
-#### MetalRailing Prefab
-- [ ] Create empty GameObject named 'MetalRailing'
-- [ ] Add Mesh Filter (Cube)
-- [ ] Add Mesh Renderer with material (silver, metallic)
-- [ ] Scale to (2, 0.05, 0.05)
-- [ ] Add Box Collider (size: 2, 0.05, 0.05)
-- [ ] Add Rigidbody (mass: 10)
-- [ ] Add AllomanticTarget (metalType: Steel, isAnchored: false)
-- [ ] Set Tag: 'Metal'
-- [ ] Set Layer: 'Metal'
-- [ ] Save as prefab
-
-### 🔧 Scene Population
-- [ ] Place 15-20 Coin instances in scene
-- [ ] Place 15-20 MetalBracket instances (attached to walls/floors)
-- [ ] Place 15-20 MetalRailing instances
-- [ ] Verify all instances have correct layer and tag
-
-### 🔧 HUD Hookup
-- [ ] Create UI Canvas ('GameCanvas')
-- [ ] Create HUD Panel with:
-  - CurrentMetalText (Text - TextMeshPro)
-  - MetalIcon (Image)
-  - MetalReserveSlider (Slider)
-- [ ] Add MetalHUD script to Canvas
-- [ ] Assign UI references in MetalHUD inspector
-- [ ] Add Allomancer script to Player GameObject
-- [ ] Assign MetalHUD reference to Allomancer.metalHUD field
-
-### 🔧 Out of Metal State
-- [x] Add `public bool canBurnMetal = true;` to Allomancer.cs
-- [x] Modify DrainMetal to set canBurnMetal false when reserve ≤ 0
-- [x] Add check in SteelPush/IronPull to disable when canBurnMetal false
-- [x] Add UI feedback for out-of-metal state
-
-### 🔧 Testing
-- [ ] Save Scene 1.unity
-- [ ] Enter Play Mode
-- [ ] Verify no console errors
-- [ ] Test WASD movement
-- [ ] Test Space bar jump
-- [ ] Test Left Shift sprint
-- [ ] Test Tab for Allomantic Sight (blue lines should appear)
-- [ ] Test Steel Push/Right Mouse on metal objects
-- [ ] Test Iron Pull/Left Mouse on metal objects
-- [ ] Verify anchored brackets pull player, not themselves
-- [ ] Exit Play Mode
+1. **Tin Allomancy** — full 5-sense implementation (sight, sound, smell, taste, touch ranges)
+2. **Particle Effects** — metal burn/flare VFX prefabs for all active metals
+3. **Animation Controllers** — character animation state machines (movement, combat, allomancy)
+4. **Enemy Polish** — Koloss, SteelInquisitor, Hazekiller need testing and tuning
+5. **Level Design** — first playable Luthadel city block (vertical traversal focus)
 
 ---
 
-## 📋 PHASE 1: STEEL & IRON CORE LOOP
-*Make Push/Pull feel like the books*
+## What's Done
 
-### Physics Polish
-- [x] Implement weight-proportional force: `F = playerMass / targetMass × basePushForce`
-- [x] Add distance falloff: `F = F_base × (1 / distance)`, capped at 100m
-- [x] Implement anchor detection: if target mass > playerMass × 3 → push player
-- [x] Add Zenith Point: maximum force at 5m, falls off beyond
-- [x] Calibrate coin velocity: 10m push → 80 km/h (22.22 m/s)
-- [x] Implement flight mechanics: pushing off floor brackets launches player upward
+### Foundation
+- [x] Project structure, GitHub repo, Unity 6000.4 LTS setup
+- [x] `Mistborn > Auto Setup Player` editor tool — reflection-based, zero merge conflicts
+- [x] `[PlayerComponent]` attribute system — components declare themselves, no shared file to edit
 
-### Allomantic Sight Polish
-- [ ] Line thickness reflects mass (thicker = heavier)
-- [ ] Set max detection range: 80-100m
-- [ ] Add pulse/shimmer animation on line width
-- [x] Add slow-motion effect on Tab press (0.5x time for 0.3s)
+### Player
+- [x] Basic movement (WASD, sprint, jump)
+- [x] Third-person camera
+- [x] Player stamina system
+- [x] Dodge roll
+- [x] Crouch
+- [x] Vault/jump
+- [x] Wall run (script exists)
+- [x] Fall damage
 
-### Metal Flaring
-- [x] Add flaring input: Shift + Push/Pull = burn faster
-- [x] Implement flaring: force × 2, reserve drain × 3
-- [x] Add screen vignette/pulse VFX when flaring
+### Allomancy Core
+- [x] `Allomancer.cs` — metal reserve management, burn toggle (B key), metal draining
+- [x] `AllomanticTarget.cs` — marks objects as pushable/pullable
+- [x] `MetalSelector.cs` — 2-metal primary/secondary system, swap key (Left Alt), instant HUD sync
+- [x] `MetalReserve.cs` / `MetalRingVisual.cs` — 2-bar HUD + proportional arc ring (bottom-right)
+- [x] `FlareManager.cs` — flaring (Left Ctrl), synced with B key burn toggle
+- [x] `AllomanticSight.cs` — Tab toggles blue lines to all metal in range
+- [x] `RadialMetalMenu.cs` — scroll wheel opens metal selection wheel
+- [x] `MetalLineRenderer.cs` — blue line visuals to metals
 
-### Metal Wheel UI
-- [ ] Create radial menu with 16 metal slots
-- [ ] Add scroll wheel/right thumbstick input to open
-- [ ] Slow time to 0.3× when wheel is open
-- [ ] Show lore tooltips on hover
-- [ ] Controller support: thumbstick navigation, A/X confirms
+### Steel & Iron (Physical Metals)
+- [x] `SteelPush.cs` — physics push, anchor detection, lore-accurate 1/r force, flight mechanics
+- [x] `IronPull.cs` — physics pull, anchor detection, burn state sync fixed
+- [x] Flaring works for Steel and Iron (force ×2, drain ×3)
+- [x] Coin pouch and trajectory preview
 
-### Balancing
-- [ ] Create BalancingTestScene with distance markers
-- [ ] Test and tune push/pull forces
-- [ ] Document constants in AllomancyConstants.cs
+### Other Metals (Scripts exist — needs full testing/polish)
+- [x] `Pewter.cs` — strength/speed enhancement
+- [ ] `Tin.cs` — script exists, full 5-sense implementation incomplete ← **PRIORITY**
+- [x] `Zinc.cs` — riot emotions
+- [x] `Brass.cs` — soothe emotions
+- [x] `Copper.cs` — hide allomantic pulses
+- [x] `Bronze.cs` — detect burning
+- [x] `Aluminum.cs` — purge own metals
+- [x] `Duralumin.cs` — mega burst
+- [x] `Chromium.cs` — leech others' metals
+- [x] `Nicrosil.cs` — amplify others
+- [x] `Bendalloy.cs` + `TimeBubble.cs` — speed time bubble
+- [x] `Cadmium.cs` — slow time bubble
+- [ ] `Atium.cs` — see enemy futures (stub, unimplemented)
+- [ ] `Malatium.cs` — see future selves (stub, unimplemented)
+- [ ] `Gold.cs` — see past self (stub, unimplemented)
+- [ ] `Electrum.cs` — see your own future (stub, unimplemented)
 
----
+### Combat
+- [x] `IDamageable` interface
+- [x] Player health system
+- [x] Player combat (melee)
+- [x] Enemy health bars (UI)
+- [x] Damage numbers UI
 
-## 📋 PHASE 2: PLAYER FEEL & MOVEMENT
-*Make traversal satisfying*
+### Enemies
+- [x] `EnemyAI.cs` — patrol, chase, flee, NavMesh (crash fix applied)
+- [x] `KolossAI.cs` — charge attack, ground slam
+- [x] `SteelInquisitorAI.cs` — multi-phase boss
+- [x] `LordRulerBoss.cs` — final boss
+- [x] `HazekillerAI.cs` — elite enemy
+- [x] `EnemySeeker.cs` — detects allomancy
+- [ ] All enemies need playtesting and tuning against the actual player
 
-- [ ] Implement camera collision
-- [ ] Add camera lag (cinematic feel)
-- [ ] Add coyote time (0.15s after edge)
-- [ ] Add jump buffering (0.2s before landing)
-- [ ] Set sprint max: ~8 m/s
-- [ ] Add air control while flying
-- [ ] Create Pewter metal ability (speed ×1.8, jump ×2, damage ×0.5)
-- [ ] Create Tin metal ability (enhanced senses)
-- [ ] Implement lock-on targeting system
-
----
-
-## 📋 PHASE 3: COMBAT & ENEMIES
-*Give players something to fight*
-
-- [ ] Create Guard AI enemy (patrol, detection, combat)
-- [ ] Create Coinshot enemy (ranged allomancer)
-- [ ] Create Koloss enemy (heavy brute)
-- [ ] Create Steel Inquisitor boss (3 phases)
-- [ ] Implement combat system (combos, parry, hit stop)
-- [ ] Create Seeker enemy (detects allomancy)
-
----
-
-## 📋 PHASE 4: ALL 16 METALS
-*Complete the Allomantic system*
-
-- [ ] Implement mental metals: Zinc, Brass, Copper, Bronze
-- [ ] Implement enhancement metals: Aluminum, Duralumin
-- [ ] Implement temporal metals: Bendalloy, Cadmium (time bubbles)
-- [ ] Implement god metals: Atium, Electrum, Gold, Malatium
-- [ ] Integrate all metals with Metal Wheel UI
-
----
-
-## 📋 PHASE 5: WORLD & STEALTH
-*Build Luthadel — verticality is everything*
-
-- [ ] Create city block environment with vertical traversal
-- [ ] Implement stealth system
-- [ ] Create Kandra enemy type
+### HUD / UI
+- [x] Health and Stamina bars (top-left, UIToolkit)
+- [x] 2-metal bars with active/secondary highlight (bottom-right)
+- [x] Proportional arc ring indicator (bottom-right corner)
+- [x] Pause menu
+- [x] Dialogue manager (script)
+- [x] Tutorial system (script)
+- [x] Achievement system (script)
+- [x] Minimap system (script)
+- [ ] All UI systems need scene hookup and playtesting
 
 ---
 
-## 📋 PHASE 6: STORY & QUEST SYSTEMS
-*Give the world meaning*
+## In Progress / Up Next
 
-- [ ] Implement dialogue system
-- [ ] Create quest system
-- [ ] Implement faction system
+### Tin Allomancy
+- [ ] Enhanced sight range and clarity (highlight interactable objects)
+- [ ] Enhanced hearing (ambient audio range, footstep detection radius)
+- [ ] Sensitivity downside — bright lights cause pain, loud sounds stun
+- [ ] Tin Savant risk: prolonged flaring damages player
+- [ ] Visual post-processing effect when Tin is active
 
----
+### Particle Effects
+- [ ] Metal burn particle (emitter around player when burning)
+- [ ] Steel Push impact flash on target
+- [ ] Iron Pull trail on pulled objects
+- [ ] Flare screen vignette/pulse (placeholder exists, needs actual VFX prefab)
+- [ ] Pewter body glow while active
+- [ ] Time bubble edge effect (Bendalloy/Cadmium)
 
-## 📋 PHASE 7: UI, AUDIO & POLISH
-*The game is complete — now make it feel complete*
+### Animation Controllers
+- [ ] Player — idle, walk, run, jump, fall, land
+- [ ] Player — push/pull stance and follow-through
+- [ ] Player — flare reaction
+- [ ] Enemy — patrol idle, alert, attack, death
+- [ ] Animator Controller assets need creating in Unity Editor
 
-- [ ] Create full HUD (health, metal reserves, minimap)
-- [ ] Create menus (main, pause, options)
-- [ ] Implement audio system
-- [ ] Add VFX for all abilities
-- [ ] Create skill tree UI
-
----
-
-## 📋 PHASE 8: SAVE, ACHIEVEMENTS & QA
-*Ship it right*
-
-- [ ] Implement save/load system
-- [ ] Create tutorial system
-- [ ] Add achievements
-- [ ] Comprehensive QA and bug fixing
-
----
-
-## 📚 REFERENCE MATERIALS
-
-- **Phase 0 Instructions:** `Phase0_Instructions.md` - Detailed manual steps for Foundation phase
-- **Lore Reference:** Coppermind Wiki, 17th Shard, Arcanum (WoB)
-
-## 🔗 TEAM RESOURCES
-- GitHub Repository: https://github.com/HoleInWater/Mistborn
-- Unity Version: 2022/6000 LTS
-- Main Scene: `Assets/_Project/Scenes/Scene 1.unity`
-- Player Prefab: Located in scene (tagged 'Player')
-- Scripts Folder: `Assets/_Project/Scripts/`
+### Level Design
+- [ ] City block with rooftops and vertical paths for Steel/Iron traversal
+- [ ] Metal objects placed for traversal (brackets, railings, coins)
+- [ ] Lighting — ash/soot atmosphere, mist effects
+- [ ] Enemy patrol routes set up in scene
+- [ ] At least one indoor area (keep interior)
 
 ---
 
-*This TODO list is automatically updated as tasks are completed. Last updated: 2026-03-22 17:22:28*
+## Backlog (Phase 3+)
+
+### Enemy Variety
+- [ ] Noble Guard — armored, shield block
+- [ ] Coinshot enemy — ranged Allomancer
+- [ ] Kandra — shapeshifter, disguises as NPCs
+- [ ] Mist Spirit — phasing ghost
+
+### World & Story
+- [ ] Dialogue system scene hookup (DialogueManager.cs exists)
+- [ ] Quest system
+- [ ] Faction system (nobility vs skaa)
+- [ ] NPC interactions
+
+### Polish
+- [ ] Screen shake on heavy impact
+- [ ] Camera collision
+- [ ] Camera lag (cinematic feel)
+- [ ] Coyote time (0.15s after edge)
+- [ ] Jump buffering (0.2s before landing)
+- [ ] Air control while flying via push/pull
+
+### Systems
+- [ ] Save/Load scene hookup (SaveLoadSystem.cs exists)
+- [ ] Audio — sound files, mixer, 3D spatial audio
+- [ ] Skill tree scene hookup
+- [ ] Metal pickup/vial system scene hookup
+- [ ] Performance optimization (object pooling audit, LODs)
+
+### Future (Post-MVP)
+- [ ] Feruchemy system
+- [ ] Compounding (burn a Feruchemical charge as an Allomantic metal)
+- [ ] Multiplayer
+- [ ] Character customization
+- [ ] Full Luthadel map (multiple districts)
+
+---
+
+## Notes
+
+- **Lore accuracy is non-negotiable.** Physics formulas are in `docs/PHYSICS-MATH-BOOK.md`. Mental/temporal metals cannot flare. Check `docs/allomancy-design.md` before implementing any metal.
+- **Scene coordination:** Don't edit `Scene 1.unity` without checking with the team first. Binary files don't merge.
+- **Branching:** Every feature gets its own branch. PR → review → merge to master.
+- **Auto Setup Player:** `Mistborn > Auto Setup Player` in Unity Editor. Use it instead of manually adding components.
