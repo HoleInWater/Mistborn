@@ -1826,7 +1826,7 @@ MonoBehaviour:
   fatigueInterestMultiplier: 1.5
   vignetteIntensity: 0.13
   vignetteFlaringIntensity: 0.28
-  vignetteColor: {r: 0.21568629, g: 0.21568629, b: 0.21568629, a: 1}
+  vignetteColor: {r: 1, g: 0, b: 0, a: 1}
   baseDamageMultiplier: 0.65
   maxDamageMultiplier: 0.3
   baseKnockbackResistance: 2
