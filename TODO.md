@@ -4,7 +4,7 @@
 
 ---
 
-## Current Sprint Priorities
+## Current Script Priorities
 
 1. **Tin Allomancy** — full 5-sense implementation (sight, sound, smell, taste, touch ranges)
 2. **Particle Effects** — metal burn/flare VFX prefabs for all active metals
