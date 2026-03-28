@@ -85,18 +85,11 @@ public class Pewter : MonoBehaviour
     public float pushMetalCost = 5f;
 
     [Header("Endurance (Stamina)")]
-    [Tooltip("Aerobic regen rate multiplier at base burn. Pewter keeps the body going longer.")]
-    [Range(1f, 4f)]
-    public float baseStaminaRegenMult = 2f;
-    [Tooltip("Aerobic regen rate multiplier at max flare.")]
-    [Range(1f, 8f)]
-    public float maxStaminaRegenMult = 5f;
-    [Tooltip("Sprint drain rate multiplier at base burn (0.3 = 70% reduction).")]
-    [Range(0.05f, 1f)]
-    public float baseSprintDrainMult = 0.3f;
-    [Tooltip("Sprint drain rate multiplier at max flare (near-zero — pewter dragging).")]
-    [Range(0.01f, 0.5f)]
-    public float maxSprintDrainMult = 0.05f;
+    [Tooltip("While Pewter is active, ALL stamina drain is suppressed — fatigue banks silently. " +
+             "When Pewter stops, the banked fatigue hits at once with interest. " +
+             "1.5 = you owe 50% more stamina than you would have spent normally.")]
+    [Range(1f, 3f)]
+    public float fatigueInterestMultiplier = 1.5f;
 
     [Header("Knockback Resistance")]
     [Tooltip("Divides incoming knockback force at base burn. 2 = half knockback.")]
@@ -117,8 +110,6 @@ public class Pewter : MonoBehaviour
     private float originalMass       = -1f;
     private float originalJumpVelocity;
     private float originalSprintDrainRate;
-    private float originalAerobicRegenRate;
-    private float originalDebtAccumulationRate;
     private float _pushCooldownTimer = 0f;
     private float _dragTimer         = 0f;
     private float _crashTimer        = 0f;
@@ -144,12 +135,6 @@ public class Pewter : MonoBehaviour
             originalJumpVelocity = playerMove.jumpVelocity;
             if (playerRigidbody != null)
                 originalMass = playerRigidbody.mass;
-        }
-
-        if (stamina != null)
-        {
-            originalAerobicRegenRate    = stamina.aerobicRegenRate;
-            originalDebtAccumulationRate = stamina.debtAccumulationRate;
         }
 
         if (playerMove != null)
@@ -245,11 +230,11 @@ public class Pewter : MonoBehaviour
             healthSystem.health = newHealth;
         }
 
-        // Tank the stamina system — all suppressed debt hits at once (2x exhaustion duration)
+        // Crash is the punishment — clear the suppressed fatigue bank and trigger crash exhaustion
         if (stamina != null)
         {
-            stamina.aerobicRegenRate     = originalAerobicRegenRate;
-            stamina.debtAccumulationRate = originalDebtAccumulationRate;
+            stamina.SuppressDrain = false;
+            stamina.ClearSuppressedFatigue(); // Crash exhaustion covers it (don't double-apply)
             stamina.TriggerCrashExhaustion(2f);
         }
 
@@ -324,15 +309,11 @@ public class Pewter : MonoBehaviour
         if (playerRigidbody != null && originalMass > 0f)
             playerRigidbody.mass = originalMass * Mathf.Lerp(baseMassMultiplier, maxMassMultiplier, t);
 
-        // Stamina: suppress fatigue accumulation, boost recovery
+        // Stamina: fully suppress drain while Pewter is active — fatigue banks silently
         if (stamina != null)
-        {
-            stamina.aerobicRegenRate      = originalAerobicRegenRate    * Mathf.Lerp(baseStaminaRegenMult, maxStaminaRegenMult, t);
-            stamina.debtAccumulationRate  = originalDebtAccumulationRate * Mathf.Lerp(baseSprintDrainMult, maxSprintDrainMult, t);
-        }
+            stamina.SuppressDrain = true;
 
-        // Sprint drain: pewter dragging barely costs stamina at max flare
-        playerMove.drainRate = originalSprintDrainRate * Mathf.Lerp(baseSprintDrainMult, maxSprintDrainMult, t);
+        playerMove.drainRate = 0f; // Sprint costs no stamina; it's all suppressed
     }
 
     void ResetEffects()
@@ -347,8 +328,9 @@ public class Pewter : MonoBehaviour
             playerRigidbody.mass = originalMass;
         if (stamina != null)
         {
-            stamina.aerobicRegenRate     = originalAerobicRegenRate;
-            stamina.debtAccumulationRate = originalDebtAccumulationRate;
+            // Release suppression — deferred fatigue hits now with interest
+            stamina.SuppressDrain = false;
+            stamina.DumpSuppressedFatigue(fatigueInterestMultiplier);
         }
     }
 

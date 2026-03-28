@@ -55,15 +55,14 @@ public class PlayerStamina : MonoBehaviour
     // ── Recovery Rates ────────────────────────────────────────────────────────
 
     [Header("Recovery Rates (stamina/sec)")]
-    [Tooltip("Peak regen rate in the aerobic zone — no oxygen debt, stamina low. " +
-             "Real physiology: full recovery in ~8 real seconds of rest → 12/s.")]
-    [Range(1f, 40f)]
-    public float aerobicRegenRate = 12f;
+    [Tooltip("Regen rate when debt is fully cleared. Real physiology: ~30 real sec to full → 3/s.")]
+    [Range(0.5f, 20f)]
+    public float aerobicRegenRate = 3f;
 
-    [Tooltip("Regen rate while paying oxygen debt — body still in recovery mode. " +
-             "Slower than aerobic: ~4/s means full recovery in ~25 real seconds in debt.")]
-    [Range(0.5f, 15f)]
-    public float anaerobicRegenRate = 4f;
+    [Tooltip("Regen rate WHILE in O₂ debt. Debt must be paid first — recovery is a crawl. " +
+             "0.5/s means barely recovering; debt clears in parallel at debtRecoveryRate.")]
+    [Range(0.1f, 5f)]
+    public float anaerobicRegenRate = 0.5f;
 
     [Tooltip("Seconds after last drain before regen begins. " +
              "Represents the brief moment before breathing rate starts dropping.")]
@@ -91,6 +90,13 @@ public class PlayerStamina : MonoBehaviour
 
     /// <summary>True during the penalty window after stamina is fully depleted.</summary>
     public bool IsExhausted { get; private set; }
+
+    /// <summary>
+    /// Set by Pewter.cs while burning. DrainStamina/UseStamina accumulate into
+    /// _suppressedFatigue instead of actually reducing currentStamina.
+    /// Call DumpSuppressedFatigue() when Pewter stops to apply deferred cost + interest.
+    /// </summary>
+    public bool SuppressDrain { get; set; }
 
     /// <summary>
     /// Speed multiplier for movement systems to apply.
@@ -121,6 +127,8 @@ public class PlayerStamina : MonoBehaviour
     private float regenTimer;
     private float exhaustionTimer;
     private ProgressBar staminaBar;
+    private VisualElement staminaFill;
+    private float _suppressedFatigue = 0f;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -132,16 +140,37 @@ public class PlayerStamina : MonoBehaviour
         {
             var root = uiDocument.rootVisualElement;
             staminaBar = root?.Q<ProgressBar>("Stamina");
-            if (staminaBar != null) staminaBar.highValue = maxStamina;
+            if (staminaBar != null)
+            {
+                staminaBar.highValue = maxStamina;
+                // Cache the fill element for colour changes
+                staminaFill = staminaBar.Q(className: "unity-progress-bar__progress");
+            }
         }
     }
 
     void Update()
     {
         if (staminaBar != null) staminaBar.value = currentStamina;
+        UpdateBarColour();
 
         TickExhaustion();
         TickRecovery();
+    }
+
+    private static readonly StyleColor ColourNormal     = new StyleColor(new Color(0.2f, 0.8f, 0.2f, 1f));  // green
+    private static readonly StyleColor ColourInDebt     = new StyleColor(new Color(0.9f, 0.5f, 0.1f, 1f));  // amber
+    private static readonly StyleColor ColourExhausted  = new StyleColor(new Color(0.8f, 0.1f, 0.1f, 1f));  // red
+
+    private void UpdateBarColour()
+    {
+        if (staminaFill == null) return;
+        if (IsExhausted)
+            staminaFill.style.backgroundColor = ColourExhausted;
+        else if (OxygenDebt > 1f)
+            staminaFill.style.backgroundColor = ColourInDebt;
+        else
+            staminaFill.style.backgroundColor = ColourNormal;
     }
 
     // ── Internal Ticks ────────────────────────────────────────────────────────
@@ -160,14 +189,17 @@ public class PlayerStamina : MonoBehaviour
 
     private void TickRecovery()
     {
-        // Debt still decays slowly even mid-exhaustion — heart rate is coming down
-        if (OxygenDebt > 0f)
+        // ── Phase 1: O₂ debt repayment ────────────────────────────────────────
+        // Debt decays whenever the player isn't actively draining stamina.
+        // Exhaustion slows debt recovery (body is overwhelmed).
+        // Real physiology: heart rate stays elevated, breathing fast — takes minutes.
+        if (OxygenDebt > 0f && regenTimer <= 0f)
         {
-            float debtDecayScale = IsExhausted ? 0.25f : 1f;
+            float debtDecayScale = IsExhausted ? 0.2f : 1f;
             OxygenDebt = Mathf.Max(0f, OxygenDebt - debtRecoveryRate * debtDecayScale * Time.deltaTime);
         }
 
-        // No stamina regen during exhaustion or while the delay timer is running
+        // No stamina regen during exhaustion or regen delay
         if (IsExhausted || regenTimer > 0f)
         {
             regenTimer = Mathf.Max(0f, regenTimer - Time.deltaTime);
@@ -176,11 +208,13 @@ public class PlayerStamina : MonoBehaviour
 
         if (currentStamina >= maxStamina) return;
 
-        // Non-linear regen: strongest when most depleted (cardiac recovery curve).
-        // Stays above 40% speed even when nearly full so it doesn't feel stuck.
-        float depletion   = 1f - (currentStamina / maxStamina);
-        float regenScale  = Mathf.Lerp(0.4f, 1f, depletion);
-        float rate        = OxygenDebt > 1f ? anaerobicRegenRate : aerobicRegenRate;
+        // ── Phase 2: Stamina regen ────────────────────────────────────────────
+        // While in debt: near-zero recovery — body is still repaying the deficit.
+        // Once debt cleared: full aerobic recovery kicks in.
+        // Non-linear scale: strongest when most depleted (cardiac O₂ recovery curve).
+        float depletion = 1f - (currentStamina / maxStamina);
+        float regenScale = Mathf.Lerp(0.4f, 1f, depletion);
+        float rate = OxygenDebt > 1f ? anaerobicRegenRate : aerobicRegenRate;
 
         currentStamina = Mathf.Clamp(currentStamina + rate * regenScale * Time.deltaTime, 0f, maxStamina);
     }
@@ -194,6 +228,13 @@ public class PlayerStamina : MonoBehaviour
     public void DrainStamina(float amountPerSecond)
     {
         if (IsExhausted) return;
+
+        // Pewter suppression: bank fatigue as hidden debt instead of draining stamina
+        if (SuppressDrain)
+        {
+            _suppressedFatigue += amountPerSecond * Time.deltaTime;
+            return;
+        }
 
         currentStamina -= amountPerSecond * Time.deltaTime;
         currentStamina  = Mathf.Clamp(currentStamina, 0f, maxStamina);
@@ -217,6 +258,13 @@ public class PlayerStamina : MonoBehaviour
     {
         if (IsExhausted) return;
 
+        // Pewter suppression: bank fatigue as hidden debt instead of draining stamina
+        if (SuppressDrain)
+        {
+            _suppressedFatigue += amount;
+            return;
+        }
+
         currentStamina -= amount;
         currentStamina  = Mathf.Clamp(currentStamina, 0f, maxStamina);
         regenTimer      = regenDelay;
@@ -229,6 +277,37 @@ public class PlayerStamina : MonoBehaviour
     }
 
     public float GetCurrentStamina() => currentStamina;
+
+    // ── Pewter Fatigue API ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called by Pewter when it stops burning normally.
+    /// Dumps all suppressed fatigue back as stamina drain + proportional O₂ debt.
+    /// interestMultiplier > 1 makes stopping Pewter cost more than if you'd never burned it.
+    /// </summary>
+    public void DumpSuppressedFatigue(float interestMultiplier)
+    {
+        if (_suppressedFatigue <= 0f) return;
+
+        float total = _suppressedFatigue * interestMultiplier;
+        _suppressedFatigue = 0f;
+
+        // Immediately apply the fatigue as stamina loss
+        currentStamina = Mathf.Max(0f, currentStamina - total);
+        regenTimer     = Mathf.Max(regenTimer, regenDelay);
+
+        // Also add proportional O₂ debt — recovery will be slow
+        float debtFraction = Mathf.Clamp01(total / maxStamina);
+        OxygenDebt = Mathf.Min(maxOxygenDebt, OxygenDebt + debtFraction * maxOxygenDebt);
+
+        if (currentStamina <= 0f)
+            TriggerExhaustion();
+    }
+
+    /// <summary>
+    /// Called by Pewter during a drag crash — crash is the punishment, don't double-apply.
+    /// </summary>
+    public void ClearSuppressedFatigue() => _suppressedFatigue = 0f;
 
     // ── Internal ──────────────────────────────────────────────────────────────
 
