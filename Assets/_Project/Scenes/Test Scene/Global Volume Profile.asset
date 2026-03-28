@@ -18,19 +18,19 @@ MonoBehaviour:
     m_Value: 1
   enabled:
     m_OverrideState: 0
-    m_Value: 0
+    m_Value: 1
   colorMode:
     m_OverrideState: 0
-    m_Value: 1
+    m_Value: 0
   color:
     m_OverrideState: 0
-    m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    m_Value: {r: 0, g: 0, b: 0, a: 1}
   tint:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   maxFogDistance:
     m_OverrideState: 0
-    m_Value: 5000
+    m_Value: 100
   mipFogMaxMip:
     m_OverrideState: 0
     m_Value: 0.5
@@ -48,7 +48,7 @@ MonoBehaviour:
     m_Value: 50
   meanFreePath:
     m_OverrideState: 0
-    m_Value: 400
+    m_Value: 10
   enableVolumetricFog:
     m_OverrideState: 0
     m_Value: 0
@@ -57,7 +57,7 @@ MonoBehaviour:
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   globalLightProbeDimmer:
     m_OverrideState: 0
-    m_Value: 1
+    m_Value: 0
   depthExtent:
     m_OverrideState: 0
     m_Value: 64
@@ -92,8 +92,8 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 0
   volumetricLightingDensityCutoff:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 0.89
 --- !u!114 &-221157472383875007
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -109,11 +109,11 @@ MonoBehaviour:
   active: 1
   m_Version: 1
   skyType:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 4
   cloudType:
     m_OverrideState: 0
-    m_Value: 0
+    m_Value: 1
   skyAmbientMode:
     m_OverrideState: 0
     m_Value: 1
@@ -134,7 +134,7 @@ MonoBehaviour:
     m_Value: 0
   windSpeed:
     m_OverrideState: 0
-    m_Value: 0
+    m_Value: 10
   fogType:
     m_OverrideState: 0
     m_Value: 0
@@ -168,7 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.Exposure
   active: 1
   mode:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   meteringMode:
     m_OverrideState: 0
