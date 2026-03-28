@@ -402,13 +402,12 @@ public class Tin : MonoBehaviour
         bool ePressed = Input.GetKeyDown(Keybinds.Ability1);
         bool qPressed = Input.GetKeyDown(Keybinds.Ability2);
 
-        if (sel != null)
-        {
-            bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
-            bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
+        bool isBurning = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
 
-            if (tinIsPrimary   && ePressed) { _tinToggled = !_tinToggled; Debug.Log($"[TIN] E toggle → {_tinToggled}"); }
-            if (tinIsSecondary && qPressed) { _tinToggled = !_tinToggled; Debug.Log($"[TIN] Q toggle → {_tinToggled}"); }
+        if (sel != null && isBurning)
+        {
+            if (sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin && ePressed) _tinToggled = !_tinToggled;
+            if (sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin && qPressed) _tinToggled = !_tinToggled;
         }
 
         // Tin activates via TWO paths:

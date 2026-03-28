@@ -120,13 +120,11 @@ public class SteelPush : MonoBehaviour
     {
         if (metalSelector != null)
         {
-            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Steel)
-                return Keybinds.Ability3;   // F = primary special
-            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.Ability4;   // V = secondary special
-            // Steel not in either active slot — still reachable on F
+            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Steel) return Keybinds.Ability3;  // F
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return Keybinds.Ability4;  // V
+            return KeyCode.None;
         }
-        return Keybinds.Ability3;           // F
+        return Keybinds.Ability3;  // no selector — default F
     }
 
     public float steelBubbleRadius              = 2.5f;
