@@ -226,18 +226,10 @@ public class SteelPush : MonoBehaviour
         // ── Steel Bubble: radial push (F key, no burn gate required) ────────────
         bool fPressed = Input.GetKeyDown(KeyCode.F);
 
-        if (fPressed)
-            Debug.Log($"[BUBBLE] F pressed. enable={enableSteelBubble}  cooldown={steelBubbleCooldownTimer:F2}  allomancer={allomancer != null}  reserve={(allomancer != null ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) : -1f):F1}");
-
         if (enableSteelBubble && fPressed && steelBubbleCooldownTimer <= 0f)
         {
-            if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
+            if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {
-                Debug.Log("[BUBBLE] Blocked: Steel reserve empty.");
-            }
-            else
-            {
-                Debug.Log("[BUBBLE] Firing!");
                 PushMetalsInBubble();
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * steelBubbleMetalCostMultiplier);
                 steelBubbleCooldownTimer = steelBubbleCooldown;

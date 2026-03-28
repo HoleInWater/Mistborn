@@ -402,22 +402,13 @@ public class Tin : MonoBehaviour
         bool ePressed = Input.GetKeyDown(Keybinds.Ability1);
         bool qPressed = Input.GetKeyDown(Keybinds.Ability2);
 
-        if (ePressed || qPressed)
-        {
-            AllomancySkill.MetalType primary   = sel != null ? sel.GetPrimaryMetal()   : AllomancySkill.MetalType.Steel;
-            AllomancySkill.MetalType secondary = sel != null ? sel.GetSecondaryMetal() : AllomancySkill.MetalType.Iron;
-            Debug.Log($"[TIN] Key pressed. E={ePressed} Q={qPressed}  primary={primary}  secondary={secondary}  tinToggled={_tinToggled}  sel={sel != null}");
-        }
-
         if (sel != null)
         {
             bool tinIsPrimary   = sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin;
             bool tinIsSecondary = sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
 
-            if (tinIsPrimary   && ePressed)  // E — primary slot
-                _tinToggled = !_tinToggled;
-            if (tinIsSecondary && qPressed)  // Q — secondary slot
-                _tinToggled = !_tinToggled;
+            if (tinIsPrimary   && ePressed) { _tinToggled = !_tinToggled; Debug.Log($"[TIN] E toggle → {_tinToggled}"); }
+            if (tinIsSecondary && qPressed) { _tinToggled = !_tinToggled; Debug.Log($"[TIN] Q toggle → {_tinToggled}"); }
         }
 
         // Tin activates via TWO paths:
@@ -457,6 +448,8 @@ public class Tin : MonoBehaviour
 
         if (targetState != CurrentState)
         {
+            Debug.Log($"[TIN] State: {CurrentState} → {targetState}  toggled={_tinToggled}  reserve={tinReserve:F1}");
+
             if (targetState == TinState.Off)
             {
                 // Stop flare entry zoom if it's still running
