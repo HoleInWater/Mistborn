@@ -147,42 +147,7 @@
     height: 90px;
 }
 
-/* Dim background circle */
-.MetalRingBg {
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border-width: 5px;
-    border-color: rgba(50, 50, 50, 0.6);
-    background-color: rgba(0, 0, 0, 0.45);
-}
-
-/* The spinning arc — top + right borders visible, bottom + left hidden */
-.MetalRingSpinner {
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border-top-width: 5px;
-    border-right-width: 5px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-    border-top-color: rgb(160, 180, 210);
-    border-right-color: rgb(160, 180, 210);
-    background-color: rgba(0, 0, 0, 0);
-    /* Rotated each frame by MetalReserve.cs */
-}
-
-/* Primed state — gold arc */
-.MetalRingSpinner.burst-primed {
-    border-top-color: rgb(255, 200, 50);
-    border-right-color: rgb(255, 200, 50);
-}
+/* Arc ring is drawn by MetalRingVisual.cs (Painter2D) — no CSS needed here */
 
 /* Metal name — centered in ring */
 .MetalName {

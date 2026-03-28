@@ -15,12 +15,11 @@
         <ui:ProgressBar value="100" title="Iron"  name="SecondaryMetalBar" class="HUD SelectedMetalBar"/>
     </ui:VisualElement>
 
-    <!-- Spinning ring indicator — bottom right corner -->
+    <!-- Proportional ring indicator — bottom right corner.
+         MetalRingVisual (two arcs) is injected here by MetalReserve.cs at runtime. -->
     <ui:VisualElement name="MetalRingContainer" class="MetalRingContainer">
-        <ui:VisualElement name="MetalRingBg"      class="MetalRingBg"/>
-        <ui:VisualElement name="MetalRingSpinner" class="MetalRingSpinner"/>
-        <ui:Label         name="MetalName"        class="MetalName" text="STEEL"/>
-        <ui:Label         name="MetalPct"         class="MetalPct"  text="100%"/>
+        <ui:Label name="MetalName" class="MetalName" text="STEEL"/>
+        <ui:Label name="MetalPct"  class="MetalPct"  text="100%"/>
     </ui:VisualElement>
 
 </ui:UXML>
