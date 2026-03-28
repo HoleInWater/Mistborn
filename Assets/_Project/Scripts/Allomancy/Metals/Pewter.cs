@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Pewter Allomancy — passively enhances strength, speed, jump, and endurance.
 ///
-/// ACTIVATION: Left Ctrl (burn session) while Pewter is in primary or secondary slot.
+/// ACTIVATION: Left Ctrl (burn session) + E (primary) or Q (secondary) to toggle.
 /// SCALING:    All effects scale smoothly with FlareMultiplier (scroll wheel 1–10).
 /// DRAIN:      Metal depletes each frame; effects stop when reserve hits 0.
 ///
@@ -12,6 +12,7 @@ using UnityEngine;
 ///   Jump   — jumpVelocity on BasicPlayerMove scaled at burn time
 ///   Mass   — Rigidbody.mass slightly increased (lore: denser muscle)
 ///   Heal   — slow health regeneration while burning
+///   Push   — F (primary) / V (secondary): forward lunge + knockback enemies in front
 /// </summary>
 [PlayerComponent("Allomancy Metals", order: 30)]
 public class Pewter : MonoBehaviour
@@ -52,6 +53,18 @@ public class Pewter : MonoBehaviour
     [Range(1f, 5f)]
     public float flareDrainMultiplier = 3f;
 
+    [Header("Pewter Push (F / V)")]
+    [Tooltip("Forward lunge speed applied to the player")]
+    public float pushLungeForce = 18f;
+    [Tooltip("Knockback force applied to enemies in front")]
+    public float pushKnockbackForce = 25f;
+    [Tooltip("Radius of the knockback sphere in front of the player")]
+    public float pushRange = 2.5f;
+    [Tooltip("Seconds between pushes")]
+    public float pushCooldown = 0.6f;
+    [Tooltip("Extra metal drained per push")]
+    public float pushMetalCost = 5f;
+
     [Header("References")]
     public Allomancer allomancer;
     public BasicPlayerMove playerMove;
@@ -62,6 +75,7 @@ public class Pewter : MonoBehaviour
     private bool   _pewterToggled     = false;
     private float  originalMass       = -1f;
     private float  originalJumpVelocity;
+    private float  _pushCooldownTimer = 0f;
     private Rigidbody            playerRigidbody;
     private HealthBarTransitions healthSystem;
 
@@ -115,6 +129,8 @@ public class Pewter : MonoBehaviour
 
         isBurning = allomancer != null && _pewterToggled && reserve > 0f;
 
+        if (_pushCooldownTimer > 0f) _pushCooldownTimer -= Time.deltaTime;
+
         if (isBurning)
         {
             float flareMult = FlareManager.Instance.FlareMultiplier;
@@ -123,11 +139,59 @@ public class Pewter : MonoBehaviour
             ApplyEffects(flareMult);
             HandleHealing(flareMult);
             DrainReserve(flareMult);
+
+            // ── Pewter Push: F (primary) / V (secondary) ──────────────────────
+            if (_pushCooldownTimer <= 0f)
+            {
+                KeyCode pushKey = GetSpecialKey(sel);
+                if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey))
+                    PewterPush(flareMult);
+            }
         }
         else if (wasBurning)
         {
             ResetEffects();
         }
+    }
+
+    private KeyCode GetSpecialKey(MetalSelector sel)
+    {
+        if (sel == null) return Keybinds.Ability3;
+        if (sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter) return Keybinds.Ability3; // F
+        if (sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter) return Keybinds.Ability4; // V
+        return KeyCode.None;
+    }
+
+    void PewterPush(float flareMult)
+    {
+        if (playerRigidbody == null) return;
+
+        Vector3 forward = playerRigidbody.transform.forward;
+
+        // Lunge the player forward
+        playerRigidbody.AddForce(forward * pushLungeForce * flareMult, ForceMode.VelocityChange);
+
+        // Knock back any enemies in a sphere in front
+        Vector3 origin = playerRigidbody.position + forward * (pushRange * 0.5f);
+        Collider[] hits = Physics.OverlapSphere(origin, pushRange);
+        foreach (var col in hits)
+        {
+            if (col.gameObject == playerRigidbody.gameObject) continue;
+            EnemyKnockback kb = col.GetComponentInParent<EnemyKnockback>();
+            if (kb != null)
+            {
+                Vector3 dir = (col.transform.position - playerRigidbody.position).normalized;
+                kb.ApplyAllomanticKnockback(dir, pushKnockbackForce * flareMult);
+            }
+        }
+
+        // Drain extra metal for the push
+        allomancer?.DrainMetal(AllomancySkill.MetalType.Pewter, pushMetalCost);
+
+        CameraShakeManager.Instance?.Shake(0.15f, 0.08f * flareMult);
+        SoundManager.Instance?.PlayPushSound();
+
+        _pushCooldownTimer = pushCooldown;
     }
 
     // ── Effects ───────────────────────────────────────────────────────────────
