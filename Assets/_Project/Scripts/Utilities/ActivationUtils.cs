@@ -93,7 +93,9 @@ namespace MistbornGame.Utilities
                 return false;
                 
             Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
-            return GeometryUtility.TestPlanesAABB(planes, go.GetComponent<Collider>().bounds);
+            Collider col = go.GetComponent<Collider>();
+            if (col == null) return false;
+            return GeometryUtility.TestPlanesAABB(planes, col.bounds);
         }
 
         /// <summary>

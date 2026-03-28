@@ -11,7 +11,7 @@ using System.Collections;
 /// Phase 4: Atium Ascension (time dilation, predicted player movements)
 /// Weakness: Removing metalminds disables Compounding, making him mortal.
 /// </summary>
-public class LordRulerBoss : MonoBehaviour
+public class LordRulerBoss : MonoBehaviour, IDamageable
 {
     public enum BossPhase { Physical, Emotional, Compounding, AtiumAscension, Defeated }
 
@@ -150,6 +150,7 @@ public class LordRulerBoss : MonoBehaviour
 
     void UpdatePhase()
     {
+        if (maxHealth <= 0f) return;
         float hpPercent = health / maxHealth;
         BossPhase newPhase;
 
@@ -319,7 +320,7 @@ public class LordRulerBoss : MonoBehaviour
         foreach (var hit in hits)
         {
             if (hit.transform == transform) continue;
-            IDamageable target = hit.GetComponent<IDamageable>();
+            IDamageable target = hit.GetComponentInParent<IDamageable>();
             target?.TakeDamage(atiumBurstDamage);
 
             Rigidbody rb = hit.attachedRigidbody;
@@ -383,7 +384,7 @@ public class LordRulerBoss : MonoBehaviour
         lastAttackTime = Time.time;
 
         animator?.SetTrigger("Attack");
-        IDamageable target = player.GetComponent<IDamageable>();
+        IDamageable target = player.GetComponentInParent<IDamageable>();
         target?.TakeDamage(damage);
 
         if (playerRb != null)
@@ -509,7 +510,7 @@ public class LordRulerBoss : MonoBehaviour
 
     // ── Public API ───────────────────────────────────────────────────────
     public BossPhase GetPhase() => currentPhase;
-    public float GetHealthPercent() => health / maxHealth;
+    public float GetHealthPercent() => maxHealth > 0f ? health / maxHealth : 0f;
     public bool IsCompoundingDisabled() => compoundingDisabled;
     public bool IsDead() => isDead;
 }

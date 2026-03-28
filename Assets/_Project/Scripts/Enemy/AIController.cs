@@ -1,6 +1,5 @@
-// NOTE: Line 65 contains Debug.Log which should be removed for production
-// NOTE: Consider adding [RequireComponent(typeof(UnityEngine.AI.NavMeshAgent))] attribute for pathfinding
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AIController : MonoBehaviour
 {
@@ -12,35 +11,48 @@ public class AIController : MonoBehaviour
         Enraged,
         Fearful
     }
-    
-    [Header("AI Settings")]
-    // NOTE: Consider adding [Range(1f, 100f)] attribute for detectionRange
-    public float detectionRange = 20f;
-    // NOTE: Consider adding [Range(0.1f, 10f)] attribute for attackRange
-    public float attackRange = 2f;
-    // NOTE: Consider adding [Range(0.1f, 20f)] attribute for moveSpeed
-    public float moveSpeed = 3f;
-    
+
+    [Header("Detection")]
+    [Range(1f, 100f)] public float detectionRange = 20f;
+    [Range(0.1f, 10f)]  public float attackRange = 2f;
+
+    [Header("Movement")]
+    [Range(0.1f, 20f)] public float moveSpeed = 3f;
+    public float patrolRadius = 10f;
+
+    [Header("Combat")]
+    public float attackDamage = 10f;
+    public float attackCooldown = 1.5f;
+
     [Header("State")]
     public EmotionState currentEmotion = EmotionState.Neutral;
-    [Header("Temporal Settings")]
+
+    [Header("Temporal")]
     public float externalTimeScaleMultiplier = 1f;
-    
+
     private Transform player;
-    private UnityEngine.AI.NavMeshAgent navAgent;
+    private NavMeshAgent navAgent;
+    private EnemySenses senses;         // optional — falls back to range-only detection
+    private bool deferToEnemyAI;        // EnemyAI drives behaviour when present; we only register
     private float originalSpeed;
-    private float aggressionMultiplier = 1f;  // Was never declared — compile error
-    private ParticleSystem auraParticles;      // Was never declared — compile error
-    private float auraExpiryTimer = 0f;        // Was never declared — compile error
-    private float originalDetectionRange;      // Store base range for reset
+    private float aggressionMultiplier = 1f;
+    private ParticleSystem auraParticles;
+    private float auraExpiryTimer = 0f;
+    private float originalDetectionRange;
+    private float attackTimer = 0f;
 
     void Start()
     {
+        // If EnemyAI is on the same object it owns the state machine.
+        // AIController still registers with the registry so Tin / Seeker can find this enemy.
+        deferToEnemyAI = GetComponent<EnemyAI>() != null;
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
-        else Debug.LogWarning($"[AIController] No GameObject with tag 'Player' found in scene.");
+        else Debug.LogWarning("[AIController] No GameObject tagged 'Player' found in scene.");
 
-        navAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+        navAgent = GetComponent<NavMeshAgent>();
+        senses = GetComponent<EnemySenses>();
         originalSpeed = moveSpeed;
         originalDetectionRange = detectionRange;
 
@@ -54,29 +66,33 @@ public class AIController : MonoBehaviour
 
     void Update()
     {
-        // Update moveSpeed every frame to account for external temporal changes
-        UpdateSpeed();
-
+        // Aura + emotion decay run regardless so Zinc/Brass can still affect this enemy
         if (auraExpiryTimer > 0f)
         {
             auraExpiryTimer -= Time.deltaTime;
             if (auraExpiryTimer <= 0f) ResetAura();
         }
 
-        if (player == null) return; // Guard: player not found in scene
+        // EnemyAI owns the state machine — skip movement/attack logic here
+        if (deferToEnemyAI) return;
+
+        UpdateSpeed();
+
+        if (attackTimer > 0f) attackTimer -= Time.deltaTime;
+
+        if (player == null) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        
-        if (distanceToPlayer <= detectionRange)
+        bool playerDetected = senses != null
+            ? senses.CanDetectPlayer
+            : distanceToPlayer <= detectionRange;
+
+        if (playerDetected)
         {
             if (distanceToPlayer <= attackRange)
-            {
                 AttackPlayer();
-            }
             else
-            {
                 ChasePlayer();
-            }
         }
         else
         {
@@ -86,43 +102,40 @@ public class AIController : MonoBehaviour
 
     private void UpdateSpeed()
     {
-        // Combine aggression and external time factors
         float targetSpeed = originalSpeed * aggressionMultiplier * externalTimeScaleMultiplier;
-        
-        // Handle specific emotion overrides if necessary
-        if (currentEmotion != EmotionState.Neutral)
-        {
-             // Emotional speed logic is already incorporated into aggressionMultiplier via SetAggressionMultiplier
-        }
-
-        if (navAgent != null)
-        {
-            navAgent.speed = targetSpeed;
-            // Also scale animation speed in future if an Animator is present
-        }
+        if (navAgent != null) navAgent.speed = targetSpeed;
         moveSpeed = targetSpeed;
     }
-    
+
     void ChasePlayer()
     {
-        if (navAgent != null)
-        {
-            navAgent.SetDestination(player.position);
-        }
+        if (navAgent != null) navAgent.SetDestination(player.position);
     }
-    
+
     void AttackPlayer()
     {
-        // Attack logic placeholder — no Debug.Log in production builds
+        if (attackTimer > 0f) return;
+
+        // Stop and face the player while attacking
+        if (navAgent != null) navAgent.SetDestination(transform.position);
+        transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
+
+        PlayerHealth ph = PlayerHealth.Instance;
+        if (ph != null) ph.TakeDamage(attackDamage);
+
+        attackTimer = attackCooldown;
     }
-    
+
     void Patrol()
     {
-        if (navAgent != null && !navAgent.hasPath)
-        {
-            Vector3 randomPos = Random.insideUnitSphere * 10f + transform.position;
-            navAgent.SetDestination(randomPos);
-        }
+        if (navAgent == null) return;
+        if (navAgent.pathPending) return;
+        if (navAgent.remainingDistance > navAgent.stoppingDistance) return;
+
+        // Sample a random point on the NavMesh within patrol radius
+        Vector3 randomDir = Random.insideUnitSphere * patrolRadius + transform.position;
+        if (NavMesh.SamplePosition(randomDir, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
+            navAgent.SetDestination(hit.position);
     }
     
     public void SetEmotionState(EmotionState newState)

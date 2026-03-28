@@ -58,34 +58,35 @@ public class CoinPouch : MonoBehaviour
 
     void Update()
     {
-        // Single coin throw + push: Mouse Right
-        if (Input.GetMouseButtonDown(1) && coinCount > 0)
+        // Single coin throw + push: Mouse Right (only when burning Steel)
+        bool isBurning = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        if (Input.GetMouseButtonDown(1) && coinCount > 0 && isBurning)
         {
             ThrowAndPushCoin();
         }
 
         // Shotgun: V key
-        if (Input.GetKeyDown(KeyCode.V) && coinCount >= shotgunCoinCount
+        if (Input.GetKeyDown(Keybinds.CoinShotgun) && coinCount >= shotgunCoinCount
             && Time.time - lastShotgunTime > shotgunCooldown)
         {
             CoinShotgun();
         }
 
         // Coin bounce: C key
-        if (Input.GetKeyDown(KeyCode.C) && coinCount > 0)
+        if (Input.GetKeyDown(Keybinds.CoinBounce) && coinCount > 0)
         {
             CoinBounce();
         }
 
-        // Coin trail: hold G while moving
-        trailActive = Input.GetKey(KeyCode.G) && coinCount > 0;
+        // Coin trail: hold Z while moving
+        trailActive = Input.GetKey(Keybinds.CoinTrail) && coinCount > 0;
         if (trailActive && Time.time - lastTrailTime > trailFireRate)
         {
             FireTrailCoin();
         }
 
         // Recovery: R key to pick up nearby coins
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(Keybinds.CoinRecover))
         {
             RecoverCoins();
         }

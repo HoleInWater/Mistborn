@@ -63,11 +63,12 @@ public class SteelPush : MonoBehaviour
     public float masteryBonus = 1f;
 
     [Header("References")]
-    public Camera     playerCamera;
-    public LayerMask  metalLayer;
-    public Allomancer allomancer;
-    public Rigidbody  playerRigidbody;
-    public Transform  chestTransform;
+    public Camera         playerCamera;
+    public LayerMask      metalLayer;
+    public Allomancer     allomancer;
+    public Rigidbody      playerRigidbody;
+    public Transform      chestTransform;
+    public MetalSelector  metalSelector;
 
     [Header("Visual Effects")]
     public float shakeMagnitude      = 0.1f;
@@ -102,8 +103,30 @@ public class SteelPush : MonoBehaviour
     // [AGENT REVIEW] Dynamically bound based on primary/secondary state
     public KeyCode steelBubbleKey => GetAbility2Key();
 
-    private KeyCode GetAbility1Key() => Keybinds.SteelPush;
-    private KeyCode GetAbility2Key() => Keybinds.SteelBubble;
+    private KeyCode GetAbility1Key()
+    {
+        if (metalSelector != null)
+        {
+            if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel)
+                return Keybinds.SteelPush;   // E = primary slot
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
+                return Keybinds.IronPull;    // Q = secondary slot
+            return KeyCode.None;             // Steel not equipped in either slot
+        }
+        return Keybinds.SteelPush;           // fallback if no selector
+    }
+    private KeyCode GetAbility2Key()
+    {
+        if (metalSelector != null)
+        {
+            // F (SteelBubble) is active whenever Steel is equipped in either slot.
+            // Returns None only when Steel isn't selected at all.
+            bool steelEquipped = metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel
+                              || metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel;
+            if (!steelEquipped) return KeyCode.None;
+        }
+        return Keybinds.SteelBubble;
+    }
 
     public float steelBubbleRadius              = 2.5f;
     public float steelBubbleForce               = 50f;
@@ -142,6 +165,8 @@ public class SteelPush : MonoBehaviour
         if (playerRigidbody == null) playerRigidbody = GetComponentInParent<Rigidbody>();
         if (playerCamera    == null) playerCamera    = Camera.main;
         if (allomancer      == null) allomancer      = GetComponentInParent<Allomancer>();
+
+        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
 
         if (chestTransform == null)
         {
@@ -242,30 +267,41 @@ public class SteelPush : MonoBehaviour
         if (targetScanTimer > 0f) return;
         targetScanTimer = TARGET_SCAN_INTERVAL;
 
-        hasCurrentTarget = false; currentTarget = null;
-        currentTargetRigidbody = null; metalInRange = false;
+        hasCurrentTarget       = false;
+        currentTarget          = null;
+        currentTargetRigidbody = null;
+        metalInRange           = false;
 
-        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        if (playerRigidbody == null) return;
+        LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
+        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;
 
-        float closestDist = float.MaxValue;
+        Vector3 camForward = playerCamera != null ? playerCamera.transform.forward : transform.forward;
+        float bestScore = float.MinValue;
+
         foreach (var hit in hits)
         {
             Rigidbody rb = hit.attachedRigidbody;
             if (rb == null || rb == playerRigidbody) continue;
 
-            float dist = Vector3.Distance(playerRigidbody.position, rb.position);
-            if (dist < closestDist)
-            {
-                closestDist            = dist;
-                currentTargetRigidbody = rb;
-                currentTarget          = hit.GetComponent<AllomanticTarget>();
+            AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
+            if (at != null && !at.canBePushed) continue;
 
-                if (currentTarget == null || currentTarget.canBePushed)
-                {
-                    hasCurrentTarget = true;
-                    metalInRange     = true;
-                }
+            Vector3 toTarget = rb.position - playerRigidbody.position;
+            float dist = toTarget.magnitude;
+            if (dist < minDistance) continue;
+
+            float alignment = Vector3.Dot(camForward, toTarget.normalized);
+            float score     = alignment - (dist / maxRange);
+
+            if (score > bestScore)
+            {
+                bestScore              = score;
+                currentTargetRigidbody = rb;
+                currentTarget          = at;
+                hasCurrentTarget       = true;
+                metalInRange           = true;
             }
         }
     }
@@ -294,7 +330,7 @@ public class SteelPush : MonoBehaviour
         if (isAnchored)
         {
             float   recoilSpeed = pushSpeed * flare * distanceMult;
-            Vector3 recoil      = -pushDirection * Mathf.Min(recoilSpeed, maxRecoilSpeed);
+            Vector3 recoil      = -pushDirection * Mathf.Min(recoilSpeed, maxRecoilSpeed * flare);
             playerRigidbody.AddForce(recoil, ForceMode.VelocityChange);
         }
         else

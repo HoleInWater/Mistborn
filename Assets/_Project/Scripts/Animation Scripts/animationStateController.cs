@@ -14,6 +14,7 @@ public class AnimationStateController : MonoBehaviour
 
     void Update()
     {
+        if (animator == null) return;
 
         bool isRunning = animator.GetBool("isRunning");
         bool isWalking = animator.GetBool("isWalking");

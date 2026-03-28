@@ -22,9 +22,10 @@ public class DialogueManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        
+        DontDestroyOnLoad(gameObject);
+
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
     }
 
@@ -73,7 +74,7 @@ public class DialogueManager : MonoBehaviour
         foreach (char letter in sentence.ToCharArray())
         {
             dialogueText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+            yield return new WaitForSecondsRealtime(typingSpeed);
         }
 
         isTyping = false;
@@ -87,7 +88,7 @@ public class DialogueManager : MonoBehaviour
     void Update()
     {
         // Advance on Space or Left Click if panel is active
-        if (dialoguePanel != null && dialoguePanel.activeInHierarchy && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
+        if (dialoguePanel != null && dialoguePanel.activeInHierarchy && (Input.GetKeyDown(Keybinds.Jump) || Input.GetMouseButtonDown(0)))
         {
             DisplayNextSentence();
         }

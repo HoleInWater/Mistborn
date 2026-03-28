@@ -1,25 +1,62 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/HUD.uss?fileID=7433441132597879392&amp;guid=10a28823af41bb24f89b59c1e8165c75&amp;type=3#HUD"/>
-    <ui:ProgressBar value="22" title="Health" name="Health" class="HUD Health unity-progress-bar-progress" style="font-size: 14px; width: 30%; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;"/>
-    <ui:VisualElement name="MetalReserves" class="HUD MetalContainer" style="flex-direction: row; flex-wrap: wrap; width: 25%; padding-top: 10px;">
-        <ui:ProgressBar value="100" title="Steel" name="Metal_Steel" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Iron" name="Metal_Iron" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Pewter" name="Metal_Pewter" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Tin" name="Metal_Tin" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Zinc" name="Metal_Zinc" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Brass" name="Metal_Brass" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Copper" name="Metal_Copper" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Bronze" name="Metal_Bronze" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Atium" name="Metal_Atium" class="HUD MetalBar"/>
+
+    <!-- Health bar — top-left -->
+    <ui:ProgressBar value="100" title="Health" name="Health" class="HUD Health"
+        style="position: absolute; top: 16px; left: 16px; width: 200px; font-size: 14px;" />
+
+    <!-- Stamina bar — below health -->
+    <ui:ProgressBar value="100" title="Stamina" name="Stamina" class="HUD Stamina"
+        style="position: absolute; top: 52px; left: 16px; width: 200px;" />
+
+    <!--
+        Metal reserve bars — bottom-left, two columns of 9.
+        flex-direction: column + flex-wrap: wrap fills the left column
+        (9 bars) then wraps into the right column.
+
+        Lore-accurate grouping by Allomantic pair (Push/Pull partner metals):
+          PHYSICAL   — Steel / Iron, Pewter / Tin         (indices 0-3)
+          MENTAL     — Zinc / Brass, Copper / Bronze      (indices 4-7)
+          GOD METALS — Atium                              (index 8) → end col 1
+          GOD METALS — Malatium, Gold, Electrum           (indices 9-11)
+          ENHANCEMENT— Aluminum/Chromium, Duralumin/Nicrosil (indices 12-13, 16-17)
+          TEMPORAL   — Bendalloy / Cadmium                (indices 14-15)
+    -->
+    <ui:VisualElement name="MetalReserves" class="HUD MetalContainer">
+
+        <!-- ── Physical (Push/Pull pairs) ── -->
+        <ui:ProgressBar value="100" title="Steel"    name="Metal_Steel"    class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Iron"     name="Metal_Iron"     class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Pewter"   name="Metal_Pewter"   class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Tin"      name="Metal_Tin"      class="HUD MetalBar"/>
+
+        <!-- ── Mental (Riot/Soothe pairs) ── -->
+        <ui:ProgressBar value="100" title="Zinc"     name="Metal_Zinc"     class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Brass"    name="Metal_Brass"    class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Copper"   name="Metal_Copper"   class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Bronze"   name="Metal_Bronze"   class="HUD MetalBar"/>
+
+        <!-- ── God Metals — col 1 closer (9th bar) ── -->
+        <ui:ProgressBar value="100" title="Atium"    name="Metal_Atium"    class="HUD MetalBar"/>
+
+        <!-- ─────────────── column 2 begins here ─────────────── -->
+
+        <!-- ── God Metals continued ── -->
         <ui:ProgressBar value="100" title="Malatium" name="Metal_Malatium" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Gold" name="Metal_Gold" class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Gold"     name="Metal_Gold"     class="HUD MetalBar"/>
         <ui:ProgressBar value="100" title="Electrum" name="Metal_Electrum" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Aluminum" name="Metal_Aluminum" class="HUD MetalBar"/>
+
+        <!-- ── Enhancement (Waster pair: internal/external) ── -->
+        <ui:ProgressBar value="100" title="Aluminum"  name="Metal_Aluminum"  class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Chromium"  name="Metal_Chromium"  class="HUD MetalBar"/>
+
+        <!-- ── Enhancement (Burst pair: internal/external) ── -->
         <ui:ProgressBar value="100" title="Duralumin" name="Metal_Duralumin" class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Nicrosil"  name="Metal_Nicrosil"  class="HUD MetalBar"/>
+
+        <!-- ── Temporal (Speed/Slow bubble pair) ── -->
         <ui:ProgressBar value="100" title="Bendalloy" name="Metal_Bendalloy" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Cadmium" name="Metal_Cadmium" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Chromium" name="Metal_Chromium" class="HUD MetalBar"/>
-        <ui:ProgressBar value="100" title="Nicrosil" name="Metal_Nicrosil" class="HUD MetalBar"/>
+        <ui:ProgressBar value="100" title="Cadmium"   name="Metal_Cadmium"   class="HUD MetalBar"/>
+
     </ui:VisualElement>
-    <ui:ProgressBar value="49.5" title="Stamina" name="Stamina" class="HUD Stamina" style="margin-top: 10px; width: 25%; height: auto; color: rgb(255, 255, 255);"/>
 </ui:UXML>

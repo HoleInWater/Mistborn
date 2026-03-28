@@ -17,8 +17,9 @@ public class TimeBubbleManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Update()
@@ -38,13 +39,24 @@ public class TimeBubbleManager : MonoBehaviour
 
         // Transparent material
         Renderer r = go.GetComponent<Renderer>();
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.color = new Color(color.r, color.g, color.b, 0f);
-        mat.SetFloat("_Mode", 3); // Transparent
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.SetInt("_ZWrite", 0);
-        mat.EnableKeyword("_ALPHABLEND_ON");
+        Shader hdrpLit = Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+        Material mat = new Material(hdrpLit);
+        mat.color = new Color(color.r, color.g, color.b, 0.15f);
+        if (mat.HasProperty("_SurfaceType"))
+        {
+            mat.SetFloat("_SurfaceType", 1f);
+            mat.SetFloat("_BlendMode", 0f);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.SetFloat("_TransparentZWrite", 0f);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        }
+        else
+        {
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.EnableKeyword("_ALPHABLEND_ON");
+        }
         mat.renderQueue = 3000;
         r.material = mat;
 

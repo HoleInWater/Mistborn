@@ -52,8 +52,14 @@ public class Pewter : MonoBehaviour
     void Update()
     {
         bool wasBurning = isBurning;
-        // Check if we are currently burning Pewter according to the central Allomancer
-        isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Pewter;
+        MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
+        bool pewterEquipped = sel == null
+            || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter
+            || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter;
+        isBurning = allomancer != null
+                 && FlareManager.Instance != null && FlareManager.Instance.IsBurning
+                 && pewterEquipped
+                 && allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter) > 0;
 
         if (isBurning)
         {

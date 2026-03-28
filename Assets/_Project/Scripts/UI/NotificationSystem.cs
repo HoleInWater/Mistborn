@@ -22,8 +22,9 @@ public class NotificationSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void ShowNotification(string message)

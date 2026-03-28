@@ -13,16 +13,18 @@ public class MistbornTimeManager : MonoBehaviour
     [Header("Debug")]
     public float currentEffectiveTimeScale = 1f;
 
-    private float atiumModifier = 1f;
-    private float pauseModifier = 1f;
-    private float metalWheelModifier = 1f;
+    private float atiumModifier        = 1f;
+    private float pauseModifier        = 1f;
+    private float metalWheelModifier   = 1f;
+    private float tinPerceptionModifier = 1f;   // Tin: slows world, player speed compensated
     private List<float> activeBubbleModifiers = new List<float>();
     private bool isPaused = false;
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Update()
@@ -35,16 +37,29 @@ public class MistbornTimeManager : MonoBehaviour
         }
         else
         {
-            target = atiumModifier * metalWheelModifier;
+            target = atiumModifier * metalWheelModifier * tinPerceptionModifier;
 
             foreach (var mod in activeBubbleModifiers)
                 target *= mod;
         }
 
-        // Smooth transition
+        // Smooth transition — allow true 0 when paused, otherwise floor at 0.01
         float next = Mathf.Lerp(Time.timeScale, target, Time.unscaledDeltaTime * 8f);
-        Time.timeScale = Mathf.Clamp(next, 0.01f, 12f);
-        Time.fixedDeltaTime = Mathf.Max(0.0002f, 0.02f * Time.timeScale);
+        float minScale = isPaused ? 0f : 0.01f;
+        Time.timeScale = Mathf.Clamp(next, minScale, 12f);
+
+        // fixedDeltaTime controls the physics step rate.
+        // Tin perception deliberately excludes physics — it slows animations and
+        // Time.deltaTime (visual perception) but must NOT change the physics step
+        // frequency, otherwise AddForce calls accumulate faster and the player
+        // gains an unintended speed boost.
+        // Bubbles and Atium DO need to slow physics (objects inside a bubble
+        // should genuinely move slower), so they are included here.
+        float physicsTarget = atiumModifier * metalWheelModifier; // intentionally no tinPerceptionModifier
+        foreach (var mod in activeBubbleModifiers)
+            physicsTarget *= mod;
+        physicsTarget = isPaused ? 0f : Mathf.Clamp(physicsTarget, 0.0002f, 12f);
+        Time.fixedDeltaTime = Mathf.Max(0.0002f, 0.02f * physicsTarget);
 
         currentEffectiveTimeScale = Time.timeScale;
     }
@@ -53,6 +68,13 @@ public class MistbornTimeManager : MonoBehaviour
 
     public void SetAtiumModifier(float val) => atiumModifier = Mathf.Clamp(val, 0.1f, 1f);
     public void ClearAtiumModifier() => atiumModifier = 1f;
+
+    /// <summary>
+    /// Tin perception dilation — slows the world slightly so the player's enhanced
+    /// senses give them a reaction-time advantage without physically speeding them up.
+    /// </summary>
+    public void SetTinModifier(float val) => tinPerceptionModifier = Mathf.Clamp(val, 0.5f, 1f);
+    public void ClearTinModifier()        => tinPerceptionModifier = 1f;
 
     public void SetMetalWheelModifier(float val) => metalWheelModifier = Mathf.Clamp(val, 0.1f, 1f);
     public void ClearMetalWheelModifier() => metalWheelModifier = 1f;

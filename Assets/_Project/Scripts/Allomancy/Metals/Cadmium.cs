@@ -54,22 +54,35 @@ public class Cadmium : MonoBehaviour
         go.transform.localScale = Vector3.one * currentRadius * 2f;
 
         Renderer r = go.GetComponent<Renderer>();
-        r.material = new Material(Shader.Find("Standard")); 
-        r.material.color = new Color(0.2f, 0.4f, 1f, 0f); // Start invisible
+        Shader hdrpLit = Shader.Find("HDRP/Lit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+        r.material = new Material(hdrpLit);
         SetupTransparentMaterial(r.material);
+        r.material.color = new Color(0.2f, 0.4f, 1f, 0.15f);
 
         currentBubble = go.AddComponent<TimeBubble>();
         // Lore: Duralumin-Cadmium is extremely slow.
+        // Set fields before Start() runs (next frame) so registration uses correct values.
         currentBubble.timeScaleMultiplier = Mathf.Clamp(timeScaleMultiplier / flareMult, 0.01f, 1f);
+        currentBubble.creator = transform;
     }
 
     private void SetupTransparentMaterial(Material m)
     {
-        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        m.SetInt("_ZWrite", 0);
-        m.DisableKeyword("_ALPHATEST_ON");
-        m.EnableKeyword("_ALPHABLEND_ON");
+        if (m.HasProperty("_SurfaceType"))
+        {
+            m.SetFloat("_SurfaceType", 1f);
+            m.SetFloat("_BlendMode", 0f);
+            m.SetFloat("_ZWrite", 0f);
+            m.SetFloat("_TransparentZWrite", 0f);
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        }
+        else
+        {
+            m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetInt("_ZWrite", 0);
+            m.EnableKeyword("_ALPHABLEND_ON");
+        }
         m.renderQueue = 3000;
     }
 

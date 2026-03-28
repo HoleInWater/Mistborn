@@ -13,6 +13,7 @@ public class AllomancyHUD : MonoBehaviour
     public GameObject metalBarPrefab;
     public Text activeMetalText;
     public Text flareStatusText;
+    public Text tinStateText;
 
     [Header("Colors")]
     public Color steelColor = new Color(0.3f, 0.5f, 1f);
@@ -31,6 +32,7 @@ public class AllomancyHUD : MonoBehaviour
     public float barSpacing = 2f;
 
     private Allomancer allomancer;
+    private Tin tinComponent;
     private Image[] metalBars;
     private Text[] metalLabels;
     private float updateTimer;
@@ -45,7 +47,10 @@ public class AllomancyHUD : MonoBehaviour
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
+        {
             allomancer = player.GetComponent<Allomancer>();
+            tinComponent = player.GetComponent<Tin>();
+        }
 
         CreateBars();
     }
@@ -148,6 +153,16 @@ public class AllomancyHUD : MonoBehaviour
                 flareStatusText.text = $"FLARING x{FlareManager.Instance.FlareMultiplier:F1}";
             else
                 flareStatusText.text = "";
+        }
+
+        // Tin state indicator
+        if (tinStateText != null)
+        {
+            if (tinComponent != null && tinComponent.CurrentState != Tin.TinState.Off)
+                tinStateText.text = tinComponent.CurrentState == Tin.TinState.Flaring
+                    ? "TIN: FLARING" : "TIN: BURNING";
+            else
+                tinStateText.text = "";
         }
     }
 

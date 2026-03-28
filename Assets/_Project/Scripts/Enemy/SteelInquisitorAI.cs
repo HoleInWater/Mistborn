@@ -105,6 +105,7 @@ public class SteelInquisitorAI : MonoBehaviour
 
     void UpdatePhase()
     {
+        if (maxHealth <= 0f) return;
         float hpPercent = currentHealth / maxHealth;
         BossPhase newPhase = currentPhase;
 
@@ -315,7 +316,7 @@ public class SteelInquisitorAI : MonoBehaviour
             damage *= allBurnDamageMultiplier;
 
         animator?.SetTrigger("Attack");
-        IDamageable target = player.GetComponent<IDamageable>();
+        IDamageable target = player.GetComponentInParent<IDamageable>();
         target?.TakeDamage(damage);
     }
 
@@ -415,5 +416,5 @@ public class SteelInquisitorAI : MonoBehaviour
     // ── Public API ───────────────────────────────────────────────────────
     public BossPhase GetPhase() => currentPhase;
     public bool IsStunned() => isStunned;
-    public float GetHealthPercent() => currentHealth / maxHealth;
+    public float GetHealthPercent() => maxHealth > 0f ? currentHealth / maxHealth : 0f;
 }

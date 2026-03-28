@@ -24,8 +24,9 @@ public class PushPullTrail : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         pushLine = CreateLine("PushTrail", pushColor);
         pullLine = CreateLine("PullTrail", pullColor);
@@ -49,11 +50,13 @@ public class PushPullTrail : MonoBehaviour
 
     void Update()
     {
+        float safeDuration = Mathf.Max(trailDuration, 0.001f);
+
         // Fade push trail
         if (pushTimer > 0f)
         {
             pushTimer -= Time.deltaTime;
-            float alpha = pushTimer / trailDuration;
+            float alpha = pushTimer / safeDuration;
             Color c = pushColor;
             c.a *= alpha;
             pushLine.startColor = c;
@@ -67,7 +70,7 @@ public class PushPullTrail : MonoBehaviour
         if (pullTimer > 0f)
         {
             pullTimer -= Time.deltaTime;
-            float alpha = pullTimer / trailDuration;
+            float alpha = pullTimer / safeDuration;
             Color c = pullColor;
             c.a *= alpha;
             pullLine.startColor = c;

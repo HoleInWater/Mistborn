@@ -140,12 +140,12 @@ public class BasicPlayerMove : MonoBehaviour
         // Cache raw inputs so they can be reused across Update and FixedUpdate
         inputX = Input.GetAxisRaw("Horizontal");
         inputZ = Input.GetAxisRaw("Vertical");
-        sprintHeld = Input.GetKey(KeyCode.LeftShift);
-        spaceHeld = Input.GetKey(KeyCode.Space);
- 
+        sprintHeld = Input.GetKey(Keybinds.Sprint);
+        spaceHeld = Input.GetKey(Keybinds.Jump);
+
         // Jump buffer: record a jump request for up to jumpBufferTime seconds so the
         // player can press Space slightly before landing and still trigger a jump
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(Keybinds.Jump))
             jumpBufferCounter = jumpBufferTime;
         else
             jumpBufferCounter -= Time.deltaTime;
@@ -197,7 +197,7 @@ public class BasicPlayerMove : MonoBehaviour
  
         float currentActiveSpeed = moveSpeed;
         bool isMoving = (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f);
-        bool isTryingToSprint = Input.GetKey(KeyCode.LeftShift) && isMoving;
+        bool isTryingToSprint = Input.GetKey(Keybinds.Sprint) && isMoving;
         bool hasStamina = staminaSystem != null && staminaSystem.currentStamina > 1f;
  
         if (isTryingToSprint && hasStamina)
@@ -290,15 +290,18 @@ public class BasicPlayerMove : MonoBehaviour
  
     void HandleZoom()
     {
+        // When FlareManager is burning, scroll wheel is owned by flare intensity — skip zoom.
+        if (FlareManager.Instance != null && FlareManager.Instance.IsBurning) return;
+
         // Mouse ScrollWheel returns a positive value when scrolling up (zoom in)
         // and a negative value when scrolling down (zoom out)
         float scroll = Input.GetAxis("Mouse ScrollWheel");
- 
+
         if (Mathf.Abs(scroll) > 0.01f)
         {
             // Subtract because scrolling up (positive) should reduce distance (zoom in)
             targetZoomDistance -= scroll * zoomStep;
- 
+
             // Clamp so the player can't zoom past the min/max set in the Inspector
             targetZoomDistance = Mathf.Clamp(targetZoomDistance, minZoomDistance, maxZoomDistance);
         }

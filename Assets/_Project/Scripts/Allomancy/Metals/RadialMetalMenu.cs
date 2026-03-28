@@ -44,7 +44,7 @@ public class RadialMetalMenu : MonoBehaviour
 
     private bool isOpen = false;
     private int selectedIndex = -1;
-    private int metalCount = 16;
+    private readonly int metalCount = System.Enum.GetValues(typeof(AllomancySkill.MetalType)).Length;
     private float previousTimeScale;
 
     void Start()
@@ -57,16 +57,12 @@ public class RadialMetalMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
-            OpenWheel();
-        if (Input.GetKeyUp(KeyCode.Tab))
-            CloseAndSelect();
-
+        // Input handled by MetalWheelController + MetalWheelInputHandler
         if (isOpen)
             UpdateSelection();
     }
 
-    void OpenWheel()
+    public void OpenWheel()
     {
         isOpen = true;
         if (wheelPanel != null) wheelPanel.SetActive(true);
@@ -82,7 +78,7 @@ public class RadialMetalMenu : MonoBehaviour
         SoundManager.Instance?.PlayMetalWheelOpen();
     }
 
-    void CloseAndSelect()
+    public void CloseAndSelect()
     {
         isOpen = false;
         if (wheelPanel != null) wheelPanel.SetActive(false);

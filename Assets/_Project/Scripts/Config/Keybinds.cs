@@ -10,17 +10,22 @@ using UnityEngine;
 ///   F           = Steel Bubble
 ///   G           = Interact
 ///   Mouse Right = Block / Parry
-///   Z           = Metal Sight toggle
+///   T           = Metal Sight toggle
 ///   B           = Burn toggle
 ///   Tab         = Metal Wheel / Swap metals
+///   H           = Feruchemy mode toggle
 ///   Left Ctrl   = Crouch / Toggle flare
 ///   Left Shift  = Sprint
 ///   Left Alt    = Dodge Roll
 ///   Space       = Jump
 ///   Mouse Left  = Attack
-///   Mouse Right = Heavy Attack
+///   Mouse Right = Heavy Attack / Block
 ///   Mouse Mid   = Lock On / Grapple
 ///   X           = Drink vial
+///   V           = Coin Shotgun
+///   C           = Coin Bounce
+///   Z           = Coin Trail
+///   R           = Coin Recover
 ///   Escape      = Pause
 ///   F1          = Help
 /// </summary>
@@ -40,6 +45,18 @@ public static class Keybinds
     public static KeyCode BurnToggle = KeyCode.B;
     public static KeyCode MetalWheel = KeyCode.Tab;
     public static KeyCode DrinkVial = KeyCode.X;
+
+    // Coin abilities
+    public static KeyCode CoinShotgun = KeyCode.V;
+    public static KeyCode CoinBounce = KeyCode.C;
+    public static KeyCode CoinTrail = KeyCode.Z;
+    public static KeyCode CoinRecover = KeyCode.R;
+
+    // Feruchemy (all three are gated behind FeruchemyMode being active)
+    public static KeyCode FeruchemyMode = KeyCode.H;
+    public static KeyCode FeruchemyStore = KeyCode.Z;    // conflicts w/ CoinTrail when in feruchemy mode
+    public static KeyCode FeruchemyTap = KeyCode.X;      // conflicts w/ DrinkVial when in feruchemy mode
+    public static KeyCode FeruchemyStopAll = KeyCode.C;  // conflicts w/ CoinBounce when in feruchemy mode
 
     // Combat (original)
     public static int LightAttack = 0;

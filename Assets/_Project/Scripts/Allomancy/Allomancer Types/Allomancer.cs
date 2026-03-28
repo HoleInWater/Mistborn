@@ -110,10 +110,18 @@ public class Allomancer : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(Keybinds.BurnToggle))
         {
-            if (isBurningMetal) StopBurning();
-            else StartBurning(GetCurrentMetal());
+            if (isBurningMetal)
+            {
+                StopBurning();
+                FlareManager.Instance?.SetBurning(false);
+            }
+            else
+            {
+                StartBurning(GetCurrentMetal());
+                FlareManager.Instance?.SetBurning(true);
+            }
         }
 
         if (isNicrobursting)

@@ -40,8 +40,9 @@ public class WeatherGameplayIntegration : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         if (mistCurve == null || mistCurve.length == 0)
         {
@@ -60,7 +61,7 @@ public class WeatherGameplayIntegration : MonoBehaviour
         {
             player = playerObj.transform;
             tinComponent = playerObj.GetComponent<Tin>();
-            playerHealth = playerObj.GetComponent<IDamageable>();
+            playerHealth = playerObj.GetComponentInParent<IDamageable>();
         }
     }
 

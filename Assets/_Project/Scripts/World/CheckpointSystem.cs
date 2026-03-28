@@ -20,7 +20,7 @@ public class CheckpointSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         lastCheckpointPosition = defaultSpawnPoint;
         lastCheckpointRotation = Quaternion.identity;
@@ -41,7 +41,7 @@ public class CheckpointSystem : MonoBehaviour
     IEnumerator RespawnSequence()
     {
         // Screen fade could go here
-        yield return new WaitForSeconds(respawnDelay);
+        yield return new WaitForSecondsRealtime(respawnDelay);
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null) yield break;
@@ -52,7 +52,7 @@ public class CheckpointSystem : MonoBehaviour
         // Restore health
         if (restoreHealthOnRespawn)
         {
-            IDamageable health = player.GetComponent<IDamageable>();
+            IDamageable health = player.GetComponentInParent<IDamageable>();
             // Reset via PlayerHealth if available
             var ph = player.GetComponent<PlayerHealth>();
             if (ph != null) ph.Heal(ph.GetMaxHealth());
@@ -93,7 +93,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         currentHealth = maxHealth;
     }

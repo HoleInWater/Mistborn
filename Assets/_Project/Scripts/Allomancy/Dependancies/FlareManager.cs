@@ -36,8 +36,9 @@ public class FlareManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
         _cachedAllomancer = GetComponentInParent<Allomancer>();
     }
 
@@ -59,8 +60,8 @@ public class FlareManager : MonoBehaviour
 
     [Header("Force Scaling")]
     [Tooltip("Force multiplier at intensity 10.")]
-    [Range(1.5f, 4f)]
-    public float maxFlareMultiplier = 2.5f;
+    [Range(1f, 10f)]
+    public float maxFlareMultiplier = 3.2f;
 
     // ── State ─────────────────────────────────────────────────────────────────
 
@@ -88,7 +89,7 @@ public class FlareManager : MonoBehaviour
     {
         get
         {
-            float mult = IsBurning
+            float mult = IsBurning && maxIntensitySteps > 1
                 ? Mathf.Lerp(1f, maxFlareMultiplier, (float)(Intensity - 1) / (maxIntensitySteps - 1))
                 : 1f;
 
@@ -122,9 +123,16 @@ public class FlareManager : MonoBehaviour
 
     void HandleBurnToggle()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(Keybinds.Crouch))
         {
             IsBurning = !IsBurning;
+            // Keep Allomancer burn state in sync so B-key and Left-Ctrl agree
+            if (_cachedAllomancer == null) _cachedAllomancer = GetComponentInParent<Allomancer>();
+            if (_cachedAllomancer != null)
+            {
+                if (IsBurning) _cachedAllomancer.StartBurning(_cachedAllomancer.GetCurrentMetal());
+                else           _cachedAllomancer.StopBurning();
+            }
         }
     }
 
@@ -142,6 +150,7 @@ public class FlareManager : MonoBehaviour
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void StopBurning() => IsBurning = false;
+    public void SetBurning(bool state) => IsBurning = state;
 
     public void SetIntensity(int v) =>
         Intensity = Mathf.Clamp(v, 1, maxIntensitySteps);

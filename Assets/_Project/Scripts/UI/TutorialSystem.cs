@@ -23,7 +23,7 @@ public class TutorialSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(this); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
         if (tutorialPanel != null) tutorialPanel.SetActive(false);
@@ -33,7 +33,7 @@ public class TutorialSystem : MonoBehaviour
     void Update()
     {
         // F1 toggles help overlay
-        if (Input.GetKeyDown(KeyCode.F1))
+        if (Input.GetKeyDown(Keybinds.Help))
         {
             if (helpOverlayPanel != null)
                 helpOverlayPanel.SetActive(!helpOverlayPanel.activeSelf);

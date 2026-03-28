@@ -599,24 +599,6 @@ MonoBehaviour:
   m_MaxSamples:
     m_OverrideState: 1
     m_Value: 6
---- !u!114 &-6026464391438864705
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a7ff42a8c5be6646ad3975f3a54c1eb, type: 3}
-  m_Name: DiffusionProfileList
-  m_EditorClassIdentifier: 
-  active: 1
-  diffusionProfiles:
-    m_OverrideState: 1
-    m_Value:
-    - {fileID: 11400000, guid: 404820c4cf36ad944862fa59c56064f0, type: 2}
-    - {fileID: 11400000, guid: 2384dbf2c1c420f45a792fbc315fbfb1, type: 2}
 --- !u!114 &-5392261681031928828
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1279,48 +1261,19 @@ MonoBehaviour:
   m_Name: DefaultSettingsVolumeProfile
   m_EditorClassIdentifier: 
   components:
-  - {fileID: 7686318427622180703}
-  - {fileID: -1016694868962581565}
-  - {fileID: 7502528774814404555}
-  - {fileID: 7542669330009093999}
-  - {fileID: 1501199423866068322}
-  - {fileID: 5315503232242033309}
-  - {fileID: 1932259527246508038}
-  - {fileID: 448115243408767295}
-  - {fileID: -7089757308646879465}
-  - {fileID: -8770122170507510650}
-  - {fileID: 4981354747274665315}
-  - {fileID: 5305602202033311358}
-  - {fileID: -6621681175462171597}
-  - {fileID: 155917994718236810}
-  - {fileID: -1407868266439433260}
-  - {fileID: -837874142878880364}
-  - {fileID: 194730816515699115}
-  - {fileID: 936314529803126612}
-  - {fileID: 1199981338005411982}
-  - {fileID: -8579508349424960283}
-  - {fileID: -6379610452714056754}
-  - {fileID: -214657781881130702}
-  - {fileID: 7082391221583161823}
-  - {fileID: -4956962767242931500}
-  - {fileID: 6648901769632267315}
-  - {fileID: -5174010932522037090}
-  - {fileID: 2558477464504305235}
-  - {fileID: -2424486628293295798}
-  - {fileID: -2254649274180838216}
-  - {fileID: -7176112946312153724}
-  - {fileID: 7561333754919740580}
-  - {fileID: 3689834679496390972}
-  - {fileID: -7942894522001480973}
-  - {fileID: 174017693276898429}
-  - {fileID: -8204108591670560567}
-  - {fileID: 2013543713834070344}
-  - {fileID: -2259045561895327729}
-  - {fileID: -5392261681031928828}
-  - {fileID: -2477677748267745017}
-  - {fileID: -872989519196657054}
-  - {fileID: -4041533500349936034}
-  - {fileID: -9090742588834345812}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 2931457758531256834}
 --- !u!114 &155917994718236810
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1961,6 +1914,24 @@ MonoBehaviour:
   customSeed:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &2931457758531256834
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a7ff42a8c5be6646ad3975f3a54c1eb, type: 3}
+  m_Name: DiffusionProfileList
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.DiffusionProfileList
+  active: 1
+  diffusionProfiles:
+    m_OverrideState: 1
+    m_Value:
+    - {fileID: 11400000, guid: 404820c4cf36ad944862fa59c56064f0, type: 2}
+    - {fileID: 11400000, guid: 2384dbf2c1c420f45a792fbc315fbfb1, type: 2}
 --- !u!114 &3689834679496390972
 MonoBehaviour:
   m_ObjectHideFlags: 3

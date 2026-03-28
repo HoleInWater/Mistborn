@@ -9,6 +9,7 @@ public class GhostRenderer : MonoBehaviour
 {
     private GameObject ghostObject;
     private List<MeshRenderer> ghostRenderers = new List<MeshRenderer>();
+    private List<Mesh> bakedMeshes = new List<Mesh>(); // tracked so we can Destroy them
     private Material ghostMaterial;
 
     /// <summary>
@@ -22,9 +23,11 @@ public class GhostRenderer : MonoBehaviour
             ghostObject.transform.SetParent(null); // Keep it top-level or child of a pool
         }
 
-        // Clear old renderers
+        // Clear old renderers and baked meshes from any previous call
         foreach (var r in ghostRenderers) if (r != null) Destroy(r.gameObject);
         ghostRenderers.Clear();
+        foreach (var m in bakedMeshes) if (m != null) Destroy(m);
+        bakedMeshes.Clear();
 
         // Copy MeshFilters/Renderers
         MeshFilter[] filters = target.GetComponentsInChildren<MeshFilter>();
@@ -40,7 +43,8 @@ public class GhostRenderer : MonoBehaviour
             mf.sharedMesh = filter.sharedMesh;
 
             MeshRenderer mr = part.AddComponent<MeshRenderer>();
-            mr.sharedMaterials = filter.GetComponent<MeshRenderer>().sharedMaterials;
+            MeshRenderer sourceMr = filter.GetComponent<MeshRenderer>();
+            if (sourceMr != null) mr.sharedMaterials = sourceMr.sharedMaterials;
             
             // Set transparency
             foreach (Material m in mr.materials)
@@ -61,6 +65,7 @@ public class GhostRenderer : MonoBehaviour
             Mesh mesh = new Mesh();
             smr.BakeMesh(mesh);
             mf.sharedMesh = mesh;
+            bakedMeshes.Add(mesh); // track for explicit cleanup
 
             MeshRenderer mr = part.AddComponent<MeshRenderer>();
             mr.sharedMaterials = smr.sharedMaterials;
@@ -101,6 +106,8 @@ public class GhostRenderer : MonoBehaviour
 
     void OnDestroy()
     {
+        foreach (var m in bakedMeshes) if (m != null) Destroy(m);
+        bakedMeshes.Clear();
         if (ghostObject != null) Destroy(ghostObject);
     }
 }

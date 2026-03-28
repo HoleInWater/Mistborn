@@ -23,6 +23,9 @@ public class CognitiveAllomancy : MonoBehaviour
     private static List<CognitiveAllomancy> activeClouds = new List<CognitiveAllomancy>();
     public static IReadOnlyList<CognitiveAllomancy> ActiveClouds => activeClouds;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => activeClouds = new List<CognitiveAllomancy>();
+
     // Detected Allomancers
     private List<DetectedPulse> detectedPulses = new List<DetectedPulse>();
     public IReadOnlyList<DetectedPulse> DetectedPulses => detectedPulses;
@@ -82,6 +85,7 @@ public class CognitiveAllomancy : MonoBehaviour
         detectedPulses.Clear();
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
         float range = bronzeDetectionRange * flare;
+        if (range <= 0f) return;
 
         // Find all Allomancers in range
         var allomancers = MistbornRegistry.ActiveAllomancers;

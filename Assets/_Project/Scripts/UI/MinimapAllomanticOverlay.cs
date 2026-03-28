@@ -310,7 +310,7 @@ public class MinimapAllomanticOverlay : MonoBehaviour
         if (minimapCamera == null) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (Input.GetKey(KeyCode.Tab) && Mathf.Abs(scroll) > 0.01f)
+        if (Input.GetKey(Keybinds.MetalWheel) && Mathf.Abs(scroll) > 0.01f)
         {
             currentZoom = Mathf.Clamp(currentZoom - scroll * zoomSpeed * 100f, minZoom, maxZoom);
             minimapCamera.orthographicSize = currentZoom;

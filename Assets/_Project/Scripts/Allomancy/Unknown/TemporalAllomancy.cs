@@ -82,6 +82,7 @@ public class TemporalAllomancy : MonoBehaviour
     void UpdateGoldShadow()
     {
         // Show where the player was N frames ago
+        if (Time.deltaTime <= 0f) return;
         int pastIndex = (historyIndex - Mathf.RoundToInt(goldShadowTrail / Time.deltaTime) + goldHistoryFrames) % goldHistoryFrames;
 
         if (goldGhost == null)

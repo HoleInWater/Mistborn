@@ -7,15 +7,6 @@ public class MetalSpawner : MonoBehaviour
     public int maxMetals = 10;
     public float spawnRadius = 5f;
     
-    void Update()
-    {
-        // Press T to spawn metal
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            SpawnMetal();
-        }
-    }
-    
     public void SpawnMetal()
     {
         // Optimized high-performance count via Registry

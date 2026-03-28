@@ -15,6 +15,9 @@ public class Copper : MonoBehaviour
     private bool isBurning = false;
     private static List<Copper> activeClouds = new List<Copper>();
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => activeClouds = new List<Copper>();
+
     void Start()
     {
         allomancer = GetComponentInParent<Allomancer>();
@@ -45,8 +48,7 @@ public class Copper : MonoBehaviour
         {
             if (cloud == null || !cloud.isBurning) continue;
 
-            float flareMult = (FlareManager.Instance != null && cloud.gameObject == FlareManager.Instance.gameObject) 
-                ? FlareManager.Instance.FlareMultiplier : 1.0f;
+            float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1.0f;
             
             float radius = Mathf.Lerp(cloud.baseCloudRadius, cloud.maxCloudRadius, (flareMult - 1f) / 1.5f);
             
