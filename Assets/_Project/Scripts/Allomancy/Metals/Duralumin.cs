@@ -125,6 +125,10 @@ public class Duralumin : MonoBehaviour
                 break;
         }
 
+        // Lore: burning Duralumin instantly expends ALL of the paired metal too
+        if (allomancer != null)
+            allomancer.DrainMetal(metal, allomancer.GetMetalReserve(metal));
+
         hasPrimed = false;
         if (allomancer != null) allomancer.isDuraluminPrimed = false;
         SoundManager.Instance?.PlayDuraluminBurst();

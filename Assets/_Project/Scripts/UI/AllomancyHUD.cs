@@ -23,9 +23,18 @@ public class AllomancyHUD : MonoBehaviour
     public Color tinColor = new Color(1f, 1f, 0.5f);
     public Color zincColor = new Color(1f, 0.5f, 0f);
     public Color brassColor = new Color(0.2f, 0.9f, 0.5f);
-    public Color copperColor = new Color(0.2f, 0.8f, 0.2f);
-    public Color bronzeColor = new Color(0.8f, 0.3f, 0.8f);
-    public Color defaultColor = Color.white;
+    public Color copperColor   = new Color(0.2f, 0.8f, 0.2f);
+    public Color bronzeColor   = new Color(0.8f, 0.3f, 0.8f);
+    // Upper 8 — God Metals and Alloys
+    public Color atiumColor    = new Color(0.55f, 0.55f, 0.70f); // dark silver-blue
+    public Color malatiumColor = new Color(0.50f, 0.28f, 0.62f); // deep violet
+    public Color goldColor     = new Color(1.0f,  0.80f, 0.10f); // warm gold
+    public Color electrumColor = new Color(0.90f, 0.90f, 0.40f); // pale electrum
+    public Color aluminumColor = new Color(0.90f, 0.92f, 0.96f); // bright silver-white
+    public Color duraluminColor= new Color(0.45f, 0.75f, 1.00f); // silver-blue
+    public Color bendalloyColor= new Color(0.90f, 0.58f, 0.18f); // amber
+    public Color cadmiumColor  = new Color(0.20f, 0.72f, 0.70f); // teal
+    public Color defaultColor  = Color.white;
 
     [Header("Settings")]
     public float barWidth = 8f;
@@ -177,8 +186,16 @@ public class AllomancyHUD : MonoBehaviour
             case 3: return tinColor;
             case 4: return zincColor;
             case 5: return brassColor;
-            case 6: return copperColor;
-            case 7: return bronzeColor;
+            case 6:  return copperColor;
+            case 7:  return bronzeColor;
+            case 8:  return atiumColor;
+            case 9:  return malatiumColor;
+            case 10: return goldColor;
+            case 11: return electrumColor;
+            case 12: return aluminumColor;
+            case 13: return duraluminColor;
+            case 14: return bendalloyColor;
+            case 15: return cadmiumColor;
             default: return defaultColor;
         }
     }
