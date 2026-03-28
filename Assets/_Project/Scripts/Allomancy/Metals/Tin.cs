@@ -169,6 +169,45 @@ public class Tin : MonoBehaviour
     [Range(0f, 0.04f)]
     private float vibrationShakeMagnitude = 0.008f;
 
+    // ── Heartbeat Detection (Flaring only) ───────────────────────────────────
+
+    [Header("Heartbeat Detection — Flaring Only")]
+    [SerializeField]
+    [Tooltip("Radius within which enemy heartbeats are audible while Flaring. " +
+             "Lore: Vin hears guard heartbeats through stone walls when burning hard.")]
+    [Range(3f, 20f)]
+    private float heartbeatRange = 9f;
+
+    [SerializeField]
+    [Tooltip("Seconds between heartbeat pulses (~0.85 = 70bpm). " +
+             "Enemies close to the player should feel alive and threatening.")]
+    [Range(0.4f, 1.5f)]
+    private float heartbeatInterval = 0.85f;
+
+    [SerializeField]
+    [Tooltip("3D audio clip for the heartbeat cue. Assign a short, low thud. " +
+             "Played at each enemy's position so the player hears direction.")]
+    private AudioClip heartbeatClip;
+
+    [SerializeField]
+    [Tooltip("Volume of the heartbeat. Keep very subtle — this is awareness, not distraction.")]
+    [Range(0f, 0.35f)]
+    private float heartbeatVolume = 0.13f;
+
+    // ── Flare Entry Effect ────────────────────────────────────────────────────
+
+    [Header("Flare Entry — Zoom Snap")]
+    [SerializeField]
+    [Tooltip("Extra FOV reduction on entering Flaring state — a momentary snap-to-focus " +
+             "that sells the sense amplification before settling to normal Flaring FOV.")]
+    [Range(0f, 12f)]
+    private float flareEntryFOVPulse = 7f;
+
+    [SerializeField]
+    [Tooltip("Duration of the flare entry zoom snap in seconds.")]
+    [Range(0.1f, 0.5f)]
+    private float flareEntryDuration = 0.25f;
+
     // ── Sensory Overload ──────────────────────────────────────────────────────
 
     [Header("Sensory Overload — The Double-Edged Sword")]
@@ -219,8 +258,16 @@ public class Tin : MonoBehaviour
     private float currentOverloadVisual = 0f;
     private float currentOverloadAudio  = 0f;
 
-    // Scent ping timer
-    private float scentTimer = 0f;
+    // Scent and heartbeat timers
+    private float scentTimer     = 0f;
+    private float heartbeatTimer = 0f;
+
+    // Tracks SensorySource instances known from the previous frame.
+    // Any source NOT in this set is "new this frame" — triggers an immediate overload spike.
+    private readonly HashSet<SensorySource> knownSourcesLastFrame = new HashSet<SensorySource>();
+
+    // Flare entry zoom coroutine
+    private Coroutine flareEntryCoroutine;
 
     // Set to true the frame Tin reserve hits zero — triggers WorldGoesDull on stop
     private bool metalRanOut = false;
@@ -266,13 +313,24 @@ public class Tin : MonoBehaviour
 
         originalAudioVolume = AudioListener.volume;
 
-        // Obtain HDRP Volume overrides from the assigned global volume
+        // Obtain HDRP Volume overrides from the assigned global volume.
+        // If a component is missing from the profile, add it at runtime so Tin effects work
+        // even on volumes that haven't been set up in advance.
         if (globalVolume != null && globalVolume.profile != null)
         {
-            globalVolume.profile.TryGet(out exposure);
-            globalVolume.profile.TryGet(out fog);
-            globalVolume.profile.TryGet(out colorAdjustments);
-            globalVolume.profile.TryGet(out vignette);
+            var profile = globalVolume.profile;
+
+            if (!profile.TryGet(out exposure))
+                exposure = profile.Add<Exposure>(true);
+
+            if (!profile.TryGet(out fog))
+                fog = profile.Add<Fog>(true);
+
+            if (!profile.TryGet(out colorAdjustments))
+                colorAdjustments = profile.Add<ColorAdjustments>(true);
+
+            if (!profile.TryGet(out vignette))
+                vignette = profile.Add<Vignette>(true);
         }
     }
 
@@ -284,9 +342,13 @@ public class Tin : MonoBehaviour
             ? allomancer.GetMetalReserve(AllomancySkill.MetalType.Tin)
             : 0f;
 
+        // Burn gate matches Pewter/Steel/Iron pattern: Left Ctrl (FlareManager) activates Tin.
+        // Tin activates whenever burning is toggled on AND Tin reserve is available.
+        // Does not require Tin to be the "current metal" — Mistborns burn multiple metals
+        // simultaneously. If you want to gate behind selection, check MetalSelector here.
         bool burningTin = allomancer != null
-                       && allomancer.IsBurning()
-                       && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Tin
+                       && FlareManager.Instance != null
+                       && FlareManager.Instance.IsBurning
                        && tinReserve > 0f;
 
         float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
@@ -310,12 +372,25 @@ public class Tin : MonoBehaviour
         {
             if (targetState == TinState.Off)
             {
+                // Stop flare entry zoom if it's still running
+                if (flareEntryCoroutine != null) { StopCoroutine(flareEntryCoroutine); flareEntryCoroutine = null; }
                 OnStopBurning(metalRanOut);
                 metalRanOut = false;
             }
             else if (CurrentState == TinState.Off)
             {
                 OnStartBurning();
+                // If already above flare threshold on activation, trigger zoom immediately
+                if (targetState == TinState.Flaring) TriggerFlareEntry();
+            }
+            else if (CurrentState == TinState.Burning && targetState == TinState.Flaring)
+            {
+                TriggerFlareEntry();
+            }
+            else if (CurrentState == TinState.Flaring && targetState == TinState.Burning)
+            {
+                // Dropped below flare threshold — cancel any pending zoom
+                if (flareEntryCoroutine != null) { StopCoroutine(flareEntryCoroutine); flareEntryCoroutine = null; }
             }
             CurrentState = targetState;
         }
@@ -330,6 +405,7 @@ public class Tin : MonoBehaviour
             HandleSensoryOverload(flareMult);
             UpdateScentDetection();
             UpdateVibrationDetection();
+            if (CurrentState == TinState.Flaring) UpdateHeartbeatDetection();
             UpdateReflexSpeed();
             DrainMetal(flareMult);
         }
@@ -581,13 +657,30 @@ public class Tin : MonoBehaviour
                 ? Mathf.Pow(1f - (dist / source.radius), source.falloff)
                 : (1f - (dist / source.radius));
 
-            float inputIntensity = falloff * source.intensity * flareMult;
+            // SUDDEN STIMULUS: a source that wasn't active last frame (e.g. an explosion,
+            // a torch suddenly revealed) causes an immediate overload spike.
+            // Lore: Vin is instantly blinded by Marsh's eye-spike gleam — no build-up.
+            if (!knownSourcesLastFrame.Contains(source))
+            {
+                float spike = falloff * source.intensity * flareMult * 0.5f;
+                if (source.type == SensorySource.SourceType.BrightLight)
+                    currentOverloadVisual = Mathf.Clamp01(currentOverloadVisual + spike);
+                else
+                    currentOverloadAudio  = Mathf.Clamp01(currentOverloadAudio  + spike);
+            }
 
+            // GRADUAL ACCUMULATION: persistent sources (standing near a torch) build up over time
+            float inputIntensity = falloff * source.intensity * flareMult;
             if (source.type == SensorySource.SourceType.BrightLight)
                 currentOverloadVisual = Mathf.Clamp01(currentOverloadVisual + inputIntensity * Time.deltaTime * 5f);
             else
-                currentOverloadAudio = Mathf.Clamp01(currentOverloadAudio + inputIntensity * Time.deltaTime * 5f);
+                currentOverloadAudio  = Mathf.Clamp01(currentOverloadAudio  + inputIntensity * Time.deltaTime * 5f);
         }
+
+        // Update known sources for next frame's sudden-stimulus check
+        knownSourcesLastFrame.Clear();
+        foreach (var source in SensorySource.ActiveSources)
+            if (source != null) knownSourcesLastFrame.Add(source);
     }
 
     private void ApplyOverloadVisuals()
@@ -685,6 +778,70 @@ public class Tin : MonoBehaviour
                 Time.deltaTime * 5f
             );
         }
+    }
+
+    // ── Heartbeat Detection ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// While Flaring, plays a 3D heartbeat sound at nearby enemy positions.
+    /// Lore: "She could hear their heartbeats — a soft, rhythmic thudding that
+    /// let her know exactly where each guard was, even through the stone walls."
+    /// Only fires when in Flaring state — burning hard enough to hear heartbeats
+    /// is a deliberate cost, not a passive baseline.
+    /// </summary>
+    private void UpdateHeartbeatDetection()
+    {
+        heartbeatTimer -= Time.deltaTime;
+        if (heartbeatTimer > 0f) return;
+        heartbeatTimer = heartbeatInterval;
+
+        if (heartbeatClip == null) return;
+
+        foreach (var enemy in MistbornRegistry.ActiveEnemies)
+        {
+            if (enemy == null) continue;
+            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            if (dist > heartbeatRange) continue;
+
+            float falloff = 1f - Mathf.Clamp01(dist / heartbeatRange);
+            float vol     = heartbeatVolume * falloff;
+            AudioSource.PlayClipAtPoint(heartbeatClip, enemy.transform.position, vol);
+        }
+    }
+
+    // ── Flare Entry Zoom ──────────────────────────────────────────────────────
+
+    private void TriggerFlareEntry()
+    {
+        if (flareEntryCoroutine != null) StopCoroutine(flareEntryCoroutine);
+        if (playerCamera != null)
+            flareEntryCoroutine = StartCoroutine(FlareEntryCoroutine());
+    }
+
+    /// <summary>
+    /// Brief FOV snap on entering Flaring state.
+    /// The camera punches in sharply then eases back to the settled Flaring FOV —
+    /// selling the sensation of senses suddenly amplifying.
+    /// </summary>
+    private IEnumerator FlareEntryCoroutine()
+    {
+        float settledFOV  = originalFOV - fovFocusDegrees - fovFlaringExtra;
+        float snapFOV     = settledFOV - flareEntryFOVPulse;
+        float startFOV    = playerCamera.fieldOfView;
+        float elapsed     = 0f;
+
+        while (elapsed < flareEntryDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / flareEntryDuration;
+            // Quick snap in, ease back out (quadratic ease-out)
+            float eased = 1f - (1f - t) * (1f - t);
+            playerCamera.fieldOfView = Mathf.Lerp(snapFOV, settledFOV, eased);
+            yield return null;
+        }
+
+        playerCamera.fieldOfView = settledFOV;
+        flareEntryCoroutine = null;
     }
 
     // ── World Goes Dull ───────────────────────────────────────────────────────
