@@ -258,9 +258,11 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    bool IsNavReady() => navAgent != null && navAgent.enabled && navAgent.isOnNavMesh;
+
     void HandlePatrol()
     {
-        if (navAgent == null || !navAgent.enabled) return;
+        if (!IsNavReady()) return;
         navAgent.isStopped = false;
         navAgent.speed = moveSpeed;
 
@@ -276,7 +278,7 @@ public class EnemyAI : MonoBehaviour
 
     void HandleChase()
     {
-        if (target == null || navAgent == null) return;
+        if (target == null || !IsNavReady()) return;
         navAgent.isStopped = false;
         navAgent.speed = runSpeed;
 
@@ -348,7 +350,7 @@ public class EnemyAI : MonoBehaviour
 
     void HandleFlee()
     {
-        if (target == null || navAgent == null) return;
+        if (target == null || !IsNavReady()) return;
         navAgent.isStopped = false;
         navAgent.speed = runSpeed;
 
