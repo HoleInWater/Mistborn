@@ -8,7 +8,7 @@
 
 1. **Tin Allomancy** — full 5-sense implementation (sight, sound, smell, taste, touch ranges)
 2. **Particle Effects** — metal burn/flare VFX prefabs for all active metals
-3. **Animation Controllers** — character animation state machines (movement, combat, allomancy)
+3. **Finsih Animation Controllers** — character animation state machines (movement, combat, allomancy)
 4. **Enemy Polish** — Koloss, SteelInquisitor, Hazekiller need testing and tuning
 5. **Level Design** — first playable Luthadel city block (vertical traversal focus)
 
