@@ -382,6 +382,9 @@ public class HazekillerAI : MonoBehaviour, IDamageable
 
     // ── Damage ───────────────────────────────────────────────────────────
 
+    public float GetMaxHealth()     => 100f;
+    public float GetCurrentHealth() => health;
+
     public void TakeDamage(float damage)
     {
         health -= damage;
