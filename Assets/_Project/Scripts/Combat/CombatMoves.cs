@@ -16,9 +16,15 @@ public class CombatComboSystem : MonoBehaviour
     [Header("References")]
     public Animator animator;
     public Allomancer allomancer;
+    private Pewter _pewter;
 
     private int currentCombo = 0;
     private float comboTimer = 0f;
+
+    void Start()
+    {
+        if (_pewter == null) _pewter = GetComponentInParent<Pewter>();
+    }
 
     void Update()
     {
@@ -64,13 +70,9 @@ public class CombatComboSystem : MonoBehaviour
         if (currentCombo >= maxComboHits)
             damage *= finisherDamageMultiplier;
 
-        // Pewter enhancement
-        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
-        {
-            float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
-            float P = Mathf.Clamp01(flare / 2.5f);
-            damage *= AllomancyPhysicsFormulas.CalculatePewterStrength(1f, 2f, P);
-        }
+        // Pewter strength bonus — 2x at base burn, 3x at max flare (lore-accurate)
+        if (_pewter != null && _pewter.IsBurningPewter())
+            damage *= _pewter.GetStrengthMultiplier();
 
         return damage;
     }
@@ -97,11 +99,17 @@ public class ParrySystem : MonoBehaviour
     public Animator animator;
     public PlayerStamina stamina;
     public Allomancer allomancer;
+    private Pewter _pewter;
 
     private bool isBlocking = false;
     private bool isParrying = false;
     private float parryTimer = 0f;
     private float cooldownTimer = 0f;
+
+    void Start()
+    {
+        if (_pewter == null) _pewter = GetComponentInParent<Pewter>();
+    }
 
     void Update()
     {
@@ -148,8 +156,8 @@ public class ParrySystem : MonoBehaviour
         if (isBlocking)
         {
             float reduction = blockDamageReduction;
-            // Pewter enhances block
-            if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+            // Pewter enhances block — tougher body absorbs more impact
+            if (_pewter != null && _pewter.IsBurningPewter())
                 reduction *= 1.3f;
 
             stamina?.DrainStamina(blockStaminaCost);
