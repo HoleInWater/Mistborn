@@ -61,7 +61,7 @@ public class WeatherGameplayIntegration : MonoBehaviour
         {
             player = playerObj.transform;
             tinComponent = playerObj.GetComponent<Tin>();
-            playerHealth = playerObj.GetComponent<IDamageable>();
+            playerHealth = playerObj.GetComponentInParent<IDamageable>();
         }
     }
 

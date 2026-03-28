@@ -58,7 +58,7 @@ public class Aluminum : MonoBehaviour
         allomancer.isNicrobursting = false;
 
         // Clear Feruchemy if present
-        Feruchemist feruchemist = GetComponent<Feruchemist>();
+        Feruchemist feruchemist = GetComponentInParent<Feruchemist>();
         if (feruchemist != null)
         {
             for (int i = 0; i < Feruchemist.MetalmindCount; i++)
@@ -69,7 +69,7 @@ public class Aluminum : MonoBehaviour
         }
 
         // Clear Compounding
-        Compounding compounding = GetComponent<Compounding>();
+        Compounding compounding = GetComponentInParent<Compounding>();
         if (compounding != null)
         {
             for (int i = 0; i < Feruchemist.MetalmindCount; i++)

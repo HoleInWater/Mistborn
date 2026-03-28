@@ -51,43 +51,34 @@ public class AllomanticSight : MonoBehaviour
     [Tooltip("Reference to the player's camera for line rendering origin")]
     public Camera playerCamera;
     
-    // ===== PRIVATE STATE =====
-    private bool isActive = false; // Whether the sight is currently active
-    private Coroutine slowMotionCoroutine;
-    private List<LineRenderer> activeLines = new List<LineRenderer>(); // Currently active line renderers
-    private List<LineRenderer> linePool = new List<LineRenderer>(); // Pool of inactive line renderers for reuse
-    private float metalReserve = 100f; // Current metal reserve for burning Tin
-    private float metalCostPerSecond = 1f; // How fast metal drains while sight is active
+    [Header("Metal Cost")]
+    [Tooltip("Tin drained per second while sight is active. Uses the Allomancer's Tin reserve.")]
+    public float metalCostPerSecond = 1f;
+
     [Tooltip("Maximum number of blue lines to pool (prevents infinite growth)")]
     public int maxLines = 100;
+
+    // ===== PRIVATE STATE =====
+    private bool isActive = false;
+    private List<LineRenderer> activeLines = new List<LineRenderer>();
+    private List<LineRenderer> linePool = new List<LineRenderer>();
+    private Allomancer allomancer;
     
     void Start()
     {
-        // Auto-assign playerCamera to main camera if not set
-        if (playerCamera == null)
-        {
-            playerCamera = Camera.main;
-            if (playerCamera == null)
-            {
-            }
-        }
+        if (playerCamera == null) playerCamera = Camera.main;
+        allomancer = GetComponentInParent<Allomancer>();
         
-        // Try to auto-find chest transform if not assigned
         if (chestTransform == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag(playerTag);
             if (player != null)
             {
-                // Try to find a child named "Chest" or "ChestBone" or similar
-                Transform chest = player.transform.Find("Chest");
-                if (chest == null) chest = player.transform.Find("ChestBone");
-                if (chest == null) chest = player.transform.Find("Spine2"); // Common bone name
-                if (chest == null) chest = player.transform; // Fallback to player transform
-                
+                Transform chest = player.transform.Find("Chest")
+                               ?? player.transform.Find("ChestBone")
+                               ?? player.transform.Find("Spine2")
+                               ?? player.transform;
                 chestTransform = chest;
-            }
-            else
-            {
             }
         }
         
@@ -168,52 +159,37 @@ public class AllomanticSight : MonoBehaviour
         linePool.Add(line);
     }
     
-    // Update is called once per frame
     void Update()
     {
-        // Check for Tab key press to toggle Allomantic Sight
-        if (Input.GetKeyDown(Keybinds.MetalWheel))
+        // T key toggles Allomantic Sight (Tab is the metal selection wheel)
+        if (Input.GetKeyDown(Keybinds.MetalSight))
         {
+            // Require Tin reserve to activate
+            bool hasTin = allomancer == null
+                       || allomancer.GetMetalReserve(AllomancySkill.MetalType.Tin) > 0f;
+            if (!isActive && !hasTin) return;
             ToggleSight();
         }
-        
-        // If sight is active, continuously update metal visualization and drain metal
+
         if (isActive)
         {
-            VisualizeMetals(); // Draw lines to all metals
-            DrainMetal();      // Consume metal reserve
+            // Auto-off when Tin runs out
+            if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Tin) <= 0f)
+            {
+                ToggleSight();
+                return;
+            }
+
+            VisualizeMetals();
+            DrainMetal();
         }
     }
-    
-    // Toggles the Allomantic Sight on/off
+
     void ToggleSight()
     {
         isActive = !isActive;
-        
-        // If turning off, clear all existing lines
         if (!isActive)
-        {
             ClearLines();
-            if (slowMotionCoroutine != null) { StopCoroutine(slowMotionCoroutine); slowMotionCoroutine = null; }
-            Time.timeScale = 1f;
-        }
-        else
-        {
-            if (slowMotionCoroutine != null) StopCoroutine(slowMotionCoroutine);
-            slowMotionCoroutine = StartCoroutine(SlowMotionEffect(0.3f));
-        }
-        
-        // Log state change (this Debug.Log should be removed for production)
-#if UNITY_EDITOR
-#endif
-    }
-    
-    IEnumerator SlowMotionEffect(float duration)
-    {
-        Time.timeScale = 0.5f;
-        yield return new WaitForSecondsRealtime(duration);
-        Time.timeScale = 1f;
-        slowMotionCoroutine = null;
     }
     
     // Draws lines from the player to all metal objects within range
@@ -257,8 +233,9 @@ public class AllomanticSight : MonoBehaviour
             line.SetPosition(0, originPoint);
             line.SetPosition(1, metalObject.transform.position);
             
-            // Get AllomanticTarget component for additional info
-            AllomanticTarget target = metal.GetComponent<AllomanticTarget>();
+            // GetComponentInParent so AllomanticTarget on a root object is found
+            // even when the collider is on a child mesh
+            AllomanticTarget target = metal.GetComponentInParent<AllomanticTarget>();
             
             // Determine color based on metal properties
             Color baseColor;
@@ -329,15 +306,10 @@ public class AllomanticSight : MonoBehaviour
         ReturnAllActiveLinesToPool();
     }
     
-    // Drains metal reserve while sight is active
     void DrainMetal()
     {
-        metalReserve -= metalCostPerSecond * Time.deltaTime;
-        if (metalReserve <= 0)
-        {
-            metalReserve = 0;
-            ToggleSight(); // Auto-turn off when out of metal
-        }
+        if (allomancer != null)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Tin, metalCostPerSecond * Time.deltaTime);
     }
     
     // Cleanup when object is destroyed
@@ -359,6 +331,5 @@ public class AllomanticSight : MonoBehaviour
         activeLines.Clear();
     }
     
-    // Public getter for metal reserve (for UI display)
-    public float GetMetalReserve() => metalReserve;
+    public bool IsActive() => isActive;
 }

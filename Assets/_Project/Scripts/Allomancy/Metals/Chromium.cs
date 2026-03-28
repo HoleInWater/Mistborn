@@ -75,7 +75,7 @@ public class Chromium : MonoBehaviour
         target.ClearAllReserves();
         target.StopBurning();
 
-        Feruchemist feruchemist = targetObj.GetComponent<Feruchemist>();
+        Feruchemist feruchemist = targetObj.GetComponentInParent<Feruchemist>();
         if (feruchemist != null)
         {
             for (int i = 0; i < Feruchemist.MetalmindCount; i++)
@@ -85,14 +85,14 @@ public class Chromium : MonoBehaviour
             }
         }
 
-        Compounding compounding = targetObj.GetComponent<Compounding>();
+        Compounding compounding = targetObj.GetComponentInParent<Compounding>();
         if (compounding != null)
         {
             for (int i = 0; i < Feruchemist.MetalmindCount; i++)
                 compounding.ForceStopCompounding(i);
         }
 
-        LordRulerBoss lordRuler = targetObj.GetComponent<LordRulerBoss>();
+        LordRulerBoss lordRuler = targetObj.GetComponentInParent<LordRulerBoss>();
         if (lordRuler != null)
             lordRuler.StunAndExpose();
 

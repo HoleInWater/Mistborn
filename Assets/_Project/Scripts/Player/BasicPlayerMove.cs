@@ -290,15 +290,18 @@ public class BasicPlayerMove : MonoBehaviour
  
     void HandleZoom()
     {
+        // When FlareManager is burning, scroll wheel is owned by flare intensity — skip zoom.
+        if (FlareManager.Instance != null && FlareManager.Instance.IsBurning) return;
+
         // Mouse ScrollWheel returns a positive value when scrolling up (zoom in)
         // and a negative value when scrolling down (zoom out)
         float scroll = Input.GetAxis("Mouse ScrollWheel");
- 
+
         if (Mathf.Abs(scroll) > 0.01f)
         {
             // Subtract because scrolling up (positive) should reduce distance (zoom in)
             targetZoomDistance -= scroll * zoomStep;
- 
+
             // Clamp so the player can't zoom past the min/max set in the Inspector
             targetZoomDistance = Mathf.Clamp(targetZoomDistance, minZoomDistance, maxZoomDistance);
         }

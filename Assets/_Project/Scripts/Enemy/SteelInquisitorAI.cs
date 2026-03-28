@@ -316,7 +316,7 @@ public class SteelInquisitorAI : MonoBehaviour
             damage *= allBurnDamageMultiplier;
 
         animator?.SetTrigger("Attack");
-        IDamageable target = player.GetComponent<IDamageable>();
+        IDamageable target = player.GetComponentInParent<IDamageable>();
         target?.TakeDamage(damage);
     }
 

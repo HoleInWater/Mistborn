@@ -52,10 +52,13 @@ public class Pewter : MonoBehaviour
     void Update()
     {
         bool wasBurning = isBurning;
-        // Pewter burns whenever flare is active and the player has Pewter reserves,
-        // regardless of which metal is currently selected (Pewter is a passive enhancer).
+        MetalSelector sel = allomancer?.GetComponent<MetalSelector>();
+        bool pewterEquipped = sel == null
+            || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter
+            || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Pewter;
         isBurning = allomancer != null
                  && FlareManager.Instance != null && FlareManager.Instance.IsBurning
+                 && pewterEquipped
                  && allomancer.GetMetalReserve(AllomancySkill.MetalType.Pewter) > 0;
 
         if (isBurning)

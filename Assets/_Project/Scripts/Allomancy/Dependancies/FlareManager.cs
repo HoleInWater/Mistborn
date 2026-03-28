@@ -126,6 +126,13 @@ public class FlareManager : MonoBehaviour
         if (Input.GetKeyDown(Keybinds.Crouch))
         {
             IsBurning = !IsBurning;
+            // Keep Allomancer burn state in sync so B-key and Left-Ctrl agree
+            if (_cachedAllomancer == null) _cachedAllomancer = GetComponentInParent<Allomancer>();
+            if (_cachedAllomancer != null)
+            {
+                if (IsBurning) _cachedAllomancer.StartBurning(_cachedAllomancer.GetCurrentMetal());
+                else           _cachedAllomancer.StopBurning();
+            }
         }
     }
 
@@ -143,6 +150,7 @@ public class FlareManager : MonoBehaviour
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void StopBurning() => IsBurning = false;
+    public void SetBurning(bool state) => IsBurning = state;
 
     public void SetIntensity(int v) =>
         Intensity = Mathf.Clamp(v, 1, maxIntensitySteps);

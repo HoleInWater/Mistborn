@@ -46,7 +46,7 @@ public class Malatium : MonoBehaviour
 
     void RevealTrueNature(float flareMult)
     {
-        float currentRange = Mathf.Lerp(AllomancyConstants.MalatiumRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
+        float currentRange = Mathf.Lerp(baseRevealRange, maxRevealRange, (flareMult - 1f) / 1.5f);
         
         // Optimized high-performance registry scan
         var enemies = MistbornRegistry.ActiveEnemies;

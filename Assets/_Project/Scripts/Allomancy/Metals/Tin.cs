@@ -666,6 +666,12 @@ public class Tin : MonoBehaviour
         if (vibrationScanTimer > 0f) return;
         vibrationScanTimer = VibrationScanInterval;
 
+        // Purge cache entries for destroyed enemies (Unity null-check on MonoBehaviour keys)
+        var deadKeys = new System.Collections.Generic.List<AIController>();
+        foreach (var key in navAgentCache.Keys)
+            if (key == null) deadKeys.Add(key);
+        foreach (var key in deadKeys) navAgentCache.Remove(key);
+
         foreach (var enemy in MistbornRegistry.ActiveEnemies)
         {
             if (enemy == null) continue;
@@ -963,6 +969,18 @@ public class Tin : MonoBehaviour
             AllomancySkill.MetalType.Tin,
             baseMetalCostPerSecond * flareMult * Time.deltaTime
         );
+    }
+
+    // ── Cleanup ───────────────────────────────────────────────────────────────
+
+    void OnDestroy()
+    {
+        // Restore baselines in case the object is destroyed mid-burn (e.g. scene unload)
+        if (CurrentState != TinState.Off)
+            OnStopBurning(false);
+
+        // Clear stale entries from the NavMeshAgent cache (destroyed enemies)
+        navAgentCache.Clear();
     }
 
     // ── Public Accessors ──────────────────────────────────────────────────────

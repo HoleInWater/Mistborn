@@ -52,7 +52,7 @@ public class CheckpointSystem : MonoBehaviour
         // Restore health
         if (restoreHealthOnRespawn)
         {
-            IDamageable health = player.GetComponent<IDamageable>();
+            IDamageable health = player.GetComponentInParent<IDamageable>();
             // Reset via PlayerHealth if available
             var ph = player.GetComponent<PlayerHealth>();
             if (ph != null) ph.Heal(ph.GetMaxHealth());

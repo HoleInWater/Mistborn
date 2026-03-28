@@ -28,7 +28,10 @@ public class PauseMenuSystem : MonoBehaviour
     {
         isPaused = true;
         if (pausePanel != null) pausePanel.SetActive(true);
-        Time.timeScale = 0f;
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.SetPaused(true);
+        else
+            Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         GameFlowManager.Instance?.PauseGame();
@@ -38,7 +41,10 @@ public class PauseMenuSystem : MonoBehaviour
     {
         isPaused = false;
         CloseAllPanels();
-        Time.timeScale = 1f;
+        if (MistbornTimeManager.Instance != null)
+            MistbornTimeManager.Instance.SetPaused(false);
+        else
+            Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         GameFlowManager.Instance?.ResumeGame();
@@ -70,7 +76,8 @@ public class PauseMenuSystem : MonoBehaviour
 
     public void QuitToMenu()
     {
-        Time.timeScale = 1f;
+        if (MistbornTimeManager.Instance != null) MistbornTimeManager.Instance.SetPaused(false);
+        else Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 

@@ -41,7 +41,7 @@ public class AllomanticObjectInteraction : MonoBehaviour
         float damage = kineticEnergy * impactDamageMultiplier * 0.01f; // Scale for gameplay
 
         // Damage what we hit
-        IDamageable target = collision.gameObject.GetComponent<IDamageable>();
+        IDamageable target = collision.gameObject.GetComponentInParent<IDamageable>();
         if (target != null && damage > 1f)
         {
             target.TakeDamage(damage);

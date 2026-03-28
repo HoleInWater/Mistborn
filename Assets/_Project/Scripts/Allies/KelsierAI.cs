@@ -135,7 +135,7 @@ public class KelsierAI : MonoBehaviour
         animator?.SetTrigger("Attack");
         transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
 
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        IDamageable damageable = target.GetComponentInParent<IDamageable>();
         damageable?.TakeDamage(meleeDamage);
 
         // Knockback

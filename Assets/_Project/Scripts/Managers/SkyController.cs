@@ -22,9 +22,11 @@ public class SkyController : MonoBehaviour
     public Light sunLight;
 
     [Header("HDRP Physical Intensity (lux)")]
-    [Tooltip("Brightness at solar noon. Real sun ≈ 100,000 lux. Keep 60,000–100,000 for realism.")]
-    public float sunLuxIntensity  = 80000f;
-    [Tooltip("Brightness at night (moon approximation).")]
+    [Tooltip("Raw solar flux before ash attenuation. Scadrial is closer to its star than Earth " +
+             "(lore: the Lord Ruler moved the planet closer). Real sun ≈ 100,000 lux; " +
+             "Scadrial raw ≈ 120,000–130,000 lux before ash scatter cuts it in half.")]
+    public float sunLuxIntensity  = 120000f;
+    [Tooltip("Brightness at night (moon/mist ambient approximation).")]
     public float moonLuxIntensity = 0.5f;
 
     void Start()

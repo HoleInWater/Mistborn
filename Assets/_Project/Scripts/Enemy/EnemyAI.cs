@@ -56,22 +56,35 @@ public class EnemyAI : MonoBehaviour
     private EnemySenses senses;
     private EnemyHealth enemyHealth;
     private EnemyHitFlash hitFlash;
+    private AIController aiCtrl;
 
     [Header("Investigate")]
-    public float investigateWaitTime = 3f;   // seconds spent searching at last-known position
+    public float investigateWaitTime = 3f;
     private Vector3 lastKnownPlayerPosition;
     private float investigateTimer;
+
+    [Header("Flee")]
+    [Tooltip("Health fraction below which cowardly enemies flee. Set 0 to disable.")]
+    [Range(0f, 0.5f)] public float fleeHealthThreshold = 0.25f;
+    private bool canFlee = true;   // set false per type in ApplyEnemyTypeDefaults
+    private float startingHealth;  // recorded after ApplyEnemyTypeDefaults for GetMaxHealth()
+
+    [Header("Group Alert")]
+    [Tooltip("Radius in which this enemy wakes up nearby allies when it first spots the player.")]
+    public float alertRadius = 15f;
 
     void Start()
     {
         patrolCenter = transform.position;
         if (navAgent == null) navAgent = GetComponent<NavMeshAgent>();
         if (animator == null) animator = GetComponent<Animator>();
-        senses = GetComponent<EnemySenses>();
+        senses    = GetComponent<EnemySenses>();
         enemyHealth = GetComponent<EnemyHealth>();
-        hitFlash = GetComponent<EnemyHitFlash>();
+        hitFlash  = GetComponent<EnemyHitFlash>();
+        aiCtrl    = GetComponent<AIController>();
 
         ApplyEnemyTypeDefaults();
+        startingHealth = health;
 
         // Sync EnemyHealth pool with our type-based health value
         if (enemyHealth != null)
@@ -82,8 +95,8 @@ public class EnemyAI : MonoBehaviour
 
         if (navAgent != null)
         {
-            navAgent.speed = moveSpeed;
-            navAgent.stoppingDistance = attackRange - 1f;
+            navAgent.speed            = moveSpeed;
+            navAgent.stoppingDistance = Mathf.Max(0.1f, attackRange - 0.5f);
         }
 
         if (autoPatrol && enemyType != EnemyType.Koloss)
@@ -118,7 +131,7 @@ public class EnemyAI : MonoBehaviour
             case EnemyType.Thug: // Pewter Misting — tank
                 health = 200f; moveSpeed = 2f; runSpeed = 3.6f; attackDamage = 45f;
                 detectionRange = 6.4f; attackRange = 1.6f; // 16ft detect, 4ft melee
-                canUseAllomancy = true; useFlanking = false;
+                canUseAllomancy = true; useFlanking = false; canFlee = false;
                 availableMetals = new[] { AllomancySkill.MetalType.Pewter };
                 break;
             case EnemyType.Smoker: // Copper Misting — hider
@@ -142,12 +155,12 @@ public class EnemyAI : MonoBehaviour
             case EnemyType.Koloss: // 12ft tall brute
                 health = 500f; moveSpeed = 1f; runSpeed = 2.8f; attackDamage = 80f;
                 detectionRange = 12f; attackRange = 2.4f; // 30ft detect, 6ft reach
-                autoPatrol = false; useFlanking = false;
+                autoPatrol = false; useFlanking = false; canFlee = false;
                 break;
             case EnemyType.SteelInquisitor: // All metals, Hemalurgic spikes
                 health = 800f; moveSpeed = 2.8f; runSpeed = 4.8f; attackDamage = 60f;
                 detectionRange = 20f; attackRange = 1.6f; attackCooldown = 0.8f; // 50ft detect
-                canUseAllomancy = true; useFlanking = true;
+                canUseAllomancy = true; useFlanking = true; canFlee = false;
                 availableMetals = new[] {
                     AllomancySkill.MetalType.Steel, AllomancySkill.MetalType.Iron,
                     AllomancySkill.MetalType.Pewter, AllomancySkill.MetalType.Tin,
@@ -156,7 +169,7 @@ public class EnemyAI : MonoBehaviour
                 break;
             case EnemyType.Mistwraith: // Shapeless bone creature
                 health = 150f; moveSpeed = 0.8f; runSpeed = 1.6f; attackDamage = 35f;
-                detectionRange = 4f; attackRange = 1.6f; useFlanking = false; // 10ft detect
+                detectionRange = 4f; attackRange = 1.6f; useFlanking = false; canFlee = false; // 10ft detect
                 break;
             case EnemyType.Obligator: // Bureaucrat, doesn't fight
                 health = 40f; moveSpeed = 1f; runSpeed = 1.6f; attackDamage = 5f;
@@ -173,7 +186,16 @@ public class EnemyAI : MonoBehaviour
     {
         if (health <= 0) { if (currentState != State.Dead) Die(); return; }
 
+        ApplyEmotionModifiers();
         DetectTarget();
+
+        // Flee overrides everything except Dead
+        if (canFlee && fleeHealthThreshold > 0f
+            && health / GetMaxHealth() < fleeHealthThreshold
+            && currentState != State.Flee && currentState != State.Dead)
+        {
+            currentState = State.Flee;
+        }
 
         switch (currentState)
         {
@@ -182,9 +204,16 @@ public class EnemyAI : MonoBehaviour
             case State.Chase:       HandleChase(); break;
             case State.Attack:      HandleAttack(); break;
             case State.Investigate: HandleInvestigate(); break;
+            case State.Flee:        HandleFlee(); break;
         }
 
         UpdateAnimations();
+    }
+
+    float GetMaxHealth()
+    {
+        if (enemyHealth != null && enemyHealth.maxHealth > 0f) return enemyHealth.maxHealth;
+        return Mathf.Max(startingHealth, 1f);
     }
 
     void DetectTarget()
@@ -208,21 +237,35 @@ public class EnemyAI : MonoBehaviour
         if (detected)
         {
             lastKnownPlayerPosition = target.position;
-            if (currentState != State.Attack)
+            if (currentState == State.Patrol || currentState == State.Idle
+                || currentState == State.Investigate)
+            {
                 currentState = State.Chase;
+                AlertNearbyEnemies(); // wake up nearby allies the moment we first spot the player
+            }
+            else if (currentState != State.Attack)
+            {
+                currentState = State.Chase;
+            }
         }
         else if (!detected && (currentState == State.Chase || currentState == State.Attack))
         {
             // Lost sight/sound — investigate the last known position before giving up
             currentState = State.Investigate;
             investigateTimer = investigateWaitTime;
+            hasAlertedGroup = false; // reset so re-detection can alert again
             if (navAgent != null) navAgent.SetDestination(lastKnownPlayerPosition);
         }
     }
 
+    bool IsNavReady() => navAgent != null && navAgent.enabled && navAgent.isOnNavMesh;
+
     void HandlePatrol()
     {
-        if (navAgent == null || !navAgent.enabled) return;
+        if (!IsNavReady()) return;
+        navAgent.isStopped = false;
+        navAgent.speed = moveSpeed;
+
         if (!navAgent.pathPending && navAgent.remainingDistance < 0.5f)
         {
             Vector3 randomDir = Random.insideUnitSphere * patrolRadius + patrolCenter;
@@ -235,7 +278,8 @@ public class EnemyAI : MonoBehaviour
 
     void HandleChase()
     {
-        if (target == null || navAgent == null) return;
+        if (target == null || !IsNavReady()) return;
+        navAgent.isStopped = false;
         navAgent.speed = runSpeed;
 
         float dist = Vector3.Distance(transform.position, target.position);
@@ -269,6 +313,8 @@ public class EnemyAI : MonoBehaviour
         float dist = Vector3.Distance(transform.position, target.position);
         if (dist > attackRange * 1.5f) { currentState = State.Chase; return; }
 
+        // Stop moving while striking — prevents sliding through the player
+        if (navAgent != null) navAgent.isStopped = true;
         transform.LookAt(new Vector3(target.position.x, transform.position.y, target.position.z));
 
         if (Time.time - lastAttackTime >= attackCooldown)
@@ -300,12 +346,108 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // ── Flee ──────────────────────────────────────────────────────────────────
+
+    void HandleFlee()
+    {
+        if (target == null || !IsNavReady()) return;
+        navAgent.isStopped = false;
+        navAgent.speed = runSpeed;
+
+        // Only re-issue a flee destination when close to the current one (avoid spamming pathfinder)
+        if (!navAgent.pathPending && navAgent.remainingDistance < 2f)
+        {
+            Vector3 fleeDir    = (transform.position - target.position).normalized;
+            Vector3 fleeTarget = transform.position + fleeDir * 12f;
+
+            // Try increasingly larger sample radii to find a valid NavMesh point
+            float[] radii = { 4f, 8f, 12f };
+            foreach (float r in radii)
+            {
+                if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, r, NavMesh.AllAreas))
+                {
+                    navAgent.SetDestination(hit.position);
+                    break;
+                }
+            }
+        }
+
+        // Once escaped, stop fleeing and investigate the area
+        float dist = Vector3.Distance(transform.position, target.position);
+        if (dist > detectionRange * 2f)
+        {
+            currentState     = State.Investigate;
+            investigateTimer = investigateWaitTime * 0.5f;
+            if (navAgent.isActiveAndEnabled)
+                navAgent.SetDestination(lastKnownPlayerPosition);
+        }
+    }
+
+    // ── Emotion modifiers (Zinc / Brass / Atium Allomancy affects behaviour) ──
+
+    void ApplyEmotionModifiers()
+    {
+        if (aiCtrl == null) return;
+
+        // Also check if AIController was alerted by EnemySeeker bronze detection
+        if (aiCtrl.currentEmotion == AIController.EmotionState.Aggressive
+            || aiCtrl.currentEmotion == AIController.EmotionState.Enraged)
+        {
+            if (currentState == State.Patrol || currentState == State.Idle)
+                currentState = State.Chase;
+        }
+        else if (aiCtrl.currentEmotion == AIController.EmotionState.Fearful && canFlee)
+        {
+            if (currentState != State.Dead)
+                currentState = State.Flee;
+        }
+    }
+
+    // ── Group alert ───────────────────────────────────────────────────────────
+
+    bool hasAlertedGroup = false;
+
+    void AlertNearbyEnemies()
+    {
+        if (hasAlertedGroup) return;
+        hasAlertedGroup = true;
+
+        foreach (var ally in MistbornRegistry.ActiveEnemies)
+        {
+            if (ally == null || ally.gameObject == gameObject) continue;
+            float dist = Vector3.Distance(transform.position, ally.transform.position);
+            if (dist > alertRadius) continue;
+
+            // Alert via EnemyAI if present
+            EnemyAI allyAI = ally.GetComponent<EnemyAI>();
+            if (allyAI != null)
+                allyAI.ForceChase(target, lastKnownPlayerPosition);
+            else
+                ally.SetEmotionState(AIController.EmotionState.Aggressive);
+        }
+    }
+
+    /// <summary>
+    /// Called by a nearby ally to immediately start chasing.
+    /// </summary>
+    public void ForceChase(Transform chaseTarget, Vector3 knownPosition)
+    {
+        if (currentState == State.Dead || currentState == State.Chase
+            || currentState == State.Attack) return;
+
+        target = chaseTarget;
+        lastKnownPlayerPosition = knownPosition;
+        currentState = State.Chase;
+    }
+
+    // ── Attack ────────────────────────────────────────────────────────────────
+
     void PerformAttack()
     {
         if (useMeleeAttacks)
         {
             animator?.SetTrigger("Attack");
-            IDamageable damageable = target.GetComponent<IDamageable>();
+            IDamageable damageable = target.GetComponentInParent<IDamageable>();
             damageable?.TakeDamage(attackDamage);
         }
 
@@ -368,7 +510,7 @@ public class EnemyAI : MonoBehaviour
         health = 0;
         if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }
         animator?.SetBool("IsDead", true);
-        if (navAgent != null) navAgent.isStopped = true;
+        if (navAgent != null) { navAgent.isStopped = true; navAgent.enabled = false; }
 
         // Grant XP
         PlayerExperience xp = PlayerExperience.Instance;
@@ -434,6 +576,13 @@ public class EnemyAI : MonoBehaviour
         if (animator == null) return;
         float speed = navAgent != null ? navAgent.velocity.magnitude : 0f;
         animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
+
+        // State booleans — drive Animator Controller transitions
+        animator.SetBool("IsChasing",       currentState == State.Chase);
+        animator.SetBool("IsAttacking",     currentState == State.Attack);
+        animator.SetBool("IsFleeing",       currentState == State.Flee);
+        animator.SetBool("IsInvestigating", currentState == State.Investigate);
+        animator.SetBool("IsDead",          currentState == State.Dead);
     }
 
     public void ApplyKnockback(Vector3 direction, float force)
@@ -441,14 +590,16 @@ public class EnemyAI : MonoBehaviour
         if (navAgent != null) navAgent.enabled = false;
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = false;
         rb.AddForce(direction * force, ForceMode.Impulse);
-        StartCoroutine(ReEnableNav());
+        StartCoroutine(ReEnableNav(rb));
     }
 
-    IEnumerator ReEnableNav()
+    IEnumerator ReEnableNav(Rigidbody rb)
     {
         yield return new WaitForSecondsRealtime(0.5f);
-        if (navAgent != null) navAgent.enabled = true;
+        if (rb != null) { rb.linearVelocity = Vector3.zero; rb.isKinematic = true; }
+        if (navAgent != null) { navAgent.enabled = true; navAgent.Warp(transform.position); }
     }
 
     public float GetHealth() => health;

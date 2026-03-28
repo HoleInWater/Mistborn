@@ -7,6 +7,9 @@ using System.Collections.Generic;
 /// </summary>
 public static class MistbornRegistry
 {
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => ClearAll();
+
     private static List<AIController> activeEnemies = new List<AIController>();
     private static List<AllomanticTarget> activeMetalTargets = new List<AllomanticTarget>();
     private static List<Allomancer> activeAllomancers = new List<Allomancer>();

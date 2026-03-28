@@ -23,12 +23,12 @@ public class EnvironmentalHazards : MonoBehaviour
 
         if (instantKill)
         {
-            IDamageable hp = other.GetComponent<IDamageable>();
+            IDamageable hp = other.GetComponentInParent<IDamageable>();
             hp?.TakeDamage(99999f);
             return;
         }
 
-        IDamageable health = other.GetComponent<IDamageable>();
+        IDamageable health = other.GetComponentInParent<IDamageable>();
         if (health != null)
             health.TakeDamage(damagePerSecond * Time.deltaTime);
 

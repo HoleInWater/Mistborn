@@ -267,30 +267,41 @@ public class SteelPush : MonoBehaviour
         if (targetScanTimer > 0f) return;
         targetScanTimer = TARGET_SCAN_INTERVAL;
 
-        hasCurrentTarget = false; currentTarget = null;
-        currentTargetRigidbody = null; metalInRange = false;
+        hasCurrentTarget       = false;
+        currentTarget          = null;
+        currentTargetRigidbody = null;
+        metalInRange           = false;
 
-        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, metalLayer);
+        if (playerRigidbody == null) return;
+        LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
+        Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;
 
-        float closestDist = float.MaxValue;
+        Vector3 camForward = playerCamera != null ? playerCamera.transform.forward : transform.forward;
+        float bestScore = float.MinValue;
+
         foreach (var hit in hits)
         {
             Rigidbody rb = hit.attachedRigidbody;
             if (rb == null || rb == playerRigidbody) continue;
 
-            float dist = Vector3.Distance(playerRigidbody.position, rb.position);
-            if (dist < closestDist)
-            {
-                closestDist            = dist;
-                currentTargetRigidbody = rb;
-                currentTarget          = hit.GetComponent<AllomanticTarget>();
+            AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
+            if (at != null && !at.canBePushed) continue;
 
-                if (currentTarget == null || currentTarget.canBePushed)
-                {
-                    hasCurrentTarget = true;
-                    metalInRange     = true;
-                }
+            Vector3 toTarget = rb.position - playerRigidbody.position;
+            float dist = toTarget.magnitude;
+            if (dist < minDistance) continue;
+
+            float alignment = Vector3.Dot(camForward, toTarget.normalized);
+            float score     = alignment - (dist / maxRange);
+
+            if (score > bestScore)
+            {
+                bestScore              = score;
+                currentTargetRigidbody = rb;
+                currentTarget          = at;
+                hasCurrentTarget       = true;
+                metalInRange           = true;
             }
         }
     }
