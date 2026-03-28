@@ -410,26 +410,20 @@ public class Tin : MonoBehaviour
                 _tinToggled = !_tinToggled;
         }
 
-        // Tin activates via THREE paths:
+        // Tin activates via TWO paths:
         //
         //   Path A — E/Q toggle: press once to turn on, press again to turn off.
-        //   Path B — Left Ctrl (FlareManager): fires when Tin is in either slot.
-        //   Path C — B key (Allomancer BurnToggle): fires when Tin is the active metal.
+        //             E when Tin is primary, Q when Tin is secondary.
+        //   Path B — B key (Allomancer BurnToggle): fires when Tin is the active metal.
         //
-        bool tinEquipped = sel == null
-            || sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Tin
-            || sel.GetSecondaryMetal() == AllomancySkill.MetalType.Tin;
-
-        bool burningViaFlare     = FlareManager.Instance != null
-                                && FlareManager.Instance.IsBurning
-                                && tinEquipped;
-
+        // Left Ctrl (FlareManager) intentionally does NOT control Tin — use E/Q.
+        //
         bool burningViaSelection = allomancer.IsBurning()
                                 && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Tin;
 
         bool burningTin = allomancer != null
                        && tinReserve > 0f
-                       && (burningViaFlare || burningViaSelection || _tinToggled);
+                       && (burningViaSelection || _tinToggled);
 
         float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 

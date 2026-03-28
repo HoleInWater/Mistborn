@@ -352,7 +352,8 @@ public class SteelPush : MonoBehaviour
 
     void PushMetalsInBubble()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, steelBubbleRadius, metalLayer);
+        LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, steelBubbleRadius, targetLayer);
         foreach (var hitCollider in hitColliders)
         {
             Rigidbody rb = hitCollider.attachedRigidbody;
