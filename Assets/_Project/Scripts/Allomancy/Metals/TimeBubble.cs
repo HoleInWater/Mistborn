@@ -10,9 +10,7 @@ public class TimeBubble : MonoBehaviour
     public float timeScaleMultiplier = 1.0f;
     public float fadeSpeed = AllomancyConstants.BubbleFadeSpeed;
 
-    private List<Rigidbody> affectedRigidbodies = new List<Rigidbody>();
     private List<AIController> affectedAI = new List<AIController>();
-    private List<BasicPlayerMove> affectedPlayers = new List<BasicPlayerMove>();
 
     private SphereCollider bubbleCollider;
     private Material bubbleMaterial;
@@ -60,49 +58,29 @@ public class TimeBubble : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Rigidbody rb = other.attachedRigidbody;
-        if (rb != null && !affectedRigidbodies.Contains(rb))
-        {
-            affectedRigidbodies.Add(rb);
-            rb.linearVelocity *= timeScaleMultiplier;
-        }
+        // Rigidbody velocity and player externalSpeedMultiplier are intentionally NOT
+        // touched here. MistbornTimeManager already changes Time.timeScale and
+        // Time.fixedDeltaTime globally when this bubble is registered, so physics
+        // objects and player movement are naturally sped/slowed by the engine.
+        // Multiplying velocity directly on top would double the effect.
 
+        // AI action-timing loops multiply their own deltaTime by externalTimeScaleMultiplier,
+        // which is separate from the physics step — so we still need to set it here.
         AIController ai = other.GetComponentInParent<AIController>();
         if (ai != null && !affectedAI.Contains(ai))
         {
             affectedAI.Add(ai);
             ai.externalTimeScaleMultiplier = timeScaleMultiplier;
         }
-
-        BasicPlayerMove player = other.GetComponentInParent<BasicPlayerMove>();
-        if (player != null && !affectedPlayers.Contains(player))
-        {
-            affectedPlayers.Add(player);
-            player.externalSpeedMultiplier *= timeScaleMultiplier;
-        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Rigidbody rb = other.attachedRigidbody;
-        if (rb != null && affectedRigidbodies.Contains(rb))
-        {
-            if (timeScaleMultiplier > 0.001f) rb.linearVelocity /= timeScaleMultiplier;
-            affectedRigidbodies.Remove(rb);
-        }
-
         AIController ai = other.GetComponentInParent<AIController>();
         if (ai != null && affectedAI.Contains(ai))
         {
             ai.externalTimeScaleMultiplier = 1f;
             affectedAI.Remove(ai);
-        }
-
-        BasicPlayerMove player = other.GetComponentInParent<BasicPlayerMove>();
-        if (player != null && affectedPlayers.Contains(player))
-        {
-            if (timeScaleMultiplier > 0.001f) player.externalSpeedMultiplier /= timeScaleMultiplier;
-            affectedPlayers.Remove(player);
         }
     }
 
@@ -110,18 +88,11 @@ public class TimeBubble : MonoBehaviour
     {
         targetAlpha = 0f;
 
-        foreach (var rb in affectedRigidbodies)
-        {
-            if (rb != null && timeScaleMultiplier > 0.001f) rb.linearVelocity /= timeScaleMultiplier;
-        }
         foreach (var ai in affectedAI)
         {
             if (ai != null) ai.externalTimeScaleMultiplier = 1f;
         }
-        foreach (var player in affectedPlayers)
-        {
-            if (player != null && timeScaleMultiplier > 0.001f) player.externalSpeedMultiplier /= timeScaleMultiplier;
-        }
+        affectedAI.Clear();
 
         if (registered && MistbornTimeManager.Instance != null)
             MistbornTimeManager.Instance.UnregisterBubbleModifier(timeScaleMultiplier);
