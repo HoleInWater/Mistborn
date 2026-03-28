@@ -162,9 +162,15 @@ public class RadialMetalMenu : MonoBehaviour
             case AllomancySkill.MetalType.Brass:    return new Color(0.2f, 0.9f, 0.5f);
             case AllomancySkill.MetalType.Copper:   return new Color(0.2f, 0.8f, 0.2f);
             case AllomancySkill.MetalType.Bronze:   return new Color(0.8f, 0.3f, 0.8f);
-            case AllomancySkill.MetalType.Atium:    return new Color(0.9f, 0.9f, 1f);
-            case AllomancySkill.MetalType.Gold:     return new Color(1f, 0.85f, 0.2f);
-            default:                                 return Color.white;
+            case AllomancySkill.MetalType.Atium:     return new Color(0.9f,  0.9f,  1f);
+            case AllomancySkill.MetalType.Malatium:  return new Color(0.50f, 0.28f, 0.62f);
+            case AllomancySkill.MetalType.Gold:      return new Color(1f,    0.85f, 0.2f);
+            case AllomancySkill.MetalType.Electrum:  return new Color(0.90f, 0.90f, 0.40f);
+            case AllomancySkill.MetalType.Aluminum:  return new Color(0.90f, 0.92f, 0.96f);
+            case AllomancySkill.MetalType.Duralumin: return new Color(0.45f, 0.75f, 1.00f);
+            case AllomancySkill.MetalType.Bendalloy: return new Color(0.90f, 0.58f, 0.18f);
+            case AllomancySkill.MetalType.Cadmium:   return new Color(0.20f, 0.72f, 0.70f);
+            default:                                  return Color.white;
         }
     }
 

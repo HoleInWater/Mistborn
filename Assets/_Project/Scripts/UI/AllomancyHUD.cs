@@ -26,9 +26,9 @@ public class AllomancyHUD : MonoBehaviour
     public Color copperColor   = new Color(0.2f, 0.8f, 0.2f);
     public Color bronzeColor   = new Color(0.8f, 0.3f, 0.8f);
     // Upper 8 — God Metals and Alloys
-    public Color atiumColor    = new Color(0.55f, 0.55f, 0.70f); // dark silver-blue
+    public Color atiumColor    = new Color(0.9f,  0.9f,  1.0f);  // pale silver-blue (matches wheel)
     public Color malatiumColor = new Color(0.50f, 0.28f, 0.62f); // deep violet
-    public Color goldColor     = new Color(1.0f,  0.80f, 0.10f); // warm gold
+    public Color goldColor     = new Color(1.0f,  0.85f, 0.20f); // warm gold (matches wheel)
     public Color electrumColor = new Color(0.90f, 0.90f, 0.40f); // pale electrum
     public Color aluminumColor = new Color(0.90f, 0.92f, 0.96f); // bright silver-white
     public Color duraluminColor= new Color(0.45f, 0.75f, 1.00f); // silver-blue
