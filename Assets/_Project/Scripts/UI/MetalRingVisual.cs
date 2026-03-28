@@ -25,8 +25,14 @@ public class MetalRingVisual : VisualElement
 
     // ── Drawing constants ──────────────────────────────────────────────────────
 
-    private const float LINE_W  = 7f;   // arc stroke width
-    private const float GAP_DEG = 8f;   // degrees of gap between the two arcs
+    private const float LINE_W       = 7f;    // arc stroke width
+    private const float GAP_DEG      = 8f;    // degrees of gap between the two arcs
+    private const float SPIN_DEG_PER_TICK = 0.75f; // degrees per 16 ms tick (~8 s/rotation)
+
+    // ── Spin state ─────────────────────────────────────────────────────────────
+
+    private float _spin = 0f;
+    private IVisualElementScheduledItem _ticker;
 
     // ── Constructor ────────────────────────────────────────────────────────────
 
@@ -40,6 +46,18 @@ public class MetalRingVisual : VisualElement
         style.position = Position.Absolute;
         style.left = 0;
         style.top  = 0;
+
+        // Start spinning once attached to a panel, pause when detached
+        RegisterCallback<AttachToPanelEvent>(_ =>
+            _ticker = schedule.Execute(Tick).Every(16));
+        RegisterCallback<DetachFromPanelEvent>(_ =>
+            _ticker?.Pause());
+    }
+
+    private void Tick()
+    {
+        _spin = (_spin + SPIN_DEG_PER_TICK) % 360f;
+        MarkDirtyRepaint();
     }
 
     // ── Public API ─────────────────────────────────────────────────────────────
@@ -77,9 +95,8 @@ public class MetalRingVisual : VisualElement
         p.Stroke();
 
         // ── Primary arc — top half, clockwise from 12-o'clock ─────────────────
-        // 0° = right, so top (12 o'clock) = -90°
-        // Span up to 180° minus the gap, scaled by reserve
-        float primaryStart = -90f + halfGap;
+        // 0° = right, so top (12 o'clock) = -90°. _spin rotates the whole ring.
+        float primaryStart = -90f + halfGap + _spin;
         float primarySpan  = (180f - GAP_DEG) * _primaryPct;
 
         if (primarySpan > 0.5f)
@@ -95,7 +112,7 @@ public class MetalRingVisual : VisualElement
         }
 
         // ── Secondary arc — bottom half, clockwise from 6-o'clock ─────────────
-        float secondaryStart = 90f + halfGap;
+        float secondaryStart = 90f + halfGap + _spin;
         float secondarySpan  = (180f - GAP_DEG) * _secondaryPct;
 
         if (secondarySpan > 0.5f)
