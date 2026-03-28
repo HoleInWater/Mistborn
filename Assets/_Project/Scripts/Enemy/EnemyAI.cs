@@ -349,21 +349,35 @@ public class EnemyAI : MonoBehaviour
     void HandleFlee()
     {
         if (target == null || navAgent == null) return;
+        navAgent.isStopped = false;
         navAgent.speed = runSpeed;
 
-        // Run directly away from the player
-        Vector3 fleeDir = (transform.position - target.position).normalized;
-        Vector3 fleeTarget = transform.position + fleeDir * 12f;
+        // Only re-issue a flee destination when close to the current one (avoid spamming pathfinder)
+        if (!navAgent.pathPending && navAgent.remainingDistance < 2f)
+        {
+            Vector3 fleeDir    = (transform.position - target.position).normalized;
+            Vector3 fleeTarget = transform.position + fleeDir * 12f;
 
-        if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, 12f, NavMesh.AllAreas))
-            navAgent.SetDestination(hit.position);
+            // Try increasingly larger sample radii to find a valid NavMesh point
+            float[] radii = { 4f, 8f, 12f };
+            foreach (float r in radii)
+            {
+                if (NavMesh.SamplePosition(fleeTarget, out NavMeshHit hit, r, NavMesh.AllAreas))
+                {
+                    navAgent.SetDestination(hit.position);
+                    break;
+                }
+            }
+        }
 
-        // If we've escaped far enough, go to investigate then patrol
+        // Once escaped, stop fleeing and investigate the area
         float dist = Vector3.Distance(transform.position, target.position);
         if (dist > detectionRange * 2f)
         {
-            currentState = State.Investigate;
+            currentState     = State.Investigate;
             investigateTimer = investigateWaitTime * 0.5f;
+            if (navAgent.isActiveAndEnabled)
+                navAgent.SetDestination(lastKnownPlayerPosition);
         }
     }
 
@@ -494,7 +508,7 @@ public class EnemyAI : MonoBehaviour
         health = 0;
         if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }
         animator?.SetBool("IsDead", true);
-        if (navAgent != null) navAgent.isStopped = true;
+        if (navAgent != null) { navAgent.isStopped = true; navAgent.enabled = false; }
 
         // Grant XP
         PlayerExperience xp = PlayerExperience.Instance;

@@ -117,6 +117,16 @@ public static class EnemyFactory
         EnemyKnockback knockback = go.AddComponent<EnemyKnockback>();
         knockback.navAgent = agent;
 
+        // ── World-space health bar ─────────────────────────────────────────
+        // Attach as a child so it follows the enemy.
+        // EnemyHealthBarUI.Start() auto-creates its own Canvas + Images.
+        GameObject hbGo = new GameObject("HealthBar");
+        hbGo.transform.SetParent(go.transform, false);
+        // Position above the capsule — height scales with type
+        float hbHeight = agent.height + 0.4f;
+        hbGo.transform.localPosition = new Vector3(0f, hbHeight, 0f);
+        hbGo.AddComponent<EnemyHealthBarUI>();
+
         return ai;
     }
 }
