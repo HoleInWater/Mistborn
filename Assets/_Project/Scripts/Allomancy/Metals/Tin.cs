@@ -21,6 +21,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI;
@@ -116,13 +117,6 @@ public class Tin : MonoBehaviour
 
     // ── Reflexes ──────────────────────────────────────────────────────────────
 
-    [Header("Reflexes")]
-    [SerializeField]
-    [Tooltip("Movement speed multiplier from heightened reflexes when NOT overloaded. " +
-             "Lore: Spook's tin-savant reflexes let him dodge faster than normal.")]
-    [Range(1f, 1.25f)]
-    private float reflexSpeedBoost = 1.10f;
-
     // ── Scent Detection (Abstract Smell) ──────────────────────────────────────
 
     [Header("Scent Detection — Abstract Smell")]
@@ -194,6 +188,23 @@ public class Tin : MonoBehaviour
     [Range(0f, 0.35f)]
     private float heartbeatVolume = 0.13f;
 
+    // ── Perception Time Dilation ──────────────────────────────────────────────
+
+    [Header("Perception — World Time Dilation")]
+    [SerializeField]
+    [Tooltip("Time scale applied to the world while burning Tin normally. " +
+             "Player movement speed is compensated so they still move at the same real-world speed. " +
+             "Everything else — enemies, physics, animations — runs at this fraction. " +
+             "Lore: heightened senses give you faster reactions, not faster legs.")]
+    [Range(0.70f, 0.99f)]
+    private float burningPerceptionScale = 0.90f;
+
+    [SerializeField]
+    [Tooltip("Time scale while Flaring Tin. Stronger dilation. " +
+             "Lore: tin-savant Spook experiences combat in near-slow-motion.")]
+    [Range(0.50f, 0.88f)]
+    private float flaringPerceptionScale = 0.76f;
+
     // ── Flare Entry Effect ────────────────────────────────────────────────────
 
     [Header("Flare Entry — Zoom Snap")]
@@ -232,8 +243,7 @@ public class Tin : MonoBehaviour
     // ── References ────────────────────────────────────────────────────────────
 
     [Header("References")]
-    [SerializeField]
-    [Tooltip("HDRP Global Volume for post-processing. Must be assigned in the Inspector.")]
+    [Tooltip("HDRP Global Volume for post-processing. Optional — auto-found or auto-created if null.")]
     public Volume globalVolume;
 
     [SerializeField]
@@ -281,6 +291,18 @@ public class Tin : MonoBehaviour
     private Fog              fog;
     private ColorAdjustments colorAdjustments;
     private Vignette         vignette;
+    private Bloom            bloom;
+
+    // Full-screen overexposure overlay (created at runtime)
+    private Image overexposureOverlay;
+
+    // Speed management: overload penalty is computed each frame and applied in ApplyPerceptionEffect
+    private float overloadSpeedFactor = 1f;
+
+    // Vibration detection throttle + NavMeshAgent cache
+    private float vibrationScanTimer = 0f;
+    private const float VibrationScanInterval = 0.1f;
+    private readonly Dictionary<AIController, NavMeshAgent> navAgentCache = new Dictionary<AIController, NavMeshAgent>();
 
     // World-goes-dull coroutine handle
     private Coroutine worldGoesDullCoroutine;
@@ -313,10 +335,33 @@ public class Tin : MonoBehaviour
 
         originalAudioVolume = AudioListener.volume;
 
-        // Obtain HDRP Volume overrides from the assigned global volume.
-        // If a component is missing from the profile, add it at runtime so Tin effects work
-        // even on volumes that haven't been set up in advance.
-        if (globalVolume != null && globalVolume.profile != null)
+        // Auto-find a Global Volume in the scene if none was assigned in the Inspector.
+        // HDRP projects that switched from Built-in often have no scene Volume yet.
+        if (globalVolume == null)
+        {
+            foreach (var vol in FindObjectsOfType<Volume>())
+            {
+                if (vol.isGlobal) { globalVolume = vol; break; }
+            }
+        }
+
+        // If still null, create a runtime Global Volume so Tin post-processing always works.
+        if (globalVolume == null)
+        {
+            GameObject volObj = new GameObject("Tin_GlobalVolume");
+            globalVolume = volObj.AddComponent<Volume>();
+            globalVolume.isGlobal = true;
+            globalVolume.weight   = 1f;
+            DontDestroyOnLoad(volObj);
+        }
+
+        // Ensure the volume has a profile (create one at runtime if missing).
+        if (globalVolume.profile == null)
+            globalVolume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+
+        // Obtain HDRP overrides from the profile.
+        // Any missing override is added at runtime so Tin effects work
+        // even on volumes that haven't been configured in advance.
         {
             var profile = globalVolume.profile;
 
@@ -331,7 +376,28 @@ public class Tin : MonoBehaviour
 
             if (!profile.TryGet(out vignette))
                 vignette = profile.Add<Vignette>(true);
+
+            if (!profile.TryGet(out bloom))
+                bloom = profile.Add<Bloom>(true);
         }
+
+        // Create full-screen overexposure overlay at runtime
+        GameObject overlayCanvas = new GameObject("TinOverexposureCanvas");
+        Canvas canvas = overlayCanvas.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
+        DontDestroyOnLoad(overlayCanvas);
+
+        GameObject overlayObj = new GameObject("OverexposureImage");
+        overlayObj.transform.SetParent(overlayCanvas.transform, false);
+        RectTransform rt = overlayObj.AddComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        overexposureOverlay = overlayObj.AddComponent<Image>();
+        overexposureOverlay.color = new Color(1f, 1f, 1f, 0f);
+        overlayCanvas.AddComponent<CanvasScaler>();
     }
 
     void Update()
@@ -406,7 +472,6 @@ public class Tin : MonoBehaviour
             UpdateScentDetection();
             UpdateVibrationDetection();
             if (CurrentState == TinState.Flaring) UpdateHeartbeatDetection();
-            UpdateReflexSpeed();
             DrainMetal(flareMult);
         }
 
@@ -419,17 +484,8 @@ public class Tin : MonoBehaviour
         // Overload effects applied every frame (pain lingers after stopping)
         ApplyOverloadVisuals();
         ApplyOverloadAudio();
-        ApplyPhysicalOverload();
-
-        // Reset speed multiplier when fully recovered and not burning
-        if (CurrentState == TinState.Off
-            && currentOverloadVisual < 0.05f
-            && currentOverloadAudio  < 0.05f
-            && playerMove != null
-            && playerMove.externalSpeedMultiplier != 1f)
-        {
-            playerMove.externalSpeedMultiplier = 1f;
-        }
+        ApplyPhysicalOverload();      // computes overloadSpeedFactor, does NOT set playerMove speed
+        ApplyPerceptionEffect();      // sets time scale + resolves final player speed
     }
 
     // ── State Transition Hooks ────────────────────────────────────────────────
@@ -476,6 +532,11 @@ public class Tin : MonoBehaviour
 
         if (lowPass  != null) lowPass.enabled  = false;
         if (highPass != null) highPass.enabled = false;
+
+        // Restore world time scale and player speed
+        MistbornTimeManager.Instance?.ClearTinModifier();
+        if (playerMove != null) playerMove.externalSpeedMultiplier = 1f;
+        overloadSpeedFactor = 1f;
 
         // Lore-critical: when metal RUNS OUT, the contrast between Tin-vision and normal
         // vision is jarring. Trigger the "world goes dull" moment.
@@ -553,19 +614,6 @@ public class Tin : MonoBehaviour
         vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, targetIntensity, Time.deltaTime * 5f);
     }
 
-    // ── Reflex Speed ──────────────────────────────────────────────────────────
-
-    /// <summary>Applies subtle movement speed bonus when senses are sharp and not overloaded.</summary>
-    private void UpdateReflexSpeed()
-    {
-        if (playerMove == null) return;
-
-        float totalOverload = currentOverloadVisual + currentOverloadAudio;
-        if (totalOverload < 0.2f)
-            playerMove.externalSpeedMultiplier = reflexSpeedBoost;
-        // Physical overload handles the penalty — don't double-apply
-    }
-
     // ── Scent Detection — Abstract Smell ──────────────────────────────────────
 
     /// <summary>
@@ -608,13 +656,18 @@ public class Tin : MonoBehaviour
 
     /// <summary>
     /// Detects moving enemies via NavMeshAgent velocity and translates them into
-    /// subtle ground-vibration camera pulses each frame.
+    /// subtle ground-vibration camera pulses. Throttled to 10fps and caches
+    /// NavMeshAgent lookups to avoid GetComponent every frame.
     ///
     /// Lore: Tineyes feel vibrations in the stone floor — guards running down a
     /// corridor become a detectable tremor through the walls.
     /// </summary>
     private void UpdateVibrationDetection()
     {
+        vibrationScanTimer -= Time.deltaTime;
+        if (vibrationScanTimer > 0f) return;
+        vibrationScanTimer = VibrationScanInterval;
+
         foreach (var enemy in MistbornRegistry.ActiveEnemies)
         {
             if (enemy == null) continue;
@@ -622,7 +675,11 @@ public class Tin : MonoBehaviour
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist > vibrationRadius) continue;
 
-            var nav = enemy.GetComponent<NavMeshAgent>();
+            if (!navAgentCache.TryGetValue(enemy, out NavMeshAgent nav))
+            {
+                nav = enemy.GetComponent<NavMeshAgent>();
+                navAgentCache[enemy] = nav;
+            }
             if (nav == null || !nav.isActiveAndEnabled) continue;
 
             float enemySpeed = nav.velocity.magnitude;
@@ -687,7 +744,10 @@ public class Tin : MonoBehaviour
     {
         if (currentOverloadVisual <= 0.02f)
         {
-            // No visual overload — if we're off and fully clear, ensure vignette is gone
+            // No visual overload — clear overlay and bloom, fade vignette if off
+            if (overexposureOverlay != null)
+                overexposureOverlay.color = new Color(1f, 1f, 1f, 0f);
+            if (bloom != null) bloom.active = false;
             if (CurrentState == TinState.Off && vignette != null)
                 vignette.intensity.value = Mathf.Lerp(vignette.intensity.value, 0f, Time.deltaTime * 4f);
             return;
@@ -706,8 +766,22 @@ public class Tin : MonoBehaviour
             float nightVision = (CurrentState != TinState.Off)
                 ? nightVisionIntensity * (FlareManager.Instance?.FlareMultiplier ?? 1f)
                 : 0f;
-            // Take the larger value — overload is brighter/worse than night vision
             exposure.compensation.value = Mathf.Max(nightVision, currentOverloadVisual * 8f);
+        }
+
+        // Full-screen white overexposure overlay — fades in above 30% visual overload
+        if (overexposureOverlay != null)
+        {
+            float alpha = Mathf.Clamp01((currentOverloadVisual - 0.3f) / 0.7f);
+            overexposureOverlay.color = new Color(1f, 1f, 1f, alpha);
+        }
+
+        // Bloom glow — adds glare halo around bright areas during overload
+        if (bloom != null)
+        {
+            bloom.active           = true;
+            bloom.intensity.value  = currentOverloadVisual * 6f;
+            bloom.threshold.value  = Mathf.Lerp(1.5f, 0.2f, currentOverloadVisual);
         }
 
         // Camera shake at moderate and severe overload
@@ -743,19 +817,24 @@ public class Tin : MonoBehaviour
 
     private void ApplyPhysicalOverload()
     {
-        if (playerMove == null) return;
+        // Lore note: Tin does NOT boost speed — that is Pewter's domain.
+        // Tin overload CAN slow you: sensory pain is genuinely debilitating.
+        // Speed is NOT set here — it's applied by ApplyPerceptionEffect after this method
+        // so the perception compensation and overload penalty share a single write.
 
         float totalOverload = Mathf.Clamp01(currentOverloadVisual + currentOverloadAudio);
 
         if (totalOverload > overloadImpairThreshold)
         {
-            // Movement impaired by sensory overwhelm
-            float speedFactor = Mathf.Lerp(
-                reflexSpeedBoost,
-                0.4f,
+            // Compute penalty factor (written to overloadSpeedFactor — applied later)
+            overloadSpeedFactor = Mathf.Lerp(
+                1f, 0.4f,
                 (totalOverload - overloadImpairThreshold) / (1f - overloadImpairThreshold)
             );
-            playerMove.externalSpeedMultiplier = speedFactor;
+
+            // 90%+ overload: intermittent movement stagger
+            if (totalOverload > 0.9f && Mathf.Sin(Time.time * 7f) > 0.5f)
+                overloadSpeedFactor *= 0.1f;
 
             // Camera roll/tilt at severe overload — disorienting
             if (totalOverload > 0.65f && playerCamera != null)
@@ -763,21 +842,56 @@ public class Tin : MonoBehaviour
                 float tilt = Mathf.Sin(Time.time * 1.8f) * (totalOverload * 5f);
                 playerCamera.transform.localRotation = Quaternion.Euler(0f, 0f, tilt);
             }
-
-            // At 90%+ overload: intermittent movement stagger
-            // Lore: Spook becomes almost nonfunctional in bright daylight without his blindfold
-            if (totalOverload > 0.9f && Mathf.Sin(Time.time * 7f) > 0.5f)
-                playerMove.externalSpeedMultiplier *= 0.1f;
         }
-        else if (playerCamera != null)
+        else
         {
+            overloadSpeedFactor = 1f;
+
             // Smoothly return camera roll to neutral
-            playerCamera.transform.localRotation = Quaternion.Lerp(
-                playerCamera.transform.localRotation,
-                Quaternion.identity,
-                Time.deltaTime * 5f
-            );
+            if (playerCamera != null)
+                playerCamera.transform.localRotation = Quaternion.Lerp(
+                    playerCamera.transform.localRotation, Quaternion.identity, Time.deltaTime * 5f);
         }
+    }
+
+    /// <summary>
+    /// Sets the world time-scale via MistbornTimeManager and compensates the player's
+    /// movement speed so they remain at their normal real-world speed while enemies,
+    /// physics, and animations run slower.
+    ///
+    /// Overload penalty (from ApplyPhysicalOverload) overrides the compensation when active —
+    /// a Tineye in pain is slowed even in their perception-dilated world.
+    /// </summary>
+    private void ApplyPerceptionEffect()
+    {
+        if (CurrentState == TinState.Off)
+        {
+            MistbornTimeManager.Instance?.ClearTinModifier();
+            if (playerMove != null && playerMove.externalSpeedMultiplier != 1f)
+                playerMove.externalSpeedMultiplier = 1f;
+            return;
+        }
+
+        float targetScale = CurrentState == TinState.Flaring
+            ? flaringPerceptionScale
+            : burningPerceptionScale;
+
+        MistbornTimeManager.Instance?.SetTinModifier(targetScale);
+
+        if (playerMove == null) return;
+
+        // Get the actual current time scale (may be further modified by bubbles, Atium, etc.)
+        float effectiveScale = MistbornTimeManager.Instance != null
+            ? MistbornTimeManager.Instance.GetEffectiveTimeScale()
+            : targetScale;
+
+        // Compensate so player moves at their normal real-world speed (1/timeScale)
+        float compensation = 1f / Mathf.Max(effectiveScale, 0.1f);
+
+        // Overload penalty overrides compensation — pain impairs even in slow-world
+        playerMove.externalSpeedMultiplier = overloadSpeedFactor < 1f
+            ? overloadSpeedFactor
+            : compensation;
     }
 
     // ── Heartbeat Detection ───────────────────────────────────────────────────

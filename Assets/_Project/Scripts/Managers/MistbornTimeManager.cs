@@ -13,9 +13,10 @@ public class MistbornTimeManager : MonoBehaviour
     [Header("Debug")]
     public float currentEffectiveTimeScale = 1f;
 
-    private float atiumModifier = 1f;
-    private float pauseModifier = 1f;
-    private float metalWheelModifier = 1f;
+    private float atiumModifier        = 1f;
+    private float pauseModifier        = 1f;
+    private float metalWheelModifier   = 1f;
+    private float tinPerceptionModifier = 1f;   // Tin: slows world, player speed compensated
     private List<float> activeBubbleModifiers = new List<float>();
     private bool isPaused = false;
 
@@ -36,7 +37,7 @@ public class MistbornTimeManager : MonoBehaviour
         }
         else
         {
-            target = atiumModifier * metalWheelModifier;
+            target = atiumModifier * metalWheelModifier * tinPerceptionModifier;
 
             foreach (var mod in activeBubbleModifiers)
                 target *= mod;
@@ -54,6 +55,13 @@ public class MistbornTimeManager : MonoBehaviour
 
     public void SetAtiumModifier(float val) => atiumModifier = Mathf.Clamp(val, 0.1f, 1f);
     public void ClearAtiumModifier() => atiumModifier = 1f;
+
+    /// <summary>
+    /// Tin perception dilation — slows the world slightly so the player's enhanced
+    /// senses give them a reaction-time advantage without physically speeding them up.
+    /// </summary>
+    public void SetTinModifier(float val) => tinPerceptionModifier = Mathf.Clamp(val, 0.5f, 1f);
+    public void ClearTinModifier()        => tinPerceptionModifier = 1f;
 
     public void SetMetalWheelModifier(float val) => metalWheelModifier = Mathf.Clamp(val, 0.1f, 1f);
     public void ClearMetalWheelModifier() => metalWheelModifier = 1f;
