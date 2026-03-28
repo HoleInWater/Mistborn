@@ -57,20 +57,20 @@ public class Brass : MonoBehaviour
         
         foreach (Collider enemy in enemies)
         {
-            AIController ai = enemy.GetComponent<AIController>();
-            if (ai != null)
-            {
-                float dist = Vector3.Distance(transform.position, enemy.transform.position);
-                float distScale = 1f - (dist / currentRange);
-                float appliedStrength = Mathf.Lerp(baseSootheStrength, currentStrength, distScale);
+            // Lore: aluminum-lined helmets (Hazekillers) block emotional Allomancy
+            HazekillerAI hazekiller = enemy.GetComponentInParent<HazekillerAI>();
+            if (hazekiller != null && hazekiller.IsImmuneToEmotionalAllomancy()) continue;
 
-                // Soothing makes enemies calm and less aggressive
-                ai.SetEmotionState(AIController.EmotionState.Calm);
-                ai.SetAggressionMultiplier(appliedStrength);
-                
-                // Blue/Cyan aura for soothing
-                ai.SetEmotionalAura(new Color(0f, 0.8f, 1f, 0.8f * distScale), flareMult * distScale);
-            }
+            AIController ai = enemy.GetComponentInParent<AIController>();
+            if (ai == null) continue;
+
+            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            float distScale = 1f - (dist / currentRange);
+            float appliedStrength = Mathf.Lerp(baseSootheStrength, currentStrength, distScale);
+
+            ai.SetEmotionState(AIController.EmotionState.Calm);
+            ai.SetAggressionMultiplier(appliedStrength);
+            ai.SetEmotionalAura(new Color(0f, 0.8f, 1f, 0.8f * distScale), flareMult * distScale);
         }
 
     }

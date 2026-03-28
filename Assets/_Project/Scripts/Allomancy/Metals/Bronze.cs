@@ -28,11 +28,21 @@ public class Bronze : MonoBehaviour
     private bool isBurning = false;
     private Dictionary<Allomancer, float> targetPulseTimers = new Dictionary<Allomancer, float>();
     private List<Allomancer> detectedAllomancers = new List<Allomancer>();
+    private Material pulseMaterial;
     
     void Start()
     {
         if (allomancer == null)
             allomancer = GetComponentInParent<Allomancer>();
+
+        // Shared material for all pulse rings — avoids creating one per pulse (memory leak)
+        Shader s = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
+        pulseMaterial = new Material(s);
+    }
+
+    void OnDestroy()
+    {
+        if (pulseMaterial != null) Destroy(pulseMaterial);
     }
     
     void Update()
@@ -156,7 +166,7 @@ public class Bronze : MonoBehaviour
         lr.startColor = c;
         lr.endColor = new Color(c.r, c.g, c.b, 0);
         
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.material = pulseMaterial;
 
         for (int i = 0; i < 32; i++)
         {

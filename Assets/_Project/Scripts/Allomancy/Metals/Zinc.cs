@@ -57,20 +57,20 @@ public class Zinc : MonoBehaviour
         
         foreach (Collider enemy in enemies)
         {
-            AIController ai = enemy.GetComponent<AIController>();
-            if (ai != null)
-            {
-                float dist = Vector3.Distance(transform.position, enemy.transform.position);
-                float distScale = 1f - (dist / currentRange);
-                float appliedStrength = Mathf.Lerp(baseRiotStrength, currentStrength, distScale);
+            // Lore: aluminum-lined helmets (Hazekillers) block emotional Allomancy
+            HazekillerAI hazekiller = enemy.GetComponentInParent<HazekillerAI>();
+            if (hazekiller != null && hazekiller.IsImmuneToEmotionalAllomancy()) continue;
 
-                // Rioting makes enemies enraged and more aggressive
-                ai.SetEmotionState(AIController.EmotionState.Enraged);
-                ai.SetAggressionMultiplier(appliedStrength);
+            AIController ai = enemy.GetComponentInParent<AIController>();
+            if (ai == null) continue;
 
-                // Red/Orange aura for rioting
-                ai.SetEmotionalAura(new Color(1f, 0.2f, 0f, 0.8f * distScale), flareMult * distScale);
-            }
+            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            float distScale = 1f - (dist / currentRange);
+            float appliedStrength = Mathf.Lerp(baseRiotStrength, currentStrength, distScale);
+
+            ai.SetEmotionState(AIController.EmotionState.Enraged);
+            ai.SetAggressionMultiplier(appliedStrength);
+            ai.SetEmotionalAura(new Color(1f, 0.2f, 0f, 0.8f * distScale), flareMult * distScale);
         }
 
     }
