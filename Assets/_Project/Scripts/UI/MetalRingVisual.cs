@@ -27,7 +27,7 @@ public class MetalRingVisual : VisualElement
 
     private const float LINE_W       = 7f;    // arc stroke width
     private const float GAP_DEG      = 8f;    // degrees of gap between the two arcs
-    private const float SPIN_DEG_PER_TICK = 0.75f; // degrees per 16 ms tick (~8 s/rotation)
+    private const float SPIN_DEG_PER_TICK = 0.375f; // degrees per 16 ms tick (16 s/rotation — one per metal)
 
     // ── Spin state ─────────────────────────────────────────────────────────────
 
