@@ -115,11 +115,13 @@ public class Duralumin : MonoBehaviour
                 break;
 
             case AllomancySkill.MetalType.Zinc:
-                // Emotional shockwave — Riot everything in range
+                // Emotional shockwave — instant max-power riot on all enemies in range
+                player.GetComponentInChildren<Zinc>()?.TriggerDuraluminBurst();
                 break;
 
             case AllomancySkill.MetalType.Brass:
-                // Mass Soothe — calm/stun everything
+                // Mass Soothe — instant max-power calm/stun on all enemies in range
+                player.GetComponentInChildren<Brass>()?.TriggerDuraluminBurst();
                 break;
         }
 

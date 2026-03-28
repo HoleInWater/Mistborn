@@ -76,6 +76,15 @@ public class Zinc : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Called by Duralumin burst — max-power riot on everything in full range instantly.
+    /// </summary>
+    public void TriggerDuraluminBurst()
+    {
+        RiotEmotions(3f); // force max flare multiplier
+        CameraShakeManager.Instance?.Shake(0.6f, 0.4f);
+    }
+
     void OnDrawGizmosSelected()
     {
         if (isBurning)

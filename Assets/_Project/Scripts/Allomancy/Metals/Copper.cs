@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 /// <summary>
@@ -12,8 +13,16 @@ public class Copper : MonoBehaviour
     public float baseCloudRadius = 15f;
     public float maxCloudRadius = 40f;
 
+    [Header("UI Feedback")]
+    [Tooltip("Optional screen overlay Image to tint amber while Coppercloud is active. Assign in Inspector.")]
+    public Image copperOverlay;
+    [Tooltip("Opacity of the screen tint while the Coppercloud is active.")]
+    [Range(0f, 0.3f)]
+    public float overlayAlpha = 0.12f;
+
     private Allomancer allomancer;
     private bool isBurning = false;
+    private bool wasBurning = false;
     private static List<Copper> activeClouds = new List<Copper>();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -22,6 +31,8 @@ public class Copper : MonoBehaviour
     void Start()
     {
         allomancer = GetComponentInParent<Allomancer>();
+        if (copperOverlay != null)
+            copperOverlay.color = new Color(0.8f, 0.4f, 0.1f, 0f);
     }
 
     void OnEnable()
@@ -32,11 +43,26 @@ public class Copper : MonoBehaviour
     void OnDisable()
     {
         activeClouds.Remove(this);
+        SetOverlay(false);
     }
 
     void Update()
     {
         isBurning = allomancer != null && allomancer.IsBurning() && allomancer.GetCurrentMetal() == AllomancySkill.MetalType.Copper;
+
+        if (isBurning != wasBurning)
+        {
+            SetOverlay(isBurning);
+            wasBurning = isBurning;
+        }
+    }
+
+    void SetOverlay(bool active)
+    {
+        if (copperOverlay == null) return;
+        Color c = copperOverlay.color;
+        c.a = active ? overlayAlpha : 0f;
+        copperOverlay.color = c;
     }
 
     /// <summary>

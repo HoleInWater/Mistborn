@@ -76,6 +76,15 @@ public class Brass : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Called by Duralumin burst — mass soothe on everything in full range instantly.
+    /// </summary>
+    public void TriggerDuraluminBurst()
+    {
+        SootheEmotions(3f); // force max flare multiplier
+        CameraShakeManager.Instance?.Shake(0.3f, 0.5f);
+    }
+
     void OnDrawGizmosSelected()
     {
         if (isBurning)
