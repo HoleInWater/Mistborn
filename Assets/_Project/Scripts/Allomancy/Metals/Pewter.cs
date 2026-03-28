@@ -94,6 +94,12 @@ public class Pewter : MonoBehaviour
         // Releasing Left Ctrl ends the burn session — toggle resets.
         if (!burnSession) _pewterToggled = false;
 
+        if (ePressed || qPressed)
+            Debug.Log($"[PEWTER] Key pressed. E={ePressed} Q={qPressed} burnSession={burnSession} " +
+                      $"sel={sel != null} primary={sel?.GetPrimaryMetal()} secondary={sel?.GetSecondaryMetal()} " +
+                      $"toggled={_pewterToggled} reserve={allomancer?.GetMetalReserve(AllomancySkill.MetalType.Pewter):F1} " +
+                      $"playerMove={playerMove != null} originalJump={originalJumpVelocity:F2}");
+
         if (sel != null && burnSession)
         {
             if (sel.GetPrimaryMetal()   == AllomancySkill.MetalType.Pewter && ePressed) _pewterToggled = !_pewterToggled;
@@ -112,6 +118,8 @@ public class Pewter : MonoBehaviour
         if (isBurning)
         {
             float flareMult = FlareManager.Instance.FlareMultiplier;
+            if (!wasBurning)
+                Debug.Log($"[PEWTER] ON — flareMult={flareMult:F2} speedMult will be ~{Mathf.Lerp(baseSpeedMultiplier, maxSpeedMultiplier, Mathf.Clamp01((flareMult-1f)/9f)):F2}");
             ApplyEffects(flareMult);
             HandleHealing(flareMult);
             DrainReserve(flareMult);
