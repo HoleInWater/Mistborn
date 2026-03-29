@@ -27,7 +27,7 @@ public class MetalLineRenderer : MonoBehaviour
     public Color closeLineColor = new Color(0.3f, 0.6f, 1f, 0.6f);
 
     [Header("Closest Metal Line")]
-    public Color closestLineColor = new Color(0.15f, 0.2f, 0.8f, 0.9f);
+    public Color closestHighlightColor = new Color(0.15f, 0.2f, 0.8f, 0.9f);
 
     [Header("Highlight (HDRP Emissive)")]
     [Tooltip("_EmissiveIntensity value at closest range.")]
