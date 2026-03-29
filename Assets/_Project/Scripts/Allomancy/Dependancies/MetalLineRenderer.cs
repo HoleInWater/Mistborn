@@ -5,17 +5,18 @@ using System.Collections.Generic;
 /// Allomantic Sight — Left Ctrl toggle.
 /// Blue lines from chest to all nearby metals. Closest metal gets a dark blue
 /// mesh highlight (material tint). All others show lines only, no mesh change.
-/// Lore: Mistborn see translucent blue lines to every nearby metal source.
+///
+/// Lines and highlight are only active when Iron or Steel is the selected metal
+/// in MetalSelector (primary or secondary slot).
 /// </summary>
 [PlayerComponent("Allomancy", order: 50)]
 public class MetalLineRenderer : MonoBehaviour
 {
     [Header("Settings")]
-    public float maxRange      = 30f;
-    public float lineBaseWidth = 0.01f;
-    public float lineMaxWidth  = 0.06f;
+    public float maxRange       = 30f;
+    public float lineBaseWidth  = 0.01f;
+    public float lineMaxWidth   = 0.06f;
     public float massScaleFactor = 0.01f;
-    public float pulseSpeed    = 3f;
     public float updateInterval = 0.15f;
 
     [Header("Line Colors")]
@@ -24,49 +25,50 @@ public class MetalLineRenderer : MonoBehaviour
 
     [Header("Closest Metal Highlight")]
     [Tooltip("Dark blue tint applied to the closest metal's mesh")]
-    public Color closestHighlightColor = new Color(0.1f, 0.15f, 0.5f);
+    public Color closestHighlightColor = new Color(0.1f, 0.15f, 0.5f, 1f);
     [Tooltip("Line color for the closest metal")]
     public Color closestLineColor = new Color(0.15f, 0.2f, 0.8f, 0.9f);
 
     [Header("References")]
-    public Transform chestPoint;
-    public Allomancer allomancer;
-    public LayerMask metalLayer;
+    public Transform     chestPoint;
+    public Allomancer    allomancer;
+    public LayerMask     metalLayer;
+    public MetalSelector metalSelector;
 
     // ── Line pool ─────────────────────────────────────────────────────────────
-    private List<LineRenderer> linePool   = new List<LineRenderer>();
+    private List<LineRenderer>  linePool    = new List<LineRenderer>();
     private List<MetalLineData> activeLines = new List<MetalLineData>();
     private float    updateTimer;
     private Material lineMaterial;
     private bool     metalSightActive = false;
 
     // ── Closest metal tracking ────────────────────────────────────────────────
-    // We store the ROOT transform of the closest metal's rigidbody so that
-    // the "is it still the same object?" check in HighlightClosestMetal() is
-    // stable even when the collider sits on a child mesh object.
-    private Transform closestMetalTransform;   // rigidbody root transform
+    private Transform closestMetalRoot;      // rigidbody root — stable ID for the object
     private Rigidbody closestMetalRigidbody;
 
-    // Highlight state
-    private Renderer closestHighlightedRenderer;
-    private Color    closestOriginalColor;
-    private Transform highlightedRoot;          // root we applied the tint to
+    // ── Highlight state ───────────────────────────────────────────────────────
+    private Renderer  highlightedRenderer;
+    private Transform highlightedRoot;
+    private Color     originalColor;
+    private string    colorPropertyName;     // whichever property we actually set
 
     struct MetalLineData
     {
-        public Transform target;   // collider transform (used for line endpoint)
-        public Transform root;     // rigidbody root (used for highlight comparison)
-        public float mass;
-        public float distance;
-        public bool  isClosest;
+        public Transform colTransform; // collider transform (line endpoint)
+        public Transform root;         // rigidbody root  (highlight key)
+        public float     mass;
+        public float     distance;
+        public bool      isClosest;
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     void Start()
     {
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
-        if (chestPoint == null) chestPoint = transform;
+        if (allomancer    == null) allomancer    = GetComponent<Allomancer>();
+        if (chestPoint    == null) chestPoint    = transform;
+        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
+
         metalLayer = LayerMask.GetMask("Metal");
         if (metalLayer == 0) metalLayer = ~0;
 
@@ -77,9 +79,9 @@ public class MetalLineRenderer : MonoBehaviour
             GameObject go = new GameObject($"MetalLine_{i}");
             go.transform.SetParent(transform);
             LineRenderer lr = go.AddComponent<LineRenderer>();
-            lr.material        = lineMaterial;
-            lr.positionCount   = 2;
-            lr.useWorldSpace   = true;
+            lr.material      = lineMaterial;
+            lr.positionCount = 2;
+            lr.useWorldSpace = true;
             lr.gameObject.SetActive(false);
             linePool.Add(lr);
         }
@@ -90,10 +92,21 @@ public class MetalLineRenderer : MonoBehaviour
         if (Input.GetKeyDown(Keybinds.MetalSight))
             metalSightActive = !metalSightActive;
 
-        bool isBurning = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        bool isBurning      = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        bool ironOrSteel    = IronOrSteelSelected();
+
+        // Lines/highlight are only relevant when Iron or Steel is equipped.
+        // If neither is selected, clean up and stop.
+        if (!ironOrSteel)
+        {
+            HideAllLines();
+            ClearHighlight();
+            return;
+        }
+
         bool showLines = metalSightActive;
 
-        // Early out: nothing to do when sight is off AND not burning
+        // Also clean up if nothing is happening
         if (!showLines && !isBurning)
         {
             HideAllLines();
@@ -101,8 +114,7 @@ public class MetalLineRenderer : MonoBehaviour
             return;
         }
 
-        // Throttled scan — runs whether or not lines are visible, as long as
-        // sight is on OR a metal is being burned.
+        // Throttled scan — runs as long as sight is on OR a metal is burning
         updateTimer -= Time.deltaTime;
         if (updateTimer <= 0f)
         {
@@ -111,27 +123,37 @@ public class MetalLineRenderer : MonoBehaviour
         }
 
         if (showLines)
-        {
             DrawLines();
-        }
         else
-        {
-            // Burning but sight is off: hide lines but still highlight closest
-            // so the player can see what Steel/Iron is currently targeting.
             HideAllLines();
-        }
 
-        // Always highlight while burning or while sight is on
+        // Show highlight whenever burning (so the player can see the push/pull target)
+        // or whenever metal sight is on.
         HighlightClosestMetal();
     }
 
-    // ── Scan ─────────────────────────────────────────────────────────────────
+    // ── Iron / Steel check ────────────────────────────────────────────────────
+
+    bool IronOrSteelSelected()
+    {
+        if (metalSelector == null) return true; // no selector → always show (safe fallback)
+
+        AllomancySkill.MetalType primary   = metalSelector.GetPrimaryMetal();
+        AllomancySkill.MetalType secondary = metalSelector.GetSecondaryMetal();
+
+        return primary   == AllomancySkill.MetalType.Iron
+            || primary   == AllomancySkill.MetalType.Steel
+            || secondary == AllomancySkill.MetalType.Iron
+            || secondary == AllomancySkill.MetalType.Steel;
+    }
+
+    // ── Scan ──────────────────────────────────────────────────────────────────
 
     void ScanMetals()
     {
         activeLines.Clear();
-        closestMetalRigidbody  = null;
-        closestMetalTransform  = null;
+        closestMetalRoot      = null;
+        closestMetalRigidbody = null;
 
         float flare          = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
         float effectiveRange = maxRange * flare;
@@ -143,8 +165,8 @@ public class MetalLineRenderer : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            Collider col = hits[i];
-            if (col.transform == transform) continue;
+            Collider  col  = hits[i];
+            if (col.transform == transform || col.transform.IsChildOf(transform)) continue;
 
             Rigidbody rb   = col.attachedRigidbody;
             Transform root = rb != null ? rb.transform : col.transform;
@@ -153,11 +175,11 @@ public class MetalLineRenderer : MonoBehaviour
 
             activeLines.Add(new MetalLineData
             {
-                target    = col.transform,
-                root      = root,
-                mass      = mass,
-                distance  = dist,
-                isClosest = false
+                colTransform = col.transform,
+                root         = root,
+                mass         = mass,
+                distance     = dist,
+                isClosest    = false
             });
 
             if (dist < closestDist)
@@ -165,14 +187,14 @@ public class MetalLineRenderer : MonoBehaviour
                 closestDist           = dist;
                 closestIndex          = activeLines.Count - 1;
                 closestMetalRigidbody = rb;
-                closestMetalTransform = root;
+                closestMetalRoot      = root;
             }
         }
 
         if (closestIndex >= 0)
         {
             var data = activeLines[closestIndex];
-            data.isClosest           = true;
+            data.isClosest            = true;
             activeLines[closestIndex] = data;
         }
     }
@@ -185,16 +207,15 @@ public class MetalLineRenderer : MonoBehaviour
             linePool[i].gameObject.SetActive(false);
 
         int count = Mathf.Min(activeLines.Count, linePool.Count);
-
         for (int i = 0; i < count; i++)
         {
             MetalLineData data = activeLines[i];
-            if (data.target == null || !data.target.gameObject.activeInHierarchy) continue;
+            if (data.colTransform == null || !data.colTransform.gameObject.activeInHierarchy) continue;
 
             LineRenderer lr = linePool[i];
             lr.gameObject.SetActive(true);
             lr.SetPosition(0, chestPoint.position);
-            lr.SetPosition(1, data.target.position);
+            lr.SetPosition(1, data.colTransform.position);
 
             float width = Mathf.Clamp(lineBaseWidth + data.mass * massScaleFactor, lineBaseWidth, lineMaxWidth);
 
@@ -209,7 +230,7 @@ public class MetalLineRenderer : MonoBehaviour
             {
                 float proximity = 1f - Mathf.Clamp01(data.distance / maxRange);
                 Color c = Color.Lerp(baseLineColor, closeLineColor, proximity);
-                c.a *= (1f - Mathf.Clamp01(data.distance / maxRange) * 0.6f);
+                c.a *= 1f - Mathf.Clamp01(data.distance / maxRange) * 0.6f;
                 lr.startWidth = width;
                 lr.endWidth   = width * 0.3f;
                 lr.startColor = c;
@@ -220,72 +241,74 @@ public class MetalLineRenderer : MonoBehaviour
 
     // ── Highlight ─────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Highlight only the closest metal's mesh with a dark blue tint.
-    /// Uses the rigidbody ROOT transform for comparison, not the renderer transform,
-    /// so it stays stable when the collider/renderer are on different child objects.
-    /// </summary>
     void HighlightClosestMetal()
     {
-        // If the closest target changed, clear the old highlight first.
-        if (highlightedRoot != null && highlightedRoot != closestMetalTransform)
+        // Target changed — clear the old tint first
+        if (highlightedRoot != null && highlightedRoot != closestMetalRoot)
             ClearHighlight();
 
-        if (closestMetalTransform == null)
+        if (closestMetalRoot == null)
         {
             ClearHighlight();
             return;
         }
 
-        // Already highlighting the right object — nothing to do.
-        if (highlightedRoot == closestMetalTransform) return;
+        // Already tinting the right object
+        if (highlightedRoot == closestMetalRoot) return;
 
-        // Find a renderer: prefer the root, then search children.
-        Renderer targetRenderer = closestMetalTransform.GetComponent<Renderer>();
-        if (targetRenderer == null)
-            targetRenderer = closestMetalTransform.GetComponentInChildren<Renderer>();
-        if (targetRenderer == null) return;
+        // Find a renderer on or under the root
+        Renderer r = closestMetalRoot.GetComponent<Renderer>();
+        if (r == null) r = closestMetalRoot.GetComponentInChildren<Renderer>(true);
+        if (r == null) return;
 
-        // Apply tint
-        closestHighlightedRenderer = targetRenderer;
-        highlightedRoot            = closestMetalTransform;
-
-        Material mat = targetRenderer.material;
+        // Grab the instanced material so we don't taint shared materials
+        Material mat = r.material; // Unity auto-instances on first access
         if (mat == null) return;
 
-        if (mat.HasProperty("_BaseColor"))
+        // Try every common shader color property in priority order.
+        // Covers URP (_BaseColor), HDRP (_BaseColor + _EmissiveColor),
+        // Standard (_Color), and Unlit (_Color).
+        string[] candidates = { "_BaseColor", "_Color", "_MainColor", "_TintColor" };
+        colorPropertyName = null;
+        foreach (string prop in candidates)
         {
-            closestOriginalColor = mat.GetColor("_BaseColor");
-            mat.SetColor("_BaseColor", closestHighlightColor);
-        }
-        else
-        {
-            closestOriginalColor = mat.color;
-            mat.color = closestHighlightColor;
+            if (mat.HasProperty(prop))
+            {
+                colorPropertyName = prop;
+                break;
+            }
         }
 
+        if (colorPropertyName == null) return; // unknown shader — skip
+
+        originalColor = mat.GetColor(colorPropertyName);
+        mat.SetColor(colorPropertyName, closestHighlightColor);
+
+        // HDRP emissive glow — harmless no-op on other pipelines
         if (mat.HasProperty("_EmissiveColor"))
             mat.SetColor("_EmissiveColor", closestHighlightColor * 0.5f);
+
+        highlightedRenderer = r;
+        highlightedRoot     = closestMetalRoot;
     }
 
     void ClearHighlight()
     {
-        if (closestHighlightedRenderer != null)
+        if (highlightedRenderer != null)
         {
-            Material mat = closestHighlightedRenderer.material;
-            if (mat != null)
+            // highlightedRenderer.material is already the instanced copy we modified
+            Material mat = highlightedRenderer.material;
+            if (mat != null && colorPropertyName != null)
             {
-                if (mat.HasProperty("_BaseColor"))
-                    mat.SetColor("_BaseColor", closestOriginalColor);
-                else
-                    mat.color = closestOriginalColor;
-
+                mat.SetColor(colorPropertyName, originalColor);
                 if (mat.HasProperty("_EmissiveColor"))
                     mat.SetColor("_EmissiveColor", Color.black);
             }
         }
-        closestHighlightedRenderer = null;
-        highlightedRoot            = null;
+
+        highlightedRenderer = null;
+        highlightedRoot     = null;
+        colorPropertyName   = null;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -301,21 +324,14 @@ public class MetalLineRenderer : MonoBehaviour
     {
         ClearHighlight();
         HideAllLines();
-        closestMetalTransform = null;
+        closestMetalRoot      = null;
         closestMetalRigidbody = null;
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// <summary>Closest metal's transform — for legacy callers.</summary>
-    public Transform GetClosestMetal() => closestMetalTransform;
-
-    /// <summary>
-    /// Closest metal's Rigidbody — used by SteelPush and IronPull when burning
-    /// so they target the exact object that is highlighted.
-    /// </summary>
+    public Transform GetClosestMetal()          => closestMetalRoot;
     public Rigidbody GetClosestMetalRigidbody() => closestMetalRigidbody;
-
-    public int  GetVisibleLineCount() => activeLines.Count;
-    public bool IsActive()            => metalSightActive;
+    public int       GetVisibleLineCount()      => activeLines.Count;
+    public bool      IsActive()                 => metalSightActive;
 }
