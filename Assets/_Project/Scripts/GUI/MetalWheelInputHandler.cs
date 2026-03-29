@@ -65,8 +65,8 @@ public class MetalWheelInputHandler : MonoBehaviour
             lbRbPressed = Input.GetButton("LeftBumper") && Input.GetButton("RightBumper");
         }
         
-        // PC: hold Tab (Keybinds.MetalWheel) to open, release to close
-        bool pcOpenPressed = Input.GetKey(Keybinds.MetalWheel);
+        // Fallback for PC test if controllers aren't connected: R
+        bool pcOpenPressed = Input.GetKey(KeyCode.R);
 
         bool openInputActive = lbRbPressed || pcOpenPressed;
 
@@ -78,14 +78,15 @@ public class MetalWheelInputHandler : MonoBehaviour
         else if (!openInputActive && isWheelOpen)
         {
             isWheelOpen = false;
-
+            
             bool asSecondary = false;
             bool confirmSelection = true;
 
-            // 1. PC: releasing Tab confirms via mouse click (handled below); no auto-confirm on release
-            if (!lbRbPressed)
+            // 1. Mouse Logic (Overrides Gamepad if PC input was used)
+            if (!Input.GetKey(KeyCode.R)) 
             {
-                confirmSelection = false;
+                // User requested: Releasing R DOES NOT confirm. Must explicitly click.
+                confirmSelection = false; 
             }
             
             // 2. Gamepad Bumper Logic
