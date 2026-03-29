@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 3181540198028873614}
   - component: {fileID: 5262118842631077113}
   - component: {fileID: 582774324403851226}
-  - component: {fileID: 8205352103810409333}
+  - component: {fileID: 9074889532571488669}
   m_Layer: 0
   m_Name: MetalWheelSlot
   m_TagString: Untagged
@@ -153,7 +153,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &8205352103810409333
+--- !u!114 &9074889532571488669
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1542574459682044221}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63599339848742b439ec128cddea9ac2, type: 3}
+  m_Script: {fileID: 11500000, guid: 7099b7eea9d809b4996c4f1434d69c24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetalWheelSlot
   hexagonOutline: {fileID: 582774324403851226}
