@@ -16,6 +16,11 @@
  * BURN REQUIREMENT:
  * FlareManager.Instance.IsBurning must be true (Left Ctrl toggled on) before Q
  * will do anything. Mirrors the SteelPush gate on IsFlaring/IsSteelFlaring.
+ *
+ * TARGETING:
+ * When burning is active, targeting defers to MetalLineRenderer.GetClosestMetalRigidbody()
+ * so the highlighted object and the pull target are always the same object.
+ * When not burning, the standard camera-alignment scan is used as fallback.
  */
 
 using UnityEngine;
@@ -39,7 +44,7 @@ public class IronPull : MonoBehaviour
     [Header("Settings")]
     public float minDistance = 1f;
     public float maxRange = 30f;
-    public float metalCostPerSecond = 0.5f;  // MAG: 20 min/charge; ~0.5 per pull at ~1 pull/6s
+    public float metalCostPerSecond = 0.5f;
 
     [Header("Pull Physics — PHYSICS-MATH-BOOK.md Section 2")]
     [Tooltip("Pull speed when yanking toward anchored metal")]
@@ -58,6 +63,12 @@ public class IronPull : MonoBehaviour
     public Rigidbody     playerRigidbody;
     public Transform     chestTransform;
     public MetalSelector metalSelector;
+
+    // ── NEW: reference to the shared line renderer so we can read its target ──
+    [Header("Allomantic Sight")]
+    [Tooltip("Assign the MetalLineRenderer on this player. When burning, Iron will " +
+             "pull whatever MetalLineRenderer has highlighted instead of doing its own scan.")]
+    public MetalLineRenderer metalLineRenderer;
 
     [Header("Visual Effects")]
     public GameObject pullEffectPrefab;
@@ -102,12 +113,12 @@ public class IronPull : MonoBehaviour
         if (metalSelector != null)
         {
             if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.Ability1;   // E = primary slot
+                return Keybinds.Ability1;
             if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.Ability2;   // Q = secondary slot
-            return KeyCode.None;             // Iron not equipped in either slot
+                return Keybinds.Ability2;
+            return KeyCode.None;
         }
-        return Keybinds.Ability2;            // fallback if no selector
+        return Keybinds.Ability2;
     }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
@@ -122,6 +133,10 @@ public class IronPull : MonoBehaviour
 
         if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
 
+        // ── NEW: auto-find MetalLineRenderer on this player if not assigned ──
+        if (metalLineRenderer == null)
+            metalLineRenderer = GetComponentInParent<MetalLineRenderer>();
+
         if (chestTransform == null)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
 
@@ -134,12 +149,6 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // ── Q key: single-click pull impulse ──────────────────────────────────
-        // Requires:
-        //   1. FlareManager.IsBurning — player must have Left Ctrl toggled on
-        //   2. Metal reserve > 0
-        //   3. A valid metal target in range
-        //   4. Cooldown elapsed
         KeyCode pullKey = GetAbility1Key();
 
         if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
@@ -170,6 +179,24 @@ public class IronPull : MonoBehaviour
 
     void UpdateTargetedMetal()
     {
+        // ── NEW: When burning, always use MetalLineRenderer's highlighted target.
+        // This guarantees the mesh highlight and the pull target are the same object.
+        if (IsBurning && metalLineRenderer != null)
+        {
+            Rigidbody mlrRb = metalLineRenderer.GetClosestMetalRigidbody();
+            if (mlrRb != null && mlrRb != playerRigidbody)
+            {
+                currentTargetRigidbody = mlrRb;
+                currentTarget          = mlrRb.GetComponentInParent<AllomanticTarget>();
+                hasCurrentTarget       = true;
+                isAnchored             = currentTarget != null ? currentTarget.isAnchored : mlrRb.isKinematic;
+                return;
+            }
+            // MetalLineRenderer found nothing — fall through to own scan below.
+        }
+
+        // ── Fallback: own camera-alignment scan (used when not burning, or if
+        // MetalLineRenderer hasn't found anything yet).
         targetScanTimer -= Time.deltaTime;
         if (targetScanTimer > 0f) return;
         targetScanTimer = TARGET_SCAN_INTERVAL;
@@ -184,10 +211,6 @@ public class IronPull : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(playerRigidbody.position, maxRange, targetLayer);
         if (hits.Length == 0) return;
 
-        // Prefer objects that are (a) centered in camera view and (b) close.
-        // Score = alignment(−1..1) − normalizedDistance(0..1).
-        // This ensures a near-crosshair object at medium range beats a
-        // close-but-off-screen object, which is what Allomancy should feel like.
         Vector3 camForward = playerCamera != null ? playerCamera.transform.forward : transform.forward;
         float bestScore = float.MinValue;
 
@@ -196,8 +219,6 @@ public class IronPull : MonoBehaviour
             Rigidbody rb = hit.attachedRigidbody;
             if (rb == null || rb == playerRigidbody) continue;
 
-            // GetComponentInParent so AllomanticTarget on a root rb is found even
-            // when the collider is on a child mesh object.
             AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
             if (at != null && !at.canBePulled) continue;
 
@@ -227,30 +248,24 @@ public class IronPull : MonoBehaviour
         if (!hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        // --- Direction ---
         Vector3 dirToTarget  = currentTargetRigidbody.position - playerRigidbody.position;
         float   distance     = dirToTarget.magnitude;
         Vector3 pullDirection = dirToTarget.normalized;
 
-        // --- Flare multiplier ---
         float flare = CurrentFlareMultiplier;
 
-        // --- Distance scaling: stronger pull at close range ---
         float distanceMult = inverseDistanceScaling
             ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f)
             : 1f;
 
         if (isAnchored)
         {
-            // ANCHORED: Player gets yanked toward the heavy metal
             float   speed    = pullSpeed * flare * distanceMult;
             Vector3 velocity = pullDirection * Mathf.Min(speed, maxPullSpeed);
             playerRigidbody.AddForce(velocity, ForceMode.VelocityChange);
-
         }
         else
         {
-            // LOOSE OBJECT: Newton's 3rd Law — lighter party moves more
             float playerMass = playerRigidbody.mass;
             float objectMass = currentTargetRigidbody.mass;
             float totalMass  = playerMass + objectMass;
@@ -261,10 +276,8 @@ public class IronPull : MonoBehaviour
 
             float objectSpeed = Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f);
             currentTargetRigidbody.AddForce(-pullDirection * objectSpeed, ForceMode.VelocityChange);
-
         }
 
-        // --- Visual feedback ---
         float pullForce = isAnchored ? pullSpeed * CurrentFlareMultiplier : loosePullForce * CurrentFlareMultiplier;
         TriggerPullTint(pullForce);
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
