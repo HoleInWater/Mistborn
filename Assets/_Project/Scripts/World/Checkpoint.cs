@@ -1,4 +1,3 @@
-// NOTE: Line 44 contains Debug.Log which should be removed for production
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour

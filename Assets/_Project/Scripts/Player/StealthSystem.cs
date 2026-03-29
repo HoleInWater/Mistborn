@@ -1,5 +1,3 @@
-// NOTE: Lines 69 and 85 contain Debug.Log which should be removed for production
-// NOTE: Consider adding [RequireComponent(typeof(CapsuleCollider))] attribute for crouching
 using UnityEngine;
 
 [PlayerComponent("Combat", order: 50)]
@@ -23,19 +21,13 @@ public class StealthSystem : MonoBehaviour
     private bool isCrouching = false;
     private float originalHeight;
     private float originalCenter;
-    private float originalCameraHeight;
-    
+
     void Start()
     {
         if (playerCollider != null)
         {
             originalHeight = playerCollider.height;
             originalCenter = playerCollider.center.y;
-        }
-        
-        if (playerCamera != null)
-        {
-            originalCameraHeight = playerCamera.transform.localPosition.y;
         }
     }
     

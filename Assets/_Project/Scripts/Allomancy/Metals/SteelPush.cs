@@ -199,13 +199,11 @@ public class SteelPush : MonoBehaviour
         {
             if (!IsBurning)
             {
-                if (debugPushOperations)
-                    Debug.Log("[PUSH] Blocked: not burning Steel. Toggle burning with Left Ctrl.");
+                // Silently block — burning is off.
             }
             else if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) <= 0)
             {
-                if (debugPushOperations)
-                    Debug.Log("[PUSH] Blocked: Steel reserve empty.");
+                // Steel reserve empty.
             }
             else if (hasCurrentTarget)
             {
@@ -213,11 +211,6 @@ public class SteelPush : MonoBehaviour
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond);
                 cooldownTimer = pushCooldown;
                 if (IsBurning) StartFlaringVignette();
-            }
-            else
-            {
-                if (debugPushOperations)
-                    Debug.Log("[PUSH] No target in range.");
             }
         }
 

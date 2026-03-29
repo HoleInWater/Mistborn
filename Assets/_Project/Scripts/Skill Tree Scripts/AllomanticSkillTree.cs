@@ -163,7 +163,6 @@ public class AllomanticSkillTree : MonoBehaviour
         OnSkillUnlocked?.Invoke(skill);
 
         SoundManager.Instance?.PlaySkillUnlock();
-        Debug.Log($"[SKILL] Unlocked: {skill.displayName}");
         return true;
     }
 

@@ -1,4 +1,3 @@
-// NOTE: Lines 29 and 61 contain Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -33,8 +32,7 @@ public class HealthBarTransitions : MonoBehaviour
             // Set the bar to be 100% full at the start
             _progressBar.lowValue = 0;
             _progressBar.highValue = 100;
-            _progressBar.value = 100; 
-            Debug.Log("Health Bar initialized to 100%");
+            _progressBar.value = 100;
         }
     }
 
@@ -66,7 +64,6 @@ public class HealthBarTransitions : MonoBehaviour
             // Start counting time since last touch
             isTouchingEnemy = false;
             timeNotTouchedEnemy = 0f;
-            Debug.Log("Stopped touching enemy, starting health regeneration timer.");
         }
     }
 

@@ -146,25 +146,17 @@ public class IronPull : MonoBehaviour
         {
             if (!IsBurning)
             {
-                // Silently block — burning is off. Optionally log for debug.
-                if (debugFlareState)
-                    Debug.Log("[PULL] Blocked: not burning Iron. Toggle burning with Left Ctrl.");
+                // Silently block — burning is off.
             }
             else if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) <= 0)
             {
-                if (debugPullOperations)
-                    Debug.Log("[PULL] Blocked: Iron reserve empty.");
+                // Iron reserve empty.
             }
             else if (hasCurrentTarget)
             {
                 PullMetals();
                 allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond);
                 cooldownTimer = 0.2f;
-            }
-            else
-            {
-                if (debugPullOperations)
-                    Debug.Log("[PULL] No target in range.");
             }
         }
 
@@ -255,8 +247,6 @@ public class IronPull : MonoBehaviour
             Vector3 velocity = pullDirection * Mathf.Min(speed, maxPullSpeed);
             playerRigidbody.AddForce(velocity, ForceMode.VelocityChange);
 
-            if (debugPullOperations)
-                Debug.Log($"[PULL] Yanked player toward anchored {currentTargetRigidbody.name} | speed={speed:F1} | flare={flare:F2}");
         }
         else
         {
@@ -272,8 +262,6 @@ public class IronPull : MonoBehaviour
             float objectSpeed = Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f);
             currentTargetRigidbody.AddForce(-pullDirection * objectSpeed, ForceMode.VelocityChange);
 
-            if (debugPullOperations)
-                Debug.Log($"[PULL] Pulled {currentTargetRigidbody.name} | objectSpeed={objectSpeed:F1} | playerSpeed={playerSpeed:F1} | flare={flare:F2}");
         }
 
         // --- Visual feedback ---

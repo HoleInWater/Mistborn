@@ -1,4 +1,3 @@
-// NOTE: Line 25 contains Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,7 +22,7 @@ public class AllomancyTreeUI : MonoBehaviour
             node.Q<VisualElement>("SkillIcon").style.backgroundImage = new StyleBackground(skill.icon);
             
             // Add click logic
-            node.Q<Button>().clicked += () => Debug.Log("Clicked " + skill.skillName);
+            node.Q<Button>().clicked += () => { };
 
             container.Add(node);
         }

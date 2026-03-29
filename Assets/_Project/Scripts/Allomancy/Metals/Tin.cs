@@ -441,8 +441,6 @@ public class Tin : MonoBehaviour
 
         if (targetState != CurrentState)
         {
-            Debug.Log($"[TIN] State: {CurrentState} → {targetState}  toggled={_tinToggled}  reserve={tinReserve:F1}");
-
             if (targetState == TinState.Off)
             {
                 // Stop flare entry zoom if it's still running
