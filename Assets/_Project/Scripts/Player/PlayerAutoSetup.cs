@@ -1,15 +1,16 @@
 using UnityEngine;
 
 /// <summary>
-/// Fixes Allomancy serialized values on start.
+/// Fixes Allomancy serialized values after all Awake() calls finish.
 /// Unity caches old Inspector values — this forces the correct ones.
+/// Must run in Start() so Allomancer.Awake() has already run
+/// EnsureAllomancyComponents() and added SteelPush/IronPull/etc.
 /// Add to Player GameObject. Only touches Allomancy components.
 /// </summary>
-[DefaultExecutionOrder(-100)]
 [PlayerComponent("Core", order: 10)]
 public class PlayerAutoSetup : MonoBehaviour
 {
-    void Awake()
+    void Start()
     {
         // Steel Push
         SteelPush push = GetComponent<SteelPush>();
