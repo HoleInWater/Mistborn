@@ -45,9 +45,6 @@ public class MetalLineRenderer : MonoBehaviour
     private Color closestOriginalColor;
     private Transform closestMetalTransform;
 
-    // ── NEW: track the closest metal's Rigidbody so Steel/Iron can use it ────
-    private Rigidbody closestMetalRigidbody;
-
     struct MetalLineData
     {
         public Transform target;
@@ -84,20 +81,17 @@ public class MetalLineRenderer : MonoBehaviour
         if (Input.GetKeyDown(Keybinds.MetalSight))
             metalSightActive = !metalSightActive;
 
-        // ── NEW: also run the scan (without drawing lines) when Steel or Iron
-        // is burning so SteelPush / IronPull can read GetClosestMetal().
-        bool isBurning = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
+        // Only show when manually toggled with Z — no auto-activation
         bool showLines = metalSightActive;
 
-        if (!showLines && !isBurning)
+        if (!showLines)
         {
             HideAllLines();
             ClearHighlight();
             return;
         }
 
-        // Throttled scan — runs whether lines are visible or not, as long as
-        // metal sight is on OR a metal is being burned.
+        // Throttled scan
         updateTimer -= Time.deltaTime;
         if (updateTimer <= 0f)
         {
@@ -105,25 +99,13 @@ public class MetalLineRenderer : MonoBehaviour
             ScanMetals();
         }
 
-        if (showLines)
-        {
-            DrawLines();
-            HighlightClosestMetal();
-        }
-        else
-        {
-            // Burning but sight off: highlight closest metal so the player can
-            // see what Steel/Iron is targeting, but don't draw all the lines.
-            HideAllLines();
-            HighlightClosestMetal();
-        }
+        DrawLines();
+        HighlightClosestMetal();
     }
 
     void ScanMetals()
     {
         activeLines.Clear();
-        closestMetalRigidbody = null; // reset each scan
-
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
         float effectiveRange = maxRange * flare;
 
@@ -153,7 +135,6 @@ public class MetalLineRenderer : MonoBehaviour
             {
                 closestDist = dist;
                 closestIndex = activeLines.Count - 1;
-                closestMetalRigidbody = rb; // ── NEW
             }
         }
 
@@ -168,7 +149,6 @@ public class MetalLineRenderer : MonoBehaviour
         else
         {
             closestMetalTransform = null;
-            closestMetalRigidbody = null;
         }
     }
 
@@ -298,13 +278,6 @@ public class MetalLineRenderer : MonoBehaviour
     /// Get the closest metal's transform (for SteelPush/IronPull targeting).
     /// </summary>
     public Transform GetClosestMetal() => closestMetalTransform;
-
-    /// <summary>
-    /// Get the closest metal's Rigidbody directly (used by SteelPush and IronPull
-    /// when burning is active so they target the same object that is highlighted).
-    /// </summary>
-    public Rigidbody GetClosestMetalRigidbody() => closestMetalRigidbody;
-
     public int GetVisibleLineCount() => activeLines.Count;
     public bool IsActive() => metalSightActive;
 }

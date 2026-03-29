@@ -1,3 +1,4 @@
+// NOTE: Lines 23 and 34 contain Debug.Log which should be removed for production
 using UnityEngine;
 
 public class SaveSystem : MonoBehaviour

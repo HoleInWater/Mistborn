@@ -1,3 +1,4 @@
+// NOTE: Line 89 contains Debug.Log which should be removed for production
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic; // Required for Lists
@@ -88,11 +89,13 @@ public class AllomancySkillTreeController : MonoBehaviour
     {
         if (skill.isUnlocked)
         {
+            Debug.Log($"[SKILL] {skill.skillName} is already unlocked.");
             return;
         }
 
         if (!CheckIfPrerequisitesMet(skill))
         {
+            Debug.Log($"[SKILL] Prerequisites not met for {skill.skillName}.");
             return;
         }
 
@@ -100,16 +103,22 @@ public class AllomancySkillTreeController : MonoBehaviour
         {
             UnlockSkill(skill);
         }
+        else
+        {
+            Debug.Log("[SKILL] Not enough skill points!");
+        }
     }
 
     private void UnlockSkill(AllomancySkill skill)
     {
         skill.isUnlocked = true;
-
+        
         // Notify Allomancer via Registry (faster than FindObjectOfType)
         if (MistbornRegistry.ActiveAllomancers.Count > 0)
             MistbornRegistry.ActiveAllomancers[0].UnlockMetal(skill.metalType);
 
+        Debug.Log($"[SKILL] UNLOCKED: {skill.skillName}!");
+        
         // Refresh UI
         GenerateSkillNodes();
     }
