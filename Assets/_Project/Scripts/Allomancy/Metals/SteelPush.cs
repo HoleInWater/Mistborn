@@ -18,6 +18,11 @@
  * BURN REQUIREMENT:
  * FlareManager.Instance.IsBurning must be true (Left Ctrl toggled on) before
  * E or F will do anything. Same gate used by IronPull.
+ *
+ * TARGETING:
+ * When burning is active, targeting defers to MetalLineRenderer.GetClosestMetalRigidbody()
+ * so the highlighted object and the push target are always the same object.
+ * When not burning, the standard camera-alignment scan is used as fallback.
  */
 
 using UnityEngine;
@@ -41,7 +46,7 @@ public class SteelPush : MonoBehaviour
     [Header("Push Settings")]
     public float minDistance        = 1f;
     public float maxRange           = 30f;
-    public float metalCostPerSecond = 0.5f;  // MAG: 20 min/charge; ~0.5 per push at ~1 push/6s
+    public float metalCostPerSecond = 0.5f;
     public float pushCooldown       = 0.2f;
 
     [Header("Push Physics — PHYSICS-MATH-BOOK.md Section 2")]
@@ -70,6 +75,12 @@ public class SteelPush : MonoBehaviour
     public Rigidbody      playerRigidbody;
     public Transform      chestTransform;
     public MetalSelector  metalSelector;
+
+    // ── NEW: reference to the shared line renderer so we can read its target ──
+    [Header("Allomantic Sight")]
+    [Tooltip("Assign the MetalLineRenderer on this player. When burning, Steel will " +
+             "push whatever MetalLineRenderer has highlighted instead of doing its own scan.")]
+    public MetalLineRenderer metalLineRenderer;
 
     [Header("Visual Effects")]
     public float shakeMagnitude      = 0.1f;
@@ -101,7 +112,6 @@ public class SteelPush : MonoBehaviour
 
     [Header("Steel Bubble")]
     public bool enableSteelBubble = true;
-    // [AGENT REVIEW] Dynamically bound based on primary/secondary state
     public KeyCode steelBubbleKey => GetAbility2Key();
 
     private KeyCode GetAbility1Key()
@@ -109,22 +119,22 @@ public class SteelPush : MonoBehaviour
         if (metalSelector != null)
         {
             if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.Ability1;   // E = primary slot
+                return Keybinds.Ability1;
             if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel)
-                return Keybinds.Ability2;   // Q = secondary slot
-            return KeyCode.None;             // Steel not equipped in either slot
+                return Keybinds.Ability2;
+            return KeyCode.None;
         }
-        return Keybinds.SteelPush;           // fallback if no selector
+        return Keybinds.SteelPush;
     }
     private KeyCode GetAbility2Key()
     {
         if (metalSelector != null)
         {
-            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Steel) return Keybinds.Ability3;  // F
-            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return Keybinds.Ability4;  // V
+            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Steel) return Keybinds.Ability3;
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Steel) return Keybinds.Ability4;
             return KeyCode.None;
         }
-        return Keybinds.Ability3;  // no selector — default F
+        return Keybinds.Ability3;
     }
 
     public float steelBubbleRadius              = 2.5f;
@@ -164,8 +174,11 @@ public class SteelPush : MonoBehaviour
         if (playerRigidbody == null) playerRigidbody = GetComponentInParent<Rigidbody>();
         if (playerCamera    == null) playerCamera    = Camera.main;
         if (allomancer      == null) allomancer      = GetComponentInParent<Allomancer>();
+        if (metalSelector   == null) metalSelector   = GetComponentInParent<MetalSelector>();
 
-        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
+        // ── NEW: auto-find MetalLineRenderer on this player if not assigned ──
+        if (metalLineRenderer == null)
+            metalLineRenderer = GetComponentInParent<MetalLineRenderer>();
 
         if (chestTransform == null)
         {
@@ -188,12 +201,6 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // ── E key: single-click push impulse ──────────────────────────────────
-        // Requires:
-        //   1. FlareManager.IsBurning — player must have Left Ctrl toggled on
-        //   2. Metal reserve > 0
-        //   3. A valid metal target in range
-        //   4. Cooldown elapsed
         KeyCode pushKey = GetAbility1Key();
         if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
         {
@@ -214,7 +221,6 @@ public class SteelPush : MonoBehaviour
             }
         }
 
-        // ── Steel Bubble: radial push (F = primary, V = secondary, requires burn session) ──
         KeyCode bubbleKey = steelBubbleKey;
         bool bubblePressed = bubbleKey != KeyCode.None && Input.GetKeyDown(bubbleKey);
 
@@ -223,7 +229,6 @@ public class SteelPush : MonoBehaviour
             if (allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
             {
                 PushMetalsInBubble();
-                // Drain scales with flare — higher intensity = more metal consumed
                 allomancer.DrainMetal(AllomancySkill.MetalType.Steel,
                     metalCostPerSecond * steelBubbleMetalCostMultiplier * CurrentFlareMultiplier);
                 steelBubbleCooldownTimer = steelBubbleCooldown;
@@ -236,14 +241,29 @@ public class SteelPush : MonoBehaviour
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
-    private Renderer lastHighlightedRenderer;
-    private Color    originalColor;
-
     private float targetScanTimer = 0f;
     private const float TARGET_SCAN_INTERVAL = 0.1f;
 
     void UpdateTargetedMetal()
     {
+        // ── NEW: When burning, always use MetalLineRenderer's highlighted target.
+        // This guarantees the mesh highlight and the push target are the same object.
+        if (IsBurning && metalLineRenderer != null)
+        {
+            Rigidbody mlrRb = metalLineRenderer.GetClosestMetalRigidbody();
+            if (mlrRb != null && mlrRb != playerRigidbody)
+            {
+                currentTargetRigidbody = mlrRb;
+                currentTarget          = mlrRb.GetComponentInParent<AllomanticTarget>();
+                hasCurrentTarget       = true;
+                metalInRange           = true;
+                return;
+            }
+            // MetalLineRenderer found nothing — fall through to own scan below.
+        }
+
+        // ── Fallback: own camera-alignment scan (used when not burning, or if
+        // MetalLineRenderer hasn't found anything yet).
         targetScanTimer -= Time.deltaTime;
         if (targetScanTimer > 0f) return;
         targetScanTimer = TARGET_SCAN_INTERVAL;
@@ -339,7 +359,6 @@ public class SteelPush : MonoBehaviour
     {
         float flareMult = CurrentFlareMultiplier;
 
-        // Radius and force both scale with flare intensity
         float radius = steelBubbleRadius * flareMult;
         LayerMask targetLayer = metalLayer != 0 ? metalLayer : LayerMask.GetMask("Metal");
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, radius, targetLayer);
