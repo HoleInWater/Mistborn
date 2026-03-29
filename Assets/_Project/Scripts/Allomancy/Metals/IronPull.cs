@@ -3,19 +3,11 @@
  * PURPOSE:
  * Implements the Iron Allomancy ability (Lurcher) – pull metal objects toward the player.
  * Physics are lore-accurate: mass ratios determine who moves more.
- * Whoever has less mass moves more (Newton's 3rd Law + Mistborn canon).
- *
- * FLARE INTEGRATION (scroll wheel):
- * Pull force scales continuously with FlareManager.Instance.FlareMultiplier.
  *
  * CONTROLS:
- * - Left Ctrl  → Toggle burning ON / OFF (via FlareManager)
- * - Q key      → While burning, pull targeted metal object (single impulse per press)
+ * - Left Ctrl    → Toggle burning ON / OFF (via FlareManager)
+ * - Q key        → While burning, pull targeted metal object
  * - Scroll wheel → Adjust flare intensity (via FlareManager)
- *
- * BURN REQUIREMENT:
- * FlareManager.Instance.IsBurning must be true (Left Ctrl toggled on) before Q
- * will do anything. Mirrors the SteelPush gate on IsFlaring/IsSteelFlaring.
  *
  * TARGETING:
  * When burning is active, targeting defers to MetalLineRenderer.GetClosestMetalRigidbody()
@@ -25,7 +17,6 @@
 
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 [PlayerComponent("Allomancy Metals", order: 20)]
 public class IronPull : MonoBehaviour
@@ -35,26 +26,21 @@ public class IronPull : MonoBehaviour
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
-    /// <summary>True only when the player has Iron burning toggled on.</summary>
     private bool IsBurning =>
         FlareManager.Instance != null && FlareManager.Instance.IsBurning;
 
     // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Settings")]
-    public float minDistance = 1f;
-    public float maxRange = 30f;
+    public float minDistance        = 1f;
+    public float maxRange           = 30f;
     public float metalCostPerSecond = 0.5f;
 
-    [Header("Pull Physics — PHYSICS-MATH-BOOK.md Section 2")]
-    [Tooltip("Pull speed when yanking toward anchored metal")]
-    public float pullSpeed = 20f;
-    [Tooltip("Max speed player can reach from pulling")]
-    public float maxPullSpeed = 18f;
-    [Tooltip("Speed applied to loose objects pulled toward player")]
-    public float loosePullForce = 30f;
-    [Tooltip("Stronger pull at close range")]
-    public bool inverseDistanceScaling = true;
+    [Header("Pull Physics")]
+    public float pullSpeed              = 20f;
+    public float maxPullSpeed           = 18f;
+    public float loosePullForce         = 30f;
+    public bool  inverseDistanceScaling = true;
 
     [Header("References")]
     public Camera        playerCamera;
@@ -64,58 +50,50 @@ public class IronPull : MonoBehaviour
     public Transform     chestTransform;
     public MetalSelector metalSelector;
 
-    // ── NEW: reference to the shared line renderer so we can read its target ──
     [Header("Allomantic Sight")]
-    [Tooltip("Assign the MetalLineRenderer on this player. When burning, Iron will " +
-             "pull whatever MetalLineRenderer has highlighted instead of doing its own scan.")]
+    [Tooltip("Auto-found if left empty. When burning, Iron targets whatever MetalLineRenderer has highlighted.")]
     public MetalLineRenderer metalLineRenderer;
 
     [Header("Visual Effects")]
-    public GameObject pullEffectPrefab;
-    public float shakeMagnitude = 0.1f;
-    public float shakeDuration = 0.1f;
+    public float shakeMagnitude      = 0.1f;
+    public float shakeDuration       = 0.1f;
     public float shakeForceThreshold = 100f;
-    public bool enablePullScreenTint = true;
+    public bool  enablePullScreenTint = true;
     public Color weakPullTint   = new Color(0f, 0.5f, 1f, 0.1f);
     public Color mediumPullTint = new Color(0f, 0.8f, 1f, 0.2f);
     public Color strongPullTint = new Color(0f, 1f,   1f, 0.3f);
     public float pullTintDuration = 0.2f;
 
     [Header("Pull Prediction")]
-    public bool enablePullPrediction = true;
-    public Color predictionColor = new Color(0f, 0.5f, 1f, 0.5f);
-    public int predictionPoints = 20;
+    public bool  enablePullPrediction = true;
+    public Color predictionColor      = new Color(0f, 0.5f, 1f, 0.6f);
+    public int   predictionPoints     = 20;
 
     [Header("Debug")]
     public bool debugPullOperations = false;
-    public bool debugFlareState = false;
 
     // ── Private State ─────────────────────────────────────────────────────────
 
     private float cooldownTimer = 0f;
 
-    private RaycastHit currentTargetHit;
     private AllomanticTarget currentTarget;
-    private Rigidbody currentTargetRigidbody;
-    private bool hasCurrentTarget = false;
-    private bool isAnchored = false;
+    private Rigidbody        currentTargetRigidbody;
+    private bool             hasCurrentTarget = false;
+    private bool             isAnchored       = false;
 
-    private Coroutine pullTintCoroutine;
-    private Color currentPullTint = Color.clear;
-
+    private Coroutine    pullTintCoroutine;
+    private Color        currentPullTint = Color.clear;
     private LineRenderer predictionLine;
-    private bool isPredictionActive = false;
+    private bool         isPredictionActive = false;
 
-    // ── Keybind Helper ────────────────────────────────────────────────────────
+    // ── Keybind ───────────────────────────────────────────────────────────────
 
     private KeyCode GetAbility1Key()
     {
         if (metalSelector != null)
         {
-            if (metalSelector.GetPrimaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.Ability1;
-            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron)
-                return Keybinds.Ability2;
+            if (metalSelector.GetPrimaryMetal()   == AllomancySkill.MetalType.Iron) return Keybinds.Ability1;
+            if (metalSelector.GetSecondaryMetal() == AllomancySkill.MetalType.Iron) return Keybinds.Ability2;
             return KeyCode.None;
         }
         return Keybinds.Ability2;
@@ -125,17 +103,13 @@ public class IronPull : MonoBehaviour
 
     void Start()
     {
-        if (playerRigidbody == null) playerRigidbody = GetComponentInParent<Rigidbody>();
-        if (playerCamera    == null) playerCamera    = Camera.main;
-        if (allomancer      == null) allomancer      = GetComponentInParent<Allomancer>();
+        if (playerRigidbody   == null) playerRigidbody   = GetComponentInParent<Rigidbody>();
+        if (playerCamera      == null) playerCamera      = Camera.main;
+        if (allomancer        == null) allomancer        = GetComponentInParent<Allomancer>();
+        if (metalSelector     == null) metalSelector     = GetComponentInParent<MetalSelector>();
+        if (metalLineRenderer == null) metalLineRenderer = GetComponentInParent<MetalLineRenderer>();
 
         metalLayer = LayerMask.GetMask("Metal");
-
-        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
-
-        // ── NEW: auto-find MetalLineRenderer on this player if not assigned ──
-        if (metalLineRenderer == null)
-            metalLineRenderer = GetComponentInParent<MetalLineRenderer>();
 
         if (chestTransform == null)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
@@ -150,18 +124,10 @@ public class IronPull : MonoBehaviour
         UpdateTargetedMetal();
 
         KeyCode pullKey = GetAbility1Key();
-
         if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
         {
-            if (!IsBurning)
-            {
-                // Silently block — burning is off.
-            }
-            else if (allomancer == null || allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) <= 0)
-            {
-                // Iron reserve empty.
-            }
-            else if (hasCurrentTarget)
+            if (IsBurning && hasCurrentTarget
+                && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)
             {
                 PullMetals();
                 allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond);
@@ -174,13 +140,13 @@ public class IronPull : MonoBehaviour
 
     // ── Target Detection ──────────────────────────────────────────────────────
 
-    private float targetScanTimer = 0f;
-    private const float TARGET_SCAN_INTERVAL = 0.1f;
+    private float targetScanTimer    = 0f;
+    private const float SCAN_INTERVAL = 0.1f;
 
     void UpdateTargetedMetal()
     {
-        // ── NEW: When burning, always use MetalLineRenderer's highlighted target.
-        // This guarantees the mesh highlight and the pull target are the same object.
+        // While burning, always use the MetalLineRenderer's closest target so
+        // the highlight and the pull target are guaranteed to be the same object.
         if (IsBurning && metalLineRenderer != null)
         {
             Rigidbody mlrRb = metalLineRenderer.GetClosestMetalRigidbody();
@@ -192,14 +158,12 @@ public class IronPull : MonoBehaviour
                 isAnchored             = currentTarget != null ? currentTarget.isAnchored : mlrRb.isKinematic;
                 return;
             }
-            // MetalLineRenderer found nothing — fall through to own scan below.
         }
 
-        // ── Fallback: own camera-alignment scan (used when not burning, or if
-        // MetalLineRenderer hasn't found anything yet).
+        // Fallback: camera-alignment scan (not burning, or MLR found nothing yet).
         targetScanTimer -= Time.deltaTime;
         if (targetScanTimer > 0f) return;
-        targetScanTimer = TARGET_SCAN_INTERVAL;
+        targetScanTimer = SCAN_INTERVAL;
 
         hasCurrentTarget       = false;
         currentTarget          = null;
@@ -212,7 +176,7 @@ public class IronPull : MonoBehaviour
         if (hits.Length == 0) return;
 
         Vector3 camForward = playerCamera != null ? playerCamera.transform.forward : transform.forward;
-        float bestScore = float.MinValue;
+        float   bestScore  = float.MinValue;
 
         foreach (var hit in hits)
         {
@@ -222,8 +186,8 @@ public class IronPull : MonoBehaviour
             AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
             if (at != null && !at.canBePulled) continue;
 
-            Vector3 toTarget = rb.position - playerRigidbody.position;
-            float dist = toTarget.magnitude;
+            Vector3 toTarget  = rb.position - playerRigidbody.position;
+            float   dist      = toTarget.magnitude;
             if (dist < minDistance) continue;
 
             float alignment = Vector3.Dot(camForward, toTarget.normalized);
@@ -240,29 +204,24 @@ public class IronPull : MonoBehaviour
         }
     }
 
-    // ── Pull Logic ────────────────────────────────────────────────────────────
+    // ── Pull Physics ──────────────────────────────────────────────────────────
 
     void PullMetals()
     {
-        if (playerRigidbody == null || currentTargetRigidbody == null) return;
-        if (!hasCurrentTarget) return;
+        if (playerRigidbody == null || currentTargetRigidbody == null || !hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        Vector3 dirToTarget  = currentTargetRigidbody.position - playerRigidbody.position;
-        float   distance     = dirToTarget.magnitude;
+        Vector3 dirToTarget   = currentTargetRigidbody.position - playerRigidbody.position;
+        float   distance      = dirToTarget.magnitude;
         Vector3 pullDirection = dirToTarget.normalized;
-
-        float flare = CurrentFlareMultiplier;
-
-        float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f)
-            : 1f;
+        float   flare         = CurrentFlareMultiplier;
+        float   distanceMult  = inverseDistanceScaling
+            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f) : 1f;
 
         if (isAnchored)
         {
-            float   speed    = pullSpeed * flare * distanceMult;
-            Vector3 velocity = pullDirection * Mathf.Min(speed, maxPullSpeed);
-            playerRigidbody.AddForce(velocity, ForceMode.VelocityChange);
+            float speed = Mathf.Min(pullSpeed * flare * distanceMult, maxPullSpeed);
+            playerRigidbody.AddForce(pullDirection * speed, ForceMode.VelocityChange);
         }
         else
         {
@@ -271,11 +230,10 @@ public class IronPull : MonoBehaviour
             float totalMass  = playerMass + objectMass;
             float pullMag    = loosePullForce * flare * distanceMult;
 
-            float playerSpeed = Mathf.Min(pullMag * (objectMass / totalMass), maxPullSpeed);
-            playerRigidbody.AddForce(pullDirection * playerSpeed, ForceMode.VelocityChange);
-
-            float objectSpeed = Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f);
-            currentTargetRigidbody.AddForce(-pullDirection * objectSpeed, ForceMode.VelocityChange);
+            playerRigidbody.AddForce(pullDirection
+                * Mathf.Min(pullMag * (objectMass / totalMass), maxPullSpeed), ForceMode.VelocityChange);
+            currentTargetRigidbody.AddForce(-pullDirection
+                * Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f), ForceMode.VelocityChange);
         }
 
         float pullForce = isAnchored ? pullSpeed * CurrentFlareMultiplier : loosePullForce * CurrentFlareMultiplier;
@@ -291,62 +249,55 @@ public class IronPull : MonoBehaviour
 
     void CreatePredictionLine()
     {
-        GameObject lineObj = new GameObject("PullPredictionLine");
-        predictionLine = lineObj.AddComponent<LineRenderer>();
-
-        Shader shader = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
-        predictionLine.material   = new Material(shader);
+        // Own child GameObject — prevents it from drawing at origin on the first frame.
+        GameObject lineObj = new GameObject("IronPredictionLine");
+        lineObj.transform.SetParent(transform);
+        predictionLine            = lineObj.AddComponent<LineRenderer>();
+        predictionLine.material   = new Material(Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color"));
         predictionLine.startColor = predictionColor;
-        predictionLine.endColor   = predictionColor;
+        predictionLine.endColor   = new Color(predictionColor.r, predictionColor.g, predictionColor.b, 0.2f);
         predictionLine.startWidth = 0.03f;
         predictionLine.endWidth   = 0.01f;
-        predictionLine.positionCount = predictionPoints;
+        predictionLine.positionCount = 0;    // nothing to draw yet
         predictionLine.useWorldSpace = true;
-        predictionLine.gameObject.SetActive(false);
+        lineObj.SetActive(false);             // fully off until burning + target
     }
 
     void UpdatePrediction()
     {
-        bool shouldShow = enablePullPrediction && hasCurrentTarget
-            && currentTarget != null && currentTarget.canBePulled;
+        if (predictionLine == null) return;
 
-        if (shouldShow)
-            DrawPredictionLine();
-        else if (isPredictionActive)
+        if (enablePullPrediction && IsBurning && hasCurrentTarget && currentTargetRigidbody != null)
         {
-            predictionLine.gameObject.SetActive(false);
-            isPredictionActive = false;
+            predictionLine.gameObject.SetActive(true);
+            predictionLine.positionCount = predictionPoints;
+
+            Vector3 start = currentTargetRigidbody.position;
+            Vector3 end   = chestTransform != null ? chestTransform.position : transform.position;
+
+            for (int i = 0; i < predictionPoints; i++)
+                predictionLine.SetPosition(i, Vector3.Lerp(start, end, i / (float)(predictionPoints - 1)));
+
+            float dist = Vector3.Distance(start, end);
+            Color c = dist < 5f  ? new Color(0f, 1f,   1f, 0.8f)
+                    : dist < 15f ? new Color(0f, 0.7f, 1f, 0.6f)
+                                 : new Color(0f, 0.5f, 1f, 0.4f);
+            predictionLine.startColor = c;
+            predictionLine.endColor   = c;
+            isPredictionActive = true;
+        }
+        else
+        {
+            if (isPredictionActive)
+            {
+                predictionLine.gameObject.SetActive(false);
+                predictionLine.positionCount = 0;
+                isPredictionActive = false;
+            }
         }
     }
 
-    void DrawPredictionLine()
-    {
-        if (predictionLine == null || currentTargetRigidbody == null) return;
-
-        Vector3 startPos = currentTargetRigidbody.position;
-        Vector3 endPos   = playerRigidbody.position;
-
-        Vector3[] points = new Vector3[predictionPoints];
-        for (int i = 0; i < predictionPoints; i++)
-        {
-            float t  = i / (float)(predictionPoints - 1);
-            points[i] = Vector3.Lerp(startPos, endPos, t);
-        }
-
-        float dist = Vector3.Distance(startPos, endPos);
-        Color lineColor = dist < 5f  ? new Color(0f, 1f,   1f, 0.8f)
-                        : dist < 15f ? new Color(0f, 0.7f, 1f, 0.6f)
-                                     : new Color(0f, 0.5f, 1f, 0.4f);
-
-        predictionLine.startColor    = lineColor;
-        predictionLine.endColor      = lineColor;
-        predictionLine.positionCount = predictionPoints;
-        predictionLine.SetPositions(points);
-        predictionLine.gameObject.SetActive(true);
-        isPredictionActive = true;
-    }
-
-    // ── Visual Helpers ────────────────────────────────────────────────────────
+    // ── Tint ──────────────────────────────────────────────────────────────────
 
     void TriggerPullTint(float force)
     {
@@ -363,12 +314,12 @@ public class IronPull : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < pullTintDuration)
         {
-            float alpha    = Mathf.Lerp(tintColor.a, 0f, elapsed / pullTintDuration);
+            float alpha     = Mathf.Lerp(tintColor.a, 0f, elapsed / pullTintDuration);
             currentPullTint = new Color(tintColor.r, tintColor.g, tintColor.b, alpha);
             elapsed        += Time.deltaTime;
             yield return null;
         }
-        currentPullTint  = Color.clear;
+        currentPullTint   = Color.clear;
         pullTintCoroutine = null;
     }
 }
