@@ -1,21 +1,19 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 /// <summary>
 /// Mistborn > Auto Setup Player
-/// Scans every MonoBehaviour for [PlayerComponent] and shows a grouped,
-/// checkbox-driven window. Click "Apply to Player" to add checked components.
+/// Scans every MonoBehaviour in the project for [PlayerComponent] and shows
+/// a grouped checkbox list. Drag your Player into the slot, check what you
+/// want, and click Apply.
 /// </summary>
 public class PlayerAutoSetupWizard : EditorWindow
 {
-    // ── Data ─────────────────────────────────────────────────────────────────
-
-    private class ComponentEntry
+    private struct Entry
     {
         public Type   type;
         public string group;
@@ -24,160 +22,214 @@ public class PlayerAutoSetupWizard : EditorWindow
         public bool   enabled;
     }
 
-    private Dictionary<string, List<ComponentEntry>> _groups;
-    private Vector2 _scroll;
-    private GameObject _target;
+    private List<Entry>                          _entries  = new List<Entry>();
+    private Dictionary<string, List<int>>        _groupMap = new Dictionary<string, List<int>>();
+    private Vector2                              _scroll;
+    private GameObject                           _target;
+    private string                               _statusMsg = "";
+    private bool                                 _scanned;
 
     // ── Open ─────────────────────────────────────────────────────────────────
 
     [MenuItem("Mistborn/Auto Setup Player")]
     public static void Open()
     {
-        var w = GetWindow<PlayerAutoSetupWizard>("Auto Setup Player");
-        w.minSize = new Vector2(340, 480);
-        w.Scan();
+        PlayerAutoSetupWizard w = GetWindow<PlayerAutoSetupWizard>("Auto Setup Player");
+        w.minSize = new Vector2(320, 400);
+        w.DoScan();
     }
 
-    // ── Scan all assemblies for [PlayerComponent] ─────────────────────────
+    // ── Scan ──────────────────────────────────────────────────────────────────
 
-    void Scan()
+    void DoScan()
     {
-        _groups = new Dictionary<string, List<ComponentEntry>>();
+        _entries.Clear();
+        _groupMap.Clear();
+        _statusMsg = "";
 
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        try
         {
-            foreach (var type in assembly.GetTypes())
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (!type.IsSubclassOf(typeof(MonoBehaviour))) continue;
-                var attr = type.GetCustomAttribute<PlayerComponentAttribute>();
-                if (attr == null) continue;
+                Type[] types;
+                try { types = asm.GetTypes(); }
+                catch { continue; }
 
-                var entry = new ComponentEntry
+                foreach (Type t in types)
                 {
-                    type     = type,
-                    group    = attr.Group,
-                    order    = attr.Order,
-                    optional = attr.Optional,
-                    enabled  = !attr.Optional   // default: checked unless optional
-                };
+                    if (!t.IsClass || t.IsAbstract) continue;
+                    if (!typeof(MonoBehaviour).IsAssignableFrom(t)) continue;
 
-                if (!_groups.ContainsKey(attr.Group))
-                    _groups[attr.Group] = new List<ComponentEntry>();
+                    object[] attrs = t.GetCustomAttributes(typeof(PlayerComponentAttribute), false);
+                    if (attrs.Length == 0) continue;
 
-                _groups[attr.Group].Add(entry);
-            }
-        }
+                    PlayerComponentAttribute attr = (PlayerComponentAttribute)attrs[0];
 
-        // Sort within each group by order
-        foreach (var list in _groups.Values)
-            list.Sort((a, b) => a.order.CompareTo(b.order));
-    }
+                    Entry e = new Entry
+                    {
+                        type     = t,
+                        group    = attr.Group ?? "General",
+                        order    = attr.Order,
+                        optional = attr.Optional,
+                        enabled  = !attr.Optional
+                    };
 
-    // ── GUI ───────────────────────────────────────────────────────────────
+                    int idx = _entries.Count;
+                    _entries.Add(e);
 
-    void OnGUI()
-    {
-        if (_groups == null) Scan();
-
-        EditorGUILayout.Space(6);
-        EditorGUILayout.LabelField("Auto Setup Player", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox(
-            "Select a Player GameObject, check the components you want, then click Apply.",
-            MessageType.Info);
-        EditorGUILayout.Space(4);
-
-        _target = (GameObject)EditorGUILayout.ObjectField("Player GameObject", _target, typeof(GameObject), true);
-
-        // Try to auto-find if empty
-        if (_target == null)
-            _target = GameObject.FindWithTag("Player");
-
-        EditorGUILayout.Space(6);
-
-        // ── Buttons ───────────────────────────────────────────────────────
-        using (new EditorGUILayout.HorizontalScope())
-        {
-            if (GUILayout.Button("Select All"))
-                SetAll(true);
-            if (GUILayout.Button("Deselect All"))
-                SetAll(false);
-            if (GUILayout.Button("Refresh"))
-                Scan();
-        }
-
-        EditorGUILayout.Space(4);
-
-        // ── Scrollable component list ─────────────────────────────────────
-        _scroll = EditorGUILayout.BeginScrollView(_scroll);
-
-        foreach (var groupName in _groups.Keys.OrderBy(k => k))
-        {
-            EditorGUILayout.LabelField(groupName, EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-
-            foreach (var entry in _groups[groupName])
-            {
-                bool alreadyAttached = _target != null && _target.GetComponent(entry.type) != null;
-
-                using (new EditorGUI.DisabledScope(alreadyAttached))
-                {
-                    string label = entry.type.Name;
-                    if (alreadyAttached) label += "  ✓";
-                    else if (entry.optional) label += "  (optional)";
-
-                    entry.enabled = EditorGUILayout.ToggleLeft(label, entry.enabled || alreadyAttached);
+                    if (!_groupMap.ContainsKey(e.group))
+                        _groupMap[e.group] = new List<int>();
+                    _groupMap[e.group].Add(idx);
                 }
             }
 
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Space(4);
+            // Sort each group by order
+            foreach (var list in _groupMap.Values)
+                list.Sort((a, b) => _entries[a].order.CompareTo(_entries[b].order));
+
+            _statusMsg = $"Found {_entries.Count} component(s) in {_groupMap.Count} group(s).";
         }
-
-        EditorGUILayout.EndScrollView();
-
-        EditorGUILayout.Space(6);
-
-        // ── Apply ─────────────────────────────────────────────────────────
-        using (new EditorGUI.DisabledScope(_target == null))
+        catch (Exception ex)
         {
-            if (GUILayout.Button("Apply to Player", GUILayout.Height(32)))
-                Apply();
+            _statusMsg = "Scan error: " + ex.Message;
         }
 
-        if (_target == null)
-            EditorGUILayout.HelpBox("No GameObject tagged \"Player\" found in scene.", MessageType.Warning);
+        _scanned = true;
+        Repaint();
     }
 
-    // ── Apply ──────────────────────────────────────────────────────────────
+    // ── GUI ───────────────────────────────────────────────────────────────────
 
-    void Apply()
+    void OnGUI()
     {
-        if (_target == null) return;
+        if (!_scanned) DoScan();
 
-        Undo.RecordObject(_target, "Auto Setup Player Components");
+        EditorGUILayout.Space(4);
+        EditorGUILayout.LabelField("Auto Setup Player", EditorStyles.boldLabel);
+        EditorGUILayout.Space(2);
 
-        int added = 0;
-        foreach (var list in _groups.Values)
+        // Target field
+        GameObject prev = _target;
+        _target = (GameObject)EditorGUILayout.ObjectField("Player GameObject", _target, typeof(GameObject), true);
+        if (_target == null)
+            _target = GameObject.FindWithTag("Player");
+        if (_target != prev) Repaint();
+
+        EditorGUILayout.Space(4);
+
+        // Toolbar
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Select All",   GUILayout.Height(22))) SetAll(true);
+        if (GUILayout.Button("Deselect All", GUILayout.Height(22))) SetAll(false);
+        if (GUILayout.Button("Rescan",       GUILayout.Height(22))) DoScan();
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space(4);
+
+        if (_entries.Count == 0)
         {
-            foreach (var entry in list)
-            {
-                if (!entry.enabled) continue;
-                if (_target.GetComponent(entry.type) != null) continue;
+            EditorGUILayout.HelpBox(
+                "No scripts with [PlayerComponent] found. Click Rescan or check for compile errors.",
+                MessageType.Warning);
+        }
+        else
+        {
+            // Component list
+            _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.ExpandHeight(true));
 
-                _target.AddComponent(entry.type);
+            List<string> sortedGroups = new List<string>(_groupMap.Keys);
+            sortedGroups.Sort();
+
+            foreach (string groupName in sortedGroups)
+            {
+                EditorGUILayout.LabelField(groupName, EditorStyles.boldLabel);
+
+                foreach (int idx in _groupMap[groupName])
+                {
+                    Entry e = _entries[idx];
+
+                    bool attached = _target != null && _target.GetComponent(e.type) != null;
+
+                    EditorGUI.BeginDisabledGroup(attached);
+
+                    string label = "  " + e.type.Name;
+                    if (attached)        label += "   [already on player]";
+                    else if (e.optional) label += "   (optional)";
+
+                    bool newVal = EditorGUILayout.ToggleLeft(label, attached || e.enabled);
+                    if (!attached)
+                    {
+                        Entry updated = e;
+                        updated.enabled = newVal;
+                        _entries[idx] = updated;
+                    }
+
+                    EditorGUI.EndDisabledGroup();
+                }
+
+                EditorGUILayout.Space(2);
+            }
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        EditorGUILayout.Space(4);
+
+        // Apply button — always visible, shows error if no target
+        GUI.backgroundColor = new Color(0.4f, 0.8f, 0.4f);
+        if (GUILayout.Button("Apply to Player", GUILayout.Height(34)))
+        {
+            if (_target == null)
+                EditorUtility.DisplayDialog("No Target",
+                    "Drag your Player GameObject into the 'Player GameObject' field first.", "OK");
+            else
+                DoApply();
+        }
+        GUI.backgroundColor = Color.white;
+
+        if (_target == null)
+            EditorGUILayout.HelpBox("No Player GameObject assigned (also checks for 'Player' tag).", MessageType.Warning);
+
+        EditorGUILayout.Space(2);
+        EditorGUILayout.LabelField(_statusMsg, EditorStyles.miniLabel);
+    }
+
+    // ── Apply ─────────────────────────────────────────────────────────────────
+
+    void DoApply()
+    {
+        Undo.RecordObject(_target, "Auto Setup Player");
+        int added = 0;
+
+        List<string> sortedGroups = new List<string>(_groupMap.Keys);
+        sortedGroups.Sort();
+
+        foreach (string g in sortedGroups)
+        {
+            foreach (int idx in _groupMap[g])
+            {
+                Entry e = _entries[idx];
+                if (!e.enabled) continue;
+                if (_target.GetComponent(e.type) != null) continue;
+                _target.AddComponent(e.type);
                 added++;
             }
         }
 
         EditorUtility.SetDirty(_target);
-        Debug.Log($"[Auto Setup Player] Added {added} component(s) to {_target.name}.");
+        _statusMsg = $"Done — added {added} component(s) to {_target.name}.";
+        Repaint();
     }
 
     void SetAll(bool value)
     {
-        foreach (var list in _groups.Values)
-            foreach (var entry in list)
-                entry.enabled = value;
+        for (int i = 0; i < _entries.Count; i++)
+        {
+            Entry e = _entries[i];
+            e.enabled = value;
+            _entries[i] = e;
+        }
+        Repaint();
     }
 }
 #endif
