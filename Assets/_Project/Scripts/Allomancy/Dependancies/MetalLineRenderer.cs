@@ -2,16 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Allomantic Sight — Left Ctrl toggle.
-/// Blue lines from chest to all nearby metals. Closest metal gets a dark blue
-/// mesh highlight (material tint). All others show lines only, no mesh change.
+/// Allomantic Sight — MetalSight key toggle.
+/// Blue lines from chest to all nearby metals. Closest metal gets an emissive
+/// highlight that matches the line tip colour and scales with proximity.
 ///
-/// Lines and highlight are only active when Iron or Steel is the selected metal
-/// in MetalSelector (primary or secondary slot).
+/// Lines and highlight only show when Iron or Steel occupies the primary or
+/// secondary metal slot in MetalSelector.
 ///
-/// HDRP highlight: drives _EmissiveColor so the glow is always visible
-/// regardless of _BaseColor pipeline quirks. Brightness scales with proximity
-/// so the highlight matches the line tip colour at that distance.
+/// HDRP emissive: sets both _EmissiveColor and _EmissiveIntensity (required
+/// when "Use Emission Intensity" is checked on the HDRP Lit material).
 /// </summary>
 [PlayerComponent("Allomancy", order: 50)]
 public class MetalLineRenderer : MonoBehaviour
@@ -30,16 +29,17 @@ public class MetalLineRenderer : MonoBehaviour
     [Header("Closest Metal Line")]
     public Color closestLineColor = new Color(0.15f, 0.2f, 0.8f, 0.9f);
 
-    [Header("Highlight")]
-    [Tooltip("Emissive intensity multiplier at closest range (HDR brightness).")]
-    public float highlightMaxIntensity = 4f;
-    [Tooltip("Emissive intensity multiplier at max range.")]
-    public float highlightMinIntensity = 0.5f;
+    [Header("Highlight (HDRP Emissive)")]
+    [Tooltip("_EmissiveIntensity value at closest range.")]
+    public float highlightMaxIntensity = 8f;
+    [Tooltip("_EmissiveIntensity value at max range.")]
+    public float highlightMinIntensity = 1f;
 
     [Header("References")]
     public Transform     chestPoint;
     public Allomancer    allomancer;
     public LayerMask     metalLayer;
+    [Tooltip("Auto-found at Start. Assign manually if the component is on a different branch of the hierarchy.")]
     public MetalSelector metalSelector;
 
     // ── Line pool ─────────────────────────────────────────────────────────────
@@ -57,9 +57,8 @@ public class MetalLineRenderer : MonoBehaviour
     // ── Highlight state ───────────────────────────────────────────────────────
     private Renderer  highlightedRenderer;
     private Transform highlightedRoot;
-    // Saved original emissive so we can restore exactly on clear
-    private Color     originalEmissiveColor;
-    private bool      hadEmissiveEnabled;
+    private Color     savedEmissiveColor;
+    private float     savedEmissiveIntensity;
 
     struct MetalLineData
     {
@@ -74,9 +73,14 @@ public class MetalLineRenderer : MonoBehaviour
 
     void Start()
     {
-        if (allomancer    == null) allomancer    = GetComponent<Allomancer>();
-        if (chestPoint    == null) chestPoint    = transform;
+        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (chestPoint == null) chestPoint = transform;
+
+        // Search the whole scene for MetalSelector if not assigned or not found
+        // via parent — handles any hierarchy layout.
         if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
+        if (metalSelector == null) metalSelector = GetComponentInChildren<MetalSelector>();
+        if (metalSelector == null) metalSelector = FindObjectOfType<MetalSelector>();
 
         metalLayer = LayerMask.GetMask("Metal");
         if (metalLayer == 0) metalLayer = ~0;
@@ -137,9 +141,11 @@ public class MetalLineRenderer : MonoBehaviour
 
     bool IronOrSteelSelected()
     {
-        if (metalSelector == null) return true;
-        var p = metalSelector.GetPrimaryMetal();
-        var s = metalSelector.GetSecondaryMetal();
+        if (metalSelector == null) return true; // safe fallback if still not found
+
+        AllomancySkill.MetalType p = metalSelector.GetPrimaryMetal();
+        AllomancySkill.MetalType s = metalSelector.GetSecondaryMetal();
+
         return p == AllomancySkill.MetalType.Iron  || p == AllomancySkill.MetalType.Steel
             || s == AllomancySkill.MetalType.Iron  || s == AllomancySkill.MetalType.Steel;
     }
@@ -162,7 +168,7 @@ public class MetalLineRenderer : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            Collider col = hits[i];
+            Collider  col  = hits[i];
             if (col.transform == transform || col.transform.IsChildOf(transform)) continue;
 
             Rigidbody rb   = col.attachedRigidbody;
@@ -238,15 +244,9 @@ public class MetalLineRenderer : MonoBehaviour
 
     // ── Highlight ─────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// HDRP-compatible highlight. Rather than fighting _BaseColor pipeline flags,
-    /// we enable emission on the instanced material and set _EmissiveColor to a
-    /// proximity-scaled version of closestLineColor (same hue as the line tip).
-    /// This is always visible in HDRP regardless of surface type.
-    /// </summary>
     void HighlightClosestMetal()
     {
-        // Target changed — restore the old object first
+        // Target changed — restore previous object before switching
         if (highlightedRoot != null && highlightedRoot != closestMetalRoot)
             ClearHighlight();
 
@@ -256,53 +256,59 @@ public class MetalLineRenderer : MonoBehaviour
             return;
         }
 
-        // Compute proximity colour — same logic as the line tip
+        // Proximity colour — matches the line tip colour at this distance
         float proximity = 1f - Mathf.Clamp01(closestMetalDistance / maxRange);
+        Color tipColor  = Color.Lerp(baseLineColor, closeLineColor, proximity);
+        tipColor.a      = 1f;
 
-        // Line tip colour at this distance (matches closeLineColor at range 0,
-        // baseLineColor at max range) — strip alpha so the emissive is fully opaque
-        Color tipColor = Color.Lerp(baseLineColor, closeLineColor, proximity);
-        tipColor.a = 1f;
-
-        // HDR intensity: brighter when close, dimmer when far
+        // Intensity scales with proximity: close = bright bloom, far = dim glow
         float intensity = Mathf.Lerp(highlightMinIntensity, highlightMaxIntensity, proximity);
-        Color emissive  = tipColor * intensity; // HDR multiply gives bloom in HDRP
 
-        // If we're already on the right object just update the emissive each frame
-        // (distance changes continuously so we re-apply every Update)
+        // Already on the right object — just update values each frame
         if (highlightedRoot == closestMetalRoot && highlightedRenderer != null)
         {
             Material mat = highlightedRenderer.material;
-            if (mat != null && mat.HasProperty("_EmissiveColor"))
-                mat.SetColor("_EmissiveColor", emissive);
+            if (mat != null)
+            {
+                // _EmissiveColor stores the HDR colour (linear, can exceed 1)
+                if (mat.HasProperty("_EmissiveColor"))
+                    mat.SetColor("_EmissiveColor", tipColor * intensity);
+
+                // _EmissiveIntensity is the separate multiplier used when
+                // "Use Emission Intensity" is checked in HDRP Lit
+                if (mat.HasProperty("_EmissiveIntensity"))
+                    mat.SetFloat("_EmissiveIntensity", intensity);
+            }
             return;
         }
 
-        // New target — find its renderer
+        // New target — find renderer
         Renderer r = closestMetalRoot.GetComponent<Renderer>();
         if (r == null) r = closestMetalRoot.GetComponentInChildren<Renderer>(true);
         if (r == null) return;
 
-        // Instance the material so we never touch the shared asset
-        Material iMat = r.material; // Unity auto-instances here
+        // r.material auto-instances so we never modify the shared asset
+        Material iMat = r.material;
         if (iMat == null) return;
 
-        if (!iMat.HasProperty("_EmissiveColor"))
-        {
-            // Shader doesn't support emission — nothing we can do
-            return;
-        }
+        // Save originals so ClearHighlight can restore exactly
+        savedEmissiveColor = iMat.HasProperty("_EmissiveColor")
+            ? iMat.GetColor("_EmissiveColor") : Color.black;
 
-        // Save originals
-        originalEmissiveColor = iMat.GetColor("_EmissiveColor");
+        savedEmissiveIntensity = iMat.HasProperty("_EmissiveIntensity")
+            ? iMat.GetFloat("_EmissiveIntensity") : 0f;
 
-        // Enable emission keywords so HDRP actually renders it
-        // (harmless no-ops on shaders that don't use these keywords)
+        // Enable emission keywords (required for HDRP to evaluate emissive at runtime)
         iMat.EnableKeyword("_EMISSION");
         iMat.EnableKeyword("_EMISSIVE_COLOR_MAP");
         iMat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
 
-        iMat.SetColor("_EmissiveColor", emissive);
+        // Apply
+        if (iMat.HasProperty("_EmissiveColor"))
+            iMat.SetColor("_EmissiveColor", tipColor * intensity);
+
+        if (iMat.HasProperty("_EmissiveIntensity"))
+            iMat.SetFloat("_EmissiveIntensity", intensity);
 
         highlightedRenderer = r;
         highlightedRoot     = closestMetalRoot;
@@ -313,16 +319,20 @@ public class MetalLineRenderer : MonoBehaviour
         if (highlightedRenderer != null)
         {
             Material mat = highlightedRenderer.material;
-            if (mat != null && mat.HasProperty("_EmissiveColor"))
+            if (mat != null)
             {
-                mat.SetColor("_EmissiveColor", originalEmissiveColor);
-                // Restore GI flags to whatever they were (baked is the default)
+                if (mat.HasProperty("_EmissiveColor"))
+                    mat.SetColor("_EmissiveColor", savedEmissiveColor);
+
+                if (mat.HasProperty("_EmissiveIntensity"))
+                    mat.SetFloat("_EmissiveIntensity", savedEmissiveIntensity);
+
                 mat.globalIlluminationFlags = MaterialGlobalIlluminationFlags.BakedEmissive;
             }
         }
 
-        highlightedRenderer = null;
-        highlightedRoot     = null;
+        highlightedRenderer    = null;
+        highlightedRoot        = null;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
