@@ -243,4 +243,7 @@ public class MetalLineRenderer : MonoBehaviour
     public bool      IsActive()                 => FlareManager.Instance != null
                                                 && FlareManager.Instance.IsBurning
                                                 && IronOrSteelSelected();
+
+    // Kept for backwards compatibility with PlayerHUD
+    public int       GetVisibleLineCount()      => IsActive() && closestMetalRoot != null ? 1 : 0;
 }
