@@ -2,16 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Allomantic Sight — MetalSight key toggle.
-/// Blue lines from chest to all nearby metals. Closest metal gets an emissive
+/// Allomantic Sight — active automatically while burning Iron or Steel.
+/// Blue lines from chest to all nearby metals. Closest metal gets an Unlit
 /// highlight that matches the line tip colour and scales with proximity.
 ///
-/// Lines and highlight only show when Iron or Steel occupies the primary or
-/// secondary metal slot in MetalSelector.
-///
-/// HDRP highlight: replaces the renderer's material with a runtime Unlit
-/// emissive material so we never fight HDRP Lit property flags. The original
-/// material is swapped back when the highlight clears.
+/// Everything is hidden when not burning, or when neither Iron nor Steel
+/// occupies a slot in MetalSelector.
 /// </summary>
 [PlayerComponent("Allomancy", order: 50)]
 public class MetalLineRenderer : MonoBehaviour
@@ -42,7 +38,7 @@ public class MetalLineRenderer : MonoBehaviour
     public Transform     chestPoint;
     public Allomancer    allomancer;
     public LayerMask     metalLayer;
-    [Tooltip("Assign manually or leave empty — resolved lazily at runtime.")]
+    [Tooltip("Resolved lazily at runtime — can also be assigned manually in the Inspector.")]
     public MetalSelector metalSelector;
 
     // ── Line pool ─────────────────────────────────────────────────────────────
@@ -50,7 +46,6 @@ public class MetalLineRenderer : MonoBehaviour
     private List<MetalLineData> activeLines = new List<MetalLineData>();
     private float    updateTimer;
     private Material lineMaterial;
-    private bool     metalSightActive = false;
 
     // ── Closest metal tracking ────────────────────────────────────────────────
     private Transform closestMetalRoot;
@@ -103,20 +98,11 @@ public class MetalLineRenderer : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(Keybinds.MetalSight))
-            metalSightActive = !metalSightActive;
-
         bool isBurning   = FlareManager.Instance != null && FlareManager.Instance.IsBurning;
         bool ironOrSteel = IronOrSteelSelected();
+        bool active      = isBurning && ironOrSteel;
 
-        if (!ironOrSteel)
-        {
-            HideAllLines();
-            ClearHighlight();
-            return;
-        }
-
-        if (!metalSightActive && !isBurning)
+        if (!active)
         {
             HideAllLines();
             ClearHighlight();
@@ -130,17 +116,12 @@ public class MetalLineRenderer : MonoBehaviour
             ScanMetals();
         }
 
-        if (metalSightActive)
-            DrawLines();
-        else
-            HideAllLines();
-
+        DrawLines();
         HighlightClosestMetal();
     }
 
     // ── Iron / Steel check ────────────────────────────────────────────────────
 
-    // Resolved lazily every call so Start() execution order never matters.
     MetalSelector GetMetalSelector()
     {
         if (metalSelector != null) return metalSelector;
@@ -153,9 +134,6 @@ public class MetalLineRenderer : MonoBehaviour
     bool IronOrSteelSelected()
     {
         MetalSelector ms = GetMetalSelector();
-
-        // If we genuinely can't find a MetalSelector anywhere in the scene,
-        // default to NOT showing — safer than always showing.
         if (ms == null) return false;
 
         AllomancySkill.MetalType p = ms.GetPrimaryMetal();
@@ -277,19 +255,15 @@ public class MetalLineRenderer : MonoBehaviour
 
         highlightMaterial.color = tipColor * intensity;
 
-        // Already on the right object — colour updated above, nothing else to do
         if (highlightedRoot == closestMetalRoot && highlightedRenderer != null)
             return;
 
-        // New target — find a renderer
         Renderer r = closestMetalRoot.GetComponent<Renderer>();
         if (r == null) r = closestMetalRoot.GetComponentInChildren<Renderer>(true);
         if (r == null) return;
 
-        // Save originals using sharedMaterials so we don't accidentally instance them
         originalMaterials = r.sharedMaterials;
 
-        // Swap every submesh slot to our Unlit highlight material
         Material[] swapped = new Material[originalMaterials.Length];
         for (int i = 0; i < swapped.Length; i++)
             swapped[i] = highlightMaterial;
@@ -331,5 +305,7 @@ public class MetalLineRenderer : MonoBehaviour
     public Transform GetClosestMetal()          => closestMetalRoot;
     public Rigidbody GetClosestMetalRigidbody() => closestMetalRigidbody;
     public int       GetVisibleLineCount()      => activeLines.Count;
-    public bool      IsActive()                 => metalSightActive;
+    public bool      IsActive()                 => FlareManager.Instance != null
+                                                && FlareManager.Instance.IsBurning
+                                                && IronOrSteelSelected();
 }
