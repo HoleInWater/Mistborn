@@ -42,7 +42,7 @@ public class MetalLineRenderer : MonoBehaviour
     public Transform     chestPoint;
     public Allomancer    allomancer;
     public LayerMask     metalLayer;
-    [Tooltip("Assigned by PlayerAutoSetup. Can also be set manually in the Inspector.")]
+    [Tooltip("Assign manually or leave empty — resolved lazily at runtime.")]
     public MetalSelector metalSelector;
 
     // ── Line pool ─────────────────────────────────────────────────────────────
@@ -60,8 +60,8 @@ public class MetalLineRenderer : MonoBehaviour
     // ── Highlight state ───────────────────────────────────────────────────────
     private Renderer   highlightedRenderer;
     private Transform  highlightedRoot;
-    private Material[] originalMaterials;   // full array so multi-mat meshes restore correctly
-    private Material   highlightMaterial;   // single shared Unlit/Color emissive mat
+    private Material[] originalMaterials;
+    private Material   highlightMaterial;
 
     struct MetalLineData
     {
@@ -79,20 +79,11 @@ public class MetalLineRenderer : MonoBehaviour
         if (allomancer == null) allomancer = GetComponent<Allomancer>();
         if (chestPoint == null) chestPoint = transform;
 
-        // MetalSelector lookup — PlayerAutoSetup also sets this explicitly,
-        // but we try here too in case execution order places us after AutoSetup.
-        if (metalSelector == null) metalSelector = GetComponentInParent<MetalSelector>();
-        if (metalSelector == null) metalSelector = GetComponentInChildren<MetalSelector>();
-        if (metalSelector == null) metalSelector = FindObjectOfType<MetalSelector>();
-
         metalLayer = LayerMask.GetMask("Metal");
         if (metalLayer == 0) metalLayer = ~0;
 
-        // Line pool material
         lineMaterial = new Material(Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color"));
 
-        // Highlight material — Unlit so it's always visible regardless of
-        // HDRP lighting flags, surface type, or emission settings.
         Shader unlitShader = Shader.Find("Unlit/Color");
         if (unlitShader == null) unlitShader = Shader.Find("Hidden/InternalErrorShader");
         highlightMaterial = new Material(unlitShader);
@@ -149,12 +140,26 @@ public class MetalLineRenderer : MonoBehaviour
 
     // ── Iron / Steel check ────────────────────────────────────────────────────
 
+    // Resolved lazily every call so Start() execution order never matters.
+    MetalSelector GetMetalSelector()
+    {
+        if (metalSelector != null) return metalSelector;
+        metalSelector = GetComponentInParent<MetalSelector>();
+        if (metalSelector == null) metalSelector = GetComponentInChildren<MetalSelector>();
+        if (metalSelector == null) metalSelector = FindObjectOfType<MetalSelector>();
+        return metalSelector;
+    }
+
     bool IronOrSteelSelected()
     {
-        if (metalSelector == null) return true; // safe fallback
+        MetalSelector ms = GetMetalSelector();
 
-        AllomancySkill.MetalType p = metalSelector.GetPrimaryMetal();
-        AllomancySkill.MetalType s = metalSelector.GetSecondaryMetal();
+        // If we genuinely can't find a MetalSelector anywhere in the scene,
+        // default to NOT showing — safer than always showing.
+        if (ms == null) return false;
+
+        AllomancySkill.MetalType p = ms.GetPrimaryMetal();
+        AllomancySkill.MetalType s = ms.GetSecondaryMetal();
 
         return p == AllomancySkill.MetalType.Iron  || p == AllomancySkill.MetalType.Steel
             || s == AllomancySkill.MetalType.Iron  || s == AllomancySkill.MetalType.Steel;
@@ -256,7 +261,6 @@ public class MetalLineRenderer : MonoBehaviour
 
     void HighlightClosestMetal()
     {
-        // Target changed — restore old object first
         if (highlightedRoot != null && highlightedRoot != closestMetalRoot)
             ClearHighlight();
 
@@ -266,16 +270,14 @@ public class MetalLineRenderer : MonoBehaviour
             return;
         }
 
-        // Proximity colour — same lerp as the line tip
         float proximity = 1f - Mathf.Clamp01(closestMetalDistance / maxRange);
         Color tipColor  = Color.Lerp(baseLineColor, closeLineColor, proximity);
         tipColor.a      = 1f;
         float intensity = Mathf.Lerp(highlightMinIntensity, highlightMaxIntensity, proximity);
 
-        // Update colour on the highlight material every frame (distance changes continuously)
         highlightMaterial.color = tipColor * intensity;
 
-        // Already highlighting the right object — material colour updated above, done
+        // Already on the right object — colour updated above, nothing else to do
         if (highlightedRoot == closestMetalRoot && highlightedRenderer != null)
             return;
 
@@ -284,10 +286,10 @@ public class MetalLineRenderer : MonoBehaviour
         if (r == null) r = closestMetalRoot.GetComponentInChildren<Renderer>(true);
         if (r == null) return;
 
-        // Save the full material array so multi-submesh objects restore correctly
+        // Save originals using sharedMaterials so we don't accidentally instance them
         originalMaterials = r.sharedMaterials;
 
-        // Replace all slots with our Unlit highlight material
+        // Swap every submesh slot to our Unlit highlight material
         Material[] swapped = new Material[originalMaterials.Length];
         for (int i = 0; i < swapped.Length; i++)
             swapped[i] = highlightMaterial;
