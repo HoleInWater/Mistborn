@@ -150,21 +150,28 @@ public class PlayerAutoSetupWizard : EditorWindow
 
                     bool attached = _target != null && _target.GetComponent(e.type) != null;
 
-                    EditorGUI.BeginDisabledGroup(attached);
-
                     string label = "  " + e.type.Name;
                     if (attached)        label += "   [already on player]";
                     else if (e.optional) label += "   (optional)";
 
-                    bool newVal = EditorGUILayout.ToggleLeft(label, attached || e.enabled);
-                    if (!attached)
+                    if (attached)
                     {
-                        Entry updated = e;
-                        updated.enabled = newVal;
-                        _entries[idx] = updated;
+                        // Already on the player — show a locked checked toggle
+                        EditorGUI.BeginDisabledGroup(true);
+                        EditorGUILayout.ToggleLeft(label, true);
+                        EditorGUI.EndDisabledGroup();
                     }
-
-                    EditorGUI.EndDisabledGroup();
+                    else
+                    {
+                        // Not yet attached — fully interactive toggle
+                        bool newVal = EditorGUILayout.ToggleLeft(label, e.enabled);
+                        if (newVal != e.enabled)
+                        {
+                            Entry updated = e;
+                            updated.enabled = newVal;
+                            _entries[idx] = updated;
+                        }
+                    }
                 }
 
                 EditorGUILayout.Space(2);
