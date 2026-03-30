@@ -22,12 +22,11 @@ public class PlayerAutoSetupWizard : EditorWindow
         public bool   enabled;
     }
 
-    private List<Entry>                          _entries  = new List<Entry>();
-    private Dictionary<string, List<int>>        _groupMap = new Dictionary<string, List<int>>();
-    private Vector2                              _scroll;
-    private GameObject                           _target;
-    private string                               _statusMsg = "";
-    private bool                                 _scanned;
+    private List<Entry>                   _entries  = new List<Entry>();
+    private Dictionary<string, List<int>> _groupMap = new Dictionary<string, List<int>>();
+    private Vector2                       _scroll;
+    private GameObject                    _target;
+    private string                        _statusMsg = "";
 
     // ── Open ─────────────────────────────────────────────────────────────────
 
@@ -36,7 +35,13 @@ public class PlayerAutoSetupWizard : EditorWindow
     {
         PlayerAutoSetupWizard w = GetWindow<PlayerAutoSetupWizard>("Auto Setup Player");
         w.minSize = new Vector2(320, 400);
-        w.DoScan();
+    }
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    void OnEnable()
+    {
+        DoScan();
     }
 
     // ── Scan ──────────────────────────────────────────────────────────────────
@@ -94,7 +99,6 @@ public class PlayerAutoSetupWizard : EditorWindow
             _statusMsg = "Scan error: " + ex.Message;
         }
 
-        _scanned = true;
         Repaint();
     }
 
@@ -102,8 +106,6 @@ public class PlayerAutoSetupWizard : EditorWindow
 
     void OnGUI()
     {
-        if (!_scanned) DoScan();
-
         EditorGUILayout.Space(4);
         EditorGUILayout.LabelField("Auto Setup Player", EditorStyles.boldLabel);
         EditorGUILayout.Space(2);
@@ -170,6 +172,7 @@ public class PlayerAutoSetupWizard : EditorWindow
                             Entry updated = e;
                             updated.enabled = newVal;
                             _entries[idx] = updated;
+                            Repaint();
                         }
                     }
                 }
