@@ -3,25 +3,9 @@
  * PURPOSE:
  * Implements the Steel Allomancy ability (Coinshot) – push metal objects away.
  *
- * FLARE INTEGRATION:
- * ==================
- * Uses the single shared FlareManager intensity (1–10, scroll wheel).
- * Force scales smoothly with FlareManager.FlareMultiplier.
- *
- * CONTROLS:
- * - Left Ctrl    → Toggle burning ON / OFF (via FlareManager)
- * - Scroll wheel → Adjust shared intensity 1–10 (via FlareManager)
- * - E key        → Execute push (requires burning to be active)
- * - F key        → Steel bubble radial push (requires burning)
- *
- * BURN REQUIREMENT:
- * FlareManager.Instance.IsBurning must be true (Left Ctrl toggled on) before
- * E or F will do anything. Same gate used by IronPull.
- *
- * TARGETING:
- * When burning is active, targeting defers to MetalLineRenderer.GetClosestMetalRigidbody()
- * so the highlighted object and the push target are always the same object.
- * When not burning, the standard camera-alignment scan is used as fallback.
+ * TARGETING LINE:
+ * The targeting line is owned by MetalLineRenderer, not this script.
+ * SteelPush just handles push physics and targeting logic.
  */
 
 using UnityEngine;
@@ -31,15 +15,11 @@ using System.Collections;
 [PlayerComponent("Allomancy Metals", order: 10)]
 public class SteelPush : MonoBehaviour
 {
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
     private bool IsBurning =>
         FlareManager.Instance != null && FlareManager.Instance.IsBurning;
-
-    // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Push Settings")]
     public float minDistance        = 1f;
@@ -66,7 +46,6 @@ public class SteelPush : MonoBehaviour
     public MetalSelector metalSelector;
 
     [Header("Allomantic Sight")]
-    [Tooltip("Auto-found if left empty. When burning, Steel targets whatever MetalLineRenderer has highlighted.")]
     public MetalLineRenderer metalLineRenderer;
 
     [Header("Visual Effects")]
@@ -90,17 +69,12 @@ public class SteelPush : MonoBehaviour
     public Color metalInRangeColor = Color.green;
     public Color noMetalColor      = Color.white;
 
-    [Header("Push Prediction")]
-    public bool  enablePushPrediction = true;
-    public Color predictionColor      = new Color(0f, 0.4f, 1f, 0.6f);
-
     [Header("Steel Bubble")]
     public bool  enableSteelBubble              = true;
     public float steelBubbleRadius              = 2.5f;
     public float steelBubbleForce               = 50f;
     public float steelBubbleCooldown            = 0.5f;
     public float steelBubbleMetalCostMultiplier = 1.5f;
-
     public KeyCode steelBubbleKey => GetAbility2Key();
 
     [Header("Impulse Mode")]
@@ -110,8 +84,6 @@ public class SteelPush : MonoBehaviour
     [Header("Debug")]
     public bool debugPushOperations = false;
 
-    // ── Private State ─────────────────────────────────────────────────────────
-
     private float cooldownTimer            = 0f;
     private float steelBubbleCooldownTimer = 0f;
 
@@ -120,10 +92,7 @@ public class SteelPush : MonoBehaviour
     private bool             hasCurrentTarget = false;
     private bool             metalInRange     = false;
 
-    private Coroutine    vignetteCoroutine;
-    private LineRenderer predictionLine;
-
-    // ── Keybinds ──────────────────────────────────────────────────────────────
+    private Coroutine vignetteCoroutine;
 
     private KeyCode GetAbility1Key()
     {
@@ -147,8 +116,6 @@ public class SteelPush : MonoBehaviour
         return Keybinds.Ability3;
     }
 
-    // ── Unity Lifecycle ───────────────────────────────────────────────────────
-
     void Start()
     {
         if (playerRigidbody   == null) playerRigidbody   = GetComponentInParent<Rigidbody>();
@@ -167,8 +134,6 @@ public class SteelPush : MonoBehaviour
                 chestTransform = chest != null ? chest : p;
             }
         }
-
-        CreatePredictionLine();
     }
 
     void Update()
@@ -178,7 +143,6 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // ── Push ──────────────────────────────────────────────────────────────
         KeyCode pushKey = GetAbility1Key();
         if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
         {
@@ -192,7 +156,6 @@ public class SteelPush : MonoBehaviour
             }
         }
 
-        // ── Steel Bubble ──────────────────────────────────────────────────────
         KeyCode bubbleKey = steelBubbleKey;
         if (enableSteelBubble && bubbleKey != KeyCode.None
             && Input.GetKeyDown(bubbleKey) && IsBurning && steelBubbleCooldownTimer <= 0f)
@@ -206,19 +169,14 @@ public class SteelPush : MonoBehaviour
             }
         }
 
-        UpdatePrediction();
         UpdateCrosshairColor();
     }
-
-    // ── Target Detection ──────────────────────────────────────────────────────
 
     private float targetScanTimer    = 0f;
     private const float SCAN_INTERVAL = 0.1f;
 
     void UpdateTargetedMetal()
     {
-        // While burning, always use the MetalLineRenderer's closest target so
-        // the highlight and the push target are guaranteed to be the same object.
         if (IsBurning && metalLineRenderer != null)
         {
             Rigidbody mlrRb = metalLineRenderer.GetClosestMetalRigidbody();
@@ -232,7 +190,6 @@ public class SteelPush : MonoBehaviour
             }
         }
 
-        // Fallback: camera-alignment scan (not burning, or MLR found nothing yet).
         targetScanTimer -= Time.deltaTime;
         if (targetScanTimer > 0f) return;
         targetScanTimer = SCAN_INTERVAL;
@@ -276,8 +233,6 @@ public class SteelPush : MonoBehaviour
         }
     }
 
-    // ── Push Physics ──────────────────────────────────────────────────────────
-
     void PushMetals()
     {
         if (playerRigidbody == null || !hasCurrentTarget || currentTargetRigidbody == null) return;
@@ -303,12 +258,12 @@ public class SteelPush : MonoBehaviour
         }
         else
         {
-            float playerMass  = playerRigidbody.mass;
-            float targetMass  = targetRb.mass;
-            float totalMass   = playerMass + targetMass;
-            float pushMag     = loosePushForce * flare * distanceMult;
+            float playerMass = playerRigidbody.mass;
+            float targetMass = targetRb.mass;
+            float totalMass  = playerMass + targetMass;
+            float pushMag    = loosePushForce * flare * distanceMult;
 
-            targetRb.AddForce(pushDirection  * Mathf.Min(pushMag * (playerMass / totalMass), loosePushForce * 3f), ForceMode.VelocityChange);
+            targetRb.AddForce(pushDirection * Mathf.Min(pushMag * (playerMass / totalMass), loosePushForce * 3f), ForceMode.VelocityChange);
             playerRigidbody.AddForce(-pushDirection * Mathf.Min(pushMag * (targetMass / totalMass), maxRecoilSpeed), ForceMode.VelocityChange);
         }
 
@@ -335,8 +290,6 @@ public class SteelPush : MonoBehaviour
         CameraShakeManager.Instance?.Shake(shakeDuration * flareMult, shakeMagnitude * flareMult);
     }
 
-    // ── Visuals ───────────────────────────────────────────────────────────────
-
     void StartFlaringVignette()
     {
         if (vignetteCoroutine != null) StopCoroutine(vignetteCoroutine);
@@ -361,40 +314,5 @@ public class SteelPush : MonoBehaviour
     {
         if (crosshairImage == null) return;
         crosshairImage.color = metalInRange ? metalInRangeColor : noMetalColor;
-    }
-
-    void CreatePredictionLine()
-    {
-        // Own child GameObject — keeps it off this object's component list and
-        // prevents it from accidentally drawing at origin on the first frame.
-        GameObject lineObj = new GameObject("SteelPredictionLine");
-        lineObj.transform.SetParent(transform);
-        predictionLine            = lineObj.AddComponent<LineRenderer>();
-        predictionLine.material   = new Material(Shader.Find("Sprites/Default"));
-        predictionLine.startColor = predictionColor;
-        predictionLine.endColor   = new Color(predictionColor.r, predictionColor.g, predictionColor.b, 0.2f);
-        predictionLine.startWidth = 0.04f;
-        predictionLine.endWidth   = 0.01f;
-        predictionLine.positionCount  = 0;     // nothing to draw yet
-        predictionLine.useWorldSpace  = true;
-        lineObj.SetActive(false);              // fully off until burning + target
-    }
-
-    void UpdatePrediction()
-    {
-        if (predictionLine == null) return;
-
-        if (enablePushPrediction && IsBurning && hasCurrentTarget && currentTargetRigidbody != null)
-        {
-            predictionLine.gameObject.SetActive(true);
-            predictionLine.positionCount = 2;
-            predictionLine.SetPosition(0, chestTransform != null ? chestTransform.position : transform.position);
-            predictionLine.SetPosition(1, currentTargetRigidbody.position);
-        }
-        else
-        {
-            predictionLine.gameObject.SetActive(false);
-            predictionLine.positionCount = 0;
-        }
     }
 }
