@@ -2,17 +2,10 @@
  *
  * PURPOSE:
  * Implements the Iron Allomancy ability (Lurcher) – pull metal objects toward the player.
- * Physics are lore-accurate: mass ratios determine who moves more.
  *
- * CONTROLS:
- * - Left Ctrl    → Toggle burning ON / OFF (via FlareManager)
- * - Q key        → While burning, pull targeted metal object
- * - Scroll wheel → Adjust flare intensity (via FlareManager)
- *
- * TARGETING:
- * When burning is active, targeting defers to MetalLineRenderer.GetClosestMetalRigidbody()
- * so the highlighted object and the pull target are always the same object.
- * When not burning, the standard camera-alignment scan is used as fallback.
+ * TARGETING LINE:
+ * The targeting line is owned by MetalLineRenderer, not this script.
+ * IronPull just handles pull physics and targeting logic.
  */
 
 using UnityEngine;
@@ -21,15 +14,11 @@ using System.Collections;
 [PlayerComponent("Allomancy Metals", order: 20)]
 public class IronPull : MonoBehaviour
 {
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private float CurrentFlareMultiplier =>
         FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
 
     private bool IsBurning =>
         FlareManager.Instance != null && FlareManager.Instance.IsBurning;
-
-    // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("Settings")]
     public float minDistance        = 1f;
@@ -51,7 +40,6 @@ public class IronPull : MonoBehaviour
     public MetalSelector metalSelector;
 
     [Header("Allomantic Sight")]
-    [Tooltip("Auto-found if left empty. When burning, Iron targets whatever MetalLineRenderer has highlighted.")]
     public MetalLineRenderer metalLineRenderer;
 
     [Header("Visual Effects")]
@@ -64,15 +52,8 @@ public class IronPull : MonoBehaviour
     public Color strongPullTint = new Color(0f, 1f,   1f, 0.3f);
     public float pullTintDuration = 0.2f;
 
-    [Header("Pull Prediction")]
-    public bool  enablePullPrediction = true;
-    public Color predictionColor      = new Color(0f, 0.5f, 1f, 0.6f);
-    public int   predictionPoints     = 20;
-
     [Header("Debug")]
     public bool debugPullOperations = false;
-
-    // ── Private State ─────────────────────────────────────────────────────────
 
     private float cooldownTimer = 0f;
 
@@ -81,12 +62,8 @@ public class IronPull : MonoBehaviour
     private bool             hasCurrentTarget = false;
     private bool             isAnchored       = false;
 
-    private Coroutine    pullTintCoroutine;
-    private Color        currentPullTint = Color.clear;
-    private LineRenderer predictionLine;
-    private bool         isPredictionActive = false;
-
-    // ── Keybind ───────────────────────────────────────────────────────────────
+    private Coroutine pullTintCoroutine;
+    private Color     currentPullTint = Color.clear;
 
     private KeyCode GetAbility1Key()
     {
@@ -98,8 +75,6 @@ public class IronPull : MonoBehaviour
         }
         return Keybinds.Ability2;
     }
-
-    // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     void Start()
     {
@@ -113,8 +88,6 @@ public class IronPull : MonoBehaviour
 
         if (chestTransform == null)
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
-
-        CreatePredictionLine();
     }
 
     void Update()
@@ -134,19 +107,13 @@ public class IronPull : MonoBehaviour
                 cooldownTimer = 0.2f;
             }
         }
-
-        UpdatePrediction();
     }
-
-    // ── Target Detection ──────────────────────────────────────────────────────
 
     private float targetScanTimer    = 0f;
     private const float SCAN_INTERVAL = 0.1f;
 
     void UpdateTargetedMetal()
     {
-        // While burning, always use the MetalLineRenderer's closest target so
-        // the highlight and the pull target are guaranteed to be the same object.
         if (IsBurning && metalLineRenderer != null)
         {
             Rigidbody mlrRb = metalLineRenderer.GetClosestMetalRigidbody();
@@ -160,7 +127,6 @@ public class IronPull : MonoBehaviour
             }
         }
 
-        // Fallback: camera-alignment scan (not burning, or MLR found nothing yet).
         targetScanTimer -= Time.deltaTime;
         if (targetScanTimer > 0f) return;
         targetScanTimer = SCAN_INTERVAL;
@@ -204,8 +170,6 @@ public class IronPull : MonoBehaviour
         }
     }
 
-    // ── Pull Physics ──────────────────────────────────────────────────────────
-
     void PullMetals()
     {
         if (playerRigidbody == null || currentTargetRigidbody == null || !hasCurrentTarget) return;
@@ -244,60 +208,6 @@ public class IronPull : MonoBehaviour
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
         PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.position, chestPos);
     }
-
-    // ── Prediction ────────────────────────────────────────────────────────────
-
-    void CreatePredictionLine()
-    {
-        // Own child GameObject — prevents it from drawing at origin on the first frame.
-        GameObject lineObj = new GameObject("IronPredictionLine");
-        lineObj.transform.SetParent(transform);
-        predictionLine            = lineObj.AddComponent<LineRenderer>();
-        predictionLine.material   = new Material(Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color"));
-        predictionLine.startColor = predictionColor;
-        predictionLine.endColor   = new Color(predictionColor.r, predictionColor.g, predictionColor.b, 0.2f);
-        predictionLine.startWidth = 0.03f;
-        predictionLine.endWidth   = 0.01f;
-        predictionLine.positionCount = 0;    // nothing to draw yet
-        predictionLine.useWorldSpace = true;
-        lineObj.SetActive(false);             // fully off until burning + target
-    }
-
-    void UpdatePrediction()
-    {
-        if (predictionLine == null) return;
-
-        if (enablePullPrediction && IsBurning && hasCurrentTarget && currentTargetRigidbody != null)
-        {
-            predictionLine.gameObject.SetActive(true);
-            predictionLine.positionCount = predictionPoints;
-
-            Vector3 start = currentTargetRigidbody.position;
-            Vector3 end   = chestTransform != null ? chestTransform.position : transform.position;
-
-            for (int i = 0; i < predictionPoints; i++)
-                predictionLine.SetPosition(i, Vector3.Lerp(start, end, i / (float)(predictionPoints - 1)));
-
-            float dist = Vector3.Distance(start, end);
-            Color c = dist < 5f  ? new Color(0f, 1f,   1f, 0.8f)
-                    : dist < 15f ? new Color(0f, 0.7f, 1f, 0.6f)
-                                 : new Color(0f, 0.5f, 1f, 0.4f);
-            predictionLine.startColor = c;
-            predictionLine.endColor   = c;
-            isPredictionActive = true;
-        }
-        else
-        {
-            if (isPredictionActive)
-            {
-                predictionLine.gameObject.SetActive(false);
-                predictionLine.positionCount = 0;
-                isPredictionActive = false;
-            }
-        }
-    }
-
-    // ── Tint ──────────────────────────────────────────────────────────────────
 
     void TriggerPullTint(float force)
     {
