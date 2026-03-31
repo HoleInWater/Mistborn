@@ -276,8 +276,8 @@ MonoBehaviour:
   active: 1
   m_Version: 1
   skyType:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 4
   cloudType:
     m_OverrideState: 0
     m_Value: 0
