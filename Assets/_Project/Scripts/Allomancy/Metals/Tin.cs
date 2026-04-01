@@ -272,7 +272,10 @@ public class Tin : MonoBehaviour
     private AudioLowPassFilter  lowPass;
     private AudioHighPassFilter highPass;
 
-    // HDRP Volume overrides (obtained from globalVolume.profile in Start)
+    // Tin's own dedicated HDRP Volume — never touches the scene's lighting setup
+    private Volume           _tinVolume;
+
+    // HDRP Volume overrides (obtained from _tinVolume.profile in Start)
     private Exposure         exposure;
     private Fog              fog;
     private ColorAdjustments colorAdjustments;
@@ -321,50 +324,26 @@ public class Tin : MonoBehaviour
 
         originalAudioVolume = AudioListener.volume;
 
-        // Auto-find a Global Volume in the scene if none was assigned in the Inspector.
-        // HDRP projects that switched from Built-in often have no scene Volume yet.
-        if (globalVolume == null)
+        // Create Tin's own dedicated Volume — never modifies the scene's lighting setup.
+        // Priority 2 layers above Pewter (priority 1) and the scene base (priority 0).
+        // Weight starts at 0 so no Tin effects are visible until burning begins.
         {
-            foreach (var vol in FindObjectsOfType<Volume>())
-            {
-                if (vol.isGlobal) { globalVolume = vol; break; }
-            }
-        }
-
-        // If still null, create a runtime Global Volume so Tin post-processing always works.
-        if (globalVolume == null)
-        {
-            GameObject volObj = new GameObject("Tin_GlobalVolume");
-            globalVolume = volObj.AddComponent<Volume>();
-            globalVolume.isGlobal = true;
-            globalVolume.weight   = 1f;
+            GameObject volObj  = new GameObject("Tin_Volume");
+            _tinVolume         = volObj.AddComponent<Volume>();
+            _tinVolume.isGlobal = true;
+            _tinVolume.priority = 2f;
+            _tinVolume.weight   = 0f;
             DontDestroyOnLoad(volObj);
-        }
 
-        // Ensure the volume has a profile (create one at runtime if missing).
-        if (globalVolume.profile == null)
-            globalVolume.profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            var profile        = ScriptableObject.CreateInstance<VolumeProfile>();
+            _tinVolume.profile = profile;
 
-        // Obtain HDRP overrides from the profile.
-        // Any missing override is added at runtime so Tin effects work
-        // even on volumes that haven't been configured in advance.
-        {
-            var profile = globalVolume.profile;
-
-            if (!profile.TryGet(out exposure))
-                exposure = profile.Add<Exposure>(true);
-
-            if (!profile.TryGet(out fog))
-                fog = profile.Add<Fog>(true);
-
-            if (!profile.TryGet(out colorAdjustments))
-                colorAdjustments = profile.Add<ColorAdjustments>(true);
-
-            if (!profile.TryGet(out vignette))
-                vignette = profile.Add<Vignette>(true);
-
-            if (!profile.TryGet(out bloom))
-                bloom = profile.Add<Bloom>(true);
+            exposure         = profile.Add<Exposure>(true);
+            fog              = profile.Add<Fog>(true);
+            colorAdjustments = profile.Add<ColorAdjustments>(true);
+            vignette         = profile.Add<Vignette>(true);
+            bloom            = profile.Add<Bloom>(true);
+            bloom.active     = false;
         }
 
         // Create full-screen overexposure overlay at runtime
@@ -499,6 +478,9 @@ public class Tin : MonoBehaviour
     /// <summary>Called once when transitioning from Off to Burning or Flaring.</summary>
     private void OnStartBurning()
     {
+        // Enable Tin's Volume — all post-processing effects become active
+        if (_tinVolume != null) _tinVolume.weight = 1f;
+
         // Extend far clip plane — Tineyes can see much farther
         if (playerCamera != null)
             playerCamera.farClipPlane = originalFarClip + farClipBonus;
@@ -524,17 +506,9 @@ public class Tin : MonoBehaviour
 
         if (playerMove != null) playerMove.externalSpeedMultiplier = 1f;
 
-        // Restore HDRP baselines
-        if (exposure         != null) exposure.compensation.value         = 0f;
-        if (fog              != null) fog.meanFreePath.value               = 100f;
-        if (colorAdjustments != null)
-        {
-            colorAdjustments.contrast.value   = 0f;
-            colorAdjustments.saturation.value = 0f;
-        }
-        // Don't zero vignette here — overload may still be active and will handle it
-        if (vignette != null && currentOverloadVisual < 0.05f)
-            vignette.intensity.value = 0f;
+        // Disable Tin's Volume — all HDRP overrides disappear instantly.
+        // The scene's own Volume is untouched so custom lighting stays intact.
+        if (_tinVolume != null) _tinVolume.weight = 0f;
 
         if (lowPass  != null) lowPass.enabled  = false;
         if (highPass != null) highPass.enabled = false;
@@ -944,6 +918,9 @@ public class Tin : MonoBehaviour
     {
         const float duration = 0.6f;
 
+        // Re-enable Tin's Volume briefly so the desaturation effect is visible
+        if (_tinVolume != null) _tinVolume.weight = 1f;
+
         // Instant onset — the world snaps to dull as the metal runs out
         if (colorAdjustments != null) colorAdjustments.saturation.value = -45f;
         if (lowPass != null)
@@ -965,6 +942,7 @@ public class Tin : MonoBehaviour
         }
 
         if (lowPass != null) lowPass.enabled = false;
+        if (_tinVolume != null) _tinVolume.weight = 0f;
         worldGoesDullCoroutine = null;
     }
 
