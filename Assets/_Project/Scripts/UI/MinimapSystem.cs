@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
 /// <summary>
@@ -105,6 +106,15 @@ public class MinimapSystem : MonoBehaviour
         const float size   = 200f;
         const float margin = 10f;
 
+        // Ensure an EventSystem exists — required for button clicks to register
+        if (FindObjectOfType<EventSystem>() == null)
+        {
+            var esObj = new GameObject("EventSystem");
+            DontDestroyOnLoad(esObj);
+            esObj.AddComponent<EventSystem>();
+            esObj.AddComponent<StandaloneInputModule>();
+        }
+
         // Canvas
         var canvasObj = new GameObject("MinimapCanvas");
         DontDestroyOnLoad(canvasObj);
@@ -112,6 +122,7 @@ public class MinimapSystem : MonoBehaviour
         canvas.renderMode  = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 10;
         canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
+        canvasObj.AddComponent<GraphicRaycaster>();  // required for button click detection
 
         // Dark border panel (slightly larger than the image)
         var borderObj = new GameObject("MinimapBorder");

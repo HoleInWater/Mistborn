@@ -207,6 +207,11 @@ public class IronPull : MonoBehaviour
 
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
         PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.position, chestPos);
+
+        // Disarm check — if we just pulled an enemy's held weapon, rip it from their hand
+        HeldWeaponMarker marker = currentTargetRigidbody.GetComponentInChildren<HeldWeaponMarker>()
+                               ?? currentTargetRigidbody.GetComponent<HeldWeaponMarker>();
+        marker?.TryDisarm(pullForce);
     }
 
     void TriggerPullTint(float force)

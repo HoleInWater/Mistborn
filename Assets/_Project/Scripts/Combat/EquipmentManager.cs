@@ -22,6 +22,8 @@ public class EquipmentManager : MonoBehaviour
 
     private WeaponData    _equipped;
     private GameObject    _weaponInstance;
+    private Vector3       _heldLocalPos;
+    private Vector3       _heldLocalRot;
 
     public WeaponData Equipped  => _equipped;
     public bool       HasWeapon => _equipped != null && _equipped.type != WeaponData.WeaponType.Unarmed;
@@ -74,10 +76,20 @@ public class EquipmentManager : MonoBehaviour
 
         if (data.prefab != null)
         {
-            // Parent to hand bone so weapon moves 1:1 with the animation
-            _weaponInstance = Instantiate(data.prefab, attachPoint);
-            _weaponInstance.transform.localPosition    = data.handPositionOffset;
-            _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
+            // worldPositionStays = false keeps local-space transform from the prefab,
+            // then we override with the grip offsets below.
+            _weaponInstance = Instantiate(data.prefab, attachPoint, false);
+
+            // Always 90° on X so the weapon points forward along the hand bone.
+            // Keep Y/Z from WeaponData so per-weapon tweaks still work.
+            Vector3 rot = data.handRotationOffset;
+            rot.x = 90f;
+
+            _heldLocalPos = data.handPositionOffset;
+            _heldLocalRot = rot;
+
+            _weaponInstance.transform.localPosition    = _heldLocalPos;
+            _weaponInstance.transform.localEulerAngles = _heldLocalRot;
 
             // Kinematic Rigidbody — follows animation, can push non-kinematic objects,
             // but is not dragged around by physics forces itself.
@@ -108,6 +120,19 @@ public class EquipmentManager : MonoBehaviour
         Debug.Log($"[EquipmentManager] Equipped: {data.weaponName}  " +
                   $"dmg={data.damage} range={data.attackRange} speed={data.attackSpeed}/s");
         NotificationSystem.Instance?.ShowNotification($"Equipped: {data.weaponName}");
+    }
+
+    // Belt-and-suspenders: re-parent and re-seat the weapon every frame so physics,
+    // animation, or late-running scripts can never knock it out of the hand.
+    void LateUpdate()
+    {
+        if (_weaponInstance == null || rightHandBone == null) return;
+
+        if (_weaponInstance.transform.parent != rightHandBone)
+            _weaponInstance.transform.SetParent(rightHandBone, false);
+
+        _weaponInstance.transform.localPosition    = _heldLocalPos;
+        _weaponInstance.transform.localEulerAngles = _heldLocalRot;
     }
 
     public void UnequipWeapon()

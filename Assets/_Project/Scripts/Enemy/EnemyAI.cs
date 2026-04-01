@@ -168,6 +168,10 @@ public class EnemyAI : MonoBehaviour
 
                 // Default layer so Steel/Iron Allomancy raycasts can find metal weapons
                 SetLayerRecursive(wObj, 0);
+
+                // Mark this as a held enemy weapon so Allomancy can disarm the holder
+                var marker = wObj.AddComponent<HeldWeaponMarker>();
+                marker.owner = this;
             }
 
             Debug.Log($"[EnemyAI] {name} equipped {weapon.weaponName} — dmg={attackDamage} range={attackRange}");
@@ -702,6 +706,43 @@ public class EnemyAI : MonoBehaviour
         }
 
         StartCoroutine(DeathSequence());
+    }
+
+    /// <summary>
+    /// Rips the weapon from this enemy's hand via Allomancy (Steel Push / Iron Pull).
+    /// The weapon flies free and becomes a pickup.
+    /// </summary>
+    public void DisarmWeapon()
+    {
+        if (weapon == null || weaponHandBone == null) return;
+
+        foreach (Transform child in weaponHandBone)
+        {
+            child.SetParent(null);
+
+            Rigidbody wRb = child.GetComponent<Rigidbody>();
+            if (wRb == null) wRb = child.gameObject.AddComponent<Rigidbody>();
+            wRb.isKinematic = false;
+            wRb.useGravity  = true;
+            // Toss the weapon outward so it visibly flies away
+            wRb.AddForce(Vector3.up * 4f + Random.insideUnitSphere * 3f, ForceMode.Impulse);
+
+            if (child.GetComponent<WeaponPickup>() == null)
+            {
+                var pickup = child.gameObject.AddComponent<WeaponPickup>();
+                pickup.weaponData = weapon;
+            }
+
+            break; // only the first child is the weapon
+        }
+
+        // Enemy no longer has a weapon — reset combat stats to unarmed defaults
+        weapon        = null;
+        attackDamage  = 5f;
+        attackRange   = 0.8f;
+
+        NotificationSystem.Instance?.ShowNotification("Enemy disarmed!");
+        Debug.Log($"[EnemyAI] {name} was disarmed by Allomancy.");
     }
 
     IEnumerator DeathSequence()

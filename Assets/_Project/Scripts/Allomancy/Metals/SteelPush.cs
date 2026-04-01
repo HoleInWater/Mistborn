@@ -272,6 +272,14 @@ public class SteelPush : MonoBehaviour
 
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
         PushPullTrail.Instance?.ShowPushTrail(chestPos, targetRb.position);
+
+        // Disarm check — if we just pushed an enemy's held weapon, rip it from their hand
+        float appliedForce = isAnchored
+            ? Mathf.Min(pushSpeed * CurrentFlareMultiplier, maxRecoilSpeed * CurrentFlareMultiplier)
+            : loosePushForce * CurrentFlareMultiplier;
+        HeldWeaponMarker marker = targetRb.GetComponentInChildren<HeldWeaponMarker>()
+                               ?? targetRb.GetComponent<HeldWeaponMarker>();
+        marker?.TryDisarm(appliedForce);
     }
 
     void PushMetalsInBubble()
