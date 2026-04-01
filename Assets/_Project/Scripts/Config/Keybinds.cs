@@ -28,6 +28,7 @@ using UnityEngine;
 ///   R           = Coin Recover
 ///   Escape      = Pause
 ///   F1          = Help
+///   M           = Minimap rotation toggle
 /// </summary>
 public static class Keybinds
 {
@@ -81,4 +82,5 @@ public static class Keybinds
     public static KeyCode Journal = KeyCode.J;
     public static KeyCode Pause = KeyCode.Escape;
     public static KeyCode Help = KeyCode.F1;
+    public static KeyCode MinimapRotateToggle = KeyCode.M;   // toggle minimap rotation
 }

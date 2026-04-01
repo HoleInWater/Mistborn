@@ -18,7 +18,9 @@ public class MinimapSystem : MonoBehaviour
     public Camera minimapCamera;
     public float mapSize = 100f;
     public float followSpeed = 10f;
-    public bool rotateWithPlayer = true;
+    [Tooltip("When true the map rotates so the camera's forward direction points up. " +
+             "Toggle at runtime with M.")]
+    public bool rotateWithCamera = false;   // default: north always up
     public float minZoom = 30f;
     public float maxZoom = 150f;
 
@@ -32,7 +34,8 @@ public class MinimapSystem : MonoBehaviour
     public Color questMarkerColor = Color.yellow;
 
     private Transform player;
-    private float currentZoom;
+    private Camera    mainCam;
+    private float     currentZoom;
 
     // Auto-create MinimapSystem if no instance exists in the scene
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -57,6 +60,8 @@ public class MinimapSystem : MonoBehaviour
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
+
+        mainCam = Camera.main;
 
         currentZoom = mapSize;
 
@@ -127,6 +132,21 @@ public class MinimapSystem : MonoBehaviour
         return raw;
     }
 
+    void Update()
+    {
+        // M toggles rotation mode
+        if (Input.GetKeyDown(Keybinds.MinimapRotateToggle))
+            ToggleRotation();
+
+        // Re-acquire camera/player each frame in case they're spawned late
+        if (mainCam == null) mainCam = Camera.main;
+        if (player  == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+        }
+    }
+
     void LateUpdate()
     {
         if (player == null || minimapCamera == null) return;
@@ -136,12 +156,24 @@ public class MinimapSystem : MonoBehaviour
         minimapCamera.transform.position = Vector3.Lerp(
             minimapCamera.transform.position, camPos, Time.deltaTime * followSpeed);
 
-        // Look down
-        minimapCamera.transform.rotation = Quaternion.Euler(90f,
-            rotateWithPlayer ? player.eulerAngles.y : 0f, 0f);
+        // Rotation: camera-based when enabled, otherwise north-up (Y=0)
+        float yaw = 0f;
+        if (rotateWithCamera && mainCam != null)
+            yaw = mainCam.transform.eulerAngles.y;
+
+        minimapCamera.transform.rotation = Quaternion.Euler(90f, yaw, 0f);
 
         // Zoom
         minimapCamera.orthographicSize = currentZoom;
+    }
+
+    /// <summary>Flip between north-up and camera-facing modes.</summary>
+    public void ToggleRotation()
+    {
+        rotateWithCamera = !rotateWithCamera;
+        NotificationSystem.Instance?.ShowNotification(
+            rotateWithCamera ? "Minimap: rotating with camera" : "Minimap: north up");
+        Debug.Log($"[MinimapSystem] rotateWithCamera = {rotateWithCamera}");
     }
 
     public void SetZoom(float zoom)
@@ -149,6 +181,6 @@ public class MinimapSystem : MonoBehaviour
         currentZoom = Mathf.Clamp(zoom, minZoom, maxZoom);
     }
 
-    public void ZoomIn() => SetZoom(currentZoom - 10f);
+    public void ZoomIn()  => SetZoom(currentZoom - 10f);
     public void ZoomOut() => SetZoom(currentZoom + 10f);
 }
