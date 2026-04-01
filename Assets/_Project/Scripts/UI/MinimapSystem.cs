@@ -120,7 +120,7 @@ public class MinimapSystem : MonoBehaviour
         DontDestroyOnLoad(canvasObj);
         var canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode  = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 10;
+        canvas.sortingOrder = 100;   // must exceed UIToolkit panel order to receive clicks
         canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
         canvasObj.AddComponent<GraphicRaycaster>();  // required for button click detection
 

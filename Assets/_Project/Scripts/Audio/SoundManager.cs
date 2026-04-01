@@ -35,9 +35,44 @@ public class SoundManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
-    
+
+    void Start()
+    {
+        // Auto-create AudioSources if not assigned in Inspector
+        if (sfxSource       == null) sfxSource       = AddSource(volume: 1f);
+        if (musicSource     == null) musicSource     = AddSource(volume: musicVolume, loop: true);
+        if (allomancySource == null) allomancySource = AddSource(volume: 1f);
+
+        // Populate clip arrays with procedural audio if they're empty
+        if (metalPushSounds  == null || metalPushSounds.Length  == 0)
+            metalPushSounds  = new[] { ProceduralAudio.Push() };
+        if (metalPullSounds  == null || metalPullSounds.Length  == 0)
+            metalPullSounds  = new[] { ProceduralAudio.Pull() };
+        if (footstepSounds   == null || footstepSounds.Length   == 0)
+            footstepSounds   = new[] { ProceduralAudio.Footstep() };
+        if (impactSounds     == null || impactSounds.Length     == 0)
+            impactSounds     = new[] { ProceduralAudio.Impact(), ProceduralAudio.HeavyImpact(), ProceduralAudio.Clank() };
+        if (skillUnlockSound == null || skillUnlockSound.Length == 0)
+            skillUnlockSound = new[] { ProceduralAudio.Ding(), ProceduralAudio.SoftDing() };
+
+        // Flare sound is a sustained hum — use Flare() so it's distinct from push whoosh
+        _flareClip = ProceduralAudio.Flare();
+    }
+
+    private AudioClip _flareClip;
+
+    AudioSource AddSource(float volume, bool loop = false)
+    {
+        var src = gameObject.AddComponent<AudioSource>();
+        src.playOnAwake = false;
+        src.volume      = volume * masterVolume;
+        src.loop        = loop;
+        return src;
+    }
+
     public void PlayPushSound()
     {
         if (metalPushSounds.Length > 0 && allomancySource != null)
@@ -86,7 +121,7 @@ public class SoundManager : MonoBehaviour
     // ── Methods referenced by new systems ────────────────────────────────
 
     public void PlayNotification() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.5f);
-    public void PlayFlareSound() => PlayOneShot(allomancySource, metalPushSounds, sfxVolume * 0.8f);
+    public void PlayFlareSound() { if (allomancySource != null && _flareClip != null) allomancySource.PlayOneShot(_flareClip, sfxVolume * 0.8f); }
     public void PlayDuraluminBurst() => PlayOneShot(allomancySource, impactSounds, sfxVolume * 1.2f);
     public void PlayMetalWheelOpen() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.4f);
     public void PlayMetalWheelSelect() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.3f);

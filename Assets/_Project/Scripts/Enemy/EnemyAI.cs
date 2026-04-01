@@ -134,13 +134,26 @@ public class EnemyAI : MonoBehaviour
             attackRange   = weapon.attackRange;
             attackCooldown= weapon.AttackCooldown;
 
-            // Find hand bone and attach visual
-            if (weaponHandBone == null && animator != null && animator.isHuman)
-                weaponHandBone = animator.GetBoneTransform(HumanBodyBones.RightHand);
-
-            if (weapon.prefab != null && weaponHandBone != null)
+            // Find hand bone — humanoid rig first, then name search for Generic rigs
+            if (weaponHandBone == null)
             {
-                GameObject wObj = Instantiate(weapon.prefab, weaponHandBone);
+                if (animator != null && animator.isHuman)
+                    weaponHandBone = animator.GetBoneTransform(HumanBodyBones.RightHand);
+
+                if (weaponHandBone == null)
+                    weaponHandBone = FindBoneByName(transform,
+                        "RightHand", "Hand_R", "hand_r", "mixamorig:RightHand",
+                        "Bip01_R_Hand", "RHand", "Right Hand");
+
+                if (weaponHandBone == null)
+                    Debug.LogWarning($"[EnemyAI] {name}: no hand bone found — weapon will spawn at root.");
+            }
+
+            Transform weaponAttach = weaponHandBone != null ? weaponHandBone : transform;
+
+            if (weapon.prefab != null)
+            {
+                GameObject wObj = Instantiate(weapon.prefab, weaponAttach, false);
                 wObj.transform.localPosition    = weapon.handPositionOffset;
                 wObj.transform.localEulerAngles = weapon.handRotationOffset;
 
@@ -153,17 +166,17 @@ public class EnemyAI : MonoBehaviour
                 }
 
                 // Kinematic Rigidbody — follows animation but can be detected by Allomancy.
-                // ContinuousSpeculative prevents the weapon from tunneling through geometry.
+                // Discrete mode: ContinuousSpeculative jitters kinematic bodies in animated rigs.
                 foreach (var rb in wObj.GetComponentsInChildren<Rigidbody>(true))
                 {
                     rb.isKinematic = true;
-                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                    rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
                 if (wObj.GetComponent<Rigidbody>() == null)
                 {
                     var rb = wObj.AddComponent<Rigidbody>();
                     rb.isKinematic = true;
-                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                    rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
 
                 // Default layer so Steel/Iron Allomancy raycasts can find metal weapons

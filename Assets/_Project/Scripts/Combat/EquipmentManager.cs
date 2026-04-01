@@ -77,32 +77,28 @@ public class EquipmentManager : MonoBehaviour
         if (data.prefab != null)
         {
             // worldPositionStays = false keeps local-space transform from the prefab,
-            // then we override with the grip offsets below.
+            // then we override with the grip offsets from WeaponData below.
+            // To adjust rotation/position: edit handRotationOffset / handPositionOffset
+            // on the WeaponData asset, or run Mistborn → Fix Weapon Grip Offsets.
             _weaponInstance = Instantiate(data.prefab, attachPoint, false);
 
-            // Always 90° on X so the weapon points forward along the hand bone.
-            // Keep Y/Z from WeaponData so per-weapon tweaks still work.
-            Vector3 rot = data.handRotationOffset;
-            rot.x = 90f;
-
             _heldLocalPos = data.handPositionOffset;
-            _heldLocalRot = rot;
+            _heldLocalRot = data.handRotationOffset;
 
             _weaponInstance.transform.localPosition    = _heldLocalPos;
             _weaponInstance.transform.localEulerAngles = _heldLocalRot;
 
-            // Kinematic Rigidbody — follows animation, can push non-kinematic objects,
-            // but is not dragged around by physics forces itself.
-            // ContinuousSpeculative prevents the weapon from tunneling through geometry.
+            // Kinematic Rigidbody — follows animation, can push non-kinematic objects.
+            // Discrete mode: ContinuousSpeculative jitters kinematic bodies in animated rigs.
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
             {
                 rb.isKinematic = true;
-                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
             }
             Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>()
                               ?? _weaponInstance.AddComponent<Rigidbody>();
             weaponRb.isKinematic = true;
-            weaponRb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            weaponRb.collisionDetectionMode = CollisionDetectionMode.Discrete;
 
             // Ignore collision with every player collider so it never blocks movement
             Collider[] playerCols = GetComponentsInChildren<Collider>();
