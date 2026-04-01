@@ -28,11 +28,12 @@ public class MetalWheelMistOverlay : MonoBehaviour
 
     [Header("Background")]
     public Color  backgroundColor = new Color(0.02f, 0.02f, 0.06f, 1f);
-    public float  backgroundAlpha = 0.84f;
+    [Range(0f, 1f)]
+    public float  backgroundAlpha = 1.0f;   // fully opaque — no peeking through
 
     [Header("Mist")]
     public int   mistLayerCount = 10;
-    public Color mistColor      = new Color(0.60f, 0.72f, 0.88f, 1f);
+    public Color mistColor      = new Color(0.65f, 0.78f, 0.92f, 1f);
 
     [Header("Animation")]
     public float fadeSpeed = 8f;   // alpha units / unscaled second
@@ -69,7 +70,7 @@ public class MetalWheelMistOverlay : MonoBehaviour
 
         _canvas = canvasObj.AddComponent<Canvas>();
         _canvas.renderMode   = RenderMode.ScreenSpaceOverlay;
-        _canvas.sortingOrder = 90;          // above HUD, below metal wheel canvas
+        _canvas.sortingOrder = 150;         // above minimap (100); metal wheel canvas must be above this
 
         canvasObj.AddComponent<CanvasScaler>();
         // No GraphicRaycaster — overlay must not absorb pointer events
@@ -114,7 +115,7 @@ public class MetalWheelMistOverlay : MonoBehaviour
 
             _mistRTs[i]       = rt;
             _mistSpeeds[i]    = Random.Range(20f, 85f) * (Random.value > 0.25f ? 1f : -1f);
-            _mistBaseAlpha[i] = Random.Range(0.04f, 0.14f);
+            _mistBaseAlpha[i] = Random.Range(0.12f, 0.35f);  // visible against solid dark background
         }
 
         _canvas.gameObject.SetActive(false);

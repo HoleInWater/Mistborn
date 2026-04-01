@@ -142,6 +142,11 @@ public class MetalWheelController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        // Ensure this canvas renders above the mist overlay (sortingOrder 150)
+        Canvas myCanvas = GetComponentInParent<Canvas>();
+        if (myCanvas != null && myCanvas.sortingOrder < 200)
+            myCanvas.sortingOrder = 200;
+
         if (timeManager != null) timeManager.SlowTime();
         MetalWheelMistOverlay.Instance?.Show();
         if (audioManager != null) audioManager.PlayOpenSound();
