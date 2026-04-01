@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Player combat: light attack (Mouse0), heavy attack / block / parry (Mouse1).
@@ -234,6 +235,9 @@ public class PlayerCombat : MonoBehaviour
 
         Debug.Log($"[PlayerCombat] OverlapSphere at {attackPos} r={range:F1} — {hits.Length} colliders");
 
+        // Track already-hit roots so multi-collider enemies only take damage once per swing
+        HashSet<Transform> hitRoots = new HashSet<Transform>();
+
         foreach (Collider col in hits)
         {
             // Skip self
@@ -248,29 +252,27 @@ public class PlayerCombat : MonoBehaviour
 
             if (enemyAI == null && damageable == null)
             {
-                Debug.Log($"[PlayerCombat] Collider {col.name} on {col.transform.root.name} — no EnemyAI or IDamageable found, skipping");
+                Debug.Log($"[PlayerCombat] {col.name} on {col.transform.root.name} — no target, skipping");
                 continue;
             }
 
-            // Avoid hitting the same root object twice (multi-collider enemies)
-            if (hitAnything)
-            {
-                // allow multi-hit only if different root
-                if (enemyAI != null && enemyAI.transform.root == transform.root) continue;
-            }
+            // One hit per unique enemy root per swing
+            Transform root = col.transform.root;
+            if (hitRoots.Contains(root)) continue;
+            hitRoots.Add(root);
 
             hitAnything = true;
 
-            // Route through EnemyAI if present (it owns the health + state machine)
+            // Route through EnemyAI first (owns health + state machine)
             if (enemyAI != null)
             {
                 enemyAI.TakeDamage(damage);
-                Debug.Log($"[PlayerCombat] HIT EnemyAI '{enemyAI.name}' for {damage:F1} dmg");
+                Debug.Log($"[PlayerCombat] HIT '{enemyAI.name}' for {damage:F1} dmg");
             }
             else
             {
                 damageable.TakeDamage(damage);
-                Debug.Log($"[PlayerCombat] HIT IDamageable '{col.transform.root.name}' for {damage:F1} dmg");
+                Debug.Log($"[PlayerCombat] HIT '{root.name}' for {damage:F1} dmg");
             }
 
             // Knockback

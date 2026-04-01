@@ -47,6 +47,12 @@ public class EnemyAI : MonoBehaviour
     public NavMeshAgent navAgent;
     public Transform target;
 
+    [Header("Weapon")]
+    [Tooltip("WeaponData asset that sets this enemy's damage, range and attack speed. Leave blank to use the Stats values above.")]
+    public WeaponData weapon;
+    [Tooltip("Right hand bone — auto-found from humanoid Animator if blank.")]
+    public Transform weaponHandBone;
+
     [Header("Hit Effect")]
     [Tooltip("Optional particle system played at the player's position when a melee hit lands.")]
     public ParticleSystem hitEffect;
@@ -105,6 +111,37 @@ public class EnemyAI : MonoBehaviour
 
         if (autoPatrol && enemyType != EnemyType.Koloss)
             currentState = State.Patrol;
+
+        // Equip weapon — override stats and attach visual to hand
+        if (weapon != null)
+        {
+            // Override combat stats from WeaponData
+            attackDamage  = weapon.damage;
+            attackRange   = weapon.attackRange;
+            attackCooldown= weapon.AttackCooldown;
+
+            // Find hand bone and attach visual
+            if (weaponHandBone == null && animator != null && animator.isHuman)
+                weaponHandBone = animator.GetBoneTransform(HumanBodyBones.RightHand);
+
+            if (weapon.prefab != null && weaponHandBone != null)
+            {
+                GameObject wObj = Instantiate(weapon.prefab, weaponHandBone);
+                wObj.transform.localPosition    = weapon.handPositionOffset;
+                wObj.transform.localEulerAngles = weapon.handRotationOffset;
+            }
+
+            Debug.Log($"[EnemyAI] {name} equipped {weapon.weaponName} — dmg={attackDamage} range={attackRange}");
+        }
+
+        // Auto-add world-space health bar if not already present
+        if (GetComponentInChildren<EnemyHealthBarUI>() == null)
+        {
+            GameObject hbObj = new GameObject("HealthBar");
+            hbObj.transform.SetParent(transform);
+            hbObj.transform.localPosition = new Vector3(0f, 2.5f, 0f);
+            hbObj.AddComponent<EnemyHealthBarUI>();
+        }
     }
 
     // All distances in WorldScale: 2 Unity units = 5 feet
@@ -579,7 +616,51 @@ public class EnemyAI : MonoBehaviour
         // Particle effect
         ParticleEffectsManager.Instance?.PlayDeathEffect(transform.position);
 
-        Destroy(gameObject, 3f);
+        StartCoroutine(DeathSequence());
+    }
+
+    IEnumerator DeathSequence()
+    {
+        // Flash all renderers red so it's obvious the enemy died
+        var renderers = GetComponentsInChildren<Renderer>();
+        foreach (var r in renderers)
+        {
+            var mats = r.materials;
+            foreach (var m in mats)
+                if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", new Color(0.8f, 0.1f, 0.1f, 1f));
+                else if (m.HasProperty("_Color")) m.SetColor("_Color", new Color(0.8f, 0.1f, 0.1f, 1f));
+            r.materials = mats;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Sink into the ground over 1.2 seconds then destroy
+        float elapsed  = 0f;
+        float sinkTime = 1.2f;
+        Vector3 startPos = transform.position;
+        while (elapsed < sinkTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / sinkTime;
+            transform.position = startPos + Vector3.down * t * 2f;
+
+            // Also fade out renderers
+            foreach (var r in renderers)
+            {
+                var mats = r.materials;
+                foreach (var m in mats)
+                {
+                    Color c = m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor") : m.GetColor("_Color");
+                    c.a = 1f - t;
+                    if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+                    else if (m.HasProperty("_Color"))  m.SetColor("_Color", c);
+                }
+                r.materials = mats;
+            }
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 
     float GetXPValue()
