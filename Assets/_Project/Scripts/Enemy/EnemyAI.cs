@@ -619,9 +619,17 @@ public class EnemyAI : MonoBehaviour
         animator?.SetBool("IsDead", true);
         if (navAgent != null) { navAgent.isStopped = true; navAgent.enabled = false; }
 
-        // Freeze any Rigidbody so it doesn't fight the sink coroutine's position changes
+        // Disable CharacterController so DeathSequence can set transform.position directly
+        CharacterController cc = GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        // Freeze / remove Rigidbody so physics doesn't fight the sink coroutine
         Rigidbody dieRb = GetComponent<Rigidbody>();
         if (dieRb != null) { dieRb.linearVelocity = Vector3.zero; dieRb.isKinematic = true; }
+
+        // Disable all colliders so the corpse doesn't block the player while sinking
+        foreach (var col in GetComponentsInChildren<Collider>())
+            col.enabled = false;
 
         // Grant XP
         PlayerExperience xp = PlayerExperience.Instance;

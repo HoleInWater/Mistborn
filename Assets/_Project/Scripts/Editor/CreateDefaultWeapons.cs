@@ -78,13 +78,10 @@ public static class CreateDefaultWeapons
         float knockback, float heavyKnockback, bool isMetal, float mass, int buy, int sell)
     {
         string path = $"{folder}/{name}.asset";
-        if (AssetDatabase.LoadAssetAtPath<WeaponData>(path) != null)
-        {
-            Debug.Log($"[CreateDefaultWeapons] {name} already exists — skipped.");
-            return;
-        }
+        WeaponData w = AssetDatabase.LoadAssetAtPath<WeaponData>(path);
+        bool isNew = w == null;
+        if (isNew) w = ScriptableObject.CreateInstance<WeaponData>();
 
-        WeaponData w = ScriptableObject.CreateInstance<WeaponData>();
         w.weaponName          = name;
         w.type                = type;
         w.description         = description;
@@ -99,6 +96,73 @@ public static class CreateDefaultWeapons
         w.buyPrice            = buy;
         w.sellPrice           = sell;
 
-        AssetDatabase.CreateAsset(w, path);
+        // Grip offsets tuned for Mixamo humanoid rigs.
+        // (90,0,0) rotates weapon Y-axis onto hand Z-axis so it points along the fingers.
+        // If weapon points backward, change to (-90,0,0) in the Inspector.
+        ApplyGripDefaults(w);
+
+        if (isNew) AssetDatabase.CreateAsset(w, path);
+        else       EditorUtility.SetDirty(w);
+    }
+
+    // ── Grip offset defaults ──────────────────────────────────────────────────
+
+    [MenuItem("Mistborn/Fix Weapon Grip Offsets")]
+    public static void FixGrips()
+    {
+        string[] guids = AssetDatabase.FindAssets("t:WeaponData");
+        int count = 0;
+        foreach (string guid in guids)
+        {
+            WeaponData w = AssetDatabase.LoadAssetAtPath<WeaponData>(
+                AssetDatabase.GUIDToAssetPath(guid));
+            if (w == null) continue;
+            ApplyGripDefaults(w);
+            EditorUtility.SetDirty(w);
+            count++;
+        }
+        AssetDatabase.SaveAssets();
+        EditorUtility.DisplayDialog("Done",
+            $"Grip offsets updated on {count} WeaponData assets.\n\n" +
+            "If a weapon still looks wrong, select it in the Project window and\n" +
+            "change Hand Rotation Offset X from 90 to -90 (or 0 to disable).",
+            "OK");
+    }
+
+    /// <summary>
+    /// Sets handPositionOffset and handRotationOffset for each weapon type.
+    /// Rotation (90,0,0) maps weapon's Y-up axis to the hand bone's Z-forward axis
+    /// (the direction fingers point on a Mixamo humanoid rig).
+    /// Position offset moves the grip (not the tip) to the hand pivot.
+    /// </summary>
+    static void ApplyGripDefaults(WeaponData w)
+    {
+        switch (w.type)
+        {
+            case WeaponData.WeaponType.Dagger:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.05f);
+                break;
+            case WeaponData.WeaponType.Sword:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.1f);
+                break;
+            case WeaponData.WeaponType.Spear:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.3f);
+                break;
+            case WeaponData.WeaponType.Axe:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.1f);
+                break;
+            case WeaponData.WeaponType.Mace:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.05f);
+                break;
+            case WeaponData.WeaponType.KolossBlade:
+                w.handRotationOffset = new Vector3(90, 0, 0);
+                w.handPositionOffset = new Vector3(0, 0, 0.15f);
+                break;
+        }
     }
 }

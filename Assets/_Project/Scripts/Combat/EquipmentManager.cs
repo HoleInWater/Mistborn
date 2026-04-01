@@ -78,20 +78,30 @@ public class EquipmentManager : MonoBehaviour
             _weaponInstance.transform.localPosition    = data.handPositionOffset;
             _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
 
-            // Disable colliders immediately (Destroy is deferred — disabled takes effect this frame)
-            // so the weapon never becomes part of the player's compound collider shape.
-            foreach (var col in _weaponInstance.GetComponentsInChildren<Collider>(true))
-            {
-                col.enabled = false;
-                Destroy(col);
-            }
+            // Make all existing Rigidbodies kinematic so they move with the animation
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
-            {
                 rb.isKinematic = true;
-                Destroy(rb);
+
+            // Add a root kinematic Rigidbody if none exists — lets the weapon push
+            // dynamic objects in the world while still following the hand animation.
+            Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>();
+            if (weaponRb == null)
+            {
+                weaponRb = _weaponInstance.AddComponent<Rigidbody>();
+                weaponRb.isKinematic = true;
             }
 
-            // Put the weapon on the Ignore Raycast layer so attack OverlapSpheres skip it
+            // Ignore collision between every weapon collider and every player collider
+            // so the weapon never blocks the player's movement or deforms their capsule.
+            Collider[] playerCols = GetComponentsInChildren<Collider>();
+            foreach (var wc in _weaponInstance.GetComponentsInChildren<Collider>(true))
+            {
+                wc.enabled = true;
+                foreach (var pc in playerCols)
+                    Physics.IgnoreCollision(wc, pc, true);
+            }
+
+            // Keep on Ignore Raycast so OverlapSphere attack detection skips the weapon mesh
             SetLayerRecursive(_weaponInstance, LayerMask.NameToLayer("Ignore Raycast"));
         }
 

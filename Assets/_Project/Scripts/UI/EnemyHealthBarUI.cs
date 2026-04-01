@@ -94,7 +94,8 @@ public class EnemyHealthBarUI : MonoBehaviour
         }
         else
         {
-            currentAlpha = (hpPct < 1f && !enemyHealth.isDead) ? 1f : 0f;
+            // alwaysShow = always visible while alive, regardless of current HP
+            currentAlpha = !enemyHealth.isDead ? 1f : 0f;
         }
 
         SetAlpha(currentAlpha);
