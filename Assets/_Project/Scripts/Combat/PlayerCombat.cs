@@ -1,8 +1,12 @@
 using UnityEngine;
+using System.Collections;
 
 /// <summary>
-/// Player combat system with light/heavy attacks, Allomancy integration,
-/// and Pewter strength scaling from PHYSICS-MATH-BOOK.md Section 8.
+/// Player combat: light attack (Mouse0), heavy attack / block / parry (Mouse1).
+/// Right-click tap (< 0.15 s) = parry attempt.
+/// Right-click hold (>= 0.15 s) = block until released, then heavy attack on release if
+/// the hold was short enough (< 0.5 s), otherwise just block.
+/// Pewter strength scaling from PHYSICS-MATH-BOOK.md Section 8.
 /// </summary>
 [PlayerComponent("Combat", order: 10)]
 public class PlayerCombat : MonoBehaviour
@@ -16,6 +20,16 @@ public class PlayerCombat : MonoBehaviour
     public float knockbackForce = 8f;
     public float heavyKnockbackForce = 20f;
 
+    [Header("Right-Click Timing")]
+    [Tooltip("Hold duration below this = parry tap. Above this = block.")]
+    public float parryTapThreshold = 0.15f;
+    [Tooltip("Hold duration below this (after blocking started) = heavy attack on release.")]
+    public float heavyAttackHoldMax = 0.5f;
+
+    [Header("Hit-Pause")]
+    [Tooltip("Seconds to freeze time on a successful hit for combat feel.")]
+    public float hitstopDuration = 0.05f;
+
     [Header("Pewter Enhancement — PHYSICS-MATH-BOOK.md Section 8")]
     [Tooltip("S = S_base × (1 + k × P), k = pewter efficiency")]
     public float pewterEfficiencyK = 2f;
@@ -27,6 +41,7 @@ public class PlayerCombat : MonoBehaviour
     [Header("References")]
     public ComboSystem comboSystem;
     public LockOnSystem lockOnSystem;
+    public ParrySystem parrySystem;
     public Allomancer allomancer;
     public Animator animator;
     public LayerMask enemyLayer;
@@ -35,22 +50,76 @@ public class PlayerCombat : MonoBehaviour
     private float lastHeavyAttackTime;
     private PlayerStamina stamina;
 
+    // Right-click hold tracking
+    private float mouse1DownTime = -1f;
+    private bool mouse1Blocking = false;
+
     void Start()
     {
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
-        if (animator == null) animator = GetComponent<Animator>();
+        if (allomancer == null)    allomancer   = GetComponent<Allomancer>();
+        if (animator == null)      animator     = GetComponent<Animator>();
+        if (parrySystem == null)   parrySystem  = GetComponentInChildren<ParrySystem>();
+        if (parrySystem == null)   parrySystem  = GetComponent<ParrySystem>();
         stamina = GetComponent<PlayerStamina>();
         enemyLayer = LayerMask.GetMask("Enemy");
-        if (enemyLayer == 0) enemyLayer = ~0; // Fallback to all layers
+        if (enemyLayer == 0) enemyLayer = ~0;
     }
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
             LightAttack();
-        if (Input.GetMouseButtonDown(1))
-            HeavyAttack();
+
+        HandleRightClickCombat();
     }
+
+    // ── Right-click: parry / block / heavy attack ─────────────────────────────
+
+    void HandleRightClickCombat()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            mouse1DownTime  = Time.time;
+            mouse1Blocking  = false;
+        }
+
+        if (Input.GetMouseButton(1) && mouse1DownTime >= 0f)
+        {
+            float held = Time.time - mouse1DownTime;
+
+            if (!mouse1Blocking && held >= parryTapThreshold)
+            {
+                // Transition from potential tap into block
+                mouse1Blocking = true;
+            }
+
+            parrySystem?.SetBlocking(mouse1Blocking);
+        }
+
+        if (Input.GetMouseButtonUp(1) && mouse1DownTime >= 0f)
+        {
+            float held = Time.time - mouse1DownTime;
+
+            if (held < parryTapThreshold)
+            {
+                // Short tap — parry
+                parrySystem?.SetBlocking(false);
+                parrySystem?.TryParry();
+            }
+            else
+            {
+                // Was blocking — release block; fire heavy attack if held briefly
+                parrySystem?.SetBlocking(false);
+                if (held < heavyAttackHoldMax)
+                    HeavyAttack();
+            }
+
+            mouse1DownTime = -1f;
+            mouse1Blocking = false;
+        }
+    }
+
+    // ── Attacks ───────────────────────────────────────────────────────────────
 
     void LightAttack()
     {
@@ -62,7 +131,8 @@ public class PlayerCombat : MonoBehaviour
         animator?.SetTrigger("Attack");
 
         float damage = CalculateDamage(baseDamage);
-        HitEnemiesInRange(damage, knockbackForce);
+        bool hit = HitEnemiesInRange(damage, knockbackForce);
+        if (hit) StartCoroutine(Hitstop());
 
         SoundManager.Instance?.PlayAttackSound();
     }
@@ -73,28 +143,38 @@ public class PlayerCombat : MonoBehaviour
         if (stamina != null && stamina.currentStamina < 25f) return;
 
         lastHeavyAttackTime = Time.time;
-        lastAttackTime = Time.time;
+        lastAttackTime      = Time.time;
 
         stamina?.UseStamina(25f);
         OrientToLockOn();
         animator?.SetTrigger("HeavyAttack");
 
         float damage = CalculateDamage(baseDamage * heavyDamageMultiplier);
-        HitEnemiesInRange(damage, heavyKnockbackForce);
+        bool hit = HitEnemiesInRange(damage, heavyKnockbackForce);
+        if (hit) StartCoroutine(Hitstop());
 
         CameraShakeManager.Instance?.Shake(0.15f, 0.1f);
         SoundManager.Instance?.PlayAttackSound();
     }
 
+    // ── Hitstop (brief time-freeze on hit contact for combat feel) ────────────
+
+    IEnumerator Hitstop()
+    {
+        Time.timeScale = 0f;
+        yield return new WaitForSecondsRealtime(hitstopDuration);
+        Time.timeScale = 1f;
+    }
+
+    // ── Damage calculation ────────────────────────────────────────────────────
+
     float CalculateDamage(float base_damage)
     {
         float damage = base_damage;
 
-        // Combo multiplier
         if (comboSystem != null)
             damage *= comboSystem.DamageMultiplier;
 
-        // Pewter strength: S = S_base × (1 + k × P) from handbook Section 8
         if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
         {
             float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
@@ -103,7 +183,6 @@ public class PlayerCombat : MonoBehaviour
             damage *= pewterMult;
         }
 
-        // Skill tree bonus
         if (AllomanticSkillTree.Instance != null)
         {
             float combatBonus = AllomanticSkillTree.Instance.GetSkillValue("Combat_Damage1")
@@ -114,10 +193,13 @@ public class PlayerCombat : MonoBehaviour
         return damage;
     }
 
-    void HitEnemiesInRange(float damage, float knockback)
+    // ── Hit detection ─────────────────────────────────────────────────────────
+
+    bool HitEnemiesInRange(float damage, float knockback)
     {
         Vector3 attackPos = transform.position + transform.forward * 1.2f;
         Collider[] hits = Physics.OverlapSphere(attackPos, attackRange, enemyLayer);
+        bool hitAnything = false;
 
         foreach (Collider hit in hits)
         {
@@ -125,8 +207,8 @@ public class PlayerCombat : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+                hitAnything = true;
 
-                // Knockback
                 Rigidbody rb = hit.attachedRigidbody;
                 if (rb != null)
                 {
@@ -134,11 +216,12 @@ public class PlayerCombat : MonoBehaviour
                     rb.AddForce(dir * knockback, ForceMode.Impulse);
                 }
 
-                // Hit effect
                 SoundManager.Instance?.PlayHitSound(damage);
                 CameraShakeManager.Instance?.Shake(0.1f, 0.05f);
             }
         }
+
+        return hitAnything;
     }
 
     void OrientToLockOn()

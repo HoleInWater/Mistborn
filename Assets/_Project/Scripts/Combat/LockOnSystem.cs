@@ -13,7 +13,7 @@ public class LockOnSystem : MonoBehaviour
     public float atiumSearchBonus = 15f;
     public LayerMask enemyLayer;
     public KeyCode lockOnKey = KeyCode.Mouse2;
-    public KeyCode cycleKey = KeyCode.Tab;
+    public KeyCode cycleKey = KeyCode.None; // Tab conflicts with MetalWheel — assign in Inspector if needed
 
     [Header("Camera")]
     public float lockOnCameraSmoothSpeed = 5f;

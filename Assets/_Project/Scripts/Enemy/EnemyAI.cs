@@ -465,19 +465,26 @@ public class EnemyAI : MonoBehaviour
 
             if (clearShot)
             {
-                // Route through IDamageable (PlayerHealth) for death/respawn logic
-                IDamageable damageable = target.GetComponentInParent<IDamageable>();
-                damageable?.TakeDamage(attackDamage);
+                // Check if player is blocking or parrying — reduce/negate damage accordingly
+                ParrySystem parry = target.GetComponentInParent<ParrySystem>();
+                float finalDamage = parry != null ? parry.ProcessIncomingDamage(attackDamage) : attackDamage;
 
-                // Also drive the visible health bar — HealthBarTransitions doesn't implement IDamageable
-                HealthBarTransitions hbt = target.GetComponentInParent<HealthBarTransitions>();
-                hbt?.TakeDamage(attackDamage);
-
-                // Hit particle at target position
-                if (hitEffect != null)
+                if (finalDamage > 0f)
                 {
-                    hitEffect.transform.position = target.position + Vector3.up * 1f;
-                    hitEffect.Play();
+                    // Route through IDamageable (PlayerHealth) for death/respawn logic
+                    IDamageable damageable = target.GetComponentInParent<IDamageable>();
+                    damageable?.TakeDamage(finalDamage);
+
+                    // Also drive the visible health bar — HealthBarTransitions doesn't implement IDamageable
+                    HealthBarTransitions hbt = target.GetComponentInParent<HealthBarTransitions>();
+                    hbt?.TakeDamage(finalDamage);
+
+                    // Hit particle at target position
+                    if (hitEffect != null)
+                    {
+                        hitEffect.transform.position = target.position + Vector3.up * 1f;
+                        hitEffect.Play();
+                    }
                 }
             }
         }
