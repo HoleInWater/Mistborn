@@ -463,11 +463,13 @@ public class EnemyAI : MonoBehaviour
                              Physics.DefaultRaycastLayers & ~(1 << gameObject.layer),
                              QueryTriggerInteraction.Ignore);
 
+            Debug.Log($"[EnemyAI] {name} attacks — clearShot={clearShot}");
             if (clearShot)
             {
                 // Check if player is blocking or parrying — reduce/negate damage accordingly
                 ParrySystem parry = target.GetComponentInParent<ParrySystem>();
                 float finalDamage = parry != null ? parry.ProcessIncomingDamage(attackDamage) : attackDamage;
+                Debug.Log($"[EnemyAI] {name} dealing {finalDamage:F1} dmg (base={attackDamage}, parried={parry != null})");
 
                 if (finalDamage > 0f)
                 {
@@ -544,8 +546,9 @@ public class EnemyAI : MonoBehaviour
     {
         if (health <= 0) return;
         health -= damage;
-        if (enemyHealth != null) enemyHealth.currentHealth = health; // keep pools in sync
+        if (enemyHealth != null) enemyHealth.currentHealth = health;
         hitFlash?.Flash();
+        Debug.Log($"[EnemyAI] {name} took {damage:F1} dmg — HP={health:F1}/{GetMaxHealth():F1}");
         if (health <= 0) Die();
         else if (currentState != State.Chase && currentState != State.Attack
                  && currentState != State.Investigate)
@@ -554,6 +557,7 @@ public class EnemyAI : MonoBehaviour
 
     void Die()
     {
+        Debug.Log($"[EnemyAI] {name} DIED");
         currentState = State.Dead;
         health = 0;
         if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }

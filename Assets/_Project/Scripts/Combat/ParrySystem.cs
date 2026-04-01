@@ -41,23 +41,33 @@ public class ParrySystem : MonoBehaviour
         parryTimer    -= Time.deltaTime;
 
         if (parryTimer <= 0f && isParrying)
+        {
             isParrying = false;
+            Debug.Log("[ParrySystem] Parry window closed");
+        }
     }
 
     /// <summary>Called by PlayerCombat on a right-click tap to attempt a parry.</summary>
     public void TryParry()
     {
-        if (cooldownTimer > 0f) return;
+        if (cooldownTimer > 0f)
+        {
+            Debug.Log($"[ParrySystem] Parry on cooldown ({cooldownTimer:F2}s remaining)");
+            return;
+        }
         isParrying    = true;
         parryTimer    = parryWindow;
         cooldownTimer = parryCooldown;
         animator?.SetTrigger("Parry");
         stamina?.UseStamina(parryStaminaCost);
+        Debug.Log($"[ParrySystem] PARRY active — window={parryWindow}s");
     }
 
     /// <summary>Called by PlayerCombat each frame to sync block state.</summary>
     public void SetBlocking(bool blocking)
     {
+        if (blocking != isBlocking)
+            Debug.Log($"[ParrySystem] IsBlocking → {blocking}");
         isBlocking = blocking;
         animator?.SetBool("IsBlocking", blocking);
         if (blocking && stamina != null)
@@ -71,6 +81,7 @@ public class ParrySystem : MonoBehaviour
     {
         if (isParrying)
         {
+            Debug.Log($"[ParrySystem] PERFECT PARRY — blocked {damage:F1} dmg");
             CameraShakeManager.Instance?.Shake(0.1f, 0.1f);
             SoundManager.Instance?.PlayParrySound();
             AchievementSystem.Instance?.TryUnlock("parry_perfect");
@@ -83,8 +94,10 @@ public class ParrySystem : MonoBehaviour
             if (_pewter != null && _pewter.IsBurningPewter())
                 reduction *= 1.3f;
 
+            float finalDamage = damage * (1f - Mathf.Clamp01(reduction));
+            Debug.Log($"[ParrySystem] BLOCK — {damage:F1} → {finalDamage:F1} dmg (reduction={reduction:P0})");
             SoundManager.Instance?.PlayBlockSound();
-            return damage * (1f - Mathf.Clamp01(reduction));
+            return finalDamage;
         }
 
         return damage;

@@ -120,10 +120,21 @@ public class HealthBarTransitions : MonoBehaviour
     // Add this so the Combat script can damage the health bar
     public void TakeDamage(float damage)
     {
+        if (_progressBar != null && _progressBar.value <= 0f) return; // already dead
+
         // Surv_DamageReduction skill: flat % off all incoming damage
         float skillReduction = AllomanticSkillTree.Instance != null
             ? AllomanticSkillTree.Instance.GetSkillValue("Surv_DamageReduction")
             : 0f;
-        DecreaseHealth(damage * incomingDamageMultiplier * (1f - skillReduction));
+        float finalDamage = damage * incomingDamageMultiplier * (1f - skillReduction);
+        DecreaseHealth(finalDamage);
+
+        Debug.Log($"[PlayerHealth] Took {finalDamage:F1} dmg — HP={health:F1}");
+
+        if (health <= 0f)
+        {
+            Debug.Log("[PlayerHealth] PLAYER DIED — firing PlayerDied event");
+            EventManager.TriggerEvent("PlayerDied");
+        }
     }
 }

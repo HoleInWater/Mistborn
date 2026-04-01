@@ -17,6 +17,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     public void TakeDamage(float amount)
     {
         if (isDead) return;
+        Debug.Log($"[EnemyHealth] {name} received {amount:F1} dmg");
 
         // If EnemyAI is present it owns health — route damage through it so
         // it can react (transition to Chase, trigger death sequence, grant XP).
