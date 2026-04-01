@@ -61,5 +61,17 @@ public class PlayerAutoSetup : MonoBehaviour
             rb.constraints            = RigidbodyConstraints.FreezeRotation;
             rb.sleepThreshold         = 0f;
         }
+
+        // CapsuleCollider — required for Rigidbody to interact with the world.
+        // Without this the player falls through geometry.
+        // Only add if no Collider of any kind already exists on this GameObject.
+        if (GetComponent<Collider>() == null)
+        {
+            var cap    = gameObject.AddComponent<CapsuleCollider>();
+            cap.center = new Vector3(0f, 0.9f, 0f);   // base at feet, top at ~1.8 m
+            cap.height = 1.8f;
+            cap.radius = 0.3f;
+            Debug.Log("[PlayerAutoSetup] Added CapsuleCollider (none was present).");
+        }
     }
 }

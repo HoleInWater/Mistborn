@@ -17,6 +17,15 @@ public class MetalWheelMistOverlay : MonoBehaviour
 {
     public static MetalWheelMistOverlay Instance { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void AutoBootstrap()
+    {
+        if (Instance != null) return;
+        if (FindObjectOfType<MetalWheelMistOverlay>() != null) return;
+        var go = new GameObject("MetalWheelMistOverlay");
+        go.AddComponent<MetalWheelMistOverlay>();
+    }
+
     [Header("Background")]
     public Color  backgroundColor = new Color(0.02f, 0.02f, 0.06f, 1f);
     public float  backgroundAlpha = 0.84f;

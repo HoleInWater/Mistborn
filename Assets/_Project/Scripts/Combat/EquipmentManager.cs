@@ -151,13 +151,18 @@ public class EquipmentManager : MonoBehaviour
         WeaponFollow follow = _weaponInstance.GetComponent<WeaponFollow>();
         if (follow != null) Destroy(follow);
 
-        // Let gravity take it
+        // Let gravity take it — must disable kinematic first or gravity has no effect
         Rigidbody rb = _weaponInstance.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.useGravity    = true;
-            rb.linearDamping = 0.3f;
+            rb.isKinematic            = false;
+            rb.useGravity             = true;
+            rb.linearDamping          = 0.3f;
+            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
+
+        // Detach from the hand so it's no longer re-seated each LateUpdate
+        _weaponInstance.transform.SetParent(null);
 
         // Add a WeaponPickup so the player can grab it off the floor
         if (_weaponInstance.GetComponent<WeaponPickup>() == null)
