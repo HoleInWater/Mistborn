@@ -74,25 +74,34 @@ public class EquipmentManager : MonoBehaviour
 
         if (data.prefab != null)
         {
-            _weaponInstance = Instantiate(data.prefab, attachPoint);
-            _weaponInstance.transform.localPosition    = data.handPositionOffset;
-            _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
+            // Spawn unparented at world position — lets physics work correctly
+            Vector3    worldPos = attachPoint.TransformPoint(data.handPositionOffset);
+            Quaternion worldRot = attachPoint.rotation * Quaternion.Euler(data.handRotationOffset);
+            _weaponInstance = Instantiate(data.prefab, worldPos, worldRot);
 
-            // Make all existing Rigidbodies kinematic so they move with the animation
+            // Remove any existing Rigidbodies from sub-objects; we'll own the root one
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
-                rb.isKinematic = true;
+                if (rb.gameObject != _weaponInstance) Destroy(rb);
 
-            // Add a root kinematic Rigidbody if none exists — lets the weapon push
-            // dynamic objects in the world while still following the hand animation.
-            Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>();
-            if (weaponRb == null)
-            {
-                weaponRb = _weaponInstance.AddComponent<Rigidbody>();
-                weaponRb.isKinematic = true;
-            }
+            // Root Rigidbody: non-kinematic, no gravity, high drag so small bumps don't move it.
+            // This lets external forces (Allomancy Steel/Iron, collisions) affect the weapon
+            // while WeaponFollow snaps it back to the hand each physics step.
+            Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>()
+                              ?? _weaponInstance.AddComponent<Rigidbody>();
+            weaponRb.isKinematic    = false;
+            weaponRb.useGravity     = false;
+            weaponRb.linearDamping  = 20f;
+            weaponRb.angularDamping = 20f;
+            weaponRb.mass           = data.mass > 0f ? data.mass : 1f;
 
-            // Ignore collision between every weapon collider and every player collider
-            // so the weapon never blocks the player's movement or deforms their capsule.
+            // WeaponFollow drives position/rotation each physics step
+            var follow = _weaponInstance.AddComponent<WeaponFollow>();
+            follow.target           = attachPoint;
+            follow.positionOffset   = data.handPositionOffset;
+            follow.rotationOffset   = data.handRotationOffset;
+            follow.owner            = this;
+
+            // Ignore collision with the player so the weapon never blocks movement
             Collider[] playerCols = GetComponentsInChildren<Collider>();
             foreach (var wc in _weaponInstance.GetComponentsInChildren<Collider>(true))
             {
@@ -101,8 +110,8 @@ public class EquipmentManager : MonoBehaviour
                     Physics.IgnoreCollision(wc, pc, true);
             }
 
-            // Keep on Ignore Raycast so OverlapSphere attack detection skips the weapon mesh
-            SetLayerRecursive(_weaponInstance, LayerMask.NameToLayer("Ignore Raycast"));
+            // Default layer so Allomancy raycasts / OverlapSpheres can detect it
+            SetLayerRecursive(_weaponInstance, 0);
         }
 
         Debug.Log($"[EquipmentManager] Equipped: {data.weaponName}  " +
@@ -115,6 +124,40 @@ public class EquipmentManager : MonoBehaviour
         if (_weaponInstance != null) Destroy(_weaponInstance);
         _weaponInstance = null;
         _equipped       = null;
+    }
+
+    /// <summary>
+    /// Called by WeaponFollow when an external force (Allomancy, hard collision) pushes
+    /// the weapon beyond the drop threshold. The weapon flies free as a physics object
+    /// and becomes a pickup the player can retrieve.
+    /// </summary>
+    public void DropWeapon()
+    {
+        if (_weaponInstance == null || _equipped == null) return;
+
+        // Detach from follow system
+        WeaponFollow follow = _weaponInstance.GetComponent<WeaponFollow>();
+        if (follow != null) Destroy(follow);
+
+        // Let gravity take it
+        Rigidbody rb = _weaponInstance.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.useGravity    = true;
+            rb.linearDamping = 0.3f;
+        }
+
+        // Add a WeaponPickup so the player can grab it off the floor
+        if (_weaponInstance.GetComponent<WeaponPickup>() == null)
+        {
+            var pickup = _weaponInstance.AddComponent<WeaponPickup>();
+            pickup.weaponData = _equipped;
+        }
+
+        _weaponInstance = null;
+        _equipped       = null;
+
+        NotificationSystem.Instance?.ShowNotification("Weapon knocked away!");
     }
 
     static void SetLayerRecursive(GameObject go, int layer)

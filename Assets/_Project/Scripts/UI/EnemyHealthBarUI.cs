@@ -34,6 +34,7 @@ public class EnemyHealthBarUI : MonoBehaviour
     // ── Private ───────────────────────────────────────────────────────────────
 
     private EnemyHealth enemyHealth;
+    private EnemyAI     enemyAI;      // primary HP source — always in sync
     private float lastDamageTime = -99f;
     private float currentAlpha   = 0f;
     private float lastHealthPct  = 1f;
@@ -42,6 +43,7 @@ public class EnemyHealthBarUI : MonoBehaviour
 
     void Start()
     {
+        enemyAI     = GetComponentInParent<EnemyAI>();
         enemyHealth = GetComponentInParent<EnemyHealth>();
 
         if (worldCanvas == null || healthFill == null)
@@ -56,16 +58,30 @@ public class EnemyHealthBarUI : MonoBehaviour
 
     void LateUpdate()
     {
-        if (enemyHealth == null) return;
-
         // Assign camera if it wasn't ready at Start
         if (worldCanvas != null && worldCanvas.worldCamera == null && Camera.main != null)
             worldCanvas.worldCamera = Camera.main;
 
-        float maxHp = enemyHealth.GetMaxHealth();
+        // Resolve HP from EnemyAI (most reliable) or fall back to EnemyHealth
+        float currentHp, maxHp;
+        bool  isDead;
+        if (enemyAI != null)
+        {
+            currentHp = enemyAI.GetHealth();
+            maxHp     = enemyAI.GetMaxHealth();
+            isDead    = enemyAI.GetState() == EnemyAI.State.Dead;
+        }
+        else if (enemyHealth != null)
+        {
+            currentHp = enemyHealth.GetCurrentHealth();
+            maxHp     = enemyHealth.GetMaxHealth();
+            isDead    = enemyHealth.isDead;
+        }
+        else return;
+
         if (maxHp <= 0f) return;
 
-        float hpPct = Mathf.Clamp01(enemyHealth.GetCurrentHealth() / maxHp);
+        float hpPct = Mathf.Clamp01(currentHp / maxHp);
 
         // Detect damage event
         if (hpPct < lastHealthPct - 0.005f)
@@ -95,7 +111,7 @@ public class EnemyHealthBarUI : MonoBehaviour
         else
         {
             // alwaysShow = always visible while alive, regardless of current HP
-            currentAlpha = !enemyHealth.isDead ? 1f : 0f;
+            currentAlpha = !isDead ? 1f : 0f;
         }
 
         SetAlpha(currentAlpha);

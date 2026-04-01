@@ -121,6 +121,8 @@ public class WeaponPickup : MonoBehaviour, IInteractable
     void BuildVisual()
     {
         if (weaponData == null) return;
+        // Skip if a visual already exists (e.g. when added to a detached held-weapon object)
+        if (GetComponentInChildren<Renderer>() != null) return;
 
         GameObject visual;
 

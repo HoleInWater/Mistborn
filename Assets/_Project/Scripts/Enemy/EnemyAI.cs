@@ -269,7 +269,7 @@ public class EnemyAI : MonoBehaviour
         UpdateAnimations();
     }
 
-    float GetMaxHealth()
+    public float GetMaxHealth()
     {
         if (enemyHealth != null && enemyHealth.maxHealth > 0f) return enemyHealth.maxHealth;
         return Mathf.Max(startingHealth, 1f);
@@ -646,13 +646,37 @@ public class EnemyAI : MonoBehaviour
         // Particle effect
         ParticleEffectsManager.Instance?.PlayDeathEffect(transform.position);
 
-        // Drop weapon as a pickup
+        // Drop weapon as a pickup — detach held visual so it doesn't sink underground
         if (weapon != null)
         {
-            GameObject pickupObj = new GameObject($"{weapon.weaponName} Pickup");
-            pickupObj.transform.position = transform.position + Vector3.up * 0.5f;
-            WeaponPickup pickup = pickupObj.AddComponent<WeaponPickup>();
-            pickup.weaponData = weapon;
+            // Find the held weapon instance (child of hand bone) and detach it
+            if (weaponHandBone != null)
+            {
+                foreach (Transform child in weaponHandBone)
+                {
+                    child.SetParent(null);               // detach from skeleton
+                    Rigidbody wRb = child.GetComponent<Rigidbody>();
+                    if (wRb == null) wRb = child.gameObject.AddComponent<Rigidbody>();
+                    wRb.isKinematic = false;
+                    wRb.useGravity  = true;
+                    // Small upward toss so it visually pops out
+                    wRb.AddForce(Vector3.up * 3f + Random.insideUnitSphere * 1.5f, ForceMode.Impulse);
+
+                    // Make it a pickup
+                    var pickup = child.gameObject.AddComponent<WeaponPickup>();
+                    pickup.weaponData = weapon;
+                    // WeaponPickup.Update() handles its own 30s lifetime
+                    break; // only handle first child (the weapon)
+                }
+            }
+            else
+            {
+                // No hand bone reference — spawn a fresh pickup at death position
+                GameObject pickupObj = new GameObject($"{weapon.weaponName} Pickup");
+                pickupObj.transform.position = transform.position + Vector3.up * 0.8f;
+                var pickup = pickupObj.AddComponent<WeaponPickup>();
+                pickup.weaponData = weapon;
+            }
         }
 
         StartCoroutine(DeathSequence());
