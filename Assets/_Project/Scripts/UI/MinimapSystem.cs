@@ -171,8 +171,6 @@ public class MinimapSystem : MonoBehaviour
     public void ToggleRotation()
     {
         rotateWithCamera = !rotateWithCamera;
-        NotificationSystem.Instance?.ShowNotification(
-            rotateWithCamera ? "Minimap: rotating with camera" : "Minimap: north up");
         Debug.Log($"[MinimapSystem] rotateWithCamera = {rotateWithCamera}");
     }
 
