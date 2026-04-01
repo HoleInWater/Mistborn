@@ -158,6 +158,21 @@ public class PlayerAnimationController : MonoBehaviour
         CheckOneShotExit(_state == CombatState.Attack, _hasAttack, _attackP, attackClip);
         CheckOneShotExit(_state == CombatState.Heavy,  _hasHeavy,  _heavyP,  heavyAttackClip);
         CheckOneShotExit(_state == CombatState.Parry,  _hasParry,  _parryP,  parryClip);
+
+        // Forward Animator parameters to the locomotion playable.
+        // animator.SetBool() from AnimationStateController writes to the Animator's own
+        // parameter store, but a PlayableGraph requires _locoPlayable.SetBool() to actually
+        // drive the AnimatorControllerPlayable inside the graph.
+        SyncLocoParams();
+    }
+
+    void SyncLocoParams()
+    {
+        if (!_locoPlayable.IsValid()) return;
+        _locoPlayable.SetBool("isWalking", _animator.GetBool("isWalking"));
+        _locoPlayable.SetBool("isRunning", _animator.GetBool("isRunning"));
+        _locoPlayable.SetBool("isJumping", _animator.GetBool("isJumping"));
+        _locoPlayable.SetBool("isRunJump", _animator.GetBool("isRunJump"));
     }
 
     void OnDestroy()
