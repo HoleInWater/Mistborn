@@ -24,6 +24,7 @@ public class EquipmentManager : MonoBehaviour
     private GameObject    _weaponInstance;
     private Vector3       _heldLocalPos;
     private Vector3       _heldLocalRot;
+    private Transform     _attachPoint;   // cached: rightHandBone if found, else transform
 
     public WeaponData Equipped  => _equipped;
     public bool       HasWeapon => _equipped != null && _equipped.type != WeaponData.WeaponType.Unarmed;
@@ -70,20 +71,21 @@ public class EquipmentManager : MonoBehaviour
         UnequipWeapon();
         _equipped = data;
 
-        // Use hand bone if found; fall back to player root so weapon always attaches somewhere
-        Transform attachPoint = rightHandBone != null ? rightHandBone : transform;
-        Debug.Log($"[EquipmentManager] Attaching '{data.weaponName}' to '{attachPoint.name}'");
+        // Cache attach point — used here and in LateUpdate
+        _attachPoint = rightHandBone != null ? rightHandBone : transform;
+        Debug.Log($"[EquipmentManager] Attaching '{data.weaponName}' to '{_attachPoint.name}'");
 
         if (data.prefab != null)
         {
-            // worldPositionStays = false keeps local-space transform from the prefab,
-            // then we override with the grip offsets from WeaponData below.
-            // To adjust rotation/position: edit handRotationOffset / handPositionOffset
-            // on the WeaponData asset, or run Mistborn → Fix Weapon Grip Offsets.
-            _weaponInstance = Instantiate(data.prefab, attachPoint, false);
+            _weaponInstance = Instantiate(data.prefab, _attachPoint, false);
 
             _heldLocalPos = data.handPositionOffset;
-            _heldLocalRot = data.handRotationOffset;
+
+            // If the WeaponData has no rotation set, default to 90° X so the weapon
+            // points forward in the hand rather than straight up.
+            _heldLocalRot = (data.handRotationOffset == Vector3.zero)
+                ? new Vector3(90f, 0f, 0f)
+                : data.handRotationOffset;
 
             _weaponInstance.transform.localPosition    = _heldLocalPos;
             _weaponInstance.transform.localEulerAngles = _heldLocalRot;
@@ -122,10 +124,10 @@ public class EquipmentManager : MonoBehaviour
     // animation, or late-running scripts can never knock it out of the hand.
     void LateUpdate()
     {
-        if (_weaponInstance == null || rightHandBone == null) return;
+        if (_weaponInstance == null || _attachPoint == null) return;
 
-        if (_weaponInstance.transform.parent != rightHandBone)
-            _weaponInstance.transform.SetParent(rightHandBone, false);
+        if (_weaponInstance.transform.parent != _attachPoint)
+            _weaponInstance.transform.SetParent(_attachPoint, false);
 
         _weaponInstance.transform.localPosition    = _heldLocalPos;
         _weaponInstance.transform.localEulerAngles = _heldLocalRot;

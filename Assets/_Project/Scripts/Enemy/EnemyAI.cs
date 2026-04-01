@@ -155,7 +155,9 @@ public class EnemyAI : MonoBehaviour
             {
                 GameObject wObj = Instantiate(weapon.prefab, weaponAttach, false);
                 wObj.transform.localPosition    = weapon.handPositionOffset;
-                wObj.transform.localEulerAngles = weapon.handRotationOffset;
+                wObj.transform.localEulerAngles = (weapon.handRotationOffset == Vector3.zero)
+                    ? new Vector3(90f, 0f, 0f)
+                    : weapon.handRotationOffset;
 
                 // Keep colliders enabled but ignore collision with this enemy's own colliders
                 foreach (var col in wObj.GetComponentsInChildren<Collider>(true))

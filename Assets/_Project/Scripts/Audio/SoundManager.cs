@@ -64,6 +64,37 @@ public class SoundManager : MonoBehaviour
 
     private AudioClip _flareClip;
 
+    // ── Throttle: minimum unscaled seconds between plays per source category ──
+    // Prevents rapid callers (scroll, coin spam, push/pull) from stacking dozens
+    // of overlapping identical clips, which causes distortion and audio dropout.
+    private float _lastSfxTime       = -1f;
+    private float _lastAllomancyTime = -1f;
+    private float _lastFootstepTime  = -1f;
+    const float SFX_MIN        = 0.06f;
+    const float ALLOMANCY_MIN  = 0.07f;
+    const float FOOTSTEP_MIN   = 0.18f;
+
+    bool CanPlaySfx()
+    {
+        if (Time.unscaledTime - _lastSfxTime < SFX_MIN) return false;
+        _lastSfxTime = Time.unscaledTime;
+        return true;
+    }
+
+    bool CanPlayAllomancy()
+    {
+        if (Time.unscaledTime - _lastAllomancyTime < ALLOMANCY_MIN) return false;
+        _lastAllomancyTime = Time.unscaledTime;
+        return true;
+    }
+
+    bool CanPlayFootstep()
+    {
+        if (Time.unscaledTime - _lastFootstepTime < FOOTSTEP_MIN) return false;
+        _lastFootstepTime = Time.unscaledTime;
+        return true;
+    }
+
     AudioSource AddSource(float volume, bool loop = false)
     {
         var src = gameObject.AddComponent<AudioSource>();
@@ -75,61 +106,46 @@ public class SoundManager : MonoBehaviour
 
     public void PlayPushSound()
     {
-        if (metalPushSounds.Length > 0 && allomancySource != null)
-        {
-            AudioClip clip = metalPushSounds[Random.Range(0, metalPushSounds.Length)];
-            allomancySource.PlayOneShot(clip, sfxVolume);
-        }
+        if (!CanPlayAllomancy() || metalPushSounds.Length == 0 || allomancySource == null) return;
+        allomancySource.PlayOneShot(metalPushSounds[Random.Range(0, metalPushSounds.Length)], sfxVolume);
     }
-    
+
     public void PlayPullSound()
     {
-        if (metalPullSounds.Length > 0 && allomancySource != null)
-        {
-            AudioClip clip = metalPullSounds[Random.Range(0, metalPullSounds.Length)];
-            allomancySource.PlayOneShot(clip, sfxVolume);
-        }
+        if (!CanPlayAllomancy() || metalPullSounds.Length == 0 || allomancySource == null) return;
+        allomancySource.PlayOneShot(metalPullSounds[Random.Range(0, metalPullSounds.Length)], sfxVolume);
     }
-    
+
     public void PlayFootstep()
     {
-        if (footstepSounds.Length > 0 && sfxSource != null)
-        {
-            AudioClip clip = footstepSounds[Random.Range(0, footstepSounds.Length)];
-            sfxSource.PlayOneShot(clip, sfxVolume * 0.5f);
-        }
+        if (!CanPlayFootstep() || footstepSounds.Length == 0 || sfxSource == null) return;
+        sfxSource.PlayOneShot(footstepSounds[Random.Range(0, footstepSounds.Length)], sfxVolume * 0.5f);
     }
-    
+
     public void PlayImpactSound()
     {
-        if (impactSounds.Length > 0 && sfxSource != null)
-        {
-            AudioClip clip = impactSounds[Random.Range(0, impactSounds.Length)];
-            sfxSource.PlayOneShot(clip, sfxVolume);
-        }
+        if (!CanPlaySfx() || impactSounds.Length == 0 || sfxSource == null) return;
+        sfxSource.PlayOneShot(impactSounds[Random.Range(0, impactSounds.Length)], sfxVolume);
     }
-    
+
     public void PlaySkillUnlock()
     {
-        if (skillUnlockSound.Length > 0 && sfxSource != null)
-        {
-            AudioClip clip = skillUnlockSound[Random.Range(0, skillUnlockSound.Length)];
-            sfxSource.PlayOneShot(clip, sfxVolume);
-        }
+        if (skillUnlockSound.Length == 0 || sfxSource == null) return;
+        sfxSource.PlayOneShot(skillUnlockSound[Random.Range(0, skillUnlockSound.Length)], sfxVolume);
     }
 
     // ── Methods referenced by new systems ────────────────────────────────
 
-    public void PlayNotification() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.5f);
-    public void PlayFlareSound() { if (allomancySource != null && _flareClip != null) allomancySource.PlayOneShot(_flareClip, sfxVolume * 0.8f); }
-    public void PlayDuraluminBurst() => PlayOneShot(allomancySource, impactSounds, sfxVolume * 1.2f);
-    public void PlayMetalWheelOpen() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.4f);
-    public void PlayMetalWheelSelect() => PlayOneShot(sfxSource, skillUnlockSound, sfxVolume * 0.3f);
-    public void PlayAttackSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.7f);
-    public void PlayHitSound(float damage = 25f) => PlayOneShot(sfxSource, impactSounds, sfxVolume);
-    public void PlayBlockSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.6f);
-    public void PlayParrySound() => PlayOneShot(sfxSource, impactSounds, sfxVolume * 0.8f);
-    public void PlayDeathSound() => PlayOneShot(sfxSource, impactSounds, sfxVolume);
+    public void PlayNotification()    { if (CanPlaySfx())       PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.5f); }
+    public void PlayFlareSound()      { if (CanPlayAllomancy() && allomancySource != null && _flareClip != null) allomancySource.PlayOneShot(_flareClip, sfxVolume * 0.8f); }
+    public void PlayDuraluminBurst()  =>                         PlayOneShot(allomancySource, impactSounds,     sfxVolume * 1.2f);
+    public void PlayMetalWheelOpen()  =>                         PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.4f);
+    public void PlayMetalWheelSelect()=>                         PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.3f);
+    public void PlayAttackSound()     { if (CanPlaySfx())        PlayOneShot(sfxSource,       impactSounds,     sfxVolume * 0.7f); }
+    public void PlayHitSound(float damage = 25f) { if (CanPlaySfx()) PlayOneShot(sfxSource,  impactSounds,     sfxVolume); }
+    public void PlayBlockSound()      { if (CanPlaySfx())        PlayOneShot(sfxSource,       impactSounds,     sfxVolume * 0.6f); }
+    public void PlayParrySound()      =>                         PlayOneShot(sfxSource,       impactSounds,     sfxVolume * 0.8f);
+    public void PlayDeathSound()      =>                         PlayOneShot(sfxSource,       impactSounds,     sfxVolume);
 
     public void PlayAmbientForWeather(string weatherType)
     {
