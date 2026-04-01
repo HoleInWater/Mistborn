@@ -64,6 +64,16 @@ public class EquipmentManager : MonoBehaviour
             _weaponInstance = Instantiate(data.prefab, rightHandBone);
             _weaponInstance.transform.localPosition    = data.handPositionOffset;
             _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
+
+            // Remove every collider and rigidbody on the weapon so it never
+            // blocks movement, triggers physics, or impales the player.
+            foreach (var col in _weaponInstance.GetComponentsInChildren<Collider>(true))
+                Destroy(col);
+            foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
+                Destroy(rb);
+
+            // Put the weapon on the Ignore Raycast layer so attack OverlapSpheres skip it
+            SetLayerRecursive(_weaponInstance, LayerMask.NameToLayer("Ignore Raycast"));
         }
 
         Debug.Log($"[EquipmentManager] Equipped: {data.weaponName}  " +
@@ -76,6 +86,13 @@ public class EquipmentManager : MonoBehaviour
         if (_weaponInstance != null) Destroy(_weaponInstance);
         _weaponInstance = null;
         _equipped       = null;
+    }
+
+    static void SetLayerRecursive(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+            SetLayerRecursive(child.gameObject, layer);
     }
 
     // ── Stat providers — PlayerCombat calls these ─────────────────────────────
