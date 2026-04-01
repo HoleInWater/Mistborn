@@ -67,9 +67,13 @@ public class EquipmentManager : MonoBehaviour
         UnequipWeapon();
         _equipped = data;
 
-        if (data.prefab != null && rightHandBone != null)
+        // Use hand bone if found; fall back to player root so weapon always attaches somewhere
+        Transform attachPoint = rightHandBone != null ? rightHandBone : transform;
+        Debug.Log($"[EquipmentManager] Attaching '{data.weaponName}' to '{attachPoint.name}'");
+
+        if (data.prefab != null)
         {
-            _weaponInstance = Instantiate(data.prefab, rightHandBone);
+            _weaponInstance = Instantiate(data.prefab, attachPoint);
             _weaponInstance.transform.localPosition    = data.handPositionOffset;
             _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
 
