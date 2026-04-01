@@ -116,10 +116,10 @@ public class EnemyHealthBarUI : MonoBehaviour
 
         SetAlpha(currentAlpha);
 
-        // Billboard — rotate to face camera
+        // Billboard — rotate to face camera (point +Z toward camera)
         if (Camera.main != null)
         {
-            Vector3 lookDir = transform.position - Camera.main.transform.position;
+            Vector3 lookDir = Camera.main.transform.position - transform.position;
             if (lookDir.sqrMagnitude > 0.001f)
                 transform.rotation = Quaternion.LookRotation(lookDir);
         }

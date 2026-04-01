@@ -642,6 +642,7 @@ public class EnemyAI : MonoBehaviour
         health -= damage;
         if (enemyHealth != null) enemyHealth.currentHealth = health;
         hitFlash?.Flash();
+        DamageNumbersUI.Instance?.ShowDamage(transform.position, damage);
         Debug.Log($"[EnemyAI] {name} took {damage:F1} dmg — HP={health:F1}/{GetMaxHealth():F1}");
         if (health <= 0) Die();
         else if (currentState != State.Chase && currentState != State.Attack

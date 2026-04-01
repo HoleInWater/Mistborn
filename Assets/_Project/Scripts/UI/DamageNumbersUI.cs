@@ -38,14 +38,40 @@ public class DamageNumbersUI : MonoBehaviour
 
     void Start()
     {
-        if (damageNumberPrefab == null || worldCanvas == null) return;
+        if (worldCanvas == null)
+        {
+            var canvasObj = new GameObject("DamageNumbersCanvas");
+            DontDestroyOnLoad(canvasObj);
+            worldCanvas = canvasObj.AddComponent<Canvas>();
+            worldCanvas.renderMode  = RenderMode.WorldSpace;
+            worldCanvas.sortingOrder = 50;
+            canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
+        }
 
+        // Build pool — use prefab if assigned, otherwise create a text GameObject at runtime
         for (int i = 0; i < poolSize; i++)
         {
-            GameObject obj = Instantiate(damageNumberPrefab, worldCanvas.transform);
+            GameObject obj = damageNumberPrefab != null
+                ? Instantiate(damageNumberPrefab, worldCanvas.transform)
+                : BuildNumberObject();
             obj.SetActive(false);
             pool.Enqueue(obj);
         }
+    }
+
+    GameObject BuildNumberObject()
+    {
+        var obj = new GameObject("DmgNum");
+        obj.transform.SetParent(worldCanvas.transform, false);
+        var text = obj.AddComponent<UnityEngine.UI.Text>();
+        text.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize  = 22;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color     = normalDamageColor;
+
+        var rt = obj.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(120f, 40f);
+        return obj;
     }
 
     public void ShowDamage(Vector3 worldPos, float amount, DamageType type = DamageType.Normal)
@@ -114,7 +140,8 @@ public class DamageNumbersUI : MonoBehaviour
     GameObject GetFromPool()
     {
         if (pool.Count > 0) return pool.Dequeue();
-        return null;
+        // Pool exhausted — grow rather than drop the number
+        return BuildNumberObject();
     }
 
     void ReturnToPool(GameObject obj)

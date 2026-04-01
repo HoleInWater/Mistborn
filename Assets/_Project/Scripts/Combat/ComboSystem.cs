@@ -69,6 +69,7 @@ public class ComboSystem : MonoBehaviour
     private void EndRage()
     {
         isRaging = false;
+        FlareManager.Instance?.SetIntensity(1);
     }
 
     public void ResetCombo()
