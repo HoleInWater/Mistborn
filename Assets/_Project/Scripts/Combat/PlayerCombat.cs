@@ -226,28 +226,63 @@ public class PlayerCombat : MonoBehaviour
     {
         float range = equipment != null ? equipment.GetRange(attackRange) : attackRange;
         Vector3 attackPos = transform.position + transform.forward * 1.2f;
-        Collider[] hits = Physics.OverlapSphere(attackPos, range, enemyLayer);
+
+        // Cast against ALL layers — enemy layer filter is unreliable if enemies
+        // aren't on the "Enemy" layer in the project settings.
+        Collider[] hits = Physics.OverlapSphere(attackPos, range);
         bool hitAnything = false;
 
-        foreach (Collider hit in hits)
+        Debug.Log($"[PlayerCombat] OverlapSphere at {attackPos} r={range:F1} — {hits.Length} colliders");
+
+        foreach (Collider col in hits)
         {
-            IDamageable damageable = hit.GetComponentInParent<IDamageable>();
-            if (damageable != null)
+            // Skip self
+            if (col.transform.IsChildOf(transform) || col.transform == transform) continue;
+
+            // Search up AND down the hierarchy — handles any prefab structure
+            EnemyAI enemyAI = col.GetComponentInParent<EnemyAI>()
+                           ?? col.GetComponentInChildren<EnemyAI>();
+
+            IDamageable damageable = col.GetComponentInParent<IDamageable>()
+                                  ?? col.GetComponentInChildren<IDamageable>();
+
+            if (enemyAI == null && damageable == null)
+            {
+                Debug.Log($"[PlayerCombat] Collider {col.name} on {col.transform.root.name} — no EnemyAI or IDamageable found, skipping");
+                continue;
+            }
+
+            // Avoid hitting the same root object twice (multi-collider enemies)
+            if (hitAnything)
+            {
+                // allow multi-hit only if different root
+                if (enemyAI != null && enemyAI.transform.root == transform.root) continue;
+            }
+
+            hitAnything = true;
+
+            // Route through EnemyAI if present (it owns the health + state machine)
+            if (enemyAI != null)
+            {
+                enemyAI.TakeDamage(damage);
+                Debug.Log($"[PlayerCombat] HIT EnemyAI '{enemyAI.name}' for {damage:F1} dmg");
+            }
+            else
             {
                 damageable.TakeDamage(damage);
-                hitAnything = true;
-
-                Rigidbody rb = hit.attachedRigidbody;
-                if (rb != null)
-                {
-                    Vector3 dir = (hit.transform.position - transform.position).normalized;
-                    rb.AddForce(dir * knockback, ForceMode.Impulse);
-                }
-
-                Debug.Log($"[PlayerCombat] Hit {hit.name} for {damage:F1} dmg");
-                SoundManager.Instance?.PlayHitSound(damage);
-                CameraShakeManager.Instance?.Shake(0.1f, 0.05f);
+                Debug.Log($"[PlayerCombat] HIT IDamageable '{col.transform.root.name}' for {damage:F1} dmg");
             }
+
+            // Knockback
+            Rigidbody rb = col.attachedRigidbody ?? col.GetComponentInParent<Rigidbody>();
+            if (rb != null)
+            {
+                Vector3 dir = (col.transform.position - transform.position).normalized;
+                rb.AddForce(dir * knockback, ForceMode.Impulse);
+            }
+
+            SoundManager.Instance?.PlayHitSound(damage);
+            CameraShakeManager.Instance?.Shake(0.1f, 0.05f);
         }
 
         return hitAnything;
