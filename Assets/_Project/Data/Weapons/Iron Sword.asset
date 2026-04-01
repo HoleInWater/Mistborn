@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad79e4f7837514428b249412600371f, type: 3}
+  m_Name: Iron Sword
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: Iron Sword
+  description: "A balanced dueling blade used by noblemen and guards. Metal \u2014
+    can be Pushed."
+  icon: {fileID: 0}
+  type: 2
+  damage: 20
+  attackRange: 2.5
+  attackSpeed: 2.2
+  heavyMultiplier: 2.5
+  knockbackForce: 8
+  heavyKnockbackForce: 20
+  isMetal: 1
+  mass: 1.5
+  prefab: {fileID: 3857062943661841356, guid: 857b47abbdc6824418cefb7933865e89, type: 3}
+  handPositionOffset: {x: 0, y: 0, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
+  buyPrice: 150
+  sellPrice: 75
