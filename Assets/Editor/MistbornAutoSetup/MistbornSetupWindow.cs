@@ -153,7 +153,7 @@ public class MistbornSetupWindow : EditorWindow
         {
             if (GUILayout.Button("All",  EditorStyles.miniButtonLeft,  GUILayout.Width(44)))
                 SetAll(true);
-            if (GUILayout.Button("None", EditorStyles.miniButtonRight, GUILayout.Width(44)));
+            if (GUILayout.Button("None", EditorStyles.miniButtonRight, GUILayout.Width(44)))
                 SetAll(false);
         }
         GUILayout.Space(3);
