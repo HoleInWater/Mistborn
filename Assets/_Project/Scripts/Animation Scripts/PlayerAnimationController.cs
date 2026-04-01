@@ -90,6 +90,10 @@ public class PlayerAnimationController : MonoBehaviour
             Debug.LogWarning("[PlayerAnimationController] Animator has no RuntimeAnimatorController — locomotion layer skipped.");
         }
 
+        // Disable root motion — let the CharacterController/Rigidbody handle all movement.
+        // Without this, baked vertical motion in animation clips causes the player to float.
+        _animator.applyRootMotion = false;
+
         // Build graph
         _graph = PlayableGraph.Create(gameObject.name + "_Anim");
         _graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
