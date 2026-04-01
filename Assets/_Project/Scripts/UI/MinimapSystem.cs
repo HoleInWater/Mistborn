@@ -36,6 +36,7 @@ public class MinimapSystem : MonoBehaviour
     private Transform player;
     private Camera    mainCam;
     private float     currentZoom;
+    private UnityEngine.UI.Text _rotationButtonLabel;
 
     // Auto-create MinimapSystem if no instance exists in the scene
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -95,6 +96,8 @@ public class MinimapSystem : MonoBehaviour
 
         if (minimapDisplay != null)
             minimapDisplay.texture = minimapTexture;
+
+        UpdateRotationButton();
     }
 
     RawImage BuildMinimapDisplay()
@@ -129,15 +132,52 @@ public class MinimapSystem : MonoBehaviour
         rt.anchoredPosition = new Vector2(-margin - 3f, -margin - 3f);
         rt.sizeDelta        = new Vector2(size, size);
 
+        // Rotation toggle button — sits just below the minimap
+        const float btnW = size;
+        const float btnH = 22f;
+        const float btnGap = 4f;
+
+        var btnObj = new GameObject("MinimapRotationToggle");
+        btnObj.transform.SetParent(canvasObj.transform, false);
+
+        var btnImg = btnObj.AddComponent<UnityEngine.UI.Image>();
+        btnImg.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+
+        var btnRT = btnObj.GetComponent<RectTransform>();
+        btnRT.anchorMin = btnRT.anchorMax = btnRT.pivot = new Vector2(1f, 1f);
+        // Position below the minimap image (which ends at margin+3+size from top-right)
+        btnRT.anchoredPosition = new Vector2(-margin - 3f, -margin - 3f - size - btnGap);
+        btnRT.sizeDelta = new Vector2(btnW, btnH);
+
+        var btn = btnObj.AddComponent<UnityEngine.UI.Button>();
+        btn.targetGraphic = btnImg;
+        var colors = btn.colors;
+        colors.normalColor      = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+        colors.highlightedColor = new Color(0.25f, 0.25f, 0.25f, 0.9f);
+        colors.pressedColor     = new Color(0.05f, 0.05f, 0.05f, 1f);
+        btn.colors = colors;
+        btn.onClick.AddListener(ToggleRotation);
+
+        // Label inside the button
+        var labelObj = new GameObject("Label");
+        labelObj.transform.SetParent(btnObj.transform, false);
+        var labelRT = labelObj.AddComponent<RectTransform>();
+        labelRT.anchorMin = Vector2.zero;
+        labelRT.anchorMax = Vector2.one;
+        labelRT.offsetMin = labelRT.offsetMax = Vector2.zero;
+
+        _rotationButtonLabel = labelObj.AddComponent<UnityEngine.UI.Text>();
+        _rotationButtonLabel.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        _rotationButtonLabel.fontSize  = 10;
+        _rotationButtonLabel.alignment = TextAnchor.MiddleCenter;
+        _rotationButtonLabel.color     = new Color(0.85f, 0.85f, 0.85f, 1f);
+        UpdateRotationButton();
+
         return raw;
     }
 
     void Update()
     {
-        // M toggles rotation mode
-        if (Input.GetKeyDown(Keybinds.MinimapRotateToggle))
-            ToggleRotation();
-
         // Re-acquire camera/player each frame in case they're spawned late
         if (mainCam == null) mainCam = Camera.main;
         if (player  == null)
@@ -167,11 +207,19 @@ public class MinimapSystem : MonoBehaviour
         minimapCamera.orthographicSize = currentZoom;
     }
 
-    /// <summary>Flip between north-up and camera-facing modes.</summary>
+    void UpdateRotationButton()
+    {
+        if (_rotationButtonLabel == null) return;
+        _rotationButtonLabel.text = rotateWithCamera ? "[ CAM ROT ]" : "[ NORTH UP ]";
+    }
+
+    /// <summary>Flip between north-up and camera-facing modes. Called by the on-screen button.</summary>
     public void ToggleRotation()
     {
         rotateWithCamera = !rotateWithCamera;
-        Debug.Log($"[MinimapSystem] rotateWithCamera = {rotateWithCamera}");
+        UpdateRotationButton();
+        NotificationSystem.Instance?.ShowNotification(
+            rotateWithCamera ? "Minimap: rotating with camera" : "Minimap: north up");
     }
 
     public void SetZoom(float zoom)
