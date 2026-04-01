@@ -75,13 +75,13 @@ public class EnemyHealthBarUI : MonoBehaviour
         }
         lastHealthPct = hpPct;
 
-        // Update fill
+        // Update fill with smooth colour gradient: green → yellow → red
         if (healthFill != null)
         {
             healthFill.fillAmount = hpPct;
-            Color barColor = hpPct > 0.6f ? fullHealthColor
-                           : hpPct > 0.3f ? halfHealthColor
-                           : lowHealthColor;
+            Color barColor = hpPct > 0.5f
+                ? Color.Lerp(halfHealthColor, fullHealthColor, (hpPct - 0.5f) * 2f)
+                : Color.Lerp(lowHealthColor,  halfHealthColor,  hpPct          * 2f);
             barColor.a = currentAlpha;
             healthFill.color = barColor;
         }

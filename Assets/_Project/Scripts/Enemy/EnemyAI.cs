@@ -660,6 +660,13 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator DeathSequence()
     {
+        // Kill root motion immediately — it overrides transform.position and blocks sinking
+        if (animator != null)
+        {
+            animator.applyRootMotion = false;
+            animator.enabled = false;   // freeze pose; no more animation fighting position
+        }
+
         // Flash all renderers red so it's obvious the enemy died
         var renderers = GetComponentsInChildren<Renderer>();
         foreach (var r in renderers)
