@@ -42,6 +42,7 @@ public class PlayerCombat : MonoBehaviour
     public ComboSystem comboSystem;
     public LockOnSystem lockOnSystem;
     public ParrySystem parrySystem;
+    public PlayerAnimationController animCtrl;
     public Allomancer allomancer;
     public Animator animator;
     public LayerMask enemyLayer;
@@ -60,6 +61,7 @@ public class PlayerCombat : MonoBehaviour
         if (animator == null)      animator     = GetComponent<Animator>();
         if (parrySystem == null)   parrySystem  = GetComponentInChildren<ParrySystem>();
         if (parrySystem == null)   parrySystem  = GetComponent<ParrySystem>();
+        if (animCtrl == null)      animCtrl     = GetComponent<PlayerAnimationController>();
         stamina = GetComponent<PlayerStamina>();
         enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0) enemyLayer = ~0;
@@ -135,7 +137,7 @@ public class PlayerCombat : MonoBehaviour
 
         OrientToLockOn();
         comboSystem?.RegisterHit();
-        animator?.SetTrigger("Attack");
+        animCtrl?.PlayAttack();
 
         float damage = CalculateDamage(baseDamage);
         bool hit = HitEnemiesInRange(damage, knockbackForce);
@@ -163,7 +165,7 @@ public class PlayerCombat : MonoBehaviour
 
         stamina?.UseStamina(25f);
         OrientToLockOn();
-        animator?.SetTrigger("HeavyAttack");
+        animCtrl?.PlayHeavyAttack();
 
         float damage = CalculateDamage(baseDamage * heavyDamageMultiplier);
         bool hit = HitEnemiesInRange(damage, heavyKnockbackForce);

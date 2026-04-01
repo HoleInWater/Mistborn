@@ -18,7 +18,7 @@ public class ParrySystem : MonoBehaviour
     public float parryCooldown = 0.5f;
 
     [Header("References")]
-    public Animator animator;
+    public PlayerAnimationController animCtrl;
     public PlayerStamina stamina;
     public Allomancer allomancer;
     private Pewter _pewter;
@@ -30,7 +30,7 @@ public class ParrySystem : MonoBehaviour
 
     void Start()
     {
-        if (animator == null) animator = GetComponent<Animator>();
+        if (animCtrl == null) animCtrl = GetComponent<PlayerAnimationController>();
         if (stamina == null)  stamina  = GetComponent<PlayerStamina>();
         if (_pewter == null)  _pewter  = GetComponentInParent<Pewter>();
     }
@@ -58,7 +58,7 @@ public class ParrySystem : MonoBehaviour
         isParrying    = true;
         parryTimer    = parryWindow;
         cooldownTimer = parryCooldown;
-        animator?.SetTrigger("Parry");
+        animCtrl?.PlayParry();
         stamina?.UseStamina(parryStaminaCost);
         Debug.Log($"[ParrySystem] PARRY active — window={parryWindow}s");
     }
@@ -69,7 +69,7 @@ public class ParrySystem : MonoBehaviour
         if (blocking != isBlocking)
             Debug.Log($"[ParrySystem] IsBlocking → {blocking}");
         isBlocking = blocking;
-        animator?.SetBool("IsBlocking", blocking);
+        animCtrl?.SetBlocking(blocking);
         if (blocking && stamina != null)
             stamina.DrainStamina(blockStaminaCost * Time.deltaTime);
     }
