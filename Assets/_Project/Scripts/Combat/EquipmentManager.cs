@@ -79,13 +79,13 @@ public class EquipmentManager : MonoBehaviour
         {
             _weaponInstance = Instantiate(data.prefab, _attachPoint, false);
 
-            _heldLocalPos = data.handPositionOffset;
-
-            // If the WeaponData has no rotation set, default to 90° X so the weapon
-            // points forward in the hand rather than straight up.
-            _heldLocalRot = (data.handRotationOffset == Vector3.zero)
-                ? new Vector3(90f, 0f, 0f)
-                : data.handRotationOffset;
+            // When both offsets are zero the asset hasn't been configured —
+            // apply the same defaults the editor tool uses so the weapon sits
+            // correctly in the hand without clipping into the body.
+            bool unset = (data.handRotationOffset == Vector3.zero
+                       && data.handPositionOffset == Vector3.zero);
+            _heldLocalRot = unset ? new Vector3(90f, 0f, 0f)  : data.handRotationOffset;
+            _heldLocalPos = unset ? new Vector3(0f, 0f, 0.1f) : data.handPositionOffset;
 
             _weaponInstance.transform.localPosition    = _heldLocalPos;
             _weaponInstance.transform.localEulerAngles = _heldLocalRot;
