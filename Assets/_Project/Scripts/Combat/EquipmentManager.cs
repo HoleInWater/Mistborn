@@ -79,16 +79,15 @@ public class EquipmentManager : MonoBehaviour
         {
             _weaponInstance = Instantiate(data.prefab, _attachPoint, false);
 
-            // When both offsets are zero the asset hasn't been configured —
-            // apply the same defaults the editor tool uses so the weapon sits
-            // correctly in the hand without clipping into the body.
-            bool unset = (data.handRotationOffset == Vector3.zero
-                       && data.handPositionOffset == Vector3.zero);
-            _heldLocalRot = unset ? new Vector3(90f, 0f, 0f)  : data.handRotationOffset;
-            _heldLocalPos = unset ? new Vector3(0f, 0f, 0.1f) : data.handPositionOffset;
+            // _heldLocalRot is now a fine-tune correction applied on top of the
+            // forward-facing world rotation set in LateUpdate — not raw Euler angles.
+            // Zero means no correction needed (weapon tip already faces +Z on the mesh).
+            _heldLocalRot = data.handRotationOffset;
+            _heldLocalPos = (data.handPositionOffset == Vector3.zero)
+                ? new Vector3(0f, 0f, 0.1f)   // default: push grip slightly forward
+                : data.handPositionOffset;
 
-            _weaponInstance.transform.localPosition    = _heldLocalPos;
-            _weaponInstance.transform.localEulerAngles = _heldLocalRot;
+            _weaponInstance.transform.localPosition = _heldLocalPos;
 
             // Kinematic Rigidbody — follows animation, can push non-kinematic objects.
             // Discrete mode: ContinuousSpeculative jitters kinematic bodies in animated rigs.
@@ -120,8 +119,6 @@ public class EquipmentManager : MonoBehaviour
         NotificationSystem.Instance?.ShowNotification($"Equipped: {data.weaponName}");
     }
 
-    // Belt-and-suspenders: re-parent and re-seat the weapon every frame so physics,
-    // animation, or late-running scripts can never knock it out of the hand.
     void LateUpdate()
     {
         if (_weaponInstance == null || _attachPoint == null) return;
@@ -129,8 +126,16 @@ public class EquipmentManager : MonoBehaviour
         if (_weaponInstance.transform.parent != _attachPoint)
             _weaponInstance.transform.SetParent(_attachPoint, false);
 
-        _weaponInstance.transform.localPosition    = _heldLocalPos;
-        _weaponInstance.transform.localEulerAngles = _heldLocalRot;
+        // Position: hand-bone local space
+        _weaponInstance.transform.localPosition = _heldLocalPos;
+
+        // Rotation: point the weapon's +Z (tip) in the player's facing direction.
+        // _heldLocalRot is a mesh-specific correction on top — zero by default.
+        // This keeps the blade pointing forward regardless of hand bone orientation,
+        // eliminating body intersection caused by Euler guesswork.
+        _weaponInstance.transform.rotation =
+            Quaternion.LookRotation(transform.forward, transform.up)
+            * Quaternion.Euler(_heldLocalRot);
     }
 
     public void UnequipWeapon()
