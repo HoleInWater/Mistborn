@@ -81,11 +81,16 @@ public class EquipmentManager : MonoBehaviour
 
             // Kinematic Rigidbody — follows animation, can push non-kinematic objects,
             // but is not dragged around by physics forces itself.
+            // ContinuousSpeculative prevents the weapon from tunneling through geometry.
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
+            {
                 rb.isKinematic = true;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            }
             Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>()
                               ?? _weaponInstance.AddComponent<Rigidbody>();
             weaponRb.isKinematic = true;
+            weaponRb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
 
             // Ignore collision with every player collider so it never blocks movement
             Collider[] playerCols = GetComponentsInChildren<Collider>();

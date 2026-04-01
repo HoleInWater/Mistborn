@@ -5,6 +5,10 @@ using System.Collections.Generic;
 /// <summary>
 /// Minimap system with camera, player indicator, and enemy markers.
 /// Uses a top-down orthographic camera rendering to a RenderTexture.
+///
+/// SETUP: No manual setup required — the system creates itself at runtime.
+/// Add this component to any GameObject in your scene, or let the
+/// RuntimeInitializeOnLoadMethod create it automatically.
 /// </summary>
 public class MinimapSystem : MonoBehaviour
 {
@@ -29,6 +33,18 @@ public class MinimapSystem : MonoBehaviour
 
     private Transform player;
     private float currentZoom;
+
+    // Auto-create MinimapSystem if no instance exists in the scene
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void AutoBootstrap()
+    {
+        if (Instance != null) return;
+        if (FindObjectOfType<MinimapSystem>() != null) return;
+
+        var go = new GameObject("MinimapSystem");
+        go.AddComponent<MinimapSystem>();
+        Debug.Log("[MinimapSystem] Auto-created via bootstrap.");
+    }
 
     void Awake()
     {
@@ -58,8 +74,12 @@ public class MinimapSystem : MonoBehaviour
 
             if (minimapTexture == null)
             {
-                minimapTexture = new RenderTexture(256, 256, 16);
-                minimapTexture.filterMode = FilterMode.Bilinear;
+                minimapTexture = new RenderTexture(256, 256, 16,
+                    RenderTextureFormat.Default, RenderTextureReadWrite.Default);
+                minimapTexture.name        = "MinimapRT";
+                minimapTexture.filterMode  = FilterMode.Bilinear;
+                minimapTexture.antiAliasing = 1;
+                minimapTexture.Create();
             }
             minimapCamera.targetTexture = minimapTexture;
         }

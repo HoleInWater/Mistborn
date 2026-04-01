@@ -152,13 +152,18 @@ public class EnemyAI : MonoBehaviour
                         Physics.IgnoreCollision(col, ec, true);
                 }
 
-                // Kinematic Rigidbody — follows animation but can be detected by Allomancy
+                // Kinematic Rigidbody — follows animation but can be detected by Allomancy.
+                // ContinuousSpeculative prevents the weapon from tunneling through geometry.
                 foreach (var rb in wObj.GetComponentsInChildren<Rigidbody>(true))
+                {
                     rb.isKinematic = true;
+                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                }
                 if (wObj.GetComponent<Rigidbody>() == null)
                 {
                     var rb = wObj.AddComponent<Rigidbody>();
                     rb.isKinematic = true;
+                    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
                 }
 
                 // Default layer so Steel/Iron Allomancy raycasts can find metal weapons

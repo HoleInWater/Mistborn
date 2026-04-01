@@ -1,130 +1,211 @@
 /* FlareIntensityHUD.cs
  *
- * Draws the flare intensity as 10 segments arranged in a ring around the
- * spinning metal indicator in the bottom-right corner.
+ * Draws 10 radial segments around the spinning metal ring using UI Toolkit
+ * Painter2D — so they always sit exactly at the ring's screen position.
  *
- * SETUP: Attach to any active GameObject. Reads FlareManager.Instance automatically.
+ * SETUP:
+ *   Attach to any active GameObject. The script finds the HUD UIDocument and
+ *   injects itself into MetalRingContainer automatically. If you have multiple
+ *   UIDocuments, drag the correct one into the 'uiDocument' field.
  *
- * DISPLAY STATES:
- * - Not burning  → segments dimmed, label reads "FLARE"
- * - Burning      → segments fill clockwise from 12 o'clock, orange → red
+ * The ring in HUD.uss is 90px × 90px; segments orbit just outside its edge.
  */
 
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class FlareIntensityHUD : MonoBehaviour
 {
+    [Header("UI")]
+    [Tooltip("Leave blank to auto-find the UIDocument that has MetalRingContainer.")]
+    public UIDocument uiDocument;
+
     [Header("Ring Layout")]
-    [Tooltip("Match the metal ring's right margin (HUD.uss: right:20px).")]
-    public float ringMarginRight  = 20f;
-    [Tooltip("Match the metal ring's bottom margin (HUD.uss: bottom:20px).")]
-    public float ringMarginBottom = 20f;
-    [Tooltip("Match the metal ring size (HUD.uss: 90px).")]
-    public float ringSize         = 90f;
-    [Tooltip("Radius at which flare segments orbit the ring.")]
-    public float segmentRadius    = 58f;
-    [Tooltip("Length (radial) of each segment.")]
-    public float segmentLength    = 12f;
-    [Tooltip("Width of each segment.")]
-    public float segmentWidth     = 4f;
+    [Tooltip("Distance from ring centre to segment midpoint (ring radius = 45 px).")]
+    public float segmentOrbitRadius = 48f;
+    [Tooltip("Radial length of each segment in px.")]
+    public float segmentLength = 9f;
+    [Tooltip("Stroke width of each segment in px.")]
+    public float segmentWidth = 3f;
 
     [Header("Colors")]
-    public Color lowColor    = new Color(1f, 0.55f, 0f, 1f);
-    public Color midColor    = new Color(1f, 0.25f, 0f, 1f);
-    public Color highColor   = new Color(1f, 0.05f, 0f, 1f);
-    public Color offColor    = new Color(0.15f, 0.15f, 0.15f, 0.8f);
-    public Color labelOnColor  = new Color(0.9f, 0.9f, 0.9f, 1f);
-    public Color labelOffColor = new Color(0.35f, 0.35f, 0.35f, 1f);
+    public Color lowColor  = new Color(1f, 0.55f, 0f, 1f);
+    public Color midColor  = new Color(1f, 0.25f, 0f, 1f);
+    public Color highColor = new Color(1f, 0.05f, 0f, 1f);
+    public Color offColor  = new Color(0.15f, 0.15f, 0.15f, 0.8f);
 
     [Range(0f, 1f)]
     public float idleAlpha = 0.3f;
 
     // ── Private ───────────────────────────────────────────────────────────────
 
-    private Texture2D _pixel;
-    private GUIStyle  _labelStyle;
+    private FlareSegmentsVisual _visual;
 
     void Start()
     {
-        _pixel = new Texture2D(1, 1);
-        _pixel.SetPixel(0, 0, Color.white);
-        _pixel.Apply();
+        // ── Find UIDocument ────────────────────────────────────────────────────
+        if (uiDocument == null)
+        {
+            // Look through all UIDocuments for the one that has MetalRingContainer
+            foreach (var doc in FindObjectsOfType<UIDocument>())
+            {
+                if (doc.rootVisualElement?.Q<VisualElement>("MetalRingContainer") != null)
+                {
+                    uiDocument = doc;
+                    break;
+                }
+            }
+        }
+
+        if (uiDocument == null)
+        {
+            Debug.LogWarning("[FlareIntensityHUD] Could not find a UIDocument with MetalRingContainer.");
+            return;
+        }
+
+        var container = uiDocument.rootVisualElement.Q<VisualElement>("MetalRingContainer");
+        if (container == null)
+        {
+            Debug.LogWarning("[FlareIntensityHUD] MetalRingContainer not found in UXML.");
+            return;
+        }
+
+        // Allow the visual to extend outside the 90×90 container
+        container.style.overflow = Overflow.Visible;
+
+        // The visual element must be large enough to contain all Painter2D drawing.
+        // Centre it over the container (which is 90 × 90 px).
+        float halfViz  = segmentOrbitRadius + segmentLength * 0.5f + 4f;
+        float vizSize  = halfViz * 2f;
+        float vizOffset = (90f - vizSize) * 0.5f;   // negative → extends outside container
+
+        _visual = new FlareSegmentsVisual(
+            segmentOrbitRadius, segmentLength, segmentWidth,
+            lowColor, midColor, highColor, offColor, idleAlpha,
+            vizSize);
+
+        _visual.style.position = Position.Absolute;
+        _visual.style.left     = vizOffset;
+        _visual.style.top      = vizOffset;
+
+        container.Add(_visual);
+        Debug.Log($"[FlareIntensityHUD] Injected into MetalRingContainer " +
+                  $"(vizSize={vizSize:F0}px, offset={vizOffset:F0}px).");
     }
 
-    void OnGUI()
+    void Update()
     {
-        if (FlareManager.Instance == null) return;
+        if (_visual == null || FlareManager.Instance == null) return;
 
-        bool  isBurning = FlareManager.Instance.IsBurning;
-        int   intensity = FlareManager.Instance.Intensity;
-        int   maxSteps  = FlareManager.Instance.maxIntensitySteps;
-        float alpha     = isBurning ? 1f : idleAlpha;
+        _visual.UpdateData(
+            FlareManager.Instance.IsBurning,
+            FlareManager.Instance.Intensity,
+            FlareManager.Instance.maxIntensitySteps);
+    }
+}
 
-        // Centre of the metal ring in OnGUI coordinates (y=0 at top)
-        float cx = Screen.width  - ringMarginRight  - ringSize * 0.5f;
-        float cy = Screen.height - ringMarginBottom - ringSize * 0.5f;
+// ─────────────────────────────────────────────────────────────────────────────
+// Custom VisualElement — draws the 10 radial segments via Painter2D.
+// Must NOT be in a separate .cs file (inner declaration in same assembly is fine).
+// ─────────────────────────────────────────────────────────────────────────────
 
-        // ── 10 radial segments around the ring ────────────────────────────────
-        for (int i = 0; i < maxSteps; i++)
+public class FlareSegmentsVisual : VisualElement
+{
+    // Layout constants
+    private readonly float _orbitRadius;
+    private readonly float _segLen;
+    private readonly float _segWidth;
+
+    // Colors
+    private readonly Color _lowColor, _midColor, _highColor, _offColor;
+    private readonly float _idleAlpha;
+
+    // Runtime data (updated every frame from FlareIntensityHUD.Update)
+    private bool _isBurning;
+    private int  _intensity;
+    private int  _maxSteps;
+
+    public FlareSegmentsVisual(
+        float orbitRadius, float segLen, float segWidth,
+        Color lowColor, Color midColor, Color highColor,
+        Color offColor, float idleAlpha,
+        float vizSize)
+    {
+        _orbitRadius = orbitRadius;
+        _segLen      = segLen;
+        _segWidth    = segWidth;
+        _lowColor    = lowColor;
+        _midColor    = midColor;
+        _highColor   = highColor;
+        _offColor    = offColor;
+        _idleAlpha   = idleAlpha;
+
+        style.width  = vizSize;
+        style.height = vizSize;
+
+        // Do not block pointer events from reaching the ring below
+        pickingMode = PickingMode.Ignore;
+
+        generateVisualContent += Draw;
+    }
+
+    /// <summary>Called every frame by FlareIntensityHUD. Triggers repaint when data changes.</summary>
+    public void UpdateData(bool isBurning, int intensity, int maxSteps)
+    {
+        if (_isBurning == isBurning && _intensity == intensity && _maxSteps == maxSteps)
+            return;
+
+        _isBurning = isBurning;
+        _intensity = intensity;
+        _maxSteps  = maxSteps;
+        MarkDirtyRepaint();
+    }
+
+    private void Draw(MeshGenerationContext ctx)
+    {
+        if (_maxSteps <= 0) return;
+
+        var painter = ctx.painter2D;
+        var center  = contentRect.center;
+        float alpha = _isBurning ? 1f : _idleAlpha;
+
+        for (int i = 0; i < _maxSteps; i++)
         {
-            // Start at 12 o'clock (-90°), go clockwise
-            float angleDeg = (360f / maxSteps) * i - 90f;
+            // Start at 12 o'clock (−90°), advance clockwise
+            float angleDeg = (360f / _maxSteps) * i - 90f;
             float angleRad = angleDeg * Mathf.Deg2Rad;
+            float cosA     = Mathf.Cos(angleRad);
+            float sinA     = Mathf.Sin(angleRad);
 
-            float segCx = cx + Mathf.Cos(angleRad) * segmentRadius;
-            float segCy = cy + Mathf.Sin(angleRad) * segmentRadius;
+            bool lit = _isBurning && (i + 1) <= _intensity;
 
-            bool lit = isBurning && (i + 1) <= intensity;
             Color c;
             if (!lit)
             {
-                c   = offColor;
+                c   = _offColor;
                 c.a *= alpha;
             }
             else
             {
-                float t = (float)(i + 1) / maxSteps;
-                c = t <= 0.4f ? lowColor : t <= 0.7f ? midColor : highColor;
+                float t = (float)(i + 1) / _maxSteps;
+                c = t <= 0.4f ? _lowColor : (t <= 0.7f ? _midColor : _highColor);
             }
 
-            // Rotate segment to point radially outward
-            var savedMatrix = GUI.matrix;
-            GUIUtility.RotateAroundPivot(angleDeg + 90f, new Vector2(segCx, segCy));
-            GUI.color = c;
-            GUI.DrawTexture(
-                new Rect(segCx - segmentWidth * 0.5f, segCy - segmentLength * 0.5f,
-                         segmentWidth, segmentLength),
-                _pixel);
-            GUI.color  = Color.white;
-            GUI.matrix = savedMatrix;
+            // Segment midpoint on the orbit circle
+            float mx = center.x + cosA * _orbitRadius;
+            float my = center.y + sinA * _orbitRadius;
+
+            // Endpoints along the outward radial direction
+            float halfLen = _segLen * 0.5f;
+            var segStart = new Vector2(mx - cosA * halfLen, my - sinA * halfLen);
+            var segEnd   = new Vector2(mx + cosA * halfLen, my + sinA * halfLen);
+
+            painter.lineWidth   = _segWidth;
+            painter.strokeColor = c;
+            painter.BeginPath();
+            painter.MoveTo(segStart);
+            painter.LineTo(segEnd);
+            painter.Stroke();
         }
-
-        // ── "FLARE" label just below the ring ─────────────────────────────────
-        if (_labelStyle == null)
-        {
-            _labelStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize  = 10,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
-            };
-        }
-
-        Color lc = isBurning ? labelOnColor : labelOffColor;
-        lc.a *= alpha;
-        _labelStyle.normal.textColor = lc;
-
-        string labelText = isBurning ? $"FLARE {intensity}/{maxSteps}" : "FLARE";
-        float labelW  = 90f;
-        float labelH  = 16f;
-        float labelX  = cx - labelW * 0.5f;
-        float labelY  = cy + ringSize * 0.5f + 4f;    // just below the ring
-
-        GUI.Label(new Rect(labelX, labelY, labelW, labelH), labelText, _labelStyle);
-    }
-
-    void OnDestroy()
-    {
-        if (_pixel != null) Destroy(_pixel);
     }
 }
