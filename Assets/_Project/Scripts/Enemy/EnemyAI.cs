@@ -48,9 +48,11 @@ public class EnemyAI : MonoBehaviour
     public Transform target;
 
     [Header("Weapon")]
-    [Tooltip("WeaponData asset that sets this enemy's damage, range and attack speed. Leave blank to use the Stats values above.")]
+    [Tooltip("WeaponData asset — sets damage/range/speed and spawns a visual. " +
+             "To remove: set this field to None in the Inspector.")]
     public WeaponData weapon;
-    [Tooltip("Right hand bone — auto-found from humanoid Animator if blank.")]
+    [Tooltip("Right hand bone for weapon attachment. Auto-found from humanoid Animator. " +
+             "To remove weapon attachment: clear the Weapon field above instead.")]
     public Transform weaponHandBone;
 
     [Header("Hit Effect")]
@@ -155,7 +157,8 @@ public class EnemyAI : MonoBehaviour
             GameObject hbObj = new GameObject("HealthBar");
             hbObj.transform.SetParent(transform);
             hbObj.transform.localPosition = new Vector3(0f, 2.5f, 0f);
-            hbObj.AddComponent<EnemyHealthBarUI>();
+            var bar = hbObj.AddComponent<EnemyHealthBarUI>();
+            bar.alwaysShow = true;   // always visible, not just after hits
         }
     }
 
@@ -615,6 +618,10 @@ public class EnemyAI : MonoBehaviour
         if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }
         animator?.SetBool("IsDead", true);
         if (navAgent != null) { navAgent.isStopped = true; navAgent.enabled = false; }
+
+        // Freeze any Rigidbody so it doesn't fight the sink coroutine's position changes
+        Rigidbody dieRb = GetComponent<Rigidbody>();
+        if (dieRb != null) { dieRb.linearVelocity = Vector3.zero; dieRb.isKinematic = true; }
 
         // Grant XP
         PlayerExperience xp = PlayerExperience.Instance;

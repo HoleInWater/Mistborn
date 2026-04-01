@@ -12,7 +12,8 @@ public class EquipmentManager : MonoBehaviour
     public static EquipmentManager Instance { get; private set; }
 
     [Header("Starting Weapon")]
-    [Tooltip("Assign a WeaponData asset. Leave blank to start unarmed.")]
+    [Tooltip("Weapon the player holds at spawn. " +
+             "To remove: right-click the field in the Inspector and choose 'Set to None', or just clear it.")]
     public WeaponData startingWeapon;
 
     [Header("Hand Bone (auto-found if blank)")]
