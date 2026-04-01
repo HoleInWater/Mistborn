@@ -2,99 +2,88 @@ using UnityEngine;
 
 /// <summary>
 /// A weapon lying on the ground waiting to be picked up.
-/// Works two ways:
-///   1. Player looks at it and presses G  (PlayerInteractor raycast + IInteractable)
-///   2. Player walks within range and presses G  (trigger-based fallback)
-///
-/// Spawned automatically when an enemy dies with a weapon equipped.
-/// Can also be placed manually in the scene and assigned a WeaponData asset.
+/// Detects the player by distance every frame — no tags, no triggers, no layer setup needed.
+/// Press G (Keybinds.Interact) when nearby to pick it up.
 /// </summary>
-[RequireComponent(typeof(SphereCollider))]
 public class WeaponPickup : MonoBehaviour, IInteractable
 {
     [Header("Weapon")]
     public WeaponData weaponData;
 
-    [Header("Display")]
-    [Tooltip("Height the weapon bobs above its spawn position")]
+    [Header("Settings")]
+    public float pickupRadius = 2.5f;
     public float bobHeight    = 0.15f;
-    [Tooltip("Seconds the weapon exists before disappearing")]
     public float lifetime     = 30f;
 
-    private bool      _playerNearby;
-    private float     _spawnTime;
-    private Vector3   _basePosition;
-    private GameObject _visual;
+    private Transform  _player;
+    private float      _spawnTime;
+    private Vector3    _basePosition;
+    private bool       _promptShowing;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
-
-    void Awake()
-    {
-        // Trigger sphere so player proximity is detected
-        var col = GetComponent<SphereCollider>();
-        col.isTrigger = true;
-        col.radius    = 1.5f;
-    }
 
     void Start()
     {
         _spawnTime    = Time.time;
         _basePosition = transform.position;
 
+        // Find player once — works regardless of tag
+        _player = FindPlayer();
+
         BuildVisual();
+
+        Debug.Log($"[WeaponPickup] Spawned: {weaponData?.weaponName} — press G within {pickupRadius}m");
     }
 
     void Update()
     {
-        // Expire
-        if (Time.time - _spawnTime > lifetime)
+        if (Time.time - _spawnTime > lifetime) { Destroy(gameObject); return; }
+
+        // Bob and spin
+        float bob = Mathf.Sin((Time.time - _spawnTime) * 2.5f) * bobHeight;
+        transform.position = _basePosition + Vector3.up * (0.4f + bob);
+        transform.Rotate(0f, 80f * Time.deltaTime, 0f);
+
+        if (_player == null) { _player = FindPlayer(); return; }
+
+        float dist = Vector3.Distance(transform.position, _player.position);
+        bool nearby = dist <= pickupRadius;
+
+        // Show / hide prompt
+        if (nearby && !_promptShowing)
         {
-            Destroy(gameObject);
-            return;
+            _promptShowing = true;
+            NotificationSystem.Instance?.ShowNotification(
+                $"Press [G] to pick up {weaponData?.weaponName ?? "Weapon"}");
+            Debug.Log($"[WeaponPickup] Player in range ({dist:F1}m) — press G");
+        }
+        else if (!nearby && _promptShowing)
+        {
+            _promptShowing = false;
         }
 
-        // Bob up and down
-        float bob = Mathf.Sin((Time.time - _spawnTime) * 2f) * bobHeight;
-        transform.position = _basePosition + Vector3.up * (0.3f + bob);
-
-        // Spin
-        transform.Rotate(0f, 90f * Time.deltaTime, 0f);
-
-        // Proximity G-key pickup (fallback when PlayerInteractor layer isn't set)
-        if (_playerNearby && Input.GetKeyDown(Keybinds.Interact))
+        // Pick up on G press
+        if (nearby && Input.GetKeyDown(Keybinds.Interact))
+        {
+            Debug.Log("[WeaponPickup] G pressed — picking up");
             PickUp();
+        }
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (!other.CompareTag("Player")) return;
-        _playerNearby = true;
-        string name = weaponData != null ? weaponData.weaponName : "Weapon";
-        NotificationSystem.Instance?.ShowNotification($"Press [G] to pick up {name}");
-    }
+    // ── IInteractable — PlayerInteractor raycast path ─────────────────────────
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-            _playerNearby = false;
-    }
-
-    // ── IInteractable — used by PlayerInteractor raycast ─────────────────────
-
-    public void Interact(GameObject player)   => PickUp();
+    public void   Interact(GameObject player) => PickUp();
     public string GetInteractionPrompt()      => $"Pick up {weaponData?.weaponName ?? "Weapon"}";
     public bool   CanInteract()               => weaponData != null;
 
-    // ── Pickup logic ──────────────────────────────────────────────────────────
+    // ── Core pickup ───────────────────────────────────────────────────────────
 
     void PickUp()
     {
         if (weaponData == null) return;
 
-        // Equip immediately
         EquipmentManager.Instance?.EquipWeapon(weaponData);
 
-        // Add to inventory (maxStack 1 — weapons don't stack)
         Inventory.Instance?.AddItem(new InventoryItem
         {
             itemId      = "weapon_" + weaponData.weaponName.ToLower().Replace(" ", "_"),
@@ -112,38 +101,52 @@ public class WeaponPickup : MonoBehaviour, IInteractable
         Destroy(gameObject);
     }
 
-    // ── Visual ────────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    Transform FindPlayer()
+    {
+        // Try EquipmentManager singleton first (most reliable)
+        if (EquipmentManager.Instance != null)
+            return EquipmentManager.Instance.transform;
+
+        // Fall back to tag
+        GameObject go = GameObject.FindGameObjectWithTag("Player");
+        if (go != null) return go.transform;
+
+        // Last resort: find by PlayerCombat component
+        PlayerCombat pc = FindObjectOfType<PlayerCombat>();
+        return pc != null ? pc.transform : null;
+    }
 
     void BuildVisual()
     {
         if (weaponData == null) return;
 
+        GameObject visual;
+
         if (weaponData.prefab != null)
         {
-            // Use the real weapon model
-            _visual = Instantiate(weaponData.prefab, transform);
-            _visual.transform.localPosition = Vector3.zero;
-            _visual.transform.localRotation = Quaternion.identity;
-
-            // Remove any colliders on the visual so they don't interfere
-            foreach (var c in _visual.GetComponentsInChildren<Collider>())
+            visual = Instantiate(weaponData.prefab, transform);
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localRotation = Quaternion.identity;
+            foreach (var c in visual.GetComponentsInChildren<Collider>())
                 Destroy(c);
         }
         else
         {
-            // Fallback: glowing cyan capsule so it's visible even without a model
-            _visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            _visual.transform.SetParent(transform);
-            _visual.transform.localPosition = Vector3.zero;
-            _visual.transform.localScale    = new Vector3(0.15f, 0.35f, 0.15f);
-            Destroy(_visual.GetComponent<Collider>());
+            // Cyan capsule fallback so it's always visible
+            visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            visual.transform.SetParent(transform);
+            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localScale    = new Vector3(0.12f, 0.3f, 0.12f);
+            Destroy(visual.GetComponent<Collider>());
 
-            var rend = _visual.GetComponent<Renderer>();
+            var rend = visual.GetComponent<Renderer>();
             if (rend != null)
             {
                 var mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ??
                                        Shader.Find("Standard"));
-                mat.color = new Color(0.2f, 0.8f, 1f);
+                mat.color = new Color(0.2f, 0.85f, 1f);
                 rend.sharedMaterial = mat;
             }
         }
