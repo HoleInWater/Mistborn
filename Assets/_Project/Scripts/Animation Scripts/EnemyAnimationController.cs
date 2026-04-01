@@ -186,8 +186,8 @@ public class EnemyAnimationController : MonoBehaviour
         bool isPatrolling  = _enemyAI != null && _enemyAI.CurrentState == EnemyAI.State.Patrol;
         bool isFleeing     = _enemyAI != null && _enemyAI.CurrentState == EnemyAI.State.Flee;
 
-        _locoPlayable.SetFloat("Speed",    speed, 0.1f, Time.deltaTime);
-        _locoPlayable.SetFloat("Velocity", Mathf.Clamp01(speed / Mathf.Max(runSpeed, 0.1f)), 0.1f, Time.deltaTime);
+        _locoPlayable.SetFloat("Speed",    speed);
+        _locoPlayable.SetFloat("Velocity", Mathf.Clamp01(speed / Mathf.Max(runSpeed, 0.1f)));
 
         _locoPlayable.SetBool("IsWalking",      isMoving && !isRunning);
         _locoPlayable.SetBool("IsRunning",      isRunning);
