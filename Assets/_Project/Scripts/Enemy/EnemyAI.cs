@@ -44,6 +44,7 @@ public class EnemyAI : MonoBehaviour
 
     [Header("References")]
     public Animator animator;
+    public EnemyAnimationController animCtrl;
     public NavMeshAgent navAgent;
     public Transform target;
 
@@ -61,6 +62,10 @@ public class EnemyAI : MonoBehaviour
 
     public enum State { Idle, Patrol, Chase, Attack, Flee, Investigate, Dead }
     private State currentState = State.Idle;
+
+    // Exposed for EnemyAnimationController to read without making all fields public
+    public State CurrentState => currentState;
+    public bool  IsDead       => currentState == State.Dead;
     private float lastAttackTime;
     private Vector3 patrolCenter;
     private bool isFlanking;
@@ -88,8 +93,9 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         patrolCenter = transform.position;
-        if (navAgent == null) navAgent = GetComponent<NavMeshAgent>();
-        if (animator == null) animator = GetComponent<Animator>();
+        if (navAgent == null)  navAgent  = GetComponent<NavMeshAgent>();
+        if (animator == null)  animator  = GetComponent<Animator>();
+        if (animCtrl == null)  animCtrl  = GetComponent<EnemyAnimationController>();
         senses    = GetComponent<EnemySenses>();
         enemyHealth = GetComponent<EnemyHealth>();
         // Auto-add EnemyHealth if missing — required for the health bar to read HP
@@ -153,11 +159,14 @@ public class EnemyAI : MonoBehaviour
 
             if (weapon.prefab != null)
             {
-                bool unset = (weapon.handRotationOffset == Vector3.zero
-                           && weapon.handPositionOffset == Vector3.zero);
                 GameObject wObj = Instantiate(weapon.prefab, weaponAttach, false);
-                wObj.transform.localPosition    = unset ? new Vector3(0f, 0f, 0.1f) : weapon.handPositionOffset;
-                wObj.transform.localEulerAngles = unset ? new Vector3(90f, 0f, 0f)  : weapon.handRotationOffset;
+                wObj.transform.localPosition = (weapon.handPositionOffset == Vector3.zero)
+                    ? new Vector3(0f, 0f, 0.1f)
+                    : weapon.handPositionOffset;
+                // Point tip in enemy's facing direction; handRotationOffset is a correction
+                wObj.transform.rotation =
+                    Quaternion.LookRotation(transform.forward, transform.up)
+                    * Quaternion.Euler(weapon.handRotationOffset);
 
                 // Keep colliders enabled but ignore collision with this enemy's own colliders
                 foreach (var col in wObj.GetComponentsInChildren<Collider>(true))
@@ -550,7 +559,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (useMeleeAttacks)
         {
-            animator?.SetTrigger("Attack");
+            if (animCtrl != null) animCtrl.PlayAttack();
+            else animator?.SetTrigger("Attack");
 
             // Line-of-sight check — don't deal damage through walls
             Vector3 origin = transform.position + Vector3.up * 1f;
@@ -658,7 +668,8 @@ public class EnemyAI : MonoBehaviour
         currentState = State.Dead;
         health = 0;
         if (enemyHealth != null) { enemyHealth.currentHealth = 0; enemyHealth.isDead = true; }
-        animator?.SetBool("IsDead", true);
+        if (animCtrl != null) animCtrl.PlayDeath();
+        else animator?.SetBool("IsDead", true);
         if (navAgent != null) { navAgent.isStopped = true; navAgent.enabled = false; }
 
         // Disable CharacterController so DeathSequence can set transform.position directly
