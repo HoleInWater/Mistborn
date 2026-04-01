@@ -90,6 +90,9 @@ public class EnemyAI : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         senses    = GetComponent<EnemySenses>();
         enemyHealth = GetComponent<EnemyHealth>();
+        // Auto-add EnemyHealth if missing — required for the health bar to read HP
+        if (enemyHealth == null)
+            enemyHealth = gameObject.AddComponent<EnemyHealth>();
         hitFlash  = GetComponent<EnemyHitFlash>();
         aiCtrl    = GetComponent<AIController>();
 
@@ -129,6 +132,18 @@ public class EnemyAI : MonoBehaviour
                 GameObject wObj = Instantiate(weapon.prefab, weaponHandBone);
                 wObj.transform.localPosition    = weapon.handPositionOffset;
                 wObj.transform.localEulerAngles = weapon.handRotationOffset;
+
+                foreach (var col in wObj.GetComponentsInChildren<Collider>(true))
+                {
+                    col.enabled = false;
+                    Destroy(col);
+                }
+                foreach (var rb in wObj.GetComponentsInChildren<Rigidbody>(true))
+                {
+                    rb.isKinematic = true;
+                    Destroy(rb);
+                }
+                SetLayerRecursive(wObj, LayerMask.NameToLayer("Ignore Raycast"));
             }
 
             Debug.Log($"[EnemyAI] {name} equipped {weapon.weaponName} — dmg={attackDamage} range={attackRange}");
@@ -751,4 +766,11 @@ public class EnemyAI : MonoBehaviour
 
     public float GetHealth() => health;
     public State GetState() => currentState;
+
+    static void SetLayerRecursive(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+            SetLayerRecursive(child.gameObject, layer);
+    }
 }
