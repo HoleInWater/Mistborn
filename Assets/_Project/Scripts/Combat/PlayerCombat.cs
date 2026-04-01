@@ -189,9 +189,10 @@ public class PlayerCombat : MonoBehaviour
 
     IEnumerator Hitstop()
     {
-        Time.timeScale = 0f;
+        float prevScale = Time.timeScale;
+        Time.timeScale  = 0f;
         yield return new WaitForSecondsRealtime(hitstopDuration);
-        Time.timeScale = 1f;
+        Time.timeScale  = prevScale;   // restore to whatever it was, not unconditionally 1
     }
 
     // ── Damage calculation ────────────────────────────────────────────────────

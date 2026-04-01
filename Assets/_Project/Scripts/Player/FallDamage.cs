@@ -45,7 +45,9 @@ public class FallDamage : MonoBehaviour
     {
         if (playerRb == null) return;
 
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.2f);
+        // Offset origin above the foot pivot so we don't start inside the capsule boundary.
+        // Short distance (0.25 m) catches ground within a tight margin.
+        bool isGrounded = Physics.Raycast(transform.position + Vector3.up * 0.15f, Vector3.down, 0.3f);
         float verticalSpeed = -playerRb.linearVelocity.y; // Positive when falling
 
         // Track max fall speed while airborne

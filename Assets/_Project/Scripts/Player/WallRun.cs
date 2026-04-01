@@ -41,6 +41,10 @@ public class WallRun : MonoBehaviour
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
         if (animator == null) animator = GetComponent<Animator>();
+
+        // Camera tilt: prefer the explicit field, fall back to main camera
+        if (cameraTransform == null && Camera.main != null)
+            cameraTransform = Camera.main.transform;
     }
 
     void Update()

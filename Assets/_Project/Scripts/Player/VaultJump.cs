@@ -50,23 +50,42 @@ public class VaultJump : MonoBehaviour
         }
     }
     
-    void StartVault(Vector3 target)
+    void StartVault(Vector3 topPoint)
     {
-        isVaulting = true;
-        vaultTarget = target;
-        
-        
-        StartCoroutine(EndVaultDelayed());
+        isVaulting  = true;
+        vaultTarget = topPoint + transform.forward * 1.2f; // landing spot past the obstacle
+
+        if (playerCamera == null) playerCamera = Camera.main;
+
+        GetComponent<Animator>()?.SetTrigger("Vault");
+        StartCoroutine(PerformVault(topPoint));
     }
 
-    System.Collections.IEnumerator EndVaultDelayed()
+    System.Collections.IEnumerator PerformVault(Vector3 topPoint)
     {
-        yield return new WaitForSecondsRealtime(0.5f);
-        EndVault();
-    }
+        rb.useGravity = false;
 
-    void EndVault()
-    {
-        isVaulting = false;
+        Vector3 startPos  = rb.position;
+        Vector3 landPos   = vaultTarget;
+        const float upTime  = 0.2f;
+        const float fwdTime = 0.2f;
+
+        // Phase 1 — rise to the top of the obstacle
+        for (float t = 0f; t < upTime; t += Time.deltaTime)
+        {
+            rb.MovePosition(Vector3.Lerp(startPos, topPoint, t / upTime));
+            yield return null;
+        }
+
+        // Phase 2 — push forward to the landing spot
+        for (float t = 0f; t < fwdTime; t += Time.deltaTime)
+        {
+            rb.MovePosition(Vector3.Lerp(topPoint, landPos, t / fwdTime));
+            yield return null;
+        }
+
+        rb.MovePosition(landPos);
+        rb.useGravity = true;
+        isVaulting    = false;
     }
 }
