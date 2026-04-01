@@ -62,10 +62,49 @@ public class MinimapSystem : MonoBehaviour
                 minimapTexture.filterMode = FilterMode.Bilinear;
             }
             minimapCamera.targetTexture = minimapTexture;
-
-            if (minimapDisplay != null)
-                minimapDisplay.texture = minimapTexture;
         }
+
+        // Auto-create minimap display at top-right if not assigned in Inspector
+        if (minimapDisplay == null)
+            minimapDisplay = BuildMinimapDisplay();
+
+        if (minimapDisplay != null)
+            minimapDisplay.texture = minimapTexture;
+    }
+
+    RawImage BuildMinimapDisplay()
+    {
+        const float size   = 200f;
+        const float margin = 10f;
+
+        // Canvas
+        var canvasObj = new GameObject("MinimapCanvas");
+        DontDestroyOnLoad(canvasObj);
+        var canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode  = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 10;
+        canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
+
+        // Dark border panel (slightly larger than the image)
+        var borderObj = new GameObject("MinimapBorder");
+        borderObj.transform.SetParent(canvasObj.transform, false);
+        var borderImg = borderObj.AddComponent<UnityEngine.UI.Image>();
+        borderImg.color = new Color(0f, 0f, 0f, 0.75f);
+        var borderRT = borderObj.GetComponent<RectTransform>();
+        borderRT.anchorMin = borderRT.anchorMax = borderRT.pivot = new Vector2(1f, 1f);
+        borderRT.anchoredPosition = new Vector2(-margin, -margin);
+        borderRT.sizeDelta        = new Vector2(size + 6f, size + 6f);
+
+        // RawImage for the render texture
+        var imgObj = new GameObject("MinimapImage");
+        imgObj.transform.SetParent(canvasObj.transform, false);
+        var raw = imgObj.AddComponent<RawImage>();
+        var rt = imgObj.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 1f);
+        rt.anchoredPosition = new Vector2(-margin - 3f, -margin - 3f);
+        rt.sizeDelta        = new Vector2(size, size);
+
+        return raw;
     }
 
     void LateUpdate()

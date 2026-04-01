@@ -98,6 +98,15 @@ public class EnemyAI : MonoBehaviour
         hitFlash  = GetComponent<EnemyHitFlash>();
         aiCtrl    = GetComponent<AIController>();
 
+        // Ensure a collider exists so physical objects don't pass through the NPC
+        if (GetComponent<Collider>() == null)
+        {
+            var cap = gameObject.AddComponent<CapsuleCollider>();
+            cap.height = 1.8f;
+            cap.radius = 0.35f;
+            cap.center = new Vector3(0f, 0.9f, 0f);
+        }
+
         ApplyEnemyTypeDefaults();
         startingHealth = health;
 
@@ -135,17 +144,25 @@ public class EnemyAI : MonoBehaviour
                 wObj.transform.localPosition    = weapon.handPositionOffset;
                 wObj.transform.localEulerAngles = weapon.handRotationOffset;
 
+                // Keep colliders enabled but ignore collision with this enemy's own colliders
                 foreach (var col in wObj.GetComponentsInChildren<Collider>(true))
                 {
-                    col.enabled = false;
-                    Destroy(col);
+                    col.enabled = true;
+                    foreach (var ec in GetComponentsInChildren<Collider>())
+                        Physics.IgnoreCollision(col, ec, true);
                 }
+
+                // Kinematic Rigidbody — follows animation but can be detected by Allomancy
                 foreach (var rb in wObj.GetComponentsInChildren<Rigidbody>(true))
-                {
                     rb.isKinematic = true;
-                    Destroy(rb);
+                if (wObj.GetComponent<Rigidbody>() == null)
+                {
+                    var rb = wObj.AddComponent<Rigidbody>();
+                    rb.isKinematic = true;
                 }
-                SetLayerRecursive(wObj, LayerMask.NameToLayer("Ignore Raycast"));
+
+                // Default layer so Steel/Iron Allomancy raycasts can find metal weapons
+                SetLayerRecursive(wObj, 0);
             }
 
             Debug.Log($"[EnemyAI] {name} equipped {weapon.weaponName} — dmg={attackDamage} range={attackRange}");

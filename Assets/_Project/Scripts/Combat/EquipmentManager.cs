@@ -74,34 +74,20 @@ public class EquipmentManager : MonoBehaviour
 
         if (data.prefab != null)
         {
-            // Spawn unparented at world position — lets physics work correctly
-            Vector3    worldPos = attachPoint.TransformPoint(data.handPositionOffset);
-            Quaternion worldRot = attachPoint.rotation * Quaternion.Euler(data.handRotationOffset);
-            _weaponInstance = Instantiate(data.prefab, worldPos, worldRot);
+            // Parent to hand bone so weapon moves 1:1 with the animation
+            _weaponInstance = Instantiate(data.prefab, attachPoint);
+            _weaponInstance.transform.localPosition    = data.handPositionOffset;
+            _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
 
-            // Remove any existing Rigidbodies from sub-objects; we'll own the root one
+            // Kinematic Rigidbody — follows animation, can push non-kinematic objects,
+            // but is not dragged around by physics forces itself.
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
-                if (rb.gameObject != _weaponInstance) Destroy(rb);
-
-            // Root Rigidbody: non-kinematic, no gravity, high drag so small bumps don't move it.
-            // This lets external forces (Allomancy Steel/Iron, collisions) affect the weapon
-            // while WeaponFollow snaps it back to the hand each physics step.
+                rb.isKinematic = true;
             Rigidbody weaponRb = _weaponInstance.GetComponent<Rigidbody>()
                               ?? _weaponInstance.AddComponent<Rigidbody>();
-            weaponRb.isKinematic    = false;
-            weaponRb.useGravity     = false;
-            weaponRb.linearDamping  = 20f;
-            weaponRb.angularDamping = 20f;
-            weaponRb.mass           = data.mass > 0f ? data.mass : 1f;
+            weaponRb.isKinematic = true;
 
-            // WeaponFollow drives position/rotation each physics step
-            var follow = _weaponInstance.AddComponent<WeaponFollow>();
-            follow.target           = attachPoint;
-            follow.positionOffset   = data.handPositionOffset;
-            follow.rotationOffset   = data.handRotationOffset;
-            follow.owner            = this;
-
-            // Ignore collision with the player so the weapon never blocks movement
+            // Ignore collision with every player collider so it never blocks movement
             Collider[] playerCols = GetComponentsInChildren<Collider>();
             foreach (var wc in _weaponInstance.GetComponentsInChildren<Collider>(true))
             {
@@ -110,7 +96,7 @@ public class EquipmentManager : MonoBehaviour
                     Physics.IgnoreCollision(wc, pc, true);
             }
 
-            // Default layer so Allomancy raycasts / OverlapSpheres can detect it
+            // Default layer so Allomancy raycasts can detect metal weapons
             SetLayerRecursive(_weaponInstance, 0);
         }
 
