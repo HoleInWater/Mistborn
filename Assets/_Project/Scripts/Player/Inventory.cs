@@ -13,6 +13,8 @@ public class InventoryItem
     public int maxStack = 99;
     public float weight = 0.1f;
     public Sprite icon;
+    [Tooltip("Populated for Weapon-type items")]
+    public WeaponData weaponData;
 
     public enum ItemType { Metal, Key, Weapon, Armor, Consumable, Quest, Lore }
 }

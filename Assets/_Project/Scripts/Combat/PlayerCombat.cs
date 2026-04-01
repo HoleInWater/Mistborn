@@ -43,6 +43,7 @@ public class PlayerCombat : MonoBehaviour
     public LockOnSystem lockOnSystem;
     public ParrySystem parrySystem;
     public PlayerAnimationController animCtrl;
+    public EquipmentManager equipment;
     public Allomancer allomancer;
     public Animator animator;
     public LayerMask enemyLayer;
@@ -62,6 +63,7 @@ public class PlayerCombat : MonoBehaviour
         if (parrySystem == null)   parrySystem  = GetComponentInChildren<ParrySystem>();
         if (parrySystem == null)   parrySystem  = GetComponent<ParrySystem>();
         if (animCtrl == null)      animCtrl     = GetComponent<PlayerAnimationController>();
+        if (equipment == null)     equipment    = GetComponent<EquipmentManager>();
         stamina = GetComponent<PlayerStamina>();
         enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0) enemyLayer = ~0;
@@ -128,7 +130,8 @@ public class PlayerCombat : MonoBehaviour
 
     void LightAttack()
     {
-        if (Time.time - lastAttackTime < attackCooldown)
+        float cooldown = equipment != null ? equipment.GetAttackCooldown(attackCooldown) : attackCooldown;
+        if (Time.time - lastAttackTime < cooldown)
         {
             Debug.Log("[PlayerCombat] Light attack on cooldown");
             return;
@@ -139,11 +142,13 @@ public class PlayerCombat : MonoBehaviour
         comboSystem?.RegisterHit();
         animCtrl?.PlayAttack();
 
-        float damage = CalculateDamage(baseDamage);
-        bool hit = HitEnemiesInRange(damage, knockbackForce);
+        float eDamage    = equipment != null ? equipment.GetDamage(baseDamage)    : baseDamage;
+        float eKnockback = equipment != null ? equipment.GetKnockback(knockbackForce) : knockbackForce;
+        float damage = CalculateDamage(eDamage);
+        bool hit = HitEnemiesInRange(damage, eKnockback);
         if (hit) StartCoroutine(Hitstop());
 
-        Debug.Log($"[PlayerCombat] LIGHT ATTACK — damage={damage:F1}, hit={hit}, combo={comboSystem?.CurrentCombo}");
+        Debug.Log($"[PlayerCombat] LIGHT ATTACK — weapon={equipment?.Equipped?.weaponName ?? "Unarmed"} damage={damage:F1}, hit={hit}, combo={comboSystem?.CurrentCombo}");
         SoundManager.Instance?.PlayAttackSound();
     }
 
@@ -167,11 +172,14 @@ public class PlayerCombat : MonoBehaviour
         OrientToLockOn();
         animCtrl?.PlayHeavyAttack();
 
-        float damage = CalculateDamage(baseDamage * heavyDamageMultiplier);
-        bool hit = HitEnemiesInRange(damage, heavyKnockbackForce);
+        float eDamage        = equipment != null ? equipment.GetDamage(baseDamage)                        : baseDamage;
+        float eHeavyMult     = equipment != null ? equipment.GetHeavyMultiplier(heavyDamageMultiplier)    : heavyDamageMultiplier;
+        float eHeavyKnockback= equipment != null ? equipment.GetHeavyKnockback(heavyKnockbackForce)       : heavyKnockbackForce;
+        float damage = CalculateDamage(eDamage * eHeavyMult);
+        bool hit = HitEnemiesInRange(damage, eHeavyKnockback);
         if (hit) StartCoroutine(Hitstop());
 
-        Debug.Log($"[PlayerCombat] HEAVY ATTACK — damage={damage:F1}, hit={hit}");
+        Debug.Log($"[PlayerCombat] HEAVY ATTACK — weapon={equipment?.Equipped?.weaponName ?? "Unarmed"} damage={damage:F1}, hit={hit}");
         CameraShakeManager.Instance?.Shake(0.15f, 0.1f);
         SoundManager.Instance?.PlayAttackSound();
     }
@@ -216,8 +224,9 @@ public class PlayerCombat : MonoBehaviour
 
     bool HitEnemiesInRange(float damage, float knockback)
     {
+        float range = equipment != null ? equipment.GetRange(attackRange) : attackRange;
         Vector3 attackPos = transform.position + transform.forward * 1.2f;
-        Collider[] hits = Physics.OverlapSphere(attackPos, attackRange, enemyLayer);
+        Collider[] hits = Physics.OverlapSphere(attackPos, range, enemyLayer);
         bool hitAnything = false;
 
         foreach (Collider hit in hits)

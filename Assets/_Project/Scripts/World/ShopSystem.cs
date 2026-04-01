@@ -19,6 +19,8 @@ public class ShopSystem : MonoBehaviour
         public AllomancySkill.MetalType? metalType;
         public float metalPurity = 1f;
         public float metalAmount = 80f;
+        [Tooltip("Assign a WeaponData asset for Weapons category items")]
+        public WeaponData weaponData;
     }
 
     public enum ShopCategory { MetalVials, Weapons, Armor, Supplies, Special }
@@ -110,6 +112,26 @@ public class ShopSystem : MonoBehaviour
         else if (item.itemId == "health_potion")
         {
             PlayerHealth.Instance?.Heal(50f);
+        }
+        else if (item.category == ShopCategory.Weapons && item.weaponData != null)
+        {
+            // Add to inventory and auto-equip
+            Inventory inv = FindObjectOfType<Inventory>();
+            if (inv != null)
+            {
+                inv.AddItem(new InventoryItem
+                {
+                    itemId     = item.itemId,
+                    itemName   = item.itemName,
+                    description= item.description,
+                    type       = InventoryItem.ItemType.Weapon,
+                    quantity   = 1,
+                    maxStack   = 1,
+                    weight     = item.weaponData.mass,
+                    weaponData = item.weaponData
+                });
+            }
+            EquipmentManager.Instance?.EquipWeapon(item.weaponData);
         }
 
         NotificationSystem.Instance?.ShowNotification($"Purchased: {item.itemName}");
