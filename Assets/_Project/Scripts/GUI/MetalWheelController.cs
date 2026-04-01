@@ -143,6 +143,7 @@ public class MetalWheelController : MonoBehaviour
         Cursor.visible = true;
 
         if (timeManager != null) timeManager.SlowTime();
+        MetalWheelMistOverlay.Instance?.Show();
         if (audioManager != null) audioManager.PlayOpenSound();
 
         if (playerAllomancer != null)
@@ -171,6 +172,7 @@ public class MetalWheelController : MonoBehaviour
         Cursor.visible = false;
 
         if (timeManager != null) timeManager.RestoreTime();
+        MetalWheelMistOverlay.Instance?.Hide();
         if (audioManager != null) audioManager.PlayCloseSound(confirmSelection);
 
         if (confirmSelection)

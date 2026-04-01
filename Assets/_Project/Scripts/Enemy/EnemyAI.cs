@@ -896,4 +896,13 @@ public class EnemyAI : MonoBehaviour
         foreach (Transform child in go.transform)
             SetLayerRecursive(child.gameObject, layer);
     }
+
+    static Transform FindBoneByName(Transform root, params string[] names)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+            foreach (string n in names)
+                if (t.name.Equals(n, System.StringComparison.OrdinalIgnoreCase))
+                    return t;
+        return null;
+    }
 }

@@ -41,6 +41,7 @@ public class SceneBootstrap : MonoBehaviour
         EnsureSingleton<LoreCodex>("LoreCodex");
         EnsureSingleton<WeatherGameplayIntegration>("WeatherIntegration");
         EnsureSingleton<DamageNumbersUI>("DamageNumbersUI");
+        EnsureSingleton<MetalWheelMistOverlay>("MetalWheelMistOverlay");
 
         // PerformanceManager is optional — only add if the class exists in build
     }
