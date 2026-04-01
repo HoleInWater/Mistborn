@@ -616,6 +616,15 @@ public class EnemyAI : MonoBehaviour
         // Particle effect
         ParticleEffectsManager.Instance?.PlayDeathEffect(transform.position);
 
+        // Drop weapon as a pickup
+        if (weapon != null)
+        {
+            GameObject pickupObj = new GameObject($"{weapon.weaponName} Pickup");
+            pickupObj.transform.position = transform.position + Vector3.up * 0.5f;
+            WeaponPickup pickup = pickupObj.AddComponent<WeaponPickup>();
+            pickup.weaponData = weapon;
+        }
+
         StartCoroutine(DeathSequence());
     }
 
