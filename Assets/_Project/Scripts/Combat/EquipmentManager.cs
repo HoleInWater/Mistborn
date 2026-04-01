@@ -33,16 +33,24 @@ public class EquipmentManager : MonoBehaviour
 
     void Start()
     {
-        // Auto-find right hand bone from humanoid rig
+        // Auto-find right hand bone — humanoid rig first, then name search fallback
         if (rightHandBone == null)
         {
             Animator anim = GetComponent<Animator>();
             if (anim != null && anim.isHuman)
                 rightHandBone = anim.GetBoneTransform(HumanBodyBones.RightHand);
 
+            // Fallback: search all transforms by common hand bone names (works on Generic rigs)
+            if (rightHandBone == null)
+                rightHandBone = FindBoneByName(transform,
+                    "RightHand", "Hand_R", "hand_r", "mixamorig:RightHand",
+                    "Bip01_R_Hand", "RHand", "Right Hand");
+
             if (rightHandBone == null)
                 Debug.LogWarning("[EquipmentManager] Could not find right hand bone — " +
-                                 "weapon prefab won't attach. Assign it manually in the Inspector.");
+                                 "assign it manually in the Inspector.");
+            else
+                Debug.Log($"[EquipmentManager] Hand bone found: {rightHandBone.name}");
         }
 
         if (startingWeapon != null)
@@ -65,12 +73,18 @@ public class EquipmentManager : MonoBehaviour
             _weaponInstance.transform.localPosition    = data.handPositionOffset;
             _weaponInstance.transform.localEulerAngles = data.handRotationOffset;
 
-            // Remove every collider and rigidbody on the weapon so it never
-            // blocks movement, triggers physics, or impales the player.
+            // Disable colliders immediately (Destroy is deferred — disabled takes effect this frame)
+            // so the weapon never becomes part of the player's compound collider shape.
             foreach (var col in _weaponInstance.GetComponentsInChildren<Collider>(true))
+            {
+                col.enabled = false;
                 Destroy(col);
+            }
             foreach (var rb in _weaponInstance.GetComponentsInChildren<Rigidbody>(true))
+            {
+                rb.isKinematic = true;
                 Destroy(rb);
+            }
 
             // Put the weapon on the Ignore Raycast layer so attack OverlapSpheres skip it
             SetLayerRecursive(_weaponInstance, LayerMask.NameToLayer("Ignore Raycast"));
@@ -93,6 +107,15 @@ public class EquipmentManager : MonoBehaviour
         go.layer = layer;
         foreach (Transform child in go.transform)
             SetLayerRecursive(child.gameObject, layer);
+    }
+
+    static Transform FindBoneByName(Transform root, params string[] names)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+            foreach (string n in names)
+                if (t.name.Equals(n, System.StringComparison.OrdinalIgnoreCase))
+                    return t;
+        return null;
     }
 
     // ── Stat providers — PlayerCombat calls these ─────────────────────────────
