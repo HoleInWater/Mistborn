@@ -129,8 +129,11 @@ public class WeaponPickup : MonoBehaviour, IInteractable
             visual = Instantiate(weaponData.prefab, transform);
             visual.transform.localPosition = Vector3.zero;
             visual.transform.localRotation = Quaternion.identity;
-            foreach (var c in visual.GetComponentsInChildren<Collider>())
+            foreach (var c in visual.GetComponentsInChildren<Collider>(true))
+            {
+                c.enabled = false;
                 Destroy(c);
+            }
         }
         else
         {
