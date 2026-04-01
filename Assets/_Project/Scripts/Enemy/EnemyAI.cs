@@ -47,6 +47,10 @@ public class EnemyAI : MonoBehaviour
     public NavMeshAgent navAgent;
     public Transform target;
 
+    [Header("Hit Effect")]
+    [Tooltip("Optional particle system played at the player's position when a melee hit lands.")]
+    public ParticleSystem hitEffect;
+
     public enum State { Idle, Patrol, Chase, Attack, Flee, Investigate, Dead }
     private State currentState = State.Idle;
     private float lastAttackTime;
@@ -297,9 +301,13 @@ public class EnemyAI : MonoBehaviour
             isFlanking = true;
             navAgent.SetDestination(flankingPosition);
         }
-        else if (isFlanking && Vector3.Distance(transform.position, flankingPosition) < 2f)
+        else if (isFlanking)
         {
-            isFlanking = false;
+            // Abort flank if player moved more than 4 units from where we calculated it
+            if (Vector3.Distance(target.position, flankingPosition) > 4f)
+                isFlanking = false;
+            else if (Vector3.Distance(transform.position, flankingPosition) < 2f)
+                isFlanking = false;
         }
 
         if (!isFlanking)
@@ -447,8 +455,31 @@ public class EnemyAI : MonoBehaviour
         if (useMeleeAttacks)
         {
             animator?.SetTrigger("Attack");
-            IDamageable damageable = target.GetComponentInParent<IDamageable>();
-            damageable?.TakeDamage(attackDamage);
+
+            // Line-of-sight check — don't deal damage through walls
+            Vector3 origin = transform.position + Vector3.up * 1f;
+            Vector3 toTarget = (target.position + Vector3.up * 1f) - origin;
+            bool clearShot = !Physics.Raycast(origin, toTarget.normalized, toTarget.magnitude,
+                             Physics.DefaultRaycastLayers & ~(1 << gameObject.layer),
+                             QueryTriggerInteraction.Ignore);
+
+            if (clearShot)
+            {
+                // Route through IDamageable (PlayerHealth) for death/respawn logic
+                IDamageable damageable = target.GetComponentInParent<IDamageable>();
+                damageable?.TakeDamage(attackDamage);
+
+                // Also drive the visible health bar — HealthBarTransitions doesn't implement IDamageable
+                HealthBarTransitions hbt = target.GetComponentInParent<HealthBarTransitions>();
+                hbt?.TakeDamage(attackDamage);
+
+                // Hit particle at target position
+                if (hitEffect != null)
+                {
+                    hitEffect.transform.position = target.position + Vector3.up * 1f;
+                    hitEffect.Play();
+                }
+            }
         }
 
         if (canUseAllomancy && availableMetals != null && availableMetals.Length > 0)
@@ -585,9 +616,14 @@ public class EnemyAI : MonoBehaviour
     {
         if (animator == null) return;
         float speed = navAgent != null ? navAgent.velocity.magnitude : 0f;
-        animator.SetFloat("Speed", speed, 0.1f, Time.deltaTime);
 
-        // State booleans — drive Animator Controller transitions
+        // Float parameters — "Speed" (raw m/s) and "Velocity" (0-1 normalised, matches reference animator)
+        animator.SetFloat("Speed",    speed, 0.1f, Time.deltaTime);
+        animator.SetFloat("Velocity", Mathf.Clamp01(speed / Mathf.Max(runSpeed, 0.1f)), 0.1f, Time.deltaTime);
+
+        // State booleans
+        animator.SetBool("IsIdle",          currentState == State.Idle);
+        animator.SetBool("IsPatrolling",    currentState == State.Patrol);
         animator.SetBool("IsChasing",       currentState == State.Chase);
         animator.SetBool("IsAttacking",     currentState == State.Attack);
         animator.SetBool("IsFleeing",       currentState == State.Flee);

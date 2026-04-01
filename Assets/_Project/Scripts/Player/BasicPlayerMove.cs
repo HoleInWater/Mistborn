@@ -221,7 +221,8 @@ public class BasicPlayerMove : MonoBehaviour
  
         // Store for use at the top of FixedUpdate on the same physics step
         _moveDirection = moveDirection;
-        _currentActiveSpeed = currentActiveSpeed * externalSpeedMultiplier;
+        bool staminaDepleted = staminaSystem != null && staminaSystem.currentStamina <= 0f;
+        _currentActiveSpeed = staminaDepleted ? 0f : currentActiveSpeed * externalSpeedMultiplier;
  
         // Rotate the player model to face the direction of travel
         if (moveDirection.magnitude >= 0.1f)

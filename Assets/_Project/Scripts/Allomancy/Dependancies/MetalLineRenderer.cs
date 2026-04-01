@@ -63,6 +63,7 @@ public class MetalLineRenderer : MonoBehaviour
     void Start()
     {
         if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metalSelector == null) metalSelector = GetComponent<MetalSelector>();
         if (chestPoint == null) chestPoint = transform;
 
         metalLayer = LayerMask.GetMask("Metal");
@@ -226,6 +227,15 @@ public class MetalLineRenderer : MonoBehaviour
     }
 
     // ── OnDisable ─────────────────────────────────────────────────────────────
+
+    bool HasIronOrSteelSelected()
+    {
+        if (metalSelector == null) return false;
+        var primary   = metalSelector.GetPrimaryMetal();
+        var secondary = metalSelector.GetSecondaryMetal();
+        return primary  == AllomancySkill.MetalType.Iron  || primary  == AllomancySkill.MetalType.Steel
+            || secondary == AllomancySkill.MetalType.Iron || secondary == AllomancySkill.MetalType.Steel;
+    }
 
     void OnDisable()
     {
