@@ -26,7 +26,7 @@ MonoBehaviour:
   isMetal: 1
   mass: 0.5
   prefab: {fileID: 2902673347494344123, guid: fc4c1f7275e6928419fd4939b9458054, type: 3}
-  handPositionOffset: {x: 0, y: 0, z: 0}
-  handRotationOffset: {x: 0, y: 0, z: 0}
+  handPositionOffset: {x: 0, y: 0, z: 0.05}
+  handRotationOffset: {x: 90, y: 0, z: 0}
   buyPrice: 80
   sellPrice: 40
