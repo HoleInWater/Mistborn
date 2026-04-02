@@ -261,6 +261,65 @@ A Push doing 500 J of work on a 0.005 kg coin:
 
 ---
 
+### Center of Mass — 3D Objects
+
+The center of mass determines where an Allomantic push/pull targets on an
+object, and how force distributes when pushing composite objects (armor, doors,
+vehicles with metal components).
+
+**Continuous mass distribution (triple integral):**
+```
+x_cm = (1/M) × ∫∫∫ x × ρ(x,y,z) dV
+y_cm = (1/M) × ∫∫∫ y × ρ(x,y,z) dV
+z_cm = (1/M) × ∫∫∫ z × ρ(x,y,z) dV
+
+M = ∫∫∫ ρ(x,y,z) dV      (total mass)
+
+Where ρ(x,y,z) = density at point (x,y,z)
+```
+
+**Volume element by coordinate system (choose by shape):**
+```
+Cartesian:    dV = dx dy dz             (boxes, walls, armor plates)
+Cylindrical:  dV = r dr dθ dz           (coins, metal pipes, columns)
+Spherical:    dV = r² sin(φ) dr dφ dθ   (metal spheres, atium beads)
+```
+
+**Uniform density shortcut:** If ρ is constant, center of mass = geometric
+centroid. `ρ` cancels from numerator and denominator.
+
+**Discrete / composite objects (no calculus needed):**
+```
+r_cm = Σ(m_i × r_i) / Σ(m_i)
+
+Example — Inquisitor with steel spike:
+  Body:  m₁ = 80 kg, center at (0, 1.0, 0)
+  Spike: m₂ = 0.5 kg, center at (0, 1.7, 0.1)
+  r_cm = (80×(0,1.0,0) + 0.5×(0,1.7,0.1)) / 80.5
+       ≈ (0, 1.004, 0.0006)
+  The spike barely shifts the center — a push targets the body center.
+
+Example — Door with iron hinges:
+  Wood: m₁ = 25 kg, center at (0.5, 1.0, 0)
+  Hinge: m₂ = 2 kg, center at (0, 1.0, 0)
+  r_cm of metal only = hinge position → push/pull targets the hinge edge,
+  which torques the door open (this is how Kelsier opens locked doors).
+```
+
+**Moments** (the numerator of each coordinate):
+```
+M_yz = ∫∫∫ x × ρ dV    → moment about YZ-plane → gives x_cm
+M_xz = ∫∫∫ y × ρ dV    → moment about XZ-plane → gives y_cm
+M_xy = ∫∫∫ z × ρ dV    → moment about XY-plane → gives z_cm
+```
+
+**Unity note:** `Rigidbody.centerOfMass` handles this automatically for physics
+objects. For push/pull targeting, the force acts toward `targetRb.worldCenterOfMass`,
+which is the physics engine's computed center of mass. Composite colliders with
+different densities shift this point automatically.
+
+---
+
 ### Allomancy-Specific Rules
 
 **Push / Pull Force Balance:**
