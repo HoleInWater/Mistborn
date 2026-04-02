@@ -184,12 +184,14 @@ public class IronPull : MonoBehaviour
         Vector3 pullDirection = dirToTarget.normalized;
         float flare = CurrentFlareMultiplier;
 
-        // Inverse-square law: F ∝ 1/r²  (PHYSICS-MATH-BOOK.md Section 2)
-        // Reference distance = 5 m (book's Vin calculation baseline).
-        const float R_REF = 5f;
+        // Linear distance falloff: F = F_max × (1 − r/R)  (PHYSICS-MATH-BOOK.md Section 1b)
+        // Larger anchors extend effective pull range (heavier object = thicker blue line = further pull).
         float r = Mathf.Max(distance, minDistance);
+        float anchorBonus = currentTargetRigidbody != null
+            ? Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f) : 0f;
+        float effectiveRange  = maxRange * (1f + anchorBonus * 0.5f);
         float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp((R_REF * R_REF) / (r * r), 0.1f, 3f) : 1f;
+            ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
 
         if (isAnchored)
         {

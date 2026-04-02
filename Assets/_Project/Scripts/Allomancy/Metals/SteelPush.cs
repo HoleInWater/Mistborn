@@ -254,13 +254,17 @@ public class SteelPush : MonoBehaviour
 
         float flare = CurrentFlareMultiplier;
 
-        // Inverse-square law: F ∝ 1/r²  (PHYSICS-MATH-BOOK.md Section 2)
-        // Reference distance = 5 m (book's Vin calculation baseline).
-        // At r=5 m distanceMult = 1.0; at r=1 m → 25 (clamped); at r=30 m → 0.028 (clamped).
-        const float R_REF = 5f;
+        // Linear distance falloff: F = F_max × (1 − r/R)  (PHYSICS-MATH-BOOK.md Section 1b)
+        // Community math (Phantine / 17thshard) shows Vin hovers at ~50 ft where F = weight.
+        // With linear scaling and F_max ≈ 1.5 kN at point blank, hover ≈ 15–30 m — matches books.
+        // Inverse-square gives infinite force at zero and doesn't match the hover equilibrium.
+        // Larger metal anchors extend effective range — approximated by target Rigidbody mass below.
         float r = Mathf.Max(distance, minDistance);
+        float anchorBonus = currentTargetRigidbody != null
+            ? Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f) : 0f;
+        float effectiveRange  = maxRange * (1f + anchorBonus * 0.5f);  // up to 1.5× range for heavy anchors
         float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp((R_REF * R_REF) / (r * r), 0.1f, 3f) : 1f;
+            ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
 
         if (isAnchored)
         {

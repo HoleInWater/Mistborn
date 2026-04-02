@@ -440,22 +440,71 @@ A coin at 490 m/s carries:
 
 ---
 
+### Distance Scaling — Linear, Not Inverse-Square
+
+Despite the allomantic force formula using `1/r²` in a gravitational analogy,
+community physics analysis (Phantine, 17th Shard) concludes that **linear**
+distance falloff matches the books better than inverse-square:
+
+```
+Linear model (used in game):
+  F(r) = F_max × max(0,  1 − r / R)
+
+  At r = 0  (point blank): F = F_max        (full force)
+  At r = R/2:              F = F_max × 0.5  (half force)
+  At r = R  (max range):   F = 0            (no force)
+```
+
+Why not inverse-square?
+- `F ∝ 1/r²` gives near-infinite force at r → 0, which causes instability
+- Vin's hover equilibrium at ~50 ft is only consistent with linear scaling
+- The books describe force "diminishing heavily" but not spiking at close range
+- Game developers who've tried inverse-square all report it "works terribly"
+
+**Vin's hover point (calibration data):**
+```
+F_max × (1 − 50ft / 100ft) = Vin's weight
+F_max × 0.5 = m × g
+F_max = 2 × m × g ≈ 2 × 75 kg × 9.8 ≈ 1,470 N  (~1.5 kN)
+
+Community consensus: peak force ≈ 1.5 kN at point blank for a typical Misting.
+```
+
 ### Effective Range
 
 ```
-Lore canon:  a few hundred feet  ≈  60–90 m
-Game value:  maxRange = 60 m  (200 ft — lower end of canon range)
+Mistborn Adventure Game base limit:  100 paces ≈ 60 m  (used in game)
+With training/upgrade:               300 paces ≈ 180 m
 
-Force at range (inverse-square):
-  F(r) = F(r_ref) × (r_ref / r)²
+Larger anchors extend effective range — a coin's line is thin and faint at 10 m;
+a steel beam's line is bright and visible at 60 m. This is implemented as:
+  effectiveRange = maxRange × (1 + log10(anchorMass) × 0.5)
 
-At 5 m  (reference):   F = F_base × 1.0
-At 15 m:               F = F_base × 0.11
-At 60 m:               F = F_base × 0.007  (barely perceptible)
+  Coin  (0.01 kg, log10 = -2): effectiveRange ≈ maxRange × 1.0 (no bonus — clamped)
+  Door  (5 kg,   log10 =  0.7): effectiveRange ≈ maxRange × 1.35
+  Beam  (100 kg, log10 =  2.0): effectiveRange ≈ maxRange × 2.0 (capped at 1.5×)
 ```
 
-Force effectively approaches zero well before the hard cap — consistent with
-the lore that objects at the edge of range feel "heavy" and resist the Push.
+### Anchor Quality — Why Coins Against Walls Feel Different
+
+When a coin is free in the air, it is a **weak anchor** — it moves easily,
+so most of the force goes into accelerating the coin, very little returns to
+the allomancer. When the coin hits a wall, it effectively gains the mass of
+the wall + ground → near-infinite effective mass → almost all force returns
+to the allomancer. This is why Vin gets thrown back hard when the coin stops.
+
+```
+Free coin (m_coin << m_allomancer):
+  allomancer recoil ≈ F × m_coin / m_allomancer  (tiny)
+  coin acceleration = F / m_coin                  (huge)
+
+Coin against wall (m_effective → ∞):
+  allomancer recoil = F / m_allomancer            (full force)
+  wall acceleration ≈ 0
+```
+
+This is just Newton's 3rd Law — the force was always equal and opposite.
+The anchor's mass determines which body actually moves.
 
 ---
 
