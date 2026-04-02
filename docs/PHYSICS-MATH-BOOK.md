@@ -335,6 +335,122 @@ Steel Inquisitor spike:                  ~0.5–1 kg (estimate)
 
 ---
 
+## 1b. Lore-Canon Steel/Iron Rules (Confirmed Mechanics)
+
+*Sourced from the novels, Brandon Sanderson's Words of Brandon (WoBs), and
+community physics analysis (reddit.com/r/Mistborn, 17thshard.com).*
+
+---
+
+### Force Is Proportional to User Mass
+
+The harder a Mistborn pushes, the more force is generated — but the maximum
+force is bounded by their own body weight. A heavier user produces stronger
+pushes and pulls. This is why Feruchemical Iron (Crashers who store/tap weight)
+dramatically amplifies Allomantic force.
+
+```
+F_max ≈ proportional to m_allomancer
+
+Crasher (tapping Iron weight):
+  m_effective = m_base × tapping_multiplier
+  F_effective = F_base × tapping_multiplier
+```
+
+This is already captured by `F = A × m₁ × m₂ / r²` — m₁ (allomancer mass)
+scales the force directly. Burning Pewter increases physical mass (m₁ grows),
+making pushes stronger as a side effect.
+
+---
+
+### Weight vs. Anchor Rule
+
+```
+If  m_object < m_allomancer:   object moves  (coin, small metal)
+If  m_object > m_allomancer:   allomancer moves  (steel beam, anchored floor)
+If  m_object ≈ m_allomancer:   both move proportionally
+
+Anchored object (bolted, embedded, structural):
+  treated as m_object → ∞
+  all force returns to allomancer → maximum self-propulsion
+```
+
+---
+
+### Confirmed Coin Velocities
+
+A standard Misting Coinshot can accelerate a coin past the speed of sound:
+
+```
+Speed of sound on Scadrial ≈ 343 m/s
+
+Book-consistent estimate (A = 1,500):
+  F  = 1500 × 70 × 0.01 / 25 = 42 N
+  v  = √(2 × 42 × 50 / 0.01) ≈ 648 m/s   (mach ~1.9)
+
+Conservative lower bound (A = 1,000):
+  v  ≈ 490 m/s   (mach ~1.4)
+
+Upper bound (Vin, A = 35,316):
+  v  ≈ 2,377 m/s  (mach ~6.9)
+
+All estimates exceed mach 1 — coins easily pierce wood and soft flesh.
+A coin at 490 m/s carries:
+  KE = ½ × 0.01 × 490² ≈ 1,200 J   (comparable to a rifle round)
+```
+
+---
+
+### Effective Range
+
+```
+Lore canon:  a few hundred feet  ≈  60–90 m
+Game value:  maxRange = 60 m  (200 ft — lower end of canon range)
+
+Force at range (inverse-square):
+  F(r) = F(r_ref) × (r_ref / r)²
+
+At 5 m  (reference):   F = F_base × 1.0
+At 15 m:               F = F_base × 0.11
+At 60 m:               F = F_base × 0.007  (barely perceptible)
+```
+
+Force effectively approaches zero well before the hard cap — consistent with
+the lore that objects at the edge of range feel "heavy" and resist the Push.
+
+---
+
+### Steel vs. Iron — Tactical Differences
+
+| | Steel (Push) | Iron (Pull) |
+|---|---|---|
+| Primary use | Offense — launch coins, deflect metal | Mobility — reel self toward anchors |
+| Anchor behavior | Pushes allomancer away from anchor | Pulls allomancer toward anchor |
+| Ideal for | Fast projectiles, area denial | High-speed flight, disarming |
+| Steel Bubble | Deflects incoming metal projectiles | — |
+
+**Steel Bubble note:** Deflects most metal projectiles. Extremely fast objects
+(bullet velocity and above) can sometimes pierce it due to insufficient reaction
+time — the bubble is a sustained Push field, not a rigid barrier.
+
+---
+
+### Flaring & Duralumin
+
+```
+Flaring Steel/Iron:
+  A_flared = A_base × flare_multiplier   (up to ~3× for normal flaring)
+  Drains metal reserve faster
+
+Duralumin burst (single massive pulse):
+  A_duralumin = A_base × entire_reserve_multiplier
+  Instantly exhausts all steel/iron reserve
+  Produces a single, extremely powerful push/pull
+  Used for emergency propulsion or coin-rifle shots
+```
+
+---
+
 ## 2. Steel & Iron: Push/Pull Force Functions
 
 ### Primary Force Equation

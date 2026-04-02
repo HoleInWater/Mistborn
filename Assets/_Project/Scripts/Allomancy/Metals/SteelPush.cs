@@ -23,7 +23,7 @@ public class SteelPush : MonoBehaviour
 
     [Header("Push Settings")]
     public float minDistance        = 1f;
-    public float maxRange           = 30f;
+    public float maxRange           = 60f;   // ~200 ft — lore canon: "a few hundred feet"
     public float metalCostPerSecond = 0.5f;
     public float pushCooldown       = 0.2f;
 

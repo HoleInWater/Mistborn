@@ -22,7 +22,7 @@ public class IronPull : MonoBehaviour
 
     [Header("Settings")]
     public float minDistance        = 1f;
-    public float maxRange           = 30f;
+    public float maxRange           = 60f;   // ~200 ft — lore canon: "a few hundred feet"
     public float metalCostPerSecond = 0.5f;
 
     [Header("Pull Physics")]
