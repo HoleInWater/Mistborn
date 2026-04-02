@@ -164,7 +164,7 @@ public class IronPull : MonoBehaviour
             AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
             if (at != null && !at.canBePulled) continue;
 
-            Vector3 toTarget  = rb.position - playerRigidbody.position;
+            Vector3 toTarget  = rb.worldCenterOfMass - playerRigidbody.position;
             float   dist      = toTarget.magnitude;
             if (dist < minDistance) continue;
 
@@ -195,8 +195,11 @@ public class IronPull : MonoBehaviour
         if (currentTarget != null && !currentTarget.canBePulled) return false;
 
         // Pull originates from the allomancer's "center of self" (chest), not center of mass.
+        // Lore: blue lines target the metal's center of mass — even if that point
+        // is in empty space (hollow ring, bent bar). worldCenterOfMass handles this.
         Vector3 origin    = chestTransform != null ? chestTransform.position : playerRigidbody.position;
-        Vector3 toTarget  = currentTargetRigidbody.position - origin;
+        Vector3 targetCoM = currentTargetRigidbody.worldCenterOfMass;
+        Vector3 toTarget  = targetCoM - origin;
         float   distance  = toTarget.magnitude;
         pullDir = distance > 0.001f ? toTarget / distance : Vector3.zero;
 
@@ -256,7 +259,7 @@ public class IronPull : MonoBehaviour
         SoundManager.Instance?.PlayPullSound();
 
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
-        PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.position, chestPos);
+        PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.worldCenterOfMass, chestPos);
 
         HeldWeaponMarker marker = currentTargetRigidbody.GetComponentInChildren<HeldWeaponMarker>()
                                ?? currentTargetRigidbody.GetComponent<HeldWeaponMarker>();

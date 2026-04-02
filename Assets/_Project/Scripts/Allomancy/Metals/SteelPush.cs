@@ -224,7 +224,7 @@ public class SteelPush : MonoBehaviour
             AllomanticTarget at = hit.GetComponentInParent<AllomanticTarget>();
             if (at != null && !at.canBePushed) continue;
 
-            Vector3 toTarget  = rb.position - playerRigidbody.position;
+            Vector3 toTarget  = rb.worldCenterOfMass - playerRigidbody.position;
             float   dist      = toTarget.magnitude;
             if (dist < minDistance) continue;
 
@@ -259,8 +259,11 @@ public class SteelPush : MonoBehaviour
 
         // Push originates from the allomancer's "center of self" (chest), not center of mass.
         // Lore: blue lines extend from the chest — where you'd point if you said "who, me?"
+        // Lore: blue lines target the metal's center of mass — even if that point
+        // is in empty space (hollow ring, bent bar). worldCenterOfMass handles this.
         Vector3 origin   = chestTransform != null ? chestTransform.position : playerRigidbody.position;
-        Vector3 toTarget = currentTargetRigidbody.position - origin;
+        Vector3 targetCoM = currentTargetRigidbody.worldCenterOfMass;
+        Vector3 toTarget = targetCoM - origin;
         float   distance = toTarget.magnitude;
 
         pushDir  = distance > 0.001f ? toTarget / distance : Vector3.up;
@@ -323,7 +326,7 @@ public class SteelPush : MonoBehaviour
         SoundManager.Instance?.PlayPushSound();
 
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
-        PushPullTrail.Instance?.ShowPushTrail(chestPos, currentTargetRigidbody.position);
+        PushPullTrail.Instance?.ShowPushTrail(chestPos, currentTargetRigidbody.worldCenterOfMass);
 
         // Disarm check — if we just pushed an enemy's held weapon, rip it from their hand
         float appliedForce = anchored

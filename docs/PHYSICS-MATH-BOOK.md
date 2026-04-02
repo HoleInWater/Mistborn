@@ -313,10 +313,37 @@ M_xz = ∫∫∫ y × ρ dV    → moment about XZ-plane → gives y_cm
 M_xy = ∫∫∫ z × ρ dV    → moment about XY-plane → gives z_cm
 ```
 
+**Center of mass can be outside the physical body:**
+For hollow or concave shapes (rings, hooks, horseshoes, bent metal bars), the
+center of mass lies in empty space. Allomantic rules still apply:
+
+```
+1. Blue line targets the mathematical center of mass, even if it's in air.
+   A hollow ring's blue line points to the center of the hole.
+
+2. Force acts at that point. Pushing the center of a hollow hoop pushes
+   the entire hoop away — the force "grips" the mass distribution, not
+   a physical surface.
+
+3. Off-center pushes create torque:
+   τ = r × F  (cross product of lever arm × force)
+
+   Skilled allomancers exploit this:
+   - Push one end of a bar + pull the other → spin
+   - Push off-center on a door → torque it open around hinges
+   - Target a specific rivet instead of the whole plate
+
+4. Subconscious correction: allomancers instinctively adjust their
+   push/pull origin to achieve desired motion — adapting to the
+   object's mass distribution without consciously computing integrals.
+```
+
 **Unity note:** `Rigidbody.centerOfMass` handles this automatically for physics
 objects. For push/pull targeting, the force acts toward `targetRb.worldCenterOfMass`,
 which is the physics engine's computed center of mass. Composite colliders with
-different densities shift this point automatically.
+different densities shift this point automatically. For hollow objects, Unity
+correctly places the center of mass in empty space if the collider geometry
+dictates it.
 
 ---
 
