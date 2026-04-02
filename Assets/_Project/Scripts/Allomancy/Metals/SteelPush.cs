@@ -247,9 +247,15 @@ public class SteelPush : MonoBehaviour
         Vector3 pushDirection = (targetRb.position - playerRigidbody.position).normalized;
         bool    isAnchored    = (target != null && target.isAnchored) || targetRb.isKinematic;
 
-        float flare        = CurrentFlareMultiplier;
+        float flare = CurrentFlareMultiplier;
+
+        // Inverse-square law: F ∝ 1/r²  (PHYSICS-MATH-BOOK.md Section 2)
+        // Reference distance = 5 m (book's Vin calculation baseline).
+        // At r=5 m distanceMult = 1.0; at r=1 m → 25 (clamped); at r=30 m → 0.028 (clamped).
+        const float R_REF = 5f;
+        float r = Mathf.Max(distance, minDistance);
         float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f) : 1f;
+            ? Mathf.Clamp((R_REF * R_REF) / (r * r), 0.1f, 3f) : 1f;
 
         if (isAnchored)
         {

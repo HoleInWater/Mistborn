@@ -80,7 +80,12 @@ public class FallDamage : MonoBehaviour
             return;
         }
 
-        float t = Mathf.InverseLerp(safeFallSpeed, lethalFallSpeed, fallSpeed);
+        // KE = ½mv² — damage scales with v², not v (PHYSICS-MATH-BOOK.md Section 1).
+        // InverseLerp on v² gives the correct quadratic ramp: small falls do little
+        // damage while fast falls spike sharply, matching real kinetic energy growth.
+        float t = Mathf.InverseLerp(safeFallSpeed * safeFallSpeed,
+                                    lethalFallSpeed * lethalFallSpeed,
+                                    fallSpeed * fallSpeed);
         float damage = Mathf.Lerp(0f, maxFallDamage, t);
 
         // Pewter toughness reduces fall damage — scales with flare

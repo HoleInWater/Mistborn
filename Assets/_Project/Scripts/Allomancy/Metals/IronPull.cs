@@ -178,9 +178,14 @@ public class IronPull : MonoBehaviour
         Vector3 dirToTarget   = currentTargetRigidbody.position - playerRigidbody.position;
         float   distance      = dirToTarget.magnitude;
         Vector3 pullDirection = dirToTarget.normalized;
-        float   flare         = CurrentFlareMultiplier;
-        float   distanceMult  = inverseDistanceScaling
-            ? Mathf.Clamp(maxRange / Mathf.Max(distance, minDistance), 0.5f, 3f) : 1f;
+        float flare = CurrentFlareMultiplier;
+
+        // Inverse-square law: F ∝ 1/r²  (PHYSICS-MATH-BOOK.md Section 2)
+        // Reference distance = 5 m (book's Vin calculation baseline).
+        const float R_REF = 5f;
+        float r = Mathf.Max(distance, minDistance);
+        float distanceMult = inverseDistanceScaling
+            ? Mathf.Clamp((R_REF * R_REF) / (r * r), 0.1f, 3f) : 1f;
 
         if (isAnchored)
         {

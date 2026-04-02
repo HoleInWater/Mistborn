@@ -133,8 +133,10 @@ public class EnemyKnockback : MonoBehaviour
                 float impactSpeed = collision.relativeVelocity.magnitude;
                 Vector3 impactDir = collision.relativeVelocity.normalized;
 
-                // Damage from impact
-                float damage = impactSpeed * 2f;
+                // KE = ½mv²  (PHYSICS-MATH-BOOK.md Section 1)
+                // Use the impacting object's mass so a heavy pushed door hurts more than a coin.
+                float impactMass = collision.rigidbody != null ? collision.rigidbody.mass : 0.01f;
+                float damage = 0.5f * impactMass * impactSpeed * impactSpeed;
                 IDamageable hp = GetComponent<IDamageable>();
                 hp?.TakeDamage(damage);
 
