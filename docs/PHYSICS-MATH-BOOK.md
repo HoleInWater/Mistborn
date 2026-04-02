@@ -6,7 +6,10 @@
 
 ## Table of Contents
 
-1. [Core Equations](#1-core-equations)
+1. [Physics Fundamentals](#1-physics-fundamentals)
+   - Newton's Three Laws, Gravity, Momentum & Impulse, Friction,
+     Projectile Motion, Circular Motion, Work & Energy,
+     Allomancy-Specific Rules, Quick Reference, Constants
 2. [Steel & Iron: Push/Pull Force Functions](#2-steel--iron-pushpull-force-functions)
 3. [Coin Velocity Functions](#3-coin-velocity-functions)
 4. [Feruchemy Storage Functions](#4-feruchemy-storage-functions)
@@ -21,36 +24,313 @@
 
 ---
 
-## 1. Core Equations
+## 1. Physics Fundamentals
 
-### Newton's Second Law
+*Based on Newton's Laws of Motion and their Allomantic applications.*
+
+---
+
+### Newton's First Law — Law of Inertia
+
+> "An object at rest stays at rest. An object in motion stays in motion at
+> constant velocity — unless acted on by a net force."
+
+```
+If F_net = 0, then v = constant (including v = 0)
+```
+
+**Mistborn Application:**
+A Coinshot's coin keeps flying in a straight line at constant speed unless
+gravity, air resistance, or another Allomantic force acts on it. A Mistborn
+flying through the mists continues moving until they Push or Pull again.
+
+---
+
+### Newton's Second Law — Law of Acceleration
+
+> "The acceleration of an object equals the net force on it divided by its mass."
+
 ```
 F = m × a
+a = F / m
+F_net = sum of all forces acting on the object
 
-Where:
-  F = Force (Newtons)
-  m = Mass (kg)
-  a = Acceleration (m/s²)
+Units:
+  F = Newtons (N)
+  m = kilograms (kg)
+  a = meters per second squared (m/s²)
 ```
 
-### Kinetic Energy
+**Mistborn Application:**
+When a Coinshot Pushes a coin (mass ≈ 5 g = 0.005 kg) with 100 N of
+Allomantic force:
 ```
-KE = ½mv²
+  a = F / m = 100 / 0.005 = 20,000 m/s²   — extremely fast!
+```
+The same Push applied to a steel door produces far less acceleration.
 
-Where:
-  KE = Kinetic Energy (Joules)
-  m = Mass (kg)
-  v = Velocity (m/s)
+---
+
+### Newton's Third Law — Law of Action & Reaction
+
+> "For every action, there is an equal and opposite reaction."
+
+```
+F_on_B = -F_on_A
+(equal in magnitude, opposite in direction)
 ```
 
-### Gravitational Force
-```
-Fg = G × (m₁ × m₂) / r²
+**Mistborn Application — *this is the core of Allomancy*:**
+When a Coinshot Pushes a coin away, the Push also propels the Mistborn in
+the opposite direction with equal force. Anchoring: if the metal object is
+too heavy to move, all the force returns to launch the Mistborn instead.
+If both are free to move, each accelerates inversely proportional to its mass.
 
-Where:
-  G = Gravitational constant ≈ 6.674 × 10⁻¹¹ N⋅m²/kg²
-  m₁, m₂ = Masses of objects
-  r = Distance between centers
+---
+
+### Gravity
+
+```
+F_gravity = m × g        (g = 9.8 m/s² on Scadrial / Earth)
+
+Weight vs. Mass:
+  Mass (kg)   — amount of matter; never changes
+  Weight (N)  — gravitational pull; F_gravity = m × g
+
+Free-fall (no air resistance):
+  d = ½ × g × t²
+  v = g × t
+```
+
+**Mistborn Application:**
+A Mistborn Pushing downward on a coin anchored to the ground effectively
+reduces their felt gravity — they can hover or slow a fall. A Lurcher
+(Iron Misting) Pulling upward on a metal anchor above them can fly.
+
+```
+Example — Mistborn after 2 s of free fall:
+  v = 9.8 × 2       = 19.6 m/s downward
+  d = ½ × 9.8 × 4   = 19.6 m fallen
+```
+
+---
+
+### Momentum & Impulse
+
+```
+Momentum:
+  p = m × v          (units: kg·m/s)
+
+Conservation of Momentum (no external forces):
+  m₁v₁ + m₂v₂ = m₁v₁' + m₂v₂'
+
+Impulse (change in momentum):
+  J = F × t = Δp = m × Δv
+```
+
+**Mistborn Application:**
+A coin fired by a Coinshot carries momentum p = m × v. When it hits a
+target that momentum transfers. A heavier coin at lower speed carries the
+same momentum as a lighter coin at higher speed — a tactical trade-off.
+
+```
+Short powerful Push  = high force, short time   (burst move)
+Long sustained Push  = lower force, longer time  (same total impulse)
+```
+
+---
+
+### Normal Force & Weight
+
+```
+Flat ground (no vertical acceleration):
+  N = m × g
+
+Incline at angle θ from horizontal:
+  N             = m × g × cos(θ)   (perpendicular to surface)
+  F_along_slope = m × g × sin(θ)   (parallel to surface)
+```
+
+**Mistborn Application:**
+When a Mistborn Pushes off a wall at an angle, only the component
+perpendicular to the wall actually propels them away. The angle matters.
+```
+  Pushes away (perpendicular):  F × cos(θ)
+  Slides along wall (parallel): F × sin(θ)
+```
+
+---
+
+### Friction
+
+```
+Static friction (object not yet moving):
+  F_static_max = μ_s × N
+
+Kinetic friction (object sliding):
+  F_kinetic = μ_k × N
+
+μ (coefficient of friction, unitless):
+  Ice:              ~0.03
+  Wood on wood:     ~0.3
+  Rubber on asphalt: ~0.7
+```
+
+**Mistborn Application:**
+When a Mistborn slides coins across a stone floor before Pushing them,
+friction slows the coin before launch. A coin without enough speed may
+not generate the expected trajectory force.
+
+---
+
+### Projectile Motion — Coins & Launched Objects
+
+```
+Horizontal (no drag):
+  x   = v_x × t
+  v_x = v × cos(θ)
+
+Vertical:
+  y         = v_y × t − ½ × g × t²
+  v_y       = v × sin(θ)
+  v_y_final = v_y − g × t
+
+Time of flight (same launch and landing height):
+  t = (2 × v × sin(θ)) / g
+
+Maximum range:
+  R = (v² × sin(2θ)) / g
+  Best angle for max range = 45°
+```
+
+**Mistborn Application:**
+A coin launched at an upward angle follows a parabolic arc. A Coinshot
+must account for gravity drop over distance. A horizontal Push is fine
+for close range but loses accuracy at distance without aiming upward.
+
+---
+
+### Circular / Rotational Motion — Swinging & Arcs
+
+```
+Centripetal acceleration:
+  a_c = v² / r
+
+Centripetal force (to maintain circular path):
+  F_c = m × v² / r
+```
+
+**Mistborn Application:**
+A Mistborn swinging around a metal anchor (lamppost, steel cable) in an
+arc experiences centripetal force pulling toward the anchor. The faster
+the swing, the more Pull force is needed. If the Pull is too weak, they
+fly off in a straight line tangent to the circle.
+
+---
+
+### Work & Energy
+
+```
+Work:
+  W = F × d × cos(θ)     (θ = angle between force and motion)
+  Units: Joules (J)
+
+Kinetic Energy:
+  KE = ½ × m × v²
+
+Gravitational Potential Energy:
+  PE = m × g × h
+
+Conservation of Energy (no friction):
+  KE + PE = constant
+  ½mv₁² + mgh₁ = ½mv₂² + mgh₂
+
+Speed after falling height h (from rest):
+  v = √(2 × g × h)
+```
+
+**Mistborn Application:**
+```
+A Push doing 500 J of work on a 0.005 kg coin:
+  v = √(2 × KE / m) = √(2 × 500 / 0.005) ≈ 447 m/s
+  (faster than a bullet — Allomancy is terrifying)
+```
+
+---
+
+### Allomancy-Specific Rules
+
+**Push / Pull Force Balance:**
+```
+Net force on Mistborn = −(net force on metal object)
+
+If m_object >> m_Mistborn:  almost all force goes to Mistborn
+If m_Mistborn >> m_object:  almost all force goes to the object
+If m_Mistborn ≈ m_object:   both accelerate equally in opposite directions
+
+  a_mistborn = F / m_mistborn
+  a_object   = F / m_object
+```
+
+**Line-of-Sight Rule:**
+Allomantic Pushes and Pulls act along the straight line between the
+Mistborn and the metal object. The angle of Push equals the angle of
+that line.
+
+**Anchor Types:**
+```
+Fixed anchor (bolted to ground):
+  All force returns to Mistborn → maximum self-propulsion
+
+Free object (coin, bead):
+  Force splits by mass ratio → launches object + Mistborn recoils
+
+Another person / creature:
+  Force splits — both move (useful for combat throws)
+```
+
+**Stacking Pushes (multiple metals simultaneously):**
+```
+F_total = F₁ + F₂ + F₃ + ...   (vector sum)
+
+Vector components:
+  F_x     = F × cos(θ)
+  F_y     = F × sin(θ)
+  |F_total| = √(F_x² + F_y²)
+  angle   = arctan(F_y / F_x)
+```
+
+---
+
+### Quick Reference — Common Formulas
+
+```
+F = m × a                        Newton's 2nd Law
+F_gravity = m × g  (g = 9.8)    Weight
+p = m × v                        Momentum
+J = F × t = Δp                   Impulse
+KE = ½ × m × v²                 Kinetic Energy
+PE = m × g × h                   Potential Energy
+v = √(2×g×h)                     Speed after falling height h
+F_friction = μ × N               Friction
+F_centripetal = m×v²/r           Circular motion
+R = v²×sin(2θ)/g                 Projectile range
+F_A = −F_B                       Newton's 3rd Law
+```
+
+---
+
+### Useful Constants
+
+```
+g  = 9.8 m/s²                        Gravity on Scadrial / Earth
+G  = 6.674 × 10⁻¹¹ N·m²/kg²         Universal gravitational constant
+1 N = 1 kg·m/s²
+1 J = 1 N·m = 1 kg·m²/s²
+
+Typical coin mass (boxing/half-boxing): ~5–10 g  (0.005–0.01 kg)
+Average human mass:                      ~70 kg
+Steel Inquisitor spike:                  ~0.5–1 kg (estimate)
 ```
 
 ---
