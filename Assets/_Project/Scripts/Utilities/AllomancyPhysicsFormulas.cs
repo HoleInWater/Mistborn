@@ -522,4 +522,15 @@ public static class AllomancyPhysicsFormulas
 
     /// <summary>Gravity in Unity units/s² (9.81 m/s² × 1.312 units/m)</summary>
     public const float GRAVITY_UNITS = 12.87f;
+
+    // ── MAG Travel Velocities (Mistborn Adventure Game, canon-compliant) ────
+    /// <summary>Base steeljump speed: ~45 mph = 20.1 m/s = 26.4 units/s</summary>
+    public const float STEELJUMP_BASE_MPS   = 20.1f;
+    public const float STEELJUMP_BASE_UNITS = 26.4f;
+    /// <summary>Standard Coinshot travel speed: ~40 mph = 17.9 m/s = 23.5 units/s</summary>
+    public const float STEELJUMP_TRAVEL_MPS   = 17.9f;
+    public const float STEELJUMP_TRAVEL_UNITS = 23.5f;
+    /// <summary>Max velocity with Increased Velocity stunt: ~250 mph = 111.8 m/s = 146.7 units/s</summary>
+    public const float STEELJUMP_MAX_MPS   = 111.8f;
+    public const float STEELJUMP_MAX_UNITS = 146.7f;
 }

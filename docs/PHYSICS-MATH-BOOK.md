@@ -885,6 +885,33 @@ only for Duralumin bursts where the entire reserve fires in one pulse.
 
 ---
 
+### MAG Travel Velocities (Steeljumping / Ironpulling Flight)
+
+*Source: Mistborn Adventure Game (canon-compliant)*
+
+```
+Mode                  │ Speed (mph) │ Speed (m/s) │ Unity (units/s) │ Notes
+──────────────────────┼─────────────┼─────────────┼─────────────────┼────────────────
+Standard travel       │ ~40         │ 17.9        │ 23.5            │ Galloping horse
+Base steeljump        │ ~45         │ 20.1        │ 26.4            │ Normal Coinshot
+Max (Increased Vel.)  │ ~250        │ 111.8       │ 146.7           │ MAG stunt
+Duralumin burst       │ 500+        │ 223+        │ 293+            │ Uncontrollable
+Steel Feruchemy tap   │ 300+        │ 134+        │ 176+            │ Twinborn (Wax)
+```
+
+**Factors affecting travel velocity:**
+- Lighter allomancers accelerate faster (Vin vs Kelsier)
+- Fixed/heavy anchors allow greater push-off speed
+- Height and angle of push determine arc vs ballistic trajectory
+- Pewter assists with G-force tolerance at high speed
+- Air resistance at 250+ mph is significant (~1.5 kN on a human body)
+
+**Game cap:** `maxRecoilSpeed` limits the per-impulse velocity change.
+Sustained pushing creates acceleration, so effective speed depends on
+how long and how many anchors the player chains together.
+
+---
+
 ## 4. Feruchemy Storage Functions
 
 ### Basic Storage Function
