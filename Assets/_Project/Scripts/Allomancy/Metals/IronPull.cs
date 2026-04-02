@@ -176,7 +176,10 @@ public class IronPull : MonoBehaviour
         if (playerRigidbody == null || currentTargetRigidbody == null || !hasCurrentTarget) return;
         if (currentTarget != null && !currentTarget.canBePulled) return;
 
-        Vector3 dirToTarget   = currentTargetRigidbody.position - playerRigidbody.position;
+        // Pull originates from the allomancer's "center of self" (chest), not center of mass.
+        // Lore: blue lines extend from the chest — where you'd point if you said "who, me?"
+        Vector3 origin        = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        Vector3 dirToTarget   = currentTargetRigidbody.position - origin;
         float   distance      = dirToTarget.magnitude;
         Vector3 pullDirection = dirToTarget.normalized;
         float flare = CurrentFlareMultiplier;

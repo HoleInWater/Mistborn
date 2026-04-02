@@ -342,6 +342,45 @@ community physics analysis (reddit.com/r/Mistborn, 17thshard.com).*
 
 ---
 
+### Center of Self — Where the Push Originates
+
+> "The push comes from the allomancer's *center of self* — not their center of mass."
+> — Coppermind / confirmed community consensus
+
+```
+Default behavior:
+  Origin  = allomancer's CHEST  (where you'd point saying "who, me?")
+  Target  = metal object's CENTER OF MASS
+
+NOT:
+  Origin  = allomancer's hips / belly button (center of mass)
+```
+
+The blue lines visible to Allomancers always originate from the chest, not the
+hips. This is a subtle but real distinction — a push aimed straight ahead pulls
+the allomancer's chest forward, which can torque the body if the legs are in a
+different position.
+
+**Advanced skill — shifting the center of self:**
+Very skilled (or Savant-level) Allomancers can move the origin point across
+their body — e.g. originating a pull from the hands to catch a coin mid-air.
+This is rare and difficult; most Allomancers never achieve it.
+
+**Advanced skill — targeting specific parts of an object:**
+A skilled Allomancer can push or pull on sub-sections of a metal object rather
+than its center of mass:
+- Kelsier spins cage bars by pushing one end and pulling the other simultaneously
+- Wax can identify a bullet is multi-piece and push on only one piece
+- This requires intense focus and Allomantic practice — default is always the
+  object's center of mass
+
+**Defensive note — Lurcher breastplates:**
+Lurchers sometimes wear heavy wooden breastplates. An Iron Pull draws all
+incoming coins toward the chest origin — so a wooden chest plate absorbs the
+impact that would otherwise hit flesh.
+
+---
+
 ### Force Is Proportional to User Mass
 
 The harder a Mistborn pushes, the more force is generated — but the maximum

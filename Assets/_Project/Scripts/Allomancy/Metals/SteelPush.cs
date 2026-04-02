@@ -245,8 +245,11 @@ public class SteelPush : MonoBehaviour
         if (targetRb == playerRigidbody)           return;
         if (target != null && !target.canBePushed) return;
 
-        float   distance      = Vector3.Distance(playerRigidbody.position, targetRb.position);
-        Vector3 pushDirection = (targetRb.position - playerRigidbody.position).normalized;
+        // Push originates from the allomancer's "center of self" (chest), not center of mass.
+        // Lore: blue lines extend from the chest — where you'd point if you said "who, me?"
+        Vector3 origin        = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        float   distance      = Vector3.Distance(origin, targetRb.position);
+        Vector3 pushDirection = (targetRb.position - origin).normalized;
         bool    isAnchored    = (target != null && target.isAnchored) || targetRb.isKinematic;
 
         float flare = CurrentFlareMultiplier;
