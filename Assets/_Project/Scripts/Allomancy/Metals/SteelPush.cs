@@ -143,20 +143,23 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
-        // GetKey (held) so the player can sustain a push for levitation/flight.
-        // Drain runs every frame (rate × deltaTime) for smooth reserve depletion;
-        // physics force is throttled by cooldownTimer to avoid per-frame jitter.
+        // Push force and drain run every frame for smooth arc trajectories.
+        // The push direction updates each frame as positions change, so diagonal
+        // and arced pushes naturally produce parabolic paths under gravity.
+        // Visual/audio effects remain on cooldownTimer to avoid spam.
         KeyCode pushKey = GetAbility1Key();
         bool holdingPush = pushKey != KeyCode.None && Input.GetKey(pushKey);
         if (holdingPush && IsBurning && hasCurrentTarget
             && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
         {
-            // Drain every frame — metalCostPerSecond is a true rate (units/s)
             allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * Time.deltaTime);
+
+            // Continuous force application — smooth arcs instead of pulsed saw-tooth
+            ApplyPushForce();
 
             if (cooldownTimer <= 0f)
             {
-                PushMetals();
+                PushEffects();
                 cooldownTimer = pushCooldown;
                 StartFlaringVignette();
             }
@@ -239,65 +242,95 @@ public class SteelPush : MonoBehaviour
         }
     }
 
-    void PushMetals()
+    /// <summary>
+    /// Calculates push direction, distance falloff, and anchor state for the current target.
+    /// Used by both ApplyPushForce (per-frame) and PushEffects (cooldown-throttled).
+    /// Returns false if the push should not proceed.
+    /// </summary>
+    bool GetPushParams(out Vector3 pushDir, out float distMult, out bool anchored)
     {
-        if (playerRigidbody == null || !hasCurrentTarget || currentTargetRigidbody == null) return;
+        pushDir   = Vector3.zero;
+        distMult  = 0f;
+        anchored  = false;
 
-        Rigidbody        targetRb = currentTargetRigidbody;
-        AllomanticTarget target   = currentTarget;
-
-        if (targetRb == playerRigidbody)           return;
-        if (target != null && !target.canBePushed) return;
+        if (playerRigidbody == null || !hasCurrentTarget || currentTargetRigidbody == null) return false;
+        if (currentTargetRigidbody == playerRigidbody)           return false;
+        if (currentTarget != null && !currentTarget.canBePushed) return false;
 
         // Push originates from the allomancer's "center of self" (chest), not center of mass.
         // Lore: blue lines extend from the chest — where you'd point if you said "who, me?"
-        Vector3 origin        = chestTransform != null ? chestTransform.position : playerRigidbody.position;
-        float   distance      = Vector3.Distance(origin, targetRb.position);
-        Vector3 pushDirection = (targetRb.position - origin).normalized;
-        bool    isAnchored    = (target != null && target.isAnchored) || targetRb.isKinematic;
+        Vector3 origin   = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        Vector3 toTarget = currentTargetRigidbody.position - origin;
+        float   distance = toTarget.magnitude;
 
-        float flare = CurrentFlareMultiplier;
+        pushDir  = distance > 0.001f ? toTarget / distance : Vector3.up;
+        anchored = (currentTarget != null && currentTarget.isAnchored) || currentTargetRigidbody.isKinematic;
 
         // Linear distance falloff: F = F_max × (1 − r/R)  (PHYSICS-MATH-BOOK.md Section 1b)
-        // Community math (Phantine / 17thshard) shows Vin hovers at ~50 ft where F = weight.
-        // With linear scaling and F_max ≈ 1.5 kN at point blank, hover ≈ 15–30 m — matches books.
-        // Inverse-square gives infinite force at zero and doesn't match the hover equilibrium.
-        // Larger metal anchors extend effective range — approximated by target Rigidbody mass below.
+        // Direction updates every frame, so diagonal/arced pushes create smooth parabolic
+        // paths as gravity combines with the continuously-updated push vector.
         float r = Mathf.Max(distance, minDistance);
-        float anchorBonus = currentTargetRigidbody != null
-            ? Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f) : 0f;
-        float effectiveRange  = maxRange * (1f + anchorBonus * 0.5f);  // up to 1.5× range for heavy anchors
-        float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
+        float anchorBonus = Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f);
+        float effectiveRange = maxRange * (1f + anchorBonus * 0.5f);
+        distMult = inverseDistanceScaling ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
+        return true;
+    }
 
-        if (isAnchored)
+    /// <summary>
+    /// Applied every frame while the push key is held. Uses per-frame scaling
+    /// (Time.deltaTime / pushCooldown) so the net impulse over time matches the
+    /// old pulsed system, but produces smooth parabolic arcs instead of saw-tooth.
+    /// The push direction naturally handles any angle — vertical, diagonal, horizontal —
+    /// and gravity combines with it each frame to create the correct arc trajectory.
+    /// </summary>
+    void ApplyPushForce()
+    {
+        if (!GetPushParams(out Vector3 pushDir, out float distMult, out bool anchored)) return;
+
+        float flare      = CurrentFlareMultiplier;
+        // Scale per-frame velocity delta: same total impulse/second as old per-cooldown system
+        float frameScale = Time.deltaTime / pushCooldown;
+
+        if (anchored)
         {
-            Vector3 recoil = -pushDirection * Mathf.Min(pushSpeed * flare * distanceMult, maxRecoilSpeed * flare);
-            playerRigidbody.AddForce(recoil, ForceMode.VelocityChange);
+            float recoilMag = Mathf.Min(pushSpeed * flare * distMult, maxRecoilSpeed * flare);
+            playerRigidbody.AddForce(-pushDir * recoilMag * frameScale, ForceMode.VelocityChange);
         }
         else
         {
             float playerMass = playerRigidbody.mass;
-            float targetMass = targetRb.mass;
+            float targetMass = currentTargetRigidbody.mass;
             float totalMass  = playerMass + targetMass;
-            float pushMag    = loosePushForce * flare * distanceMult;
+            float pushMag    = loosePushForce * flare * distMult;
 
-            targetRb.AddForce(pushDirection * Mathf.Min(pushMag * (playerMass / totalMass), loosePushForce * 3f), ForceMode.VelocityChange);
-            playerRigidbody.AddForce(-pushDirection * Mathf.Min(pushMag * (targetMass / totalMass), maxRecoilSpeed), ForceMode.VelocityChange);
+            float targetV = Mathf.Min(pushMag * (playerMass / totalMass), loosePushForce * 3f);
+            float playerV = Mathf.Min(pushMag * (targetMass / totalMass), maxRecoilSpeed);
+
+            currentTargetRigidbody.AddForce(pushDir  * targetV * frameScale, ForceMode.VelocityChange);
+            playerRigidbody.AddForce(-pushDir * playerV * frameScale, ForceMode.VelocityChange);
         }
+    }
+
+    /// <summary>
+    /// Throttled effects (sound, camera shake, trail, disarm check).
+    /// Called on cooldown timer — does NOT apply physics force.
+    /// </summary>
+    void PushEffects()
+    {
+        if (!GetPushParams(out Vector3 pushDir, out float distMult, out bool anchored)) return;
 
         CameraShakeManager.Instance?.Shake(shakeDuration, shakeMagnitude);
         SoundManager.Instance?.PlayPushSound();
 
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
-        PushPullTrail.Instance?.ShowPushTrail(chestPos, targetRb.position);
+        PushPullTrail.Instance?.ShowPushTrail(chestPos, currentTargetRigidbody.position);
 
         // Disarm check — if we just pushed an enemy's held weapon, rip it from their hand
-        float appliedForce = isAnchored
+        float appliedForce = anchored
             ? Mathf.Min(pushSpeed * CurrentFlareMultiplier, maxRecoilSpeed * CurrentFlareMultiplier)
             : loosePushForce * CurrentFlareMultiplier;
-        HeldWeaponMarker marker = targetRb.GetComponentInChildren<HeldWeaponMarker>()
-                               ?? targetRb.GetComponent<HeldWeaponMarker>();
+        HeldWeaponMarker marker = currentTargetRigidbody.GetComponentInChildren<HeldWeaponMarker>()
+                               ?? currentTargetRigidbody.GetComponent<HeldWeaponMarker>();
         marker?.TryDisarm(appliedForce);
     }
 

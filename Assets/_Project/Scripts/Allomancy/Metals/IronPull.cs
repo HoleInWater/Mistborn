@@ -90,26 +90,33 @@ public class IronPull : MonoBehaviour
             chestTransform = playerRigidbody != null ? playerRigidbody.transform : transform;
     }
 
+    [Header("Pull Cooldown")]
+    public float pullCooldown = 0.2f;
+
     void Update()
     {
         if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
 
         UpdateTargetedMetal();
 
-        // GetKey (held) so the player can sustain a pull for flight toward anchors.
-        // Drain runs every frame (rate × deltaTime); physics force is throttled by cooldownTimer.
+        // Pull force and drain run every frame for smooth arc trajectories.
+        // The pull direction updates each frame as positions change, so diagonal
+        // pulls (swinging toward a wall anchor, arcing across a gap) produce
+        // smooth parabolic paths instead of pulsed saw-tooth.
         KeyCode pullKey = GetAbility1Key();
         bool holdingPull = pullKey != KeyCode.None && Input.GetKey(pullKey);
         if (holdingPull && IsBurning && hasCurrentTarget
             && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)
         {
-            // Drain every frame — metalCostPerSecond is a true rate (units/s)
             allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond * Time.deltaTime);
+
+            // Continuous force — smooth arcs
+            ApplyPullForce();
 
             if (cooldownTimer <= 0f)
             {
-                PullMetals();
-                cooldownTimer = 0.2f;
+                PullEffects();
+                cooldownTimer = pullCooldown;
             }
         }
     }
@@ -175,45 +182,73 @@ public class IronPull : MonoBehaviour
         }
     }
 
-    void PullMetals()
+    /// <summary>
+    /// Calculates pull direction, distance falloff, and anchor state for the current target.
+    /// Returns false if the pull should not proceed.
+    /// </summary>
+    bool GetPullParams(out Vector3 pullDir, out float distMult)
     {
-        if (playerRigidbody == null || currentTargetRigidbody == null || !hasCurrentTarget) return;
-        if (currentTarget != null && !currentTarget.canBePulled) return;
+        pullDir  = Vector3.zero;
+        distMult = 0f;
+
+        if (playerRigidbody == null || currentTargetRigidbody == null || !hasCurrentTarget) return false;
+        if (currentTarget != null && !currentTarget.canBePulled) return false;
 
         // Pull originates from the allomancer's "center of self" (chest), not center of mass.
-        // Lore: blue lines extend from the chest — where you'd point if you said "who, me?"
-        Vector3 origin        = chestTransform != null ? chestTransform.position : playerRigidbody.position;
-        Vector3 dirToTarget   = currentTargetRigidbody.position - origin;
-        float   distance      = dirToTarget.magnitude;
-        Vector3 pullDirection = dirToTarget.normalized;
-        float flare = CurrentFlareMultiplier;
+        Vector3 origin    = chestTransform != null ? chestTransform.position : playerRigidbody.position;
+        Vector3 toTarget  = currentTargetRigidbody.position - origin;
+        float   distance  = toTarget.magnitude;
+        pullDir = distance > 0.001f ? toTarget / distance : Vector3.zero;
 
-        // Linear distance falloff: F = F_max × (1 − r/R)  (PHYSICS-MATH-BOOK.md Section 1b)
-        // Larger anchors extend effective pull range (heavier object = thicker blue line = further pull).
+        // Linear distance falloff — direction recalculated each frame for arc accuracy
         float r = Mathf.Max(distance, minDistance);
-        float anchorBonus = currentTargetRigidbody != null
-            ? Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f) : 0f;
-        float effectiveRange  = maxRange * (1f + anchorBonus * 0.5f);
-        float distanceMult = inverseDistanceScaling
-            ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
+        float anchorBonus = Mathf.Clamp(Mathf.Log10(Mathf.Max(1f, currentTargetRigidbody.mass)), 0f, 1f);
+        float effectiveRange = maxRange * (1f + anchorBonus * 0.5f);
+        distMult = inverseDistanceScaling ? Mathf.Clamp01(1f - r / effectiveRange) : 1f;
+        return true;
+    }
+
+    /// <summary>
+    /// Applied every frame while the pull key is held.
+    /// Per-frame scaling (Time.deltaTime / pullCooldown) preserves the same net impulse
+    /// as the old pulsed system, but produces smooth parabolic arcs for any angle —
+    /// pulling toward a wall anchor at 45° arcs the player in a smooth curve instead
+    /// of a staircase.
+    /// </summary>
+    void ApplyPullForce()
+    {
+        if (!GetPullParams(out Vector3 pullDir, out float distMult)) return;
+
+        float flare      = CurrentFlareMultiplier;
+        float frameScale = Time.deltaTime / pullCooldown;
 
         if (isAnchored)
         {
-            float speed = Mathf.Min(pullSpeed * flare * distanceMult, maxPullSpeed);
-            playerRigidbody.AddForce(pullDirection * speed, ForceMode.VelocityChange);
+            float speed = Mathf.Min(pullSpeed * flare * distMult, maxPullSpeed);
+            playerRigidbody.AddForce(pullDir * speed * frameScale, ForceMode.VelocityChange);
         }
         else
         {
             float playerMass = playerRigidbody.mass;
             float objectMass = currentTargetRigidbody.mass;
             float totalMass  = playerMass + objectMass;
-            float pullMag    = loosePullForce * flare * distanceMult;
+            float pullMag    = loosePullForce * flare * distMult;
 
-            playerRigidbody.AddForce(pullDirection
-                * Mathf.Min(pullMag * (objectMass / totalMass), maxPullSpeed), ForceMode.VelocityChange);
-            currentTargetRigidbody.AddForce(-pullDirection
-                * Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f), ForceMode.VelocityChange);
+            float playerV = Mathf.Min(pullMag * (objectMass / totalMass), maxPullSpeed);
+            float objectV = Mathf.Min(pullMag * (playerMass / totalMass), loosePullForce * 2f);
+
+            playerRigidbody.AddForce(pullDir * playerV * frameScale, ForceMode.VelocityChange);
+            currentTargetRigidbody.AddForce(-pullDir * objectV * frameScale, ForceMode.VelocityChange);
         }
+    }
+
+    /// <summary>
+    /// Throttled effects (sound, camera shake, trail, disarm check).
+    /// Called on cooldown timer — does NOT apply physics force.
+    /// </summary>
+    void PullEffects()
+    {
+        if (!GetPullParams(out Vector3 pullDir, out float distMult)) return;
 
         float pullForce = isAnchored ? pullSpeed * CurrentFlareMultiplier : loosePullForce * CurrentFlareMultiplier;
         TriggerPullTint(pullForce);
@@ -223,7 +258,6 @@ public class IronPull : MonoBehaviour
         Vector3 chestPos = chestTransform != null ? chestTransform.position : transform.position;
         PushPullTrail.Instance?.ShowPullTrail(currentTargetRigidbody.position, chestPos);
 
-        // Disarm check — if we just pulled an enemy's held weapon, rip it from their hand
         HeldWeaponMarker marker = currentTargetRigidbody.GetComponentInChildren<HeldWeaponMarker>()
                                ?? currentTargetRigidbody.GetComponent<HeldWeaponMarker>();
         marker?.TryDisarm(pullForce);

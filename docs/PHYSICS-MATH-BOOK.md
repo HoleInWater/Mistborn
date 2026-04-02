@@ -23,6 +23,7 @@
 12. [Practical Applications](#12-practical-applications)
 13. [Unity World Scale & Unit Conversions](#13-unity-world-scale--unit-conversions)
 14. [Metal Ingestion, Capacity & Toxicology](#14-metal-ingestion-capacity--toxicology)
+15. [Arc Trajectories — Diagonal Push/Pull Physics](#15-arc-trajectories--diagonal-pushpull-physics)
 
 ---
 
@@ -3263,8 +3264,131 @@ at the `SleepEvent`): `damage = HQ × maxHealth × metalConcentrationFactor`
 
 ---
 
+## 15. Arc Trajectories — Diagonal Push/Pull Physics
+
+*Allomantic pushes are rarely straight up or straight down. A Mistborn pushing
+off a coin on a rooftop while running launches at an angle — the resulting path
+is a parabolic arc under the combined influence of the push vector and gravity.*
+
+---
+
+### Why Arcs Matter
+
+```
+A push/pull force acts along the blue line — the straight line from chest to metal.
+As the Mistborn and the metal source change positions, the blue line's angle changes.
+Gravity always pulls straight down.
+
+Combined effect: the Mistborn traces a smooth parabolic arc, not a straight line.
+
+Examples:
+  - Push off a coin below-left → arc curves right and up
+  - Pull toward a wall anchor at 45° → smooth Tarzan-swing arc
+  - Push a coin at a target to the right → coin arcs down from gravity
+```
+
+---
+
+### Core Arc Equation
+
+Position at time t under constant push acceleration + gravity:
+
+```
+pos(t) = pos₀ + v₀ × t + ½ × a_combined × t²
+
+where:
+  a_combined = a_push + g
+  a_push     = pushDirection × pushAccelMagnitude  (3D vector, from target to self for recoil)
+  g          = (0, -9.81, 0) m/s²   or (0, -12.87, 0) in Unity units
+```
+
+Velocity at time t:
+```
+v(t) = v₀ + a_combined × t
+```
+
+---
+
+### Force Decomposition
+
+Any push at angle θ from vertical decomposes into:
+
+```
+F_vertical   = F_push × cos(θ)     (fights gravity — needed for levitation)
+F_horizontal = F_push × sin(θ)     (lateral movement)
+
+For levitation at angle θ:
+  F_push × cos(θ) > m × g   →   push must exceed weight ÷ cos(θ)
+
+At θ = 0° (straight down):   F_push > weight         (easiest levitation)
+At θ = 30°:                  F_push > weight / 0.866  (15% more force needed)
+At θ = 45°:                  F_push > weight / 0.707  (41% more force needed)
+At θ = 60°:                  F_push > weight / 0.500  (2× force needed)
+At θ = 90° (horizontal):     no vertical lift possible from this metal alone
+```
+
+---
+
+### Continuous vs Pulsed Force Application
+
+```
+OLD (pulsed):
+  Every 0.2s: instant velocity change of Δv along push direction.
+  Between pulses: only gravity acts.
+  Result: saw-tooth trajectory — jerky, especially at angles.
+
+NEW (continuous):
+  Every frame: velocity change of Δv × (dt / cooldown) along current push direction.
+  Gravity always acts simultaneously.
+  Result: smooth parabolic arc — the push direction updates as positions change,
+  naturally curving the trajectory.
+
+  Net impulse per second is identical: Δv / cooldown in both systems.
+```
+
+---
+
+### Practical Scenarios
+
+**Coin Push at angle α below horizontal (coin launched upward at α):**
+```
+Phase 1 — Push active (0 to t_push):
+  x(t) = v₀ cos(α) × t + ½ a_push_x × t²
+  y(t) = v₀ sin(α) × t + ½ (a_push_y − g) × t²
+
+Phase 2 — Free flight (t_push to landing):
+  Standard projectile: x continues at v_x, y decelerates under g only.
+
+Horizontal range = Phase1_x + Phase2_x
+Max height: solve v_y(t) = 0
+```
+
+**Lurcher swing (pull toward elevated anchor):**
+```
+The Lurcher arcs toward the anchor like a pendulum.
+The pull force direction tracks the anchor, creating a smooth curve:
+  - Start: mostly horizontal pull
+  - Midpoint: pull becomes more vertical (passing below anchor)
+  - End: pull decelerates as Lurcher approaches anchor
+
+Radial acceleration ≈ pullAccel − g×cos(θ_line)
+Tangential acceleration = −g×sin(θ_line)
+```
+
+**Hover at equilibrium (distance r where push = weight):**
+```
+At angle θ from vertical:
+  pushAccel × (1 − r/R) × cos(θ) = g
+  r_hover = R × (1 − g / (pushAccel × cos(θ)))
+
+Closer to vertical (smaller θ) → can hover at greater range.
+More angled (larger θ) → must be closer to metal for hover.
+```
+
+---
+
 *Document compiled from r/Mistborn, r/Cosmere, and 17th Shard community analysis*
 *Brandon Sanderson's official WoB from Arcanum.coppermind.net*
 *Cosmere Era: 1022-1025 FE*
-*Last Updated: March 2026*
-*Version: 2.0 - Includes Atium Retcon and Time Bubble Physics*
+*Last Updated: April 2026*
+*Version: 3.0 - Includes Arc Trajectories and MAG Burn Rates*

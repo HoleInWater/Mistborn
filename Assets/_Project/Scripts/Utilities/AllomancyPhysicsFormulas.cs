@@ -349,6 +349,53 @@ public static class AllomancyPhysicsFormulas
     }
 
     /// <summary>
+    /// Predict position under a sustained Allomantic push/pull + gravity.
+    /// The push direction is from origin toward target (or vice versa for pull).
+    /// Combined acceleration = pushAccel × pushDirection + gravity
+    /// pos(t) = start + v₀×t + ½×a_combined×t²
+    /// Works for any angle — vertical, diagonal, horizontal — producing correct arcs.
+    /// </summary>
+    public static Vector3 PredictArcPosition(Vector3 startPos, Vector3 velocity,
+        Vector3 pushAcceleration, float time)
+    {
+        Vector3 totalAccel = pushAcceleration + Physics.gravity;
+        return startPos + (velocity * time) + (0.5f * totalAccel * time * time);
+    }
+
+    /// <summary>
+    /// Velocity at time t under sustained push + gravity.
+    /// v(t) = v₀ + a_combined × t
+    /// </summary>
+    public static Vector3 PredictArcVelocity(Vector3 initialVelocity,
+        Vector3 pushAcceleration, float time)
+    {
+        return initialVelocity + (pushAcceleration + Physics.gravity) * time;
+    }
+
+    /// <summary>
+    /// Decompose a push/pull force vector into vertical and horizontal components.
+    /// Useful for determining if a diagonal push can sustain flight (vertical > gravity)
+    /// or if a horizontal push will produce a useful arc vs just scraping the ground.
+    /// </summary>
+    public static void DecomposeForce(Vector3 forceDirection, float magnitude,
+        out float verticalComponent, out float horizontalComponent)
+    {
+        verticalComponent   = forceDirection.y * magnitude;
+        horizontalComponent = new Vector2(forceDirection.x, forceDirection.z).magnitude * magnitude;
+    }
+
+    /// <summary>
+    /// Check if a push at a given angle can sustain flight (vertical push component > weight).
+    /// angle = angle between push direction and straight down (0° = directly below = best levitation).
+    /// Returns the net vertical acceleration (positive = ascending, negative = falling).
+    /// </summary>
+    public static float NetVerticalAcceleration(float pushAccelMagnitude, Vector3 pushDirection)
+    {
+        float verticalPush = -pushDirection.y * pushAccelMagnitude; // negative pushDir.y = pushing upward
+        return verticalPush + Physics.gravity.y; // gravity.y is negative
+    }
+
+    /// <summary>
     /// Kinetic energy of a moving object (Section 1).
     /// KE = ½mv²
     /// </summary>
