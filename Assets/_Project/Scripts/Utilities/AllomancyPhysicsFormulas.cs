@@ -482,6 +482,29 @@ public static class AllomancyPhysicsFormulas
     /// <summary>Default coin cross-section for physics — Clip</summary>
     public const float COIN_CROSS_SECTION = CLIP_CROSS_SECTION;
 
+    // ── Metal Densities (kg/m³, real-world values for allomantic metals) ─────
+    // Used for metalmind capacity, coin mass verification, and ingestion volume calculations.
+    // Physical Metals
+    public const float DENSITY_IRON     = 7874f;
+    public const float DENSITY_STEEL    = 7850f;  // Fe + C alloy
+    public const float DENSITY_TIN      = 7265f;
+    public const float DENSITY_PEWTER   = 7300f;  // Sn + Pb alloy (varies)
+    // Mental Metals
+    public const float DENSITY_ZINC     = 7134f;
+    public const float DENSITY_BRASS    = 8500f;  // Cu + Zn alloy
+    public const float DENSITY_COPPER   = 8960f;
+    public const float DENSITY_BRONZE   = 8800f;  // Cu + Sn alloy
+    // Temporal Metals
+    public const float DENSITY_GOLD     = 19320f;
+    public const float DENSITY_ELECTRUM = 15000f; // Au + Ag alloy (varies)
+    public const float DENSITY_CADMIUM  = 8650f;
+    public const float DENSITY_BENDALLOY = 9500f; // Cd + Pb + Sn + Bi (varies)
+    // Enhancement Metals
+    public const float DENSITY_ALUMINUM  = 2700f;
+    public const float DENSITY_DURALUMIN = 2800f; // Al + Cu alloy
+    public const float DENSITY_CHROMIUM  = 7190f;
+    public const float DENSITY_NICROSIL  = 8200f; // Cr + Ni + Si alloy (est.)
+
     /// <summary>Cadmium slow factor (10x slower, handbook τ≈0.1)</summary>
     public const float CADMIUM_TAU = 0.1f;
 

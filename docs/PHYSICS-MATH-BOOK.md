@@ -3384,6 +3384,54 @@ Pewter-drag emergency vial (≈ 150 mL) → reserve = 375 units (3.75×).
 
 ---
 
+### Metal Densities (kg/m³)
+
+Real-world densities for all 16 Allomantic metals. Used for metalmind capacity
+calculations, coin mass verification, and computing ingestion volume from mass.
+
+```
+Category     │ Metal       │ Composition      │ Density (kg/m³)
+─────────────┼─────────────┼──────────────────┼────────────────
+Physical     │ Iron        │ Fe               │ 7,874
+             │ Steel       │ Fe + C           │ 7,850
+             │ Tin         │ Sn               │ 7,265
+             │ Pewter      │ Sn + Pb alloy    │ ~7,300
+─────────────┼─────────────┼──────────────────┼────────────────
+Mental       │ Zinc        │ Zn               │ 7,134
+             │ Brass       │ Cu + Zn alloy    │ ~8,500
+             │ Copper      │ Cu               │ 8,960
+             │ Bronze      │ Cu + Sn alloy    │ ~8,800
+─────────────┼─────────────┼──────────────────┼────────────────
+Temporal     │ Gold        │ Au               │ 19,320
+             │ Electrum    │ Au + Ag alloy    │ ~15,000
+             │ Cadmium     │ Cd               │ 8,650
+             │ Bendalloy   │ Cd+Pb+Sn+Bi     │ ~9,500
+─────────────┼─────────────┼──────────────────┼────────────────
+Enhancement  │ Aluminum    │ Al               │ 2,700
+             │ Duralumin   │ Al + Cu alloy    │ ~2,800
+             │ Chromium    │ Cr               │ 7,190
+             │ Nicrosil    │ Cr+Ni+Si alloy   │ ~8,200
+
+Range: Aluminum (2,700) to Gold (19,320) — a 7× spread.
+```
+
+**Volume from mass:** `V = m / ρ`
+```
+Example — 5 g of each metal in a vial:
+  Aluminum:  5 / 2700 = 1.85 mL   (lightest → largest volume per gram)
+  Gold:      5 / 19320 = 0.26 mL  (densest → smallest volume per gram)
+  Iron:      5 / 7874 = 0.64 mL
+
+  16 metals × 5 g each = 80 g total
+  Total volume ≈ 10–12 mL (less than a tablespoon)
+```
+
+This confirms lore: a full day's supply of all 16 metals fits easily in a
+small flask or pouch. The metals are consumed as fine shavings or beads
+suspended in alcohol solution.
+
+---
+
 ### Heavy Metal Toxicity — Risk Formulas
 
 For modeling poisoning if a Mistborn fails to burn reserves.
