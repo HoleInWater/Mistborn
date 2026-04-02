@@ -678,6 +678,81 @@ For a quarter (r ≈ 0.012m):
 
 ---
 
+### Community Analysis: Realistic Coin Velocities
+
+*Source: r/Mistborn, u/Phantine, 17th Shard community research*
+
+**Vacuum estimate (no drag, constant force):**
+```
+Given:
+  Mistborn mass = 77 kg (170 lb)
+  Push force = 2 × m × g = 2 × 77 × 9.81 ≈ 1,510 N
+    (conservative: enough to launch self upward at 1g)
+  Coin mass = 5.67 g (US quarter)
+  Push range = 10 m
+
+  Acceleration = 1,510 / 0.00567 = 266,314 m/s²
+  Push duration = √(2 × 10 / 266,314) = 0.0087 s  (8.7 ms)
+  Final velocity = 266,314 × 0.0087 ≈ 2,310 m/s  (2.3 km/s)
+
+  For reference: .50 cal BMG bullet = 890 m/s, M16 = 960 m/s
+  Coins in vacuum would be 2.5× faster than a sniper rifle round.
+```
+
+**Why coins aren't hypersonic in practice:**
+1. **Air drag** — coins are flat, not aerodynamic. Drag coefficient for a tumbling disk ≈ 1.1 (vs 0.3 for a bullet). Terminal velocity for a coin under push ≈ 77–120 m/s depending on orientation.
+2. **Power limit** — community theory: Allomantic power (P = F × v) may be capped, so force drops as velocity increases. This prevents infinite acceleration.
+3. **Distance falloff** — force decreases with distance (linear model), so the push weakens as the coin moves away.
+
+---
+
+### Power-Limited Force Model (Community Theory)
+
+```
+If Allomantic power is capped at P_max:
+  F(v) = P_max / v       (force drops as velocity rises)
+  F(v) = min(F_max, P_max / v)   (capped at F_max at low velocity)
+
+Acceleration under power limit:
+  a(v) = F(v) / m = P_max / (m × v)
+
+Terminal push velocity (where F(v) = drag):
+  v_push_terminal: solve P_max / v = ½ρ C_d A v²
+  → v_push_terminal = (2 P_max / (ρ C_d A))^(1/3)
+
+For gameplay we use: v_max = min(v_push_terminal, v_drag_terminal)
+```
+
+This model explains why:
+- Coins can't be accelerated to supersonic speed (power limit + drag)
+- Heavy objects experience more force at low speed (F = P/v, v is low → F is high)
+- Vin can hover (low velocity → high force available)
+- Bullets are hard to deflect (high velocity → low push force available)
+
+---
+
+### Velocity Comparison Table
+
+```
+Projectile          │ Velocity (m/s) │ KE (J)    │ Notes
+────────────────────┼────────────────┼───────────┼──────────────────────
+Thrown coin          │ 15–25          │ 1–2       │ No Allomancy
+Pushed coin (game)   │ 77–120         │ 17–41     │ Drag-limited, game feel
+Pushed coin (lore)   │ 200–400        │ 113–454   │ Power-limited + some drag
+Crossbow bolt        │ 60–100         │ 54–150    │ Reference
+Pistol bullet        │ 370            │ 515       │ 9mm Luger
+Rifle bullet         │ 960            │ 1,800     │ 5.56 NATO
+.50 cal BMG          │ 890            │ 18,000    │ Anti-materiel
+Duralumin coin burst │ 400–800+       │ 450–1800  │ Full reserve, one shot
+Sound (Mach 1)       │ 343            │ —         │ Speed of sound reference
+```
+
+**Game implementation:** Use drag-limited model (77–120 m/s) for normal pushes,
+power-limited model (200–400 m/s) for flared pushes, and the full vacuum estimate
+only for Duralumin bursts where the entire reserve fires in one pulse.
+
+---
+
 ## 4. Feruchemy Storage Functions
 
 ### Basic Storage Function

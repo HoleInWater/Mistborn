@@ -99,6 +99,34 @@ public static class AllomancyPhysicsFormulas
         return vTerminal * (1f - Mathf.Exp(-distance / tau));
     }
 
+    /// <summary>
+    /// Power-limited Allomantic force (community theory, Handbook Section 3).
+    /// F(v) = min(F_max, P_max / v)
+    /// At low velocity the force is capped at F_max; as the target speeds up,
+    /// the available force drops (constant power output). This prevents coins
+    /// from reaching hypersonic speeds and explains why fast bullets are hard
+    /// to deflect — the allomancer's force is inversely proportional to the
+    /// object's velocity.
+    /// </summary>
+    public static float CalculatePowerLimitedForce(float maxForce, float maxPower, float velocity)
+    {
+        if (velocity <= 0.01f) return maxForce;
+        return Mathf.Min(maxForce, maxPower / velocity);
+    }
+
+    /// <summary>
+    /// Terminal push velocity under the power-limited + drag model.
+    /// v_terminal = (2 × P_max / (ρ × C_d × A))^(1/3)
+    /// This is the speed at which push force = drag force, so the coin stops accelerating.
+    /// </summary>
+    public static float CalculatePowerLimitedTerminalVelocity(float maxPower,
+        float dragCoefficient = 0.47f, float crossSectionArea = 0.00045f, float airDensity = 1.225f)
+    {
+        float denominator = airDensity * dragCoefficient * crossSectionArea;
+        if (denominator <= 0f) return 0f;
+        return Mathf.Pow(2f * maxPower / denominator, 1f / 3f);
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // SECTION 4: FERUCHEMY STORAGE FUNCTIONS
     // ═══════════════════════════════════════════════════════════════════════════
