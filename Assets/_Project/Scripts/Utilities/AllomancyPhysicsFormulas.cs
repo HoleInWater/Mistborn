@@ -358,14 +358,29 @@ public static class AllomancyPhysicsFormulas
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // WORLD SCALE: 2 Unity units = 5 feet (see WorldScale.cs)
+    // WORLD SCALE — 2 Unity units = 5 feet (0.762 m/unit)
+    // Canonical source: standard Unity humanoid is 2 units tall ≈ 5 ft / 1.524 m
     // ═══════════════════════════════════════════════════════════════════════════
 
     /// <summary>1 Unity unit = 2.5 feet = 0.762 meters</summary>
     public const float METERS_PER_UNIT = 0.762f;
-    public const float UNITS_PER_METER = 1.312f;
-    public const float FEET_PER_UNIT = 2.5f;
-    public const float UNITS_PER_FOOT = 0.4f;
+    public const float UNITS_PER_METER = 1.312f;   // = 1 / 0.762
+    public const float FEET_PER_UNIT   = 2.5f;
+    public const float UNITS_PER_FOOT  = 0.4f;     // = 1 / 2.5
+
+    // Common distances:
+    // maxRange = 60 units ≈ 150 ft ≈ 45.7 m  (lore: "a few hundred feet")
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // IN-GAME TIME SCALE — 20 real minutes per in-game day (DayNightCycle default)
+    // 1 real second = 72 in-game seconds
+    // Metal burn durations below are in REAL seconds (what the player experiences).
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>Real seconds per in-game day (DayNightCycle.dayLengthMinutes × 60)</summary>
+    public const float REAL_SECONDS_PER_INGAME_DAY = 20f * 60f;  // 1200 s
+    /// <summary>In-game seconds that pass for every real second (72× compression)</summary>
+    public const float INGAME_SECONDS_PER_REAL_SECOND = (24f * 3600f) / REAL_SECONDS_PER_INGAME_DAY; // 72
 
     // ═══════════════════════════════════════════════════════════════════════════
     // CONSTANTS (handbook values, game-tuned for 2u=5ft scale)

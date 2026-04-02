@@ -21,6 +21,7 @@
 10. [Graphical Analysis](#10-graphical-analysis)
 11. [Diminishing Returns Functions](#11-diminishing-returns-functions)
 12. [Practical Applications](#12-practical-applications)
+13. [Unity World Scale & Unit Conversions](#13-unity-world-scale--unit-conversions)
 
 ---
 
@@ -3017,6 +3018,99 @@ Cycles │ Multiplier │ Practical Application
 4      │ 10,000×    │ Dangerous territory
 5      │ 100,000×   │ Iron compounder "Deaders"
 ```
+
+---
+
+## 13. Unity World Scale & Unit Conversions
+
+*All physics code uses these conventions. Mismatch here causes wrong force magnitudes.*
+
+---
+
+### Space Scale
+
+```
+2 Unity units = 5 feet = 1.524 meters
+
+Derived:
+  1 Unity unit  = 2.5 ft   = 0.762 m
+  1 meter       = 1.312 units
+  1 foot        = 0.4 units
+
+Quick reference:
+  maxRange = 60 units  ≈ 150 ft  ≈ 45.7 m  (lore: "a few hundred feet")
+  Player height ≈ 2 units = 5 ft = 1.524 m  (standard Unity capsule)
+  Coin diameter ≈ 0.016 units ≈ 1.2 cm  (US quarter / Mistborn clip)
+
+To convert:
+  meters → units : × 1.312
+  feet   → units : × 0.4
+  units  → meters: × 0.762
+  units  → feet  : × 2.5
+```
+
+**Gravity in Unity units:**
+```
+g = 9.81 m/s²  ×  1.312 units/m  =  12.87 units/s²
+
+Physics.gravity in Unity should be set to (0, -12.87, 0)
+(or use the default (0, -9.81, 0) with METERS_PER_UNIT scale-correction
+in force calculations)
+```
+
+---
+
+### Time Scale — Day/Night Cycle
+
+```
+DayNightCycle.dayLengthMinutes = 20 (default)
+
+  1 in-game day    = 20 real minutes  = 1,200 real seconds
+  1 in-game hour   = 50 real seconds
+  1 in-game minute = 0.833 real seconds
+  1 in-game second = 0.01389 real seconds
+
+  Compression ratio: 72× (72 in-game seconds per real second)
+```
+
+Metal burn durations from the MAG are **in-universe** durations (in-game hours/minutes).
+The code stores them as **real-world seconds** (what the player experiences), mapping
+1 MAG minute ≈ 0.833 real seconds. See `AllomancyConstants` for derived drain rates.
+
+---
+
+### MAG Metal Burn Rates
+
+*Source: Mistborn Adventure Game (Crafty Games, official Sanderson-licensed)*
+*Canonical burn durations at normal intensity, full reserve (100 units)*
+
+```
+Metal        │ MAG Duration │ Real-s (×0.833/min) │ Drain/s at reserve=100
+─────────────┼──────────────┼─────────────────────┼───────────────────────
+Aluminum     │ instant      │ 0 s (purge reserve) │ instant
+Atium        │ 30 s         │ 30 s                │ ≈ 3.333
+Bendalloy    │ 5 min        │ 300 s               │ ≈ 0.333
+Brass        │ 20 min       │ 1,200 s             │ ≈ 0.0833
+Bronze       │ 30 min       │ 1,800 s             │ ≈ 0.0556
+Cadmium      │ 30 min       │ 1,800 s             │ ≈ 0.0556
+Chromium     │ instant      │ 0 s (strip target)  │ instant
+Copper       │ 40 min       │ 2,400 s             │ ≈ 0.0417
+Duralumin    │ instant      │ 0 s (burst reserve) │ instant
+Electrum     │ 10 min       │ 600 s               │ ≈ 0.1667
+Gold         │ 10 min       │ 600 s               │ ≈ 0.1667
+Iron         │ 20 min       │ 1,200 s             │ ≈ 0.0833
+Nicrosil     │ instant      │ 0 s (burst target)  │ instant
+Pewter       │ 5 min        │ 300 s               │ ≈ 0.333
+Steel        │ 20 min       │ 1,200 s             │ ≈ 0.0833
+Tin          │ 1 hour       │ 3,600 s             │ ≈ 0.0278
+Zinc         │ 20 min       │ 1,200 s             │ ≈ 0.0833
+```
+
+*Notes:*
+- *Flaring roughly doubles burn rate (halves duration)*
+- *Duralumin + any metal expends the full reserve in one burst*
+- *MAG durations represent "active use" — passive burning (Copper/Tin while exploring) matches these*
+- *Drain rates in code live in `AllomancyConstants` as `XxxDrainRate` constants*
 
 ---
 

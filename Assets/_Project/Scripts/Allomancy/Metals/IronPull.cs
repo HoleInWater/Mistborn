@@ -23,7 +23,7 @@ public class IronPull : MonoBehaviour
     [Header("Settings")]
     public float minDistance        = 1f;
     public float maxRange           = 60f;   // ~200 ft — lore canon: "a few hundred feet"
-    public float metalCostPerSecond = 0.5f;
+    public float metalCostPerSecond = AllomancyConstants.IronDrainRate; // MAG: 20 min burn (~0.0833/s)
 
     [Header("Pull Physics")]
     public float pullSpeed              = 20f;
@@ -97,14 +97,18 @@ public class IronPull : MonoBehaviour
         UpdateTargetedMetal();
 
         // GetKey (held) so the player can sustain a pull for flight toward anchors.
+        // Drain runs every frame (rate × deltaTime); physics force is throttled by cooldownTimer.
         KeyCode pullKey = GetAbility1Key();
-        if (pullKey != KeyCode.None && Input.GetKey(pullKey) && cooldownTimer <= 0f)
+        bool holdingPull = pullKey != KeyCode.None && Input.GetKey(pullKey);
+        if (holdingPull && IsBurning && hasCurrentTarget
+            && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)
         {
-            if (IsBurning && hasCurrentTarget
-                && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)
+            // Drain every frame — metalCostPerSecond is a true rate (units/s)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond * Time.deltaTime);
+
+            if (cooldownTimer <= 0f)
             {
                 PullMetals();
-                allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond);
                 cooldownTimer = 0.2f;
             }
         }

@@ -24,7 +24,7 @@ public class SteelPush : MonoBehaviour
     [Header("Push Settings")]
     public float minDistance        = 1f;
     public float maxRange           = 60f;   // ~200 ft — lore canon: "a few hundred feet"
-    public float metalCostPerSecond = 0.5f;
+    public float metalCostPerSecond = AllomancyConstants.SteelDrainRate; // MAG: 20 min burn (~0.0833/s)
     public float pushCooldown       = 0.2f;
 
     [Header("Push Physics")]
@@ -144,15 +144,19 @@ public class SteelPush : MonoBehaviour
         UpdateTargetedMetal();
 
         // GetKey (held) so the player can sustain a push for levitation/flight.
-        // The cooldownTimer throttles repeat rate — no need for GetKeyDown.
+        // Drain runs every frame (rate × deltaTime) for smooth reserve depletion;
+        // physics force is throttled by cooldownTimer to avoid per-frame jitter.
         KeyCode pushKey = GetAbility1Key();
-        if (pushKey != KeyCode.None && Input.GetKey(pushKey) && cooldownTimer <= 0f)
+        bool holdingPush = pushKey != KeyCode.None && Input.GetKey(pushKey);
+        if (holdingPush && IsBurning && hasCurrentTarget
+            && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
         {
-            if (IsBurning && hasCurrentTarget
-                && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
+            // Drain every frame — metalCostPerSecond is a true rate (units/s)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond * Time.deltaTime);
+
+            if (cooldownTimer <= 0f)
             {
                 PushMetals();
-                allomancer.DrainMetal(AllomancySkill.MetalType.Steel, metalCostPerSecond);
                 cooldownTimer = pushCooldown;
                 StartFlaringVignette();
             }
