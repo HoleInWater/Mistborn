@@ -96,8 +96,9 @@ public class IronPull : MonoBehaviour
 
         UpdateTargetedMetal();
 
+        // GetKey (held) so the player can sustain a pull for flight toward anchors.
         KeyCode pullKey = GetAbility1Key();
-        if (pullKey != KeyCode.None && Input.GetKeyDown(pullKey) && cooldownTimer <= 0f)
+        if (pullKey != KeyCode.None && Input.GetKey(pullKey) && cooldownTimer <= 0f)
         {
             if (IsBurning && hasCurrentTarget
                 && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Iron) > 0)

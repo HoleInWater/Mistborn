@@ -143,8 +143,10 @@ public class SteelPush : MonoBehaviour
 
         UpdateTargetedMetal();
 
+        // GetKey (held) so the player can sustain a push for levitation/flight.
+        // The cooldownTimer throttles repeat rate — no need for GetKeyDown.
         KeyCode pushKey = GetAbility1Key();
-        if (pushKey != KeyCode.None && Input.GetKeyDown(pushKey) && cooldownTimer <= 0f)
+        if (pushKey != KeyCode.None && Input.GetKey(pushKey) && cooldownTimer <= 0f)
         {
             if (IsBurning && hasCurrentTarget
                 && allomancer != null && allomancer.GetMetalReserve(AllomancySkill.MetalType.Steel) > 0)
