@@ -22,6 +22,7 @@
 11. [Diminishing Returns Functions](#11-diminishing-returns-functions)
 12. [Practical Applications](#12-practical-applications)
 13. [Unity World Scale & Unit Conversions](#13-unity-world-scale--unit-conversions)
+14. [Metal Ingestion, Capacity & Toxicology](#14-metal-ingestion-capacity--toxicology)
 
 ---
 
@@ -3111,6 +3112,154 @@ Zinc         │ 20 min       │ 1,200 s             │ ≈ 0.0833
 - *Duralumin + any metal expends the full reserve in one burst*
 - *MAG durations represent "active use" — passive burning (Copper/Tin while exploring) matches these*
 - *Drain rates in code live in `AllomancyConstants` as `XxxDrainRate` constants*
+
+---
+
+---
+
+## 14. Metal Ingestion, Capacity & Toxicology
+
+*Lore-accurate constraints on Mistborn metal storage and the real chemistry of ingestion.*
+
+---
+
+### Lore: Physical Capacity
+
+```
+Mistborn physiology is adapted to handle metal ingestion better than normal humans.
+No strict upper limit — constrained only by stomach size and discomfort.
+
+Standard vial  ≈ shot glass (≈ 30–45 mL) — sufficient for a full day of burning
+Handful of shavings — comfortable maximum for casual storage
+Larger solid pieces (> 1 tsp) — unpredictable, advised against
+```
+
+**Safety rule (canonical):** Burn off all reserves before sleeping to prevent
+heavy metal poisoning. Mistborn are *resistant* to their metals' toxicity, not immune.
+
+**Pewter Dragging reference:** Vin and Kelsier consumed large amounts of pewter beads
+for sustained physical endurance — demonstrates reserve can exceed the standard vial
+in emergencies.
+
+**Savantism:** Constant heavy burning of large amounts (especially Pewter or Tin)
+causes physiological alteration — the Allomancer is permanently changed by the metal.
+
+---
+
+### Stomach Capacity Formulas
+
+Used for simulating a Mistborn's reserve pool or vial sizing.
+
+**Adult stomach (fasting → full):**
+```
+Fasting capacity  ≈ 140 mL
+Maximum capacity  ≈ 1,500–2,000 mL
+
+Regression (anatomical study, age > 18):
+  Volume (mL) = 27 + 14 × MAD – 1.28 × Age
+  (MAD = Mean Axial Diameter from imaging, in mm)
+
+Greater Curvature length (cm):
+  GC = 17.47 + 0.02 × age + 0.06 × body_weight_kg
+```
+
+**Pediatric reference (not for Mistborn, background context):**
+```
+Day 1:   5–7 mL    (cherry)
+Day 3:   22–27 mL  (walnut)
+Week 1:  45–60 mL  (apricot)
+Month 1: 80–150 mL (large egg)
+```
+
+**Game implication:** A standard vial (≈ 40 mL) → reserve = 100 units.
+Pewter-drag emergency vial (≈ 150 mL) → reserve = 375 units (3.75×).
+
+---
+
+### Heavy Metal Toxicity — Risk Formulas
+
+For modeling poisoning if a Mistborn fails to burn reserves.
+
+**1. Average Daily Intake (Chronic Daily Intake)**
+```
+CDI = (C × IR × EF × ED) / (BW × AT)
+
+  C   = metal concentration in sample  (mg/kg or mg/mL)
+  IR  = ingestion rate                 (mL/day or g/day)
+  EF  = exposure frequency             (days/year)
+  ED  = exposure duration              (years)
+  BW  = body weight                    (kg)
+  AT  = averaging time                 (days; 365 × ED for non-cancer)
+```
+
+**2. Hazard Quotient (non-cancer risk)**
+```
+HQ = CDI / RfD
+
+  RfD = Reference Dose (maximum safe daily intake, mg/kg/day)
+
+  HQ < 1  → considered safe
+  HQ > 1  → unsafe (poisoning risk)
+```
+
+**3. Hazard Index (multiple metals — e.g., Cadmium + Pewter + Lead)**
+```
+HI = Σ HQ_i = HQ_Cd + HQ_Pb + HQ_Sn + ...
+
+HI > 1 → cumulative toxicity risk exceeds threshold
+```
+
+**4. Ecological Risk Index (water/sediment — relevant for environmental Allomancy lore)**
+```
+RI = Σ (E_r^i)  where  E_r^i = T_r^i × C_f^i
+
+  T_r^i = toxic response coefficient  (Cd=20, As=10, Pb=5)
+  C_f^i = contamination factor        (sample / background concentration)
+```
+
+**Noted toxic metals (lore-confirmed):** Cadmium, Pewter (tin/lead alloy), Lead.
+
+---
+
+### Metal Dissolution in Stomach Acid
+
+Stomach acid: pH 1.5–3.5, primarily HCl. Metal shavings dissolve via acid reaction.
+
+**General equation:**
+```
+M  +  2 HCl  →  MCl₂  +  H₂↑
+
+Specific examples:
+  Iron (pewter base):   Fe + 2HCl → FeCl₂ + H₂
+  Zinc:                 Zn + 2HCl → ZnCl₂ + H₂
+  Aluminum:             2Al + 6HCl → 2AlCl₃ + 3H₂
+```
+
+**Maximum dissolvable mass (stoichiometric limit):**
+```
+m_max = (C_acid × V_stomach × M_metal) / (n × 1000)
+
+  C_acid    = HCl concentration  (mol/L, typically 0.1–0.15 in stomach)
+  V_stomach = gastric volume     (mL)
+  M_metal   = molar mass of metal (g/mol; Fe=55.85, Zn=65.38, Al=26.98)
+  n         = moles of HCl per mole of metal (Fe→2, Zn→2, Al→3)
+```
+
+**Example — iron shavings in a 40 mL vial at pH 2 (C_acid ≈ 0.01 mol/L):**
+```
+m_max = (0.01 × 40 × 55.85) / (2 × 1000) = 0.0112 g ≈ 11 mg
+
+Conclusion: at stomach-acid concentrations, very little iron dissolves.
+Metal shavings pass through mostly intact unless the stomach is empty
+and acid is concentrated — which is why vials use fine particles in
+alcohol solution to maximize surface area and absorption speed.
+```
+
+**Corrosion rate reference:** Razor blade (Fe) loses ~35% mass in 24 h in
+concentrated acid, far less in stomach conditions (30–120 min transit time).
+
+**Game application:** Metal reserve depletion from poisoning (if `burnedReserve = false`
+at the `SleepEvent`): `damage = HQ × maxHealth × metalConcentrationFactor`
 
 ---
 
