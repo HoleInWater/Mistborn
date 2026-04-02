@@ -467,11 +467,20 @@ public static class AllomancyPhysicsFormulas
     /// <summary>Conservative A for game balance (book-consistent)</summary>
     public const float A_CONSERVATIVE = 1500f;
 
-    /// <summary>Standard coin mass in kg (US quarter = ~5.67g, Mistborn clip ~10g)</summary>
-    public const float COIN_MASS = 0.01f;
+    // ── Official coin specs (Shire Post Mint, Sanderson-licensed) ────────────
+    /// <summary>Clip mass: 3 g copper coin, 2 cm diameter (standard Coinshot ammo)</summary>
+    public const float CLIP_MASS = 0.003f;
+    /// <summary>Boxing mass: 15.5 g brass coin, 3 cm diameter</summary>
+    public const float BOXING_MASS = 0.0155f;
+    /// <summary>Default coin mass for physics — Clip (lighter = faster projectile)</summary>
+    public const float COIN_MASS = CLIP_MASS;
 
-    /// <summary>Coin cross-section area (radius ~12mm)</summary>
-    public const float COIN_CROSS_SECTION = 0.00045f;
+    /// <summary>Clip cross-section area: π × (0.01)² = 0.000314 m² (radius 1 cm)</summary>
+    public const float CLIP_CROSS_SECTION = 0.000314f;
+    /// <summary>Boxing cross-section area: π × (0.015)² = 0.000707 m² (radius 1.5 cm)</summary>
+    public const float BOXING_CROSS_SECTION = 0.000707f;
+    /// <summary>Default coin cross-section for physics — Clip</summary>
+    public const float COIN_CROSS_SECTION = CLIP_CROSS_SECTION;
 
     /// <summary>Cadmium slow factor (10x slower, handbook τ≈0.1)</summary>
     public const float CADMIUM_TAU = 0.1f;

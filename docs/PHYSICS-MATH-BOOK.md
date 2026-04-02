@@ -615,45 +615,80 @@ Where:
   m₂   = Mass of coin (kg)
 ```
 
-### Vin's Maximum Coin Push
+### Official Coin Specifications (Shire Post Mint, Sanderson-licensed)
+
+```
+Final Empire Clip (standard Coinshot ammo):
+  Material:  Copper
+  Diameter:  2 cm   (radius 1 cm)
+  Mass:      3 g    (0.003 kg)
+  Cross-section: π × 0.01² ≈ 0.000314 m²
+
+Final Empire Boxing (large denomination):
+  Material:  Brass
+  Diameter:  3 cm   (radius 1.5 cm)
+  Mass:      15.5 g (0.0155 kg)
+  Cross-section: π × 0.015² ≈ 0.000707 m²
+
+Clips are the standard projectile — lighter = faster for the same force.
+Boxings are ~5× heavier: slower but hit much harder (higher momentum).
+```
+
+### Vin's Maximum Coin Push (Clip)
 
 ```
 Given:
   A = 35,316
   m₁ = 40 kg (Vin)
-  m₂ = 0.01 kg (coin)
+  m₂ = 0.003 kg (clip)
   r  = 5 m (push distance)
   
 Step 1: Calculate Force
   F(a) = A × m₁ × m₂ / r²
-  F(a) = 35,316 × 40 × 0.01 / 25
-  F(a) = 14,126.4 / 25
-  F(a) = 565 N
+  F(a) = 35,316 × 40 × 0.003 / 25
+  F(a) = 4,237.9 / 25
+  F(a) = 169.5 N
 
 Step 2: Calculate Acceleration
   a = F(a) / m₂
-  a = 565 / 0.01
+  a = 169.5 / 0.003
   a = 56,500 m/s²
 
-Step 3: Calculate Velocity
+Step 3: Calculate Velocity at 5 m
   v = √(2 × a × d)
   v = √(2 × 56,500 × 5)
   v = √565,000
   v ≈ 751.7 m/s
 
-Step 4: Top Speed (extended push)
-  v_max = √(2 × F(a) × d_max / m₂)
-  v_max = √(2 × 565 × 50 / 0.01)
+Step 4: Top Speed (extended push, 50 m)
+  v_max = √(2 × 169.5 × 50 / 0.003)
   v_max ≈ 2,377 m/s
 ```
+
+### Boxing Push (heavier coin)
+
+```
+Given same allomancer, same A:
+  m₂ = 0.0155 kg (boxing)
+  F(a) = 35,316 × 40 × 0.0155 / 25 = 876.6 N
+  a = 876.6 / 0.0155 = 56,555 m/s²  (similar acceleration — force scales with mass)
+
+  v at 5 m ≈ 752 m/s  (same — force and mass cancel in v = √(2Fd/m))
+  BUT: momentum = m × v = 0.0155 × 752 = 11.7 kg·m/s
+       (vs Clip: 0.003 × 752 = 2.3 kg·m/s — Boxing hits 5× harder)
+```
+
+Note: With the inverse-square force model (F ∝ m₂), velocity is independent
+of coin mass. Heavier coins have proportionally more force applied, so they
+reach similar speeds but carry far more momentum and kinetic energy.
 
 ### Conservative Estimate (Book-Consistent)
 
 ```
-Using: A_conservative = 1,500
+Using: A_conservative = 1,500 (Clip, m₂ = 0.003 kg)
 
-F(a) = 1,500 × 40 × 0.01 / 25 = 24 N
-v_max = √(2 × 24 × 50 / 0.01) = √240,000 ≈ 490 m/s
+F(a) = 1,500 × 40 × 0.003 / 25 = 7.2 N
+v_max = √(2 × 7.2 × 50 / 0.003) = √240,000 ≈ 490 m/s
 
 This is more consistent with book portrayals.
 ```
@@ -670,10 +705,20 @@ Where:
   C_d = Drag coefficient ≈ 0.47 (sphere)
   A = Cross-sectional area (m²)
 
-For a quarter (r ≈ 0.012m):
-  A = π × 0.012² ≈ 0.00045 m²
-  v_terminal = 0.01 × 9.81 / (0.5 × 1.225 × 0.47 × 0.00045)
-  v_terminal ≈ 77.8 m/s
+For a Clip (r = 0.01 m, m = 0.003 kg):
+  A = π × 0.01² ≈ 0.000314 m²
+  v_terminal = 0.003 × 9.81 / (0.5 × 1.225 × 0.47 × 0.000314)
+  v_terminal ≈ 32.4 m/s
+
+For a Boxing (r = 0.015 m, m = 0.0155 kg):
+  A = π × 0.015² ≈ 0.000707 m²
+  v_terminal = 0.0155 × 9.81 / (0.5 × 1.225 × 0.47 × 0.000707)
+  v_terminal ≈ 74.6 m/s
+
+Note: These are *gravity-only* terminal velocities (free fall). Under a
+sustained Allomantic push, the effective terminal velocity is much higher
+because the push force far exceeds gravity. Use CalculatePowerLimitedTerminalVelocity
+for the push-limited speed.
 ```
 
 ---
@@ -682,21 +727,22 @@ For a quarter (r ≈ 0.012m):
 
 *Source: r/Mistborn, u/Phantine, 17th Shard community research*
 
-**Vacuum estimate (no drag, constant force):**
+**Vacuum estimate (no drag, constant force, using official Clip specs):**
 ```
 Given:
   Mistborn mass = 77 kg (170 lb)
   Push force = 2 × m × g = 2 × 77 × 9.81 ≈ 1,510 N
     (conservative: enough to launch self upward at 1g)
-  Coin mass = 5.67 g (US quarter)
+  Coin = Clip, mass = 3 g (0.003 kg), copper, 2 cm diameter
   Push range = 10 m
 
-  Acceleration = 1,510 / 0.00567 = 266,314 m/s²
-  Push duration = √(2 × 10 / 266,314) = 0.0087 s  (8.7 ms)
-  Final velocity = 266,314 × 0.0087 ≈ 2,310 m/s  (2.3 km/s)
+  Acceleration = 1,510 / 0.003 = 503,333 m/s²
+  Push duration = √(2 × 10 / 503,333) = 0.0063 s  (6.3 ms)
+  Final velocity = 503,333 × 0.0063 ≈ 3,171 m/s  (3.2 km/s)
 
   For reference: .50 cal BMG bullet = 890 m/s, M16 = 960 m/s
-  Coins in vacuum would be 2.5× faster than a sniper rifle round.
+  A Clip in vacuum would be 3.6× faster than a sniper rifle round.
+  (Boxings at 15.5 g reach similar speed but carry 5× more momentum.)
 ```
 
 **Why coins aren't hypersonic in practice:**
