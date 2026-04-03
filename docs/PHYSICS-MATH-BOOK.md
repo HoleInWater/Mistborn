@@ -3669,8 +3669,166 @@ More angled (larger θ) → must be closer to metal for hover.
 
 ---
 
+## 16. Volcanic Ash & Aerosol Particle Physics
+
+*Scadrial's Ashmounts spew constant volcanic ash. These formulas govern how
+ash falls, accumulates, and interacts — used by the ash particle systems,
+DayNightCycle ash attenuation, and weather gameplay.*
+
+---
+
+### Terminal Settling Velocity
+
+How fast an ash particle falls through still air:
+
+```
+v_t = √( (4 × g × d_p × (ρ_p − ρ_f)) / (3 × C_d × ρ_f) )
+
+Where:
+  v_t  = terminal velocity (m/s)
+  g    = gravity (9.81 m/s²)
+  d_p  = particle diameter (m)
+  ρ_p  = particle density (kg/m³)  — ash: 700–2600 depending on vesicle content
+  ρ_f  = fluid (air) density (1.225 kg/m³)
+  C_d  = drag coefficient (depends on Reynolds number and shape)
+
+Example — fine ash (d_p = 0.1 mm, ρ_p = 1500 kg/m³):
+  v_t ≈ √((4 × 9.81 × 0.0001 × (1500 − 1.225)) / (3 × 24 × 1.225))
+  v_t ≈ 0.26 m/s  (very slow — stays airborne for hours)
+
+Example — coarse ash (d_p = 2 mm, ρ_p = 2000 kg/m³):
+  v_t ≈ 3.6 m/s  (falls visibly, like heavy snow)
+```
+
+**Game application:** The `AshParticles` system uses `gravityModifier = 0.12`
+which gives effective settling ≈ 1.2 m/s — between fine and coarse ash, which
+looks right for the persistent Scadrial ashfall.
+
+---
+
+### Drag Coefficient for Irregular Particles
+
+Ash particles aren't spheres — they're jagged, vesicular fragments.
+The drag coefficient depends on sphericity (ψ):
+
+```
+C_d = (24 / Re) × (1 + 0.15 × Re^0.687)    for Re < 1000  (Schiller-Naumann)
+
+For irregular ash (sphericity correction):
+  C_d_irregular = C_d_sphere / ψ
+
+Where:
+  ψ = sphericity (ratio of sphere surface area to actual surface area)
+      ψ = 1.0 for perfect sphere
+      ψ ≈ 0.6–0.8 for volcanic ash (jagged fragments)
+      ψ ≈ 0.4–0.5 for very vesicular pumice
+
+  Re = Reynolds number = (ρ_f × v × d_p) / μ
+      μ = dynamic viscosity of air ≈ 1.81 × 10⁻⁵ Pa·s
+```
+
+Lower sphericity → higher drag → slower settling → ash stays airborne longer.
+Scadrial's constant ash haze is partially explained by low-sphericity fragments
+from explosive Ashmount eruptions.
+
+---
+
+### Sticking Probability
+
+When ash particles collide (with each other or surfaces), do they stick?
+
+```
+P_stick = exp(−St)
+
+Where:
+  St = Stokes number = (ρ_p × d_p² × v) / (18 × μ × L)
+
+  v = relative velocity at collision
+  L = characteristic length of collector (building wall, leaf, ground)
+
+Interpretation:
+  St << 1  →  P_stick ≈ 1.0  (particle follows air flow, deposits gently)
+  St >> 1  →  P_stick ≈ 0    (particle has too much inertia, bounces off)
+  St ≈ 1   →  P_stick ≈ 0.37 (transition — some stick, some don't)
+```
+
+**Game application:** This is why ash accumulates on flat surfaces (roofs,
+ground, window ledges) but not so much on vertical walls — the sticking
+probability is higher when the air flow curves around a surface and the
+particle's inertia carries it into contact.
+
+---
+
+### Fractal Aggregation
+
+Ash particles clump together into aggregates (clusters):
+
+```
+N = k_f × (d_agg / d_0)^D_f
+
+Where:
+  N     = number of primary particles in aggregate
+  k_f   = fractal prefactor (typically 1.0–1.5)
+  d_agg = diameter of aggregate
+  d_0   = diameter of primary (single) particle
+  D_f   = fractal dimension (1.8–2.5 for volcanic ash, typically ~2.0)
+
+Example — 100 primary particles (d_0 = 50 μm, D_f = 2.0):
+  d_agg = d_0 × (N / k_f)^(1/D_f)
+  d_agg = 50 × (100)^0.5 = 500 μm = 0.5 mm
+
+  The aggregate is 10× the diameter of a single particle but much lighter
+  per volume (fractal = lots of void space inside).
+```
+
+**Game application:** Aggregation explains why ash sometimes falls as visible
+clumps rather than individual invisible particles. The particle system's
+`startSize` range (0.02–0.05) represents mixed singles and small aggregates.
+
+---
+
+### Key Physical Parameters
+
+```
+Reynolds Number:
+  Re = (ρ_f × v × d_p) / μ
+
+  Re < 1     → Stokes regime (viscous, slow settling)
+  1 < Re < 1000 → Intermediate (most volcanic ash)
+  Re > 1000  → Newton regime (large fragments, fast)
+
+Stokes Number:
+  St = (ρ_p × d_p² × v) / (18 × μ × L)
+
+  Measures how well a particle follows air streamlines vs its own inertia.
+
+Ash Particle Density Ranges:
+  Dense basaltic ash:     2000–2600 kg/m³
+  Andesitic ash:          1500–2000 kg/m³
+  Pumiceous/vesicular:     700–1200 kg/m³
+  Scadrial ash (estimated): ~1500 kg/m³  (mix of dense + vesicular)
+```
+
+---
+
+### Ash Accumulation Rate
+
+```
+Rate (kg/m²/s) = C_ash × v_t × ρ_p × (π/6) × d_p³ × N_particles/m³
+
+For Scadrial's constant ashfall (estimated):
+  ~0.1–1.0 mm/day accumulation on flat surfaces
+  Skaa sweep roofs and streets regularly (lore-confirmed)
+  Without sweeping, ash would bury Luthadel in weeks
+
+Game: DayNightCycle.ashAttenuation = 0.45 represents ~45% of sunlight
+blocked by the ash column — consistent with persistent light ashfall.
+```
+
+---
+
 *Document compiled from r/Mistborn, r/Cosmere, and 17th Shard community analysis*
 *Brandon Sanderson's official WoB from Arcanum.coppermind.net*
 *Cosmere Era: 1022-1025 FE*
 *Last Updated: April 2026*
-*Version: 3.0 - Includes Arc Trajectories and MAG Burn Rates*
+*Version: 4.0 - Includes Ash Physics and MAG Burn Rates*
