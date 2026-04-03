@@ -269,26 +269,27 @@ public class TitleSequenceController : MonoBehaviour
     /// </summary>
     IEnumerator PlayLogos()
     {
-        // Crimson Blade Interactive logo
+        // Crimson Blade Interactive logo — fade in, hold, fade out
         if (crimsonBladeLogoAnimator != null)
             crimsonBladeLogoAnimator.SetTrigger("Play");
 
         yield return Fade(crimsonBladeLogoGroup, 0f, 1f, logoFadeSpeed);
-        yield return new WaitForSeconds(logoDuration * 0.4f);
+        yield return new WaitForSeconds(logoDuration * 0.5f);
+        yield return Fade(crimsonBladeLogoGroup, 1f, 0f, logoFadeSpeed);
 
-        // Sanderson / Dragonsteel logo (if approved — just fade in alongside or after)
+        // Brief pause between logos
+        yield return new WaitForSeconds(0.5f);
+
+        // Sanderson / Dragonsteel logo — separate, after Crimson Blade is fully gone
         if (sandersonLogoGroup != null)
         {
             if (sandersonLogoAnimator != null)
                 sandersonLogoAnimator.SetTrigger("Play");
 
             yield return Fade(sandersonLogoGroup, 0f, 1f, logoFadeSpeed);
-            yield return new WaitForSeconds(logoDuration * 0.4f);
+            yield return new WaitForSeconds(logoDuration * 0.5f);
             yield return Fade(sandersonLogoGroup, 1f, 0f, logoFadeSpeed);
         }
-
-        // Fade out Crimson Blade logo before streets phase
-        yield return Fade(crimsonBladeLogoGroup, 1f, 0f, logoFadeSpeed);
     }
 
     /// <summary>

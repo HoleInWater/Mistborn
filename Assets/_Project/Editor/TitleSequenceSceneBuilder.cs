@@ -60,8 +60,9 @@ public class TitleSequenceSceneBuilder
 
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // Reset material counter and clean old generated materials
+        // Reset material state and clean old generated materials
         _matCounter = 0;
+        _sourceMat = null;
         if (AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
@@ -218,6 +219,19 @@ public class TitleSequenceSceneBuilder
         CreateHangingSign(luthadelGroup.transform, new Vector3(-3.2f, 5.5f, 0f), true);
         CreateHangingSign(luthadelGroup.transform, new Vector3(3.0f, 4.8f, 12f), false);
 
+        // Archway between buildings (connects two buildings overhead)
+        CreateArchway(luthadelGroup.transform, new Vector3(0f, 7f, -7f), 7f);
+        CreateArchway(luthadelGroup.transform, new Vector3(0f, 8f, 13f), 6f);
+
+        // Steps / stoops in front of some buildings
+        CreateSteps(luthadelGroup.transform, new Vector3(-3.3f, 0f, -4f), true);
+        CreateSteps(luthadelGroup.transform, new Vector3(3.0f, 0f, 14f), false);
+
+        // Chimney smoke on taller buildings
+        CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, -4f));
+        CreateSmokeParticles(luthadelGroup.transform, new Vector3(6.5f, 11f, 6f));
+        CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, 11f));
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -253,6 +267,25 @@ public class TitleSequenceSceneBuilder
         courtyard.transform.position = new Vector3(0f, 0.2f, 0f);
         courtyard.transform.localScale = new Vector3(12f, 0.2f, 12f);
         ApplyColor(courtyard, new Color(0.13f, 0.11f, 0.10f));
+
+        // Glowing windows on some spires (visible from the aerial view)
+        CreateSpireWindowLights(kredikGroup.transform, Vector3.zero, 6f, 8);
+
+        // City wall — ring around the outer edge of the city
+        CreateCityWall(kredikGroup.transform, Vector3.zero, 65f, 16);
+
+        // Roads radiating from Kredik Shaw (darker strips on the ground)
+        for (int r = 0; r < 4; r++)
+        {
+            float angle = r * 90f + 45f;
+            var road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            road.name = "Road";
+            road.transform.SetParent(kredikGroup.transform);
+            road.transform.position = new Vector3(0f, 0.05f, 0f);
+            road.transform.localScale = new Vector3(2f, 0.1f, 120f);
+            road.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            ApplyColor(road, new Color(0.07f, 0.06f, 0.06f));
+        }
 
         // Surrounding city blocks (seen from above)
         float blockSpacing = 18f;
@@ -969,6 +1002,39 @@ public class TitleSequenceSceneBuilder
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
     }
 
+    static void CreateArchway(Transform parent, Vector3 pos, float span)
+    {
+        // Horizontal beam connecting buildings across the street
+        var beam = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        beam.name = "Archway";
+        beam.transform.SetParent(parent);
+        beam.transform.position = pos;
+        beam.transform.localScale = new Vector3(span, 0.8f, 1.5f);
+        ApplyColor(beam, COL_STONE_GREY);
+
+        // Arch underside detail (slightly different shade)
+        var underside = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        underside.name = "ArchUnderside";
+        underside.transform.SetParent(beam.transform, false);
+        underside.transform.localPosition = new Vector3(0f, -0.4f, 0f);
+        underside.transform.localScale = new Vector3(0.95f, 0.3f, 0.9f);
+        ApplyColor(underside, COL_STONE_DARK);
+    }
+
+    static void CreateSteps(Transform parent, Vector3 pos, bool leftSide)
+    {
+        float dir = leftSide ? 1f : -1f;
+        for (int s = 0; s < 3; s++)
+        {
+            var step = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            step.name = "Step";
+            step.transform.SetParent(parent);
+            step.transform.position = pos + new Vector3(dir * s * 0.25f, s * 0.12f, 0f);
+            step.transform.localScale = new Vector3(0.8f, 0.12f, 1.2f);
+            ApplyColor(step, Color.Lerp(COL_COBBLE, COL_STONE_MED, 0.5f));
+        }
+    }
+
     // ═════════════════════════════════════════════════════════════════════════
     // KREDIK SHAW DETAIL BUILDERS
     // ═════════════════════════════════════════════════════════════════════════
@@ -1117,6 +1183,94 @@ public class TitleSequenceSceneBuilder
         return ps;
     }
 
+    static void CreateSpireWindowLights(Transform parent, Vector3 center, float ringRadius, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            float angle = i * Mathf.PI * 2f / count;
+            Vector3 pos = center + new Vector3(Mathf.Cos(angle) * ringRadius, Random.Range(8f, 20f), Mathf.Sin(angle) * ringRadius);
+            var light = new GameObject("SpireLight");
+            light.transform.SetParent(parent);
+            light.transform.position = pos;
+            var pl = light.AddComponent<Light>();
+            pl.type = LightType.Point;
+            pl.color = COL_WINDOW_WARM;
+            pl.intensity = Random.Range(0.3f, 0.8f);
+            pl.range = Random.Range(3f, 6f);
+        }
+    }
+
+    static void CreateCityWall(Transform parent, Vector3 center, float radius, int segments)
+    {
+        for (int i = 0; i < segments; i++)
+        {
+            float angle1 = i * Mathf.PI * 2f / segments;
+            float angle2 = (i + 1) * Mathf.PI * 2f / segments;
+            Vector3 p1 = center + new Vector3(Mathf.Cos(angle1) * radius, 0f, Mathf.Sin(angle1) * radius);
+            Vector3 p2 = center + new Vector3(Mathf.Cos(angle2) * radius, 0f, Mathf.Sin(angle2) * radius);
+            Vector3 mid = (p1 + p2) * 0.5f;
+            float length = Vector3.Distance(p1, p2);
+            float angle = Mathf.Atan2(p2.x - p1.x, p2.z - p1.z) * Mathf.Rad2Deg;
+
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "CityWall";
+            wall.transform.SetParent(parent);
+            wall.transform.position = mid + new Vector3(0f, 4f, 0f);
+            wall.transform.localScale = new Vector3(1f, 8f, length);
+            wall.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            ApplyColor(wall, new Color(0.16f, 0.14f, 0.13f));
+
+            // Tower at each corner
+            if (i % 4 == 0)
+            {
+                var tower = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                tower.name = "WallTower";
+                tower.transform.SetParent(parent);
+                tower.transform.position = p1 + new Vector3(0f, 6f, 0f);
+                tower.transform.localScale = new Vector3(2.5f, 6f, 2.5f);
+                ApplyColor(tower, new Color(0.14f, 0.12f, 0.12f));
+            }
+        }
+    }
+
+    static void CreateSmokeParticles(Transform parent, Vector3 pos)
+    {
+        var obj = new GameObject("ChimneySmoke");
+        obj.transform.SetParent(parent);
+        obj.transform.position = pos;
+        var ps = obj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = 6f;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+        main.startColor = new Color(0.25f, 0.23f, 0.20f, 0.3f);
+        main.maxParticles = 30;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = -0.03f; // rises
+        var em = ps.emission;
+        em.rateOverTime = 4f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Sphere;
+        shape.radius = 0.1f;
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        var grad = new Gradient();
+        grad.SetKeys(
+            new[] { new GradientColorKey(new Color(0.3f, 0.28f, 0.25f), 0f), new GradientColorKey(new Color(0.15f, 0.15f, 0.15f), 1f) },
+            new[] { new GradientAlphaKey(0.3f, 0f), new GradientAlphaKey(0.15f, 0.5f), new GradientAlphaKey(0f, 1f) }
+        );
+        col.color = new ParticleSystem.MinMaxGradient(grad);
+        var sizeOL = ps.sizeOverLifetime;
+        sizeOL.enabled = true;
+        sizeOL.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+            new Keyframe(0f, 0.5f), new Keyframe(1f, 2f)));
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.15f;
+        noise.frequency = 0.5f;
+        noise.octaveCount = 1;
+    }
+
     static void CreateEmberParticles(Transform parent, Vector3 pos)
     {
         var obj = new GameObject("EmberParticles");
@@ -1161,48 +1315,63 @@ public class TitleSequenceSceneBuilder
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
-    // Create a saved material asset on disk using the correct HDRP/URP/Standard shader.
-    // Saved materials persist correctly — runtime-only materials cause pink on HDRP.
+    // Clone from an existing project material that's known to work on HDRP.
+    // Shader.Find() is unreliable on HDRP — cloning a working asset is bulletproof.
     private static int _matCounter = 0;
+    private static Material _sourceMat;
+
+    static Material GetSourceMaterial()
+    {
+        if (_sourceMat != null) return _sourceMat;
+
+        // Try known working materials in the project
+        string[] candidates = {
+            "Assets/_Project/Materials/Ground(Temp).mat",
+            "Assets/_Project/Materials/Metal.mat",
+            "Assets/_Project/Materials/Wood.mat",
+            "Assets/_Project/Materials/White.mat",
+            "Assets/_Project/Materials/Obsidian.mat",
+        };
+        foreach (var path in candidates)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m != null) { _sourceMat = m; return m; }
+        }
+
+        // Fallback: search for ANY .mat in the project
+        string[] guids = AssetDatabase.FindAssets("t:Material", new[] { "Assets/_Project/Materials" });
+        foreach (var guid in guids)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+            if (m != null) { _sourceMat = m; return m; }
+        }
+
+        // Last resort: grab from a primitive
+        var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        _sourceMat = temp.GetComponent<Renderer>().sharedMaterial;
+        Object.DestroyImmediate(temp);
+        return _sourceMat;
+    }
 
     static Material CreateSavedMaterial(Color color, string label = "Mat")
     {
-        // Ensure folder exists
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
             AssetDatabase.CreateFolder("Assets/_Project", "Materials");
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.CreateFolder("Assets/_Project/Materials", "TitleSequence");
 
-        // Find the correct shader for this pipeline
-        Shader shader = null;
-        string[] shaderNames = {
-            "HDRP/Lit", "Universal Render Pipeline/Lit", "Standard"
-        };
-        foreach (var sn in shaderNames)
-        {
-            shader = Shader.Find(sn);
-            if (shader != null) break;
-        }
-        // If all fail, get it from a primitive
-        if (shader == null)
-        {
-            var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            shader = temp.GetComponent<Renderer>().sharedMaterial.shader;
-            Object.DestroyImmediate(temp);
-        }
-
-        var mat = new Material(shader);
+        // Clone from working source material (same shader, same pipeline setup)
+        var mat = new Material(GetSourceMaterial());
         mat.name = $"TS_{label}_{_matCounter++}";
 
-        // Set color on every known property name
+        // Set color on every known property (covers HDRP, URP, Standard)
         mat.color = color;
         if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor", color);
         if (mat.HasProperty("_Color"))      mat.SetColor("_Color", color);
-        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.05f);
-        if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.05f);
+        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.1f);
+        if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.1f);
         if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic", 0f);
 
-        // Save to disk so HDRP can reference it properly
         string path = $"Assets/_Project/Materials/TitleSequence/{mat.name}.mat";
         AssetDatabase.CreateAsset(mat, path);
         return mat;

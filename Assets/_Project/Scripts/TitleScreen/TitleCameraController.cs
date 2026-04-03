@@ -37,6 +37,12 @@ public class TitleCameraController : MonoBehaviour
     public Vector3 titleHoldPos     = new Vector3(0f, 30f, -20f);
     public Vector3 titleHoldLookAt  = new Vector3(0f, 0f, 0f);
 
+    [Header("Camera Breathing")]
+    [Tooltip("Subtle sway to make the camera feel handheld/alive")]
+    public float breathAmplitude   = 0.03f;
+    public float breathFrequency   = 0.4f;
+    public float breathRotAmount   = 0.15f;
+
     private Phase currentPhase = Phase.MistyField;
     private float phaseTimer;
     private float orbitAngle;
@@ -94,10 +100,12 @@ public class TitleCameraController : MonoBehaviour
                 UpdateAerial();
                 break;
             case Phase.TitleHold:
-                // Camera holds position, slight drift
                 transform.position += new Vector3(0f, Mathf.Sin(phaseTimer * 0.3f) * 0.002f, 0f);
                 break;
         }
+
+        // Camera breathing — subtle sway on all phases
+        ApplyBreathing();
     }
 
     void UpdateMistyField()
@@ -131,6 +139,22 @@ public class TitleCameraController : MonoBehaviour
         // Correct: look down at the city at an angle
         Vector3 lookDir = (aerialCenter - transform.position).normalized;
         transform.rotation = Quaternion.LookRotation(lookDir) * Quaternion.Euler(aerialTilt, 0f, 0f);
+    }
+
+    void ApplyBreathing()
+    {
+        float t = Time.time;
+        // Organic multi-frequency sway
+        float bx = Mathf.Sin(t * breathFrequency * 1.0f) * breathAmplitude
+                  + Mathf.Sin(t * breathFrequency * 2.3f) * breathAmplitude * 0.3f;
+        float by = Mathf.Sin(t * breathFrequency * 0.7f) * breathAmplitude * 0.6f
+                  + Mathf.Cos(t * breathFrequency * 1.8f) * breathAmplitude * 0.2f;
+
+        transform.position += new Vector3(bx, by, 0f);
+        transform.rotation *= Quaternion.Euler(
+            Mathf.Sin(t * breathFrequency * 0.5f) * breathRotAmount,
+            Mathf.Sin(t * breathFrequency * 0.3f) * breathRotAmount * 0.5f,
+            0f);
     }
 
     Vector3 GetPhaseStartPosition()
