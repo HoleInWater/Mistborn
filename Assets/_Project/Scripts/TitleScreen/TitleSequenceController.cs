@@ -100,6 +100,12 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("CanvasGroup holding the MISTBORN title (AllomanticTitleRenderer).")]
     public CanvasGroup titleGroup;
 
+    [Header("Mistcloak Wipe Transition")]
+    [Tooltip("UI panel for the mistcloak wipe. RectTransform starts off-screen left, sweeps right.")]
+    public RectTransform mistcloakWipePanel;
+    [Tooltip("How long the wipe takes to sweep across the screen.")]
+    public float mistcloakWipeDuration = 1.2f;
+
     // ── Credits ──────────────────────────────────────────────────────────────
 
     [Header("Credit Lines")]
@@ -337,8 +343,46 @@ public class TitleSequenceController : MonoBehaviour
         // Hold the finished title on screen
         yield return new WaitForSeconds(postTitleHold);
 
+        // Mistcloak wipe: dark panel sweeps across the screen left to right
+        // simulating a Mistborn running past with their mistcloak tassels
+        // covering the camera. Hard cut — not a slow fade.
+        yield return MistcloakWipe();
+
         // Done — transition to main menu
         TransitionOut();
+    }
+
+    IEnumerator MistcloakWipe()
+    {
+        if (mistcloakWipePanel == null)
+        {
+            // Fallback: instant black if no wipe panel assigned
+            if (blackOverlay != null) blackOverlay.alpha = 1f;
+            yield break;
+        }
+
+        // Start off-screen to the left (full screen width to the left)
+        mistcloakWipePanel.gameObject.SetActive(true);
+        float screenWidth = 1920f; // reference resolution
+        mistcloakWipePanel.anchoredPosition = new Vector2(-screenWidth * 1.5f, 0f);
+
+        float elapsed = 0f;
+        while (elapsed < mistcloakWipeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / mistcloakWipeDuration;
+            // Ease-in: starts slow, accelerates (like a running figure)
+            float eased = t * t;
+            float x = Mathf.Lerp(-screenWidth * 1.5f, screenWidth * 0.5f, eased);
+            mistcloakWipePanel.anchoredPosition = new Vector2(x, 0f);
+            yield return null;
+        }
+
+        // Snap to cover entire screen
+        mistcloakWipePanel.anchoredPosition = Vector2.zero;
+
+        // Brief hold — hard cut feel
+        yield return new WaitForSeconds(0.3f);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

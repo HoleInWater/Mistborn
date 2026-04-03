@@ -60,6 +60,12 @@ public class TitleSequenceSceneBuilder
 
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+        // Reset material counter and clean old generated materials
+        _matCounter = 0;
+        if (AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
+            AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
+        AssetDatabase.Refresh();
+
         // Global render settings
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
@@ -134,6 +140,18 @@ public class TitleSequenceSceneBuilder
         CreateAshPile(mistyField.transform, new Vector3(-6f, 0.05f, 18f), 2.0f);
         CreateAshPile(mistyField.transform, new Vector3(8f, 0.03f, 7f), 1.0f);
 
+        // Broken fence line (posts + fallen rail)
+        CreateFencePost(mistyField.transform, new Vector3(-3f, 0f, 6f));
+        CreateFencePost(mistyField.transform, new Vector3(-3f, 0f, 8f));
+        CreateFencePost(mistyField.transform, new Vector3(-3f, 0f, 10f));
+        CreateFallenRail(mistyField.transform, new Vector3(-3f, 0.15f, 7f), 2.2f);
+
+        // Dirt path (slightly lighter ground strip)
+        CreateGroundPlane(mistyField.transform, new Vector3(1f, 0.015f, 12f), 1.5f, COL_GROUND_LIGHT);
+
+        // Ember particles near ashmount (glowing orange specks in distance)
+        CreateEmberParticles(mistyField.transform, new Vector3(0f, 8f, 100f));
+
         // ══════════════════════════════════════════════════════════════════
         // PHASE 3: LUTHADEL STREETS
         // ══════════════════════════════════════════════════════════════════
@@ -183,6 +201,23 @@ public class TitleSequenceSceneBuilder
         CreateCrate(luthadelGroup.transform, new Vector3(2.9f, 0f, 3.5f));
         CreateCrate(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.2f)); // stacked
 
+        // Awnings (flat tilted planes over some doors)
+        CreateAwning(luthadelGroup.transform, new Vector3(-3.3f, 3.2f, -4f), true);
+        CreateAwning(luthadelGroup.transform, new Vector3(3.3f, 2.8f, 6f), false);
+        CreateAwning(luthadelGroup.transform, new Vector3(-3.2f, 3.0f, 11f), true);
+
+        // Gutter / drain running down the center of the street
+        CreateGutter(luthadelGroup.transform);
+
+        // Skaa silhouettes — dark humanoid shapes huddled or walking
+        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(-2.2f, 0f, -3f), true);
+        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(1.8f, 0f, 8f), false);
+        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(-1.5f, 0f, 15f), true);
+
+        // Hanging sign (metal bracket + sign board)
+        CreateHangingSign(luthadelGroup.transform, new Vector3(-3.2f, 5.5f, 0f), true);
+        CreateHangingSign(luthadelGroup.transform, new Vector3(3.0f, 4.8f, 12f), false);
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -204,6 +239,20 @@ public class TitleSequenceSceneBuilder
 
         // Kredik Shaw — "Hill of a Thousand Spires"
         CreateKredikShaw(kredikGroup.transform, Vector3.zero);
+
+        // Perimeter walls connecting the outer spires
+        CreatePerimeterWall(kredikGroup.transform, Vector3.zero, 14f, 8);
+
+        // Grand gate (south side)
+        CreateGate(kredikGroup.transform, new Vector3(0f, 0f, 15f));
+
+        // Inner courtyard ground (slightly raised, different color)
+        var courtyard = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        courtyard.name = "Courtyard";
+        courtyard.transform.SetParent(kredikGroup.transform);
+        courtyard.transform.position = new Vector3(0f, 0.2f, 0f);
+        courtyard.transform.localScale = new Vector3(12f, 0.2f, 12f);
+        ApplyColor(courtyard, new Color(0.13f, 0.11f, 0.10f));
 
         // Surrounding city blocks (seen from above)
         float blockSpacing = 18f;
@@ -338,6 +387,51 @@ public class TitleSequenceSceneBuilder
         skrt.anchoredPosition = new Vector2(0f, 15f);
         skrt.sizeDelta = new Vector2(400f, 30f);
 
+        // Mistcloak wipe panel — wide dark panel with ragged edge, starts off-screen
+        var wipeObj = new GameObject("MistcloakWipePanel");
+        wipeObj.transform.SetParent(canvasObj.transform, false);
+        var wipeRT = wipeObj.AddComponent<RectTransform>();
+        wipeRT.anchorMin = new Vector2(0.5f, 0f);
+        wipeRT.anchorMax = new Vector2(0.5f, 1f);
+        wipeRT.pivot = new Vector2(0.5f, 0.5f);
+        wipeRT.sizeDelta = new Vector2(3840f, 0f); // 2x screen width to cover fully
+        wipeRT.anchoredPosition = new Vector2(-3840f, 0f); // starts way off-screen left
+        var wipeImg = wipeObj.AddComponent<Image>();
+        wipeImg.color = new Color(0.02f, 0.02f, 0.03f, 1f); // near-black mistcloak
+        wipeImg.raycastTarget = false;
+        wipeObj.SetActive(false);
+
+        // Tassels — ragged strips on the trailing edge of the wipe
+        for (int t = 0; t < 12; t++)
+        {
+            var tassel = new GameObject($"Tassel_{t}");
+            tassel.transform.SetParent(wipeObj.transform, false);
+            var tasselImg = tassel.AddComponent<Image>();
+            tasselImg.color = new Color(0.03f, 0.03f, 0.04f, Random.Range(0.7f, 1f));
+            tasselImg.raycastTarget = false;
+            var tasselRT = tassel.GetComponent<RectTransform>();
+            tasselRT.anchorMin = new Vector2(1f, 0f);
+            tasselRT.anchorMax = new Vector2(1f, 0f);
+            tasselRT.pivot = new Vector2(0f, 0f);
+            float ty = Random.Range(0f, 1080f);
+            float tw = Random.Range(80f, 250f);
+            float th = Random.Range(30f, 120f);
+            tasselRT.anchoredPosition = new Vector2(0f, ty);
+            tasselRT.sizeDelta = new Vector2(tw, th);
+            tasselRT.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-15f, 15f));
+        }
+
+        // Vignette overlay (dark edges for cinematic feel)
+        var vigObj = new GameObject("VignetteOverlay");
+        vigObj.transform.SetParent(canvasObj.transform, false);
+        var vigImg = vigObj.AddComponent<Image>();
+        vigImg.color = new Color(0f, 0f, 0f, 0.4f);
+        vigImg.raycastTarget = false;
+        StretchFill(vigObj.GetComponent<RectTransform>());
+        // The vignette works best with a radial gradient sprite — for now a subtle
+        // semi-transparent black overlay softens the edges. Replace with a proper
+        // vignette texture later.
+
         // Black overlay last (renders on top)
         blackCG.transform.SetAsLastSibling();
 
@@ -365,7 +459,7 @@ public class TitleSequenceSceneBuilder
         tsc.kredikShawStartTime = 45f;
         tsc.titleDropTime       = 60f;
         tsc.titleDrawDuration   = 3f;
-        tsc.postTitleHold       = 5f;
+        tsc.postTitleHold       = 8f; // Let title sit before mistcloak transition
 
         // References
         tsc.blackOverlay          = blackCG.GetComponent<CanvasGroup>();
@@ -380,6 +474,7 @@ public class TitleSequenceSceneBuilder
         tsc.creditText            = creditTMP;
         tsc.creditTextGroup       = creditCG;
         tsc.cameraController      = camCtrl;
+        tsc.mistcloakWipePanel    = wipeRT;
         tsc.nextSceneName         = "MainMenu";
 
         tsc.creditLines = new List<TitleSequenceController.CreditLine>
@@ -746,6 +841,214 @@ public class TitleSequenceSceneBuilder
     }
 
     // ═════════════════════════════════════════════════════════════════════════
+    // FIELD DETAIL BUILDERS
+    // ═════════════════════════════════════════════════════════════════════════
+
+    static void CreateFencePost(Transform parent, Vector3 pos)
+    {
+        var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        post.name = "FencePost";
+        post.transform.SetParent(parent);
+        post.transform.position = pos + new Vector3(0f, 0.5f, 0f);
+        post.transform.localScale = new Vector3(0.06f, 0.5f, 0.06f);
+        post.transform.rotation = Quaternion.Euler(Random.Range(-5f, 5f), 0f, Random.Range(-8f, 8f));
+        ApplyColor(post, COL_WOOD);
+    }
+
+    static void CreateFallenRail(Transform parent, Vector3 pos, float length)
+    {
+        var rail = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        rail.name = "FallenRail";
+        rail.transform.SetParent(parent);
+        rail.transform.position = pos;
+        rail.transform.localScale = new Vector3(0.03f, length * 0.5f, 0.03f);
+        rail.transform.rotation = Quaternion.Euler(85f, Random.Range(-20f, 20f), 0f);
+        ApplyColor(rail, new Color(COL_WOOD.r * 0.8f, COL_WOOD.g * 0.8f, COL_WOOD.b * 0.8f));
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // STREET DETAIL BUILDERS
+    // ═════════════════════════════════════════════════════════════════════════
+
+    static void CreateAwning(Transform parent, Vector3 pos, bool leftSide)
+    {
+        var awning = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        awning.name = "Awning";
+        awning.transform.SetParent(parent);
+        awning.transform.position = pos;
+        awning.transform.localScale = new Vector3(1.5f, 0.04f, 1.0f);
+        float tilt = leftSide ? 8f : -8f;
+        awning.transform.rotation = Quaternion.Euler(0f, 0f, tilt);
+
+        Color[] awningColors = {
+            new Color(0.35f, 0.15f, 0.10f), // faded red
+            new Color(0.20f, 0.18f, 0.28f), // dusty purple
+            new Color(0.30f, 0.25f, 0.15f), // tan canvas
+        };
+        ApplyColor(awning, awningColors[Random.Range(0, awningColors.Length)]);
+    }
+
+    static void CreateGutter(Transform parent)
+    {
+        // Shallow channel down center of street
+        var gutter = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        gutter.name = "Gutter";
+        gutter.transform.SetParent(parent);
+        gutter.transform.position = new Vector3(0f, -0.03f, 5f);
+        gutter.transform.localScale = new Vector3(0.3f, 0.06f, 40f);
+        ApplyColor(gutter, new Color(0.08f, 0.07f, 0.06f)); // darker than street
+
+        // Puddle (reflective-ish flat disc)
+        var puddle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        puddle.name = "Puddle";
+        puddle.transform.SetParent(parent);
+        puddle.transform.position = new Vector3(0.1f, 0.005f, 2f);
+        puddle.transform.localScale = new Vector3(0.6f, 0.005f, 0.4f);
+        ApplyColor(puddle, new Color(0.08f, 0.10f, 0.14f)); // dark blue-ish reflection
+    }
+
+    static void CreateSkaaSilhouette(Transform parent, Vector3 pos, bool crouching)
+    {
+        var skaa = new GameObject("SkaaSilhouette");
+        skaa.transform.SetParent(parent);
+        skaa.transform.position = pos;
+
+        Color skaaColor = new Color(0.06f, 0.05f, 0.05f); // near-black silhouette
+
+        // Body
+        float bodyHeight = crouching ? 0.6f : 1.2f;
+        float bodyY = crouching ? 0.3f : 0.6f;
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(skaa.transform);
+        body.transform.localPosition = new Vector3(0f, bodyY, 0f);
+        body.transform.localScale = new Vector3(0.3f, bodyHeight * 0.5f, 0.2f);
+        if (crouching) body.transform.rotation = Quaternion.Euler(30f, Random.Range(-20f, 20f), 0f);
+        ApplyColor(body, skaaColor);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(skaa.transform);
+        float headY = crouching ? 0.7f : 1.35f;
+        head.transform.localPosition = new Vector3(0f, headY, crouching ? 0.15f : 0f);
+        head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
+        ApplyColor(head, skaaColor);
+
+        // Cloak/shawl (flattened cube draped)
+        if (!crouching)
+        {
+            var cloak = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cloak.name = "Cloak";
+            cloak.transform.SetParent(skaa.transform);
+            cloak.transform.localPosition = new Vector3(0f, 0.7f, -0.05f);
+            cloak.transform.localScale = new Vector3(0.45f, 0.8f, 0.08f);
+            ApplyColor(cloak, new Color(0.10f, 0.08f, 0.07f)); // slightly lighter than body
+        }
+    }
+
+    static void CreateHangingSign(Transform parent, Vector3 pos, bool leftSide)
+    {
+        // Metal bracket
+        var bracket = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        bracket.name = "SignBracket";
+        bracket.transform.SetParent(parent);
+        bracket.transform.position = pos;
+        bracket.transform.localScale = new Vector3(0.03f, 0.4f, 0.03f);
+        bracket.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(bracket, COL_METAL);
+
+        // Sign board
+        float signX = leftSide ? pos.x + 0.5f : pos.x - 0.5f;
+        var sign = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        sign.name = "SignBoard";
+        sign.transform.SetParent(parent);
+        sign.transform.position = new Vector3(signX, pos.y - 0.3f, pos.z);
+        sign.transform.localScale = new Vector3(0.6f, 0.4f, 0.04f);
+        sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
+        ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // KREDIK SHAW DETAIL BUILDERS
+    // ═════════════════════════════════════════════════════════════════════════
+
+    static void CreatePerimeterWall(Transform parent, Vector3 center, float radius, int segments)
+    {
+        for (int i = 0; i < segments; i++)
+        {
+            float angle1 = i * Mathf.PI * 2f / segments;
+            float angle2 = (i + 1) * Mathf.PI * 2f / segments;
+            Vector3 p1 = center + new Vector3(Mathf.Cos(angle1) * radius, 0f, Mathf.Sin(angle1) * radius);
+            Vector3 p2 = center + new Vector3(Mathf.Cos(angle2) * radius, 0f, Mathf.Sin(angle2) * radius);
+            Vector3 mid = (p1 + p2) * 0.5f;
+            float length = Vector3.Distance(p1, p2);
+            float angle = Mathf.Atan2(p2.x - p1.x, p2.z - p1.z) * Mathf.Rad2Deg;
+
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "PerimeterWall";
+            wall.transform.SetParent(parent);
+            wall.transform.position = mid + new Vector3(0f, 3f, 0f);
+            wall.transform.localScale = new Vector3(0.5f, 6f, length);
+            wall.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            ApplyColor(wall, new Color(0.12f, 0.11f, 0.13f));
+
+            // Battlement on top
+            var battlement = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            battlement.name = "Battlement";
+            battlement.transform.SetParent(wall.transform, false);
+            battlement.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+            battlement.transform.localScale = new Vector3(1.3f, 0.08f, 1.0f);
+            ApplyColor(battlement, COL_METAL);
+        }
+    }
+
+    static void CreateGate(Transform parent, Vector3 pos)
+    {
+        // Two pillars
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var pillar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pillar.name = "GatePillar";
+            pillar.transform.SetParent(parent);
+            pillar.transform.position = pos + new Vector3(side * 2.5f, 5f, 0f);
+            pillar.transform.localScale = new Vector3(1.5f, 10f, 1.5f);
+            ApplyColor(pillar, new Color(0.10f, 0.09f, 0.11f));
+
+            // Pillar cap
+            var cap = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            cap.name = "PillarCap";
+            cap.transform.SetParent(pillar.transform, false);
+            cap.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+            cap.transform.localScale = new Vector3(1.2f, 0.5f, 1.2f);
+            ApplyColor(cap, COL_SPIRE_TIP);
+        }
+
+        // Arch (stretched cube across the top)
+        var arch = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        arch.name = "GateArch";
+        arch.transform.SetParent(parent);
+        arch.transform.position = pos + new Vector3(0f, 9.5f, 0f);
+        arch.transform.localScale = new Vector3(7f, 1.5f, 1f);
+        ApplyColor(arch, new Color(0.11f, 0.10f, 0.12f));
+
+        // Gate doors (dark metal)
+        var doorL = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        doorL.name = "GateDoorL";
+        doorL.transform.SetParent(parent);
+        doorL.transform.position = pos + new Vector3(-1.2f, 4f, 0.2f);
+        doorL.transform.localScale = new Vector3(2.2f, 8f, 0.15f);
+        ApplyColor(doorL, new Color(0.08f, 0.08f, 0.10f));
+
+        var doorR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        doorR.name = "GateDoorR";
+        doorR.transform.SetParent(parent);
+        doorR.transform.position = pos + new Vector3(1.2f, 4f, 0.2f);
+        doorR.transform.localScale = new Vector3(2.2f, 8f, 0.15f);
+        ApplyColor(doorR, new Color(0.08f, 0.08f, 0.10f));
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
     // PARTICLE BUILDERS
     // ═════════════════════════════════════════════════════════════════════════
 
@@ -814,51 +1117,113 @@ public class TitleSequenceSceneBuilder
         return ps;
     }
 
+    static void CreateEmberParticles(Transform parent, Vector3 pos)
+    {
+        var obj = new GameObject("EmberParticles");
+        obj.transform.SetParent(parent);
+        obj.transform.position = pos;
+        var ps = obj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = 6f;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.08f);
+        main.startColor = new Color(1f, 0.4f, 0.05f, 0.9f); // bright orange
+        main.maxParticles = 100;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = -0.05f; // float upward
+        var em = ps.emission;
+        em.rateOverTime = 15f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(20f, 2f, 10f);
+        // Fade out over lifetime
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        var grad = new Gradient();
+        grad.SetKeys(
+            new[] {
+                new GradientColorKey(new Color(1f, 0.5f, 0.1f), 0f),
+                new GradientColorKey(new Color(1f, 0.2f, 0.0f), 0.7f),
+                new GradientColorKey(new Color(0.3f, 0.05f, 0.0f), 1f)
+            },
+            new[] { new GradientAlphaKey(0.9f, 0f), new GradientAlphaKey(0.6f, 0.5f), new GradientAlphaKey(0f, 1f) }
+        );
+        col.color = new ParticleSystem.MinMaxGradient(grad);
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.4f;
+        noise.frequency = 0.8f;
+        noise.scrollSpeed = 0.3f;
+        noise.octaveCount = 2;
+    }
+
     // ═════════════════════════════════════════════════════════════════════════
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
-    // Cache the default pipeline material by grabbing it from a temp primitive.
-    // This is the ONLY reliable way to get a working material on any pipeline
-    // (Built-in, URP, HDRP) because Unity auto-assigns the correct one.
-    private static Material _baseMat;
-    static Material GetBaseMaterial()
+    // Create a saved material asset on disk using the correct HDRP/URP/Standard shader.
+    // Saved materials persist correctly — runtime-only materials cause pink on HDRP.
+    private static int _matCounter = 0;
+
+    static Material CreateSavedMaterial(Color color, string label = "Mat")
     {
-        if (_baseMat != null) return _baseMat;
-        var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _baseMat = new Material(temp.GetComponent<Renderer>().sharedMaterial);
-        Object.DestroyImmediate(temp);
-        return _baseMat;
+        // Ensure folder exists
+        if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
+            AssetDatabase.CreateFolder("Assets/_Project", "Materials");
+        if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
+            AssetDatabase.CreateFolder("Assets/_Project/Materials", "TitleSequence");
+
+        // Find the correct shader for this pipeline
+        Shader shader = null;
+        string[] shaderNames = {
+            "HDRP/Lit", "Universal Render Pipeline/Lit", "Standard"
+        };
+        foreach (var sn in shaderNames)
+        {
+            shader = Shader.Find(sn);
+            if (shader != null) break;
+        }
+        // If all fail, get it from a primitive
+        if (shader == null)
+        {
+            var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            shader = temp.GetComponent<Renderer>().sharedMaterial.shader;
+            Object.DestroyImmediate(temp);
+        }
+
+        var mat = new Material(shader);
+        mat.name = $"TS_{label}_{_matCounter++}";
+
+        // Set color on every known property name
+        mat.color = color;
+        if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))      mat.SetColor("_Color", color);
+        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.05f);
+        if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.05f);
+        if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic", 0f);
+
+        // Save to disk so HDRP can reference it properly
+        string path = $"Assets/_Project/Materials/TitleSequence/{mat.name}.mat";
+        AssetDatabase.CreateAsset(mat, path);
+        return mat;
     }
 
     static void ApplyColor(GameObject go, Color color)
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var mat = new Material(GetBaseMaterial());
-        // Set every known color property so it works on any pipeline
-        mat.color = color;
-        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", color);
-        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0.05f);
-        if (mat.HasProperty("_Glossiness"))  mat.SetFloat("_Glossiness", 0.05f);
-        if (mat.HasProperty("_Metallic"))    mat.SetFloat("_Metallic", 0f);
-        rend.sharedMaterial = mat;
+        rend.sharedMaterial = CreateSavedMaterial(color, "Col");
     }
 
     static void ApplyEmissive(GameObject go, Color color)
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var mat = new Material(GetBaseMaterial());
         Color bright = color * 2.5f;
         bright.a = 1f;
-        mat.color = bright;
-        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", bright);
-        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", bright);
-        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0f);
-        if (mat.HasProperty("_Glossiness"))  mat.SetFloat("_Glossiness", 0f);
-        // Emission
+
+        var mat = CreateSavedMaterial(bright, "Emit");
+
         mat.EnableKeyword("_EMISSION");
         if (mat.HasProperty("_EmissionColor"))
             mat.SetColor("_EmissionColor", bright);
@@ -868,6 +1233,9 @@ public class TitleSequenceSceneBuilder
             mat.SetFloat("_EmissiveIntensity", 3f);
         if (mat.HasProperty("_UseEmissiveIntensity"))
             mat.SetFloat("_UseEmissiveIntensity", 1f);
+
+        // Re-save after modifying
+        EditorUtility.SetDirty(mat);
         rend.sharedMaterial = mat;
     }
 
@@ -905,26 +1273,25 @@ public class TitleSequenceSceneBuilder
         var cg = obj.AddComponent<CanvasGroup>();
         cg.alpha = 0f;
 
-        // Logo image placeholder (white square — assign your actual logo PNG here)
+        // Logo image slot — starts disabled (no white square). Enable and assign
+        // sprite when actual logo art is ready.
         var imgObj = new GameObject("LogoImage");
         imgObj.transform.SetParent(obj.transform, false);
         var img = imgObj.AddComponent<Image>();
-        img.color = new Color(1f, 1f, 1f, 0.9f);
+        img.preserveAspect = true;
         var imgRT = imgObj.GetComponent<RectTransform>();
         imgRT.anchorMin = imgRT.anchorMax = imgRT.pivot = new Vector2(0.5f, 0.5f);
         imgRT.anchoredPosition = new Vector2(0f, 30f);
         imgRT.sizeDelta = new Vector2(200f, 200f);
-        // Set to "None" sprite — designer replaces with actual logo
-        img.sprite = null;
-        img.preserveAspect = true;
+        imgObj.SetActive(false); // Hidden until logo art is added
 
-        // Text below the image
+        // Text — visible now as placeholder
         var tmp = CreateTMP(obj.transform, "LogoText", text, fontSize,
             COL_TEXT, TextAlignmentOptions.Center);
         var rt = tmp.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = new Vector2(0f, -100f);
-        rt.sizeDelta = new Vector2(700f, 100f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = new Vector2(700f, 160f);
 
         return obj;
     }
