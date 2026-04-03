@@ -39,16 +39,17 @@ public class MinimapSystem : MonoBehaviour
     private float     currentZoom;
     private UnityEngine.UI.Text _rotationButtonLabel;
 
-    // Auto-create MinimapSystem if no instance exists in the scene
+    // Auto-create MinimapSystem only in gameplay scenes (where a Player exists).
+    // Title screen, main menu, and loading scenes have no Player → skip.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void AutoBootstrap()
     {
         if (Instance != null) return;
         if (FindObjectOfType<MinimapSystem>() != null) return;
+        if (GameObject.FindGameObjectWithTag("Player") == null) return;
 
         var go = new GameObject("MinimapSystem");
         go.AddComponent<MinimapSystem>();
-        Debug.Log("[MinimapSystem] Auto-created via bootstrap.");
     }
 
     void Awake()
