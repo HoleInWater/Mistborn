@@ -71,9 +71,10 @@ public class TitleSequenceSceneBuilder
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogDensity = 0.025f;
-        RenderSettings.fogColor = new Color(0.06f, 0.06f, 0.08f);
+        RenderSettings.fogColor = new Color(0.08f, 0.08f, 0.10f);
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.05f, 0.05f, 0.07f);
+        // Bright enough that building colors are clearly visible
+        RenderSettings.ambientLight = new Color(0.15f, 0.14f, 0.16f);
 
         // Debug: log what shader Unity assigns to primitives on this pipeline
         {
@@ -122,7 +123,7 @@ public class TitleSequenceSceneBuilder
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
         sun.color = new Color(0.70f, 0.30f, 0.12f);
-        sun.intensity = 0.35f;
+        sun.intensity = 0.6f;
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
@@ -339,7 +340,7 @@ public class TitleSequenceSceneBuilder
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
         sl.color = new Color(0.35f, 0.25f, 0.18f);
-        sl.intensity = 0.25f;
+        sl.intensity = 0.45f;
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -469,7 +470,7 @@ public class TitleSequenceSceneBuilder
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
         cl.color = new Color(0.25f, 0.25f, 0.35f);
-        cl.intensity = 0.2f;
+        cl.intensity = 0.35f;
         cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -1946,6 +1947,20 @@ public class TitleSequenceSceneBuilder
     // PARTICLE BUILDERS
     // ═════════════════════════════════════════════════════════════════════════
 
+    /// <summary>
+    /// Creates ash particle system with physics-accurate parameters.
+    ///
+    /// From PHYSICS-MATH-BOOK Section 16:
+    ///   Terminal velocity v_t = sqrt(4gd(ρ_p-ρ_f) / (3 C_d ρ_f))
+    ///   Fine ash (d=0.1mm): v_t ≈ 0.26 m/s → stays airborne for hours
+    ///   Coarse ash (d=2mm):  v_t ≈ 3.6 m/s  → falls like heavy snow
+    ///
+    /// We simulate a MIX of fine + coarse particles:
+    ///   gravityModifier = 0.03–0.15 (mapped from v_t in Unity's gravity scale)
+    ///   startSize = 0.015–0.08 (fine singles to small aggregates, Section 16 fractal)
+    ///   Noise simulates irregular sphericity (ψ ≈ 0.6–0.8 for volcanic ash)
+    ///   causing erratic drift instead of straight-line falling.
+    /// </summary>
     static ParticleSystem CreateAshParticles(Transform parent, Vector3 pos, float spread)
     {
         var obj = new GameObject("AshParticles");
@@ -1953,25 +1968,72 @@ public class TitleSequenceSceneBuilder
         obj.transform.position = pos;
         var ps = obj.AddComponent<ParticleSystem>();
         var main = ps.main;
-        main.startLifetime = 10f;
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.2f, 0.6f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.05f);
-        main.startColor = COL_ASH_PARTICLE;
-        main.maxParticles = 600;
+        // Lifetime: fine ash stays airborne much longer than coarse
+        main.startLifetime = new ParticleSystem.MinMaxCurve(6f, 14f);
+        // Speed: slight initial lateral velocity from eruption plume
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.1f, 0.4f);
+        // Size: mix of fine singles (0.015) and fractal aggregates (0.08)
+        // From Section 16: d_agg = d_0 × (N/k_f)^(1/D_f), small aggregates ~5-10× primary
+        main.startSize = new ParticleSystem.MinMaxCurve(0.015f, 0.08f);
+        // Color: grey-brown with slight variation
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(0.30f, 0.27f, 0.23f, 0.6f),  // lighter fine ash
+            new Color(0.45f, 0.40f, 0.33f, 0.9f)    // darker coarse fragments
+        );
+        main.maxParticles = 800;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = 0.12f;
+        // Gravity: mapped from terminal velocity range
+        // v_t(fine)=0.26m/s, v_t(coarse)=3.6m/s → gravityMod 0.03-0.15 gives good visual
+        main.gravityModifier = new ParticleSystem.MinMaxCurve(0.03f, 0.15f);
+        // Rotation: ash tumbles as it falls (irregular shape)
+        main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
+
         var em = ps.emission;
-        em.rateOverTime = 50f;
+        em.rateOverTime = 60f;
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(spread, 0.1f, spread);
-        // Wind via noise module instead of velocity curves (avoids mode mismatch)
+        shape.scale = new Vector3(spread, 0.5f, spread);
+
+        // Noise simulates irregular drag from low sphericity (ψ ≈ 0.6-0.8)
+        // Jagged ash fragments tumble and drift erratically, not fall straight
         var noise = ps.noise;
         noise.enabled = true;
-        noise.strength = 0.3f;
-        noise.frequency = 0.5f;
-        noise.scrollSpeed = 0.2f;
-        noise.octaveCount = 2;
+        noise.strength = 0.35f;           // erratic drift amount
+        noise.frequency = 0.6f;           // turbulence frequency
+        noise.scrollSpeed = 0.25f;        // wind variation over time
+        noise.octaveCount = 2;            // layered turbulence
+        noise.damping = true;             // smaller particles affected more
+
+        // Rotation over lifetime: continuous tumbling (low sphericity)
+        var rot = ps.rotationOverLifetime;
+        rot.enabled = true;
+        rot.z = new ParticleSystem.MinMaxCurve(-1f, 1f);
+
+        // Size over lifetime: slight shrink as ash breaks apart mid-air
+        var sizeOL = ps.sizeOverLifetime;
+        sizeOL.enabled = true;
+        sizeOL.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+            new Keyframe(0f, 1f), new Keyframe(0.7f, 0.9f), new Keyframe(1f, 0.6f)));
+
+        // Color over lifetime: slight fade near end of life
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        var ashGrad = new Gradient();
+        ashGrad.SetKeys(
+            new[] {
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(Color.white, 0.8f),
+                new GradientColorKey(new Color(0.8f, 0.8f, 0.8f), 1f)
+            },
+            new[] {
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(0.8f, 0.1f),
+                new GradientAlphaKey(0.7f, 0.8f),
+                new GradientAlphaKey(0f, 1f)
+            }
+        );
+        col.color = new ParticleSystem.MinMaxGradient(ashGrad);
+
         return ps;
     }
 
@@ -2275,36 +2337,36 @@ public class TitleSequenceSceneBuilder
     // ═════════════════════════════════════════════════════════════════════════
 
     // ═════════════════════════════════════════════════════════════════════════
-    // MATERIAL SYSTEM
+    // MATERIAL SYSTEM — TitleSequenceMaterialOverride component
     //
-    // The ONLY approach that works on every pipeline: access renderer.material
-    // (not sharedMaterial) on each primitive AFTER Unity creates it. This triggers
-    // Unity's auto-instancing which creates a proper material copy using whatever
-    // shader the pipeline assigned to the primitive. Then we just set the color.
-    //
-    // No Shader.Find(). No material cloning. No asset saving.
-    // Unity does all the heavy lifting.
+    // Instead of trying to create/clone/save materials (which all fail on HDRP
+    // in different ways), we attach a runtime component to each object that
+    // applies a MaterialPropertyBlock every frame. This:
+    //   - Never touches the material reference (no pink ever)
+    //   - Works on any pipeline (HDRP, URP, Standard)
+    //   - Persists correctly in saved scenes (it's a MonoBehaviour)
+    //   - Overrides color at the renderer level without creating material instances
     // ═════════════════════════════════════════════════════════════════════════
 
     private static int _matCounter = 0;
 
     static Material CreateSavedMaterial(Color color, string label = "Mat")
     {
-        // For LineRenderers and other non-primitive uses, we need a saved material.
-        // Use a simple unlit approach.
+        // Only used for LineRenderers (which need actual materials, not property blocks)
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
             AssetDatabase.CreateFolder("Assets/_Project", "Materials");
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.CreateFolder("Assets/_Project/Materials", "TitleSequence");
 
-        // Grab shader from a temp primitive (guaranteed to work)
         var temp = GameObject.CreatePrimitive(PrimitiveType.Quad);
         var shader = temp.GetComponent<Renderer>().sharedMaterial.shader;
         Object.DestroyImmediate(temp);
 
         var mat = new Material(shader);
         mat.name = $"TS_{label}_{_matCounter++}";
-        SetAllColorProperties(mat, color);
+        mat.color = color;
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))     mat.SetColor("_Color", color);
 
         string path = $"Assets/_Project/Materials/TitleSequence/{mat.name}.mat";
         AssetDatabase.CreateAsset(mat, path);
@@ -2316,11 +2378,12 @@ public class TitleSequenceSceneBuilder
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
 
-        // renderer.material (NOT sharedMaterial) auto-instances the material.
-        // Unity clones the pipeline-correct material automatically.
-        Material mat = rend.material; // triggers instance creation
-        SetAllColorProperties(mat, color);
-        rend.material = mat;
+        // Attach a component that applies the color via MaterialPropertyBlock at runtime.
+        // This never changes the material — no pink, ever, on any pipeline.
+        var over = go.GetComponent<TitleSequenceMaterialOverride>();
+        if (over == null) over = go.AddComponent<TitleSequenceMaterialOverride>();
+        over.overrideColor = color;
+        over.isEmissive = false;
     }
 
     static void ApplyEmissive(GameObject go, Color color)
@@ -2331,30 +2394,11 @@ public class TitleSequenceSceneBuilder
         Color bright = color * 2.5f;
         bright.a = 1f;
 
-        Material mat = rend.material; // triggers instance creation
-        SetAllColorProperties(mat, bright);
-
-        mat.EnableKeyword("_EMISSION");
-        if (mat.HasProperty("_EmissionColor"))  mat.SetColor("_EmissionColor", bright);
-        if (mat.HasProperty("_EmissiveColor"))  mat.SetColor("_EmissiveColor", bright);
-        if (mat.HasProperty("_EmissiveColorLDR")) mat.SetColor("_EmissiveColorLDR", bright);
-        if (mat.HasProperty("_EmissiveIntensity")) mat.SetFloat("_EmissiveIntensity", 3f);
-        if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 1f);
-
-        rend.material = mat;
-    }
-
-    static void SetAllColorProperties(Material mat, Color color)
-    {
-        // Cover every pipeline's color property name
-        if (mat.HasProperty("_BaseColor"))    mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))        mat.SetColor("_Color", color);
-        if (mat.HasProperty("_UnlitColor"))   mat.SetColor("_UnlitColor", color);
-        mat.color = color;
-
-        if (mat.HasProperty("_Smoothness"))   mat.SetFloat("_Smoothness", 0.1f);
-        if (mat.HasProperty("_Glossiness"))   mat.SetFloat("_Glossiness", 0.1f);
-        if (mat.HasProperty("_Metallic"))     mat.SetFloat("_Metallic", 0f);
+        var over = go.GetComponent<TitleSequenceMaterialOverride>();
+        if (over == null) over = go.AddComponent<TitleSequenceMaterialOverride>();
+        over.overrideColor = bright;
+        over.isEmissive = true;
+        over.emissiveColor = bright;
     }
 
     static TextMeshProUGUI CreateTMP(Transform parent, string name, string text,
