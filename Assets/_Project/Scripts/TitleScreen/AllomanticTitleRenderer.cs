@@ -41,6 +41,12 @@ public class AllomanticTitleRenderer : MonoBehaviour
     [Tooltip("Duration of the single flare that fires right after drawing completes.")]
     public float flareDuration = 0.6f;
 
+    [Header("Subtitle")]
+    public TextMeshProUGUI subtitleText;
+    public string subtitleString = "";
+    public float subtitleDelay = 1.5f;
+    public float subtitleFadeDuration = 1f;
+
     // ── State ────────────────────────────────────────────────────────────────
     private bool isDrawing;
     private bool drawComplete;
@@ -142,6 +148,22 @@ public class AllomanticTitleRenderer : MonoBehaviour
         yield return FlareAllChars(info, count);
 
         drawComplete = true;
+
+        // Subtitle fade-in
+        if (subtitleText != null && !string.IsNullOrEmpty(subtitleString))
+        {
+            yield return new WaitForSeconds(subtitleDelay);
+            subtitleText.text = subtitleString;
+            float elapsed = 0f;
+            while (elapsed < subtitleFadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                subtitleText.color = new Color(subtitleText.color.r, subtitleText.color.g,
+                    subtitleText.color.b, Mathf.Lerp(0f, 1f, elapsed / subtitleFadeDuration));
+                yield return null;
+            }
+        }
+
         isDrawing = false;
     }
 
