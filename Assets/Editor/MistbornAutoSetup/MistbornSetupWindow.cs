@@ -39,7 +39,7 @@ public class MistbornSetupWindow : EditorWindow
 
     // ── Menu ──────────────────────────────────────────────────────────────────
 
-    [MenuItem("Mistborn/Auto Setup Player")]
+    [MenuItem("Mistborn/Player/Auto Setup Player")]
     public static void Open()
     {
         var w = GetWindow<MistbornSetupWindow>("Auto Setup Player");

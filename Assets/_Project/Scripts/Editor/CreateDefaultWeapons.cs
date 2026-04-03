@@ -8,7 +8,7 @@ using UnityEditor;
 /// </summary>
 public static class CreateDefaultWeapons
 {
-    [MenuItem("Mistborn/Create Default Weapons")]
+    [MenuItem("Mistborn/Weapons/Create Default Weapons")]
     public static void Create()
     {
         const string folder = "Assets/_Project/Data/Weapons";
@@ -107,7 +107,7 @@ public static class CreateDefaultWeapons
 
     // ── Grip offset defaults ──────────────────────────────────────────────────
 
-    [MenuItem("Mistborn/Fix Weapon Grip Offsets")]
+    [MenuItem("Mistborn/Weapons/Fix Weapon Grip Offsets")]
     public static void FixGrips()
     {
         string[] guids = AssetDatabase.FindAssets("t:WeaponData");

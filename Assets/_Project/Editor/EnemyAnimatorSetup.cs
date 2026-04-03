@@ -34,13 +34,24 @@ public static class EnemyAnimatorSetup
         { "Hit",         ANIM_DIR + "Standing Block React Large.anim"          },
     };
 
-    [MenuItem("Tools/Mistborn/Rebuild Enemy Animator Controller")]
+    [MenuItem("Mistborn/Enemy/Rebuild Enemy Animator Controller")]
     public static void Rebuild()
     {
-        // ── Create or overwrite controller ────────────────────────────────────
-        AnimatorController ctrl = AnimatorController.CreateAnimatorControllerAtPath(CONTROLLER_PATH);
+        string step = "Creating Controller";
+        try
+        {
+            // ── Create or overwrite controller ────────────────────────────────────
+            // Crucial Fix: CreateAnimatorControllerAtPath corrupts sub-asset saving if the file 
+            // already exists and is locked by the Animator window. We MUST delete it first.
+            if (System.IO.File.Exists(CONTROLLER_PATH))
+            {
+                AssetDatabase.DeleteAsset(CONTROLLER_PATH);
+                AssetDatabase.Refresh(); // Ensure deletion is registered before rebuilding
+            }
 
-        // ── Parameters ───────────────────────────────────────────────────────
+            AnimatorController ctrl = AnimatorController.CreateAnimatorControllerAtPath(CONTROLLER_PATH);
+
+            step = "Adding Parameters";
         ctrl.AddParameter("Speed",          AnimatorControllerParameterType.Float);
         ctrl.AddParameter("Velocity",       AnimatorControllerParameterType.Float);
         ctrl.AddParameter("IsWalking",      AnimatorControllerParameterType.Bool);
@@ -50,10 +61,14 @@ public static class EnemyAnimatorSetup
         ctrl.AddParameter("IsFleeing",      AnimatorControllerParameterType.Bool);
         ctrl.AddParameter("IsAttacking",    AnimatorControllerParameterType.Bool);
         ctrl.AddParameter("IsDead",         AnimatorControllerParameterType.Bool);
+        ctrl.AddParameter("IsIdle",         AnimatorControllerParameterType.Bool);
+            ctrl.AddParameter("IsInvestigating",AnimatorControllerParameterType.Bool);
 
-        AnimatorStateMachine root = ctrl.layers[0].stateMachine;
+            step = "Getting Root State Machine";
+            AnimatorStateMachine root = ctrl.layers[0].stateMachine;
 
-        // ── States ────────────────────────────────────────────────────────────
+            step = "Adding States";
+            // ── States ────────────────────────────────────────────────────────────
         AnimatorState idle        = AddState(root, ctrl, "Idle",        "Idle",        new Vector3(-200,  0));
         AnimatorState walk        = AddState(root, ctrl, "Walk",        "Walk",        new Vector3( 100, -120));
         AnimatorState run         = AddState(root, ctrl, "Run",         "Run",         new Vector3( 400, -120));
@@ -63,12 +78,14 @@ public static class EnemyAnimatorSetup
         AnimatorState hit         = AddState(root, ctrl, "Hit",         "Hit",         new Vector3( 400,  280));
         AnimatorState dead        = AddState(root, ctrl, "Dead",        null,          new Vector3(-200, -250));
 
-        // Death has no dedicated clip — holds last pose. Assign in Inspector if one is imported.
-        dead.motion = null;
+            // Death has no dedicated clip — holds last pose. Assign in Inspector if one is imported.
+            dead.motion = null;
 
-        root.defaultState = idle;
+            step = "Setting Default State";
+            root.defaultState = idle;
 
-        // ── Transitions ───────────────────────────────────────────────────────
+            step = "Adding Transitions";
+            // ── Transitions ───────────────────────────────────────────────────────
 
         // Idle → Walk (moving but not running)
         var t = idle.AddTransition(walk);
@@ -152,18 +169,25 @@ public static class EnemyAnimatorSetup
         anyDead.AddCondition(AnimatorConditionMode.If, 0, "IsDead");
         anyDead.canTransitionToSelf = false;
 
-        // ── Save ──────────────────────────────────────────────────────────────
-        EditorUtility.SetDirty(ctrl);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+            // ── Save ──────────────────────────────────────────────────────────────
+            step = "Saving Assets";
+            EditorUtility.SetDirty(ctrl);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
 
-        Debug.Log($"[EnemyAnimatorSetup] Rebuilt '{CONTROLLER_PATH}' — assign it to the enemy Animator component.");
-        EditorUtility.DisplayDialog(
-            "Enemy Animator Rebuilt",
-            $"Controller saved to:\n{CONTROLLER_PATH}\n\n" +
-            "Assign it to your enemy's Animator component in the Inspector.\n" +
-            "A Death clip slot is left empty — assign one from your animation pack if available.",
-            "OK");
+            Debug.Log($"[EnemyAnimatorSetup] Rebuilt '{CONTROLLER_PATH}' — assign it to the enemy Animator component.");
+            EditorUtility.DisplayDialog(
+                "Enemy Animator Rebuilt",
+                $"Controller saved to:\n{CONTROLLER_PATH}\n\n" +
+                "Assign it to your enemy's Animator component in the Inspector.\n" +
+                "A Death clip slot is left empty — assign one from your animation pack if available.",
+                "OK");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[EnemyAnimatorSetup] Crashed during step: {step}. ERROR: {ex}");
+            EditorUtility.DisplayDialog("Rebuild Failed", $"The script crashed at step: {step}.\nCheck the Unity Console for exact details.", "OK");
+        }
     }
 
     static AnimatorState AddState(AnimatorStateMachine sm, AnimatorController ctrl,

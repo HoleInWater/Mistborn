@@ -8,7 +8,7 @@ using System.Collections.Generic;
 #if UNITY_EDITOR
 public class MetalWheelSetupWizard : EditorWindow
 {
-    [MenuItem("Mistborn/Generate Metal Wheel UI")]
+    [MenuItem("Mistborn/Player/Generate Metal Wheel UI")]
     public static void GenerateWheelUI()
     {
         // 1. Create the Root Canvas

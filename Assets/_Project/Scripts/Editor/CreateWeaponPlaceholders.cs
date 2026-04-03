@@ -20,7 +20,7 @@ public static class CreateWeaponPlaceholders
 
     static Material _woodMat;   // cached for the current Create() run
 
-    [MenuItem("Mistborn/Create Weapon Placeholders")]
+    [MenuItem("Mistborn/Weapons/Create Weapon Placeholders")]
     public static void Create()
     {
         EnsureFolder("Assets/_Project/Prefabs");

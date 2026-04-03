@@ -866,21 +866,8 @@ public class EnemyAI : MonoBehaviour
 
     void UpdateAnimations()
     {
-        if (animator == null) return;
-        float speed = navAgent != null ? navAgent.velocity.magnitude : 0f;
-
-        // Float parameters — "Speed" (raw m/s) and "Velocity" (0-1 normalised, matches reference animator)
-        animator.SetFloat("Speed",    speed, 0.1f, Time.deltaTime);
-        animator.SetFloat("Velocity", Mathf.Clamp01(speed / Mathf.Max(runSpeed, 0.1f)), 0.1f, Time.deltaTime);
-
-        // State booleans
-        animator.SetBool("IsIdle",          currentState == State.Idle);
-        animator.SetBool("IsPatrolling",    currentState == State.Patrol);
-        animator.SetBool("IsChasing",       currentState == State.Chase);
-        animator.SetBool("IsAttacking",     currentState == State.Attack);
-        animator.SetBool("IsFleeing",       currentState == State.Flee);
-        animator.SetBool("IsInvestigating", currentState == State.Investigate);
-        animator.SetBool("IsDead",          currentState == State.Dead);
+        // Animation logic is now exclusively handled by EnemyAnimationController.cs
+        // to prevent double-synced properties and keep responsibilities separated.
     }
 
     public void ApplyKnockback(Vector3 direction, float force)

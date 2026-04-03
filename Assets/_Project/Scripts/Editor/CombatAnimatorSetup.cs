@@ -11,7 +11,7 @@ public class CombatAnimatorSetup : EditorWindow
 {
     private AnimatorController _controller;
 
-    [MenuItem("Mistborn/Setup Combat Animator")]
+    [MenuItem("Mistborn/Player/Setup Combat Animator")]
     public static void Open()
     {
         var win = GetWindow<CombatAnimatorSetup>("Combat Animator Setup");
