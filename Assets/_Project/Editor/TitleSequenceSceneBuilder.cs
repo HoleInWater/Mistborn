@@ -153,6 +153,9 @@ public class TitleSequenceSceneBuilder
         // Ember particles near ashmount (glowing orange specks in distance)
         CreateEmberParticles(mistyField.transform, new Vector3(0f, 8f, 100f));
 
+        // Distant Luthadel silhouette on the horizon (city you're heading toward)
+        CreateDistantCitySilhouette(mistyField.transform, new Vector3(0f, 0f, 70f));
+
         // ══════════════════════════════════════════════════════════════════
         // PHASE 3: LUTHADEL STREETS
         // ══════════════════════════════════════════════════════════════════
@@ -330,6 +333,17 @@ public class TitleSequenceSceneBuilder
             pl.range = Random.Range(5f, 12f);
         }
 
+        // Canals running through the city (Luthadel has canals)
+        CreateCanal(kredikGroup.transform, new Vector3(0f, 0.1f, 0f), 0f, 130f);    // north-south
+        CreateCanal(kredikGroup.transform, new Vector3(0f, 0.1f, 0f), 90f, 100f);   // east-west
+        CreateCanal(kredikGroup.transform, new Vector3(20f, 0.1f, 20f), 45f, 60f);   // diagonal
+
+        // Noble keeps — larger buildings with distinct shape (4 in the city)
+        CreateNobleKeep(kredikGroup.transform, new Vector3(30f, 0f, -25f));
+        CreateNobleKeep(kredikGroup.transform, new Vector3(-35f, 0f, 20f));
+        CreateNobleKeep(kredikGroup.transform, new Vector3(-20f, 0f, -40f));
+        CreateNobleKeep(kredikGroup.transform, new Vector3(25f, 0f, 35f));
+
         // Moonlight — brighter so city is visible from above
         var cityLight = new GameObject("CityMoonlight");
         cityLight.transform.SetParent(kredikGroup.transform);
@@ -420,6 +434,49 @@ public class TitleSequenceSceneBuilder
         skrt.anchoredPosition = new Vector2(0f, 15f);
         skrt.sizeDelta = new Vector2(400f, 30f);
 
+        // Mistborn running silhouette — dark figure that sprints across before the wipe
+        var mistbornObj = new GameObject("MistbornSilhouette");
+        mistbornObj.transform.SetParent(canvasObj.transform, false);
+        var mbRT = mistbornObj.AddComponent<RectTransform>();
+        mbRT.anchorMin = new Vector2(0.5f, 0.15f);
+        mbRT.anchorMax = new Vector2(0.5f, 0.15f);
+        mbRT.pivot = new Vector2(0.5f, 0f);
+        mbRT.sizeDelta = new Vector2(120f, 280f);
+        mbRT.anchoredPosition = new Vector2(-1920f, 0f); // starts off-screen
+        mistbornObj.SetActive(false);
+
+        // Body of the silhouette (dark capsule shape)
+        var mbBody = new GameObject("Body");
+        mbBody.transform.SetParent(mistbornObj.transform, false);
+        var mbBodyImg = mbBody.AddComponent<Image>();
+        mbBodyImg.color = new Color(0.02f, 0.02f, 0.03f, 0.95f);
+        mbBodyImg.raycastTarget = false;
+        var mbBodyRT = mbBody.GetComponent<RectTransform>();
+        mbBodyRT.anchorMin = new Vector2(0.5f, 0.2f);
+        mbBodyRT.anchorMax = new Vector2(0.5f, 0.8f);
+        mbBodyRT.offsetMin = new Vector2(-20f, 0f);
+        mbBodyRT.offsetMax = new Vector2(20f, 0f);
+
+        // Mistcloak tassels trailing behind the figure
+        for (int t = 0; t < 8; t++)
+        {
+            var trail = new GameObject($"CloakTrail_{t}");
+            trail.transform.SetParent(mistbornObj.transform, false);
+            var trailImg = trail.AddComponent<Image>();
+            trailImg.color = new Color(0.03f, 0.03f, 0.04f, Random.Range(0.5f, 0.9f));
+            trailImg.raycastTarget = false;
+            var trailRT = trail.GetComponent<RectTransform>();
+            trailRT.anchorMin = new Vector2(0f, 0f);
+            trailRT.anchorMax = new Vector2(0f, 0f);
+            trailRT.pivot = new Vector2(1f, 0.5f);
+            float ty = Random.Range(40f, 200f);
+            float tw = Random.Range(40f, 150f);
+            float th = Random.Range(8f, 30f);
+            trailRT.anchoredPosition = new Vector2(-10f, ty);
+            trailRT.sizeDelta = new Vector2(tw, th);
+            trailRT.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-20f, 10f));
+        }
+
         // Mistcloak wipe panel — wide dark panel with ragged edge, starts off-screen
         var wipeObj = new GameObject("MistcloakWipePanel");
         wipeObj.transform.SetParent(canvasObj.transform, false);
@@ -507,12 +564,13 @@ public class TitleSequenceSceneBuilder
         tsc.creditText            = creditTMP;
         tsc.creditTextGroup       = creditCG;
         tsc.cameraController      = camCtrl;
+        tsc.mistbornSilhouette    = mbRT;
         tsc.mistcloakWipePanel    = wipeRT;
         tsc.nextSceneName         = "MainMenu";
 
         tsc.creditLines = new List<TitleSequenceController.CreditLine>
         {
-            new TitleSequenceController.CreditLine { time = 28f, text = "Music by Malakei" },
+            new TitleSequenceController.CreditLine { time = 28f, text = "Music by Malakai Probert" },
             new TitleSequenceController.CreditLine { time = 35f, text = "Based on the novels by\nBrandon Sanderson" },
             new TitleSequenceController.CreditLine { time = 42f, text = "Produced by\nCrimson Blade Interactive" },
             new TitleSequenceController.CreditLine { time = 49f, text = "Creative Director\nLandon Adams" },
@@ -1181,6 +1239,108 @@ public class TitleSequenceSceneBuilder
         );
         col.color = new ParticleSystem.MinMaxGradient(grad);
         return ps;
+    }
+
+    static void CreateCanal(Transform parent, Vector3 center, float angleDeg, float length)
+    {
+        var canal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        canal.name = "Canal";
+        canal.transform.SetParent(parent);
+        canal.transform.position = center + new Vector3(0f, -0.3f, 0f);
+        canal.transform.localScale = new Vector3(3f, 0.8f, length);
+        canal.transform.rotation = Quaternion.Euler(0f, angleDeg, 0f);
+        ApplyColor(canal, new Color(0.04f, 0.06f, 0.10f)); // dark water
+
+        // Canal walls
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "CanalWall";
+            wall.transform.SetParent(canal.transform, false);
+            wall.transform.localPosition = new Vector3(side * 0.55f, 0.7f, 0f);
+            wall.transform.localScale = new Vector3(0.08f, 0.6f, 1f);
+            ApplyColor(wall, COL_STONE_GREY);
+        }
+    }
+
+    static void CreateNobleKeep(Transform parent, Vector3 pos)
+    {
+        // Main building — taller and wider than commoner buildings
+        var main = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        main.name = "NobleKeep";
+        main.transform.SetParent(parent);
+        float h = Random.Range(14f, 20f);
+        main.transform.position = pos + new Vector3(0f, h * 0.5f, 0f);
+        main.transform.localScale = new Vector3(10f, h, 8f);
+        ApplyColor(main, COL_STONE_LIGHT);
+
+        // Tower on one corner
+        var tower = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        tower.name = "KeepTower";
+        tower.transform.SetParent(parent);
+        float th = h + Random.Range(4f, 8f);
+        tower.transform.position = pos + new Vector3(4f, th * 0.5f, 3f);
+        tower.transform.localScale = new Vector3(2f, th * 0.5f, 2f);
+        ApplyColor(tower, COL_STONE_MED);
+
+        // Spire on the tower
+        var spire = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        spire.name = "KeepSpire";
+        spire.transform.SetParent(tower.transform, false);
+        spire.transform.localPosition = new Vector3(0f, 1.1f, 0f);
+        spire.transform.localScale = new Vector3(0.5f, 1.5f, 0.5f);
+        ApplyColor(spire, COL_METAL);
+
+        // Courtyard wall around the keep
+        for (int i = 0; i < 4; i++)
+        {
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "KeepWall";
+            wall.transform.SetParent(parent);
+            float angle = i * 90f;
+            Vector3 wallPos = pos + Quaternion.Euler(0, angle, 0) * new Vector3(0f, 2f, 8f);
+            wall.transform.position = wallPos;
+            wall.transform.localScale = new Vector3(16f, 4f, 0.5f);
+            wall.transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            ApplyColor(wall, COL_STONE_DARK);
+        }
+
+        // Window light
+        var keepLight = new GameObject("KeepLight");
+        keepLight.transform.SetParent(parent);
+        keepLight.transform.position = pos + new Vector3(0f, h * 0.7f, 0f);
+        var kl = keepLight.AddComponent<Light>();
+        kl.type = LightType.Point;
+        kl.color = COL_WINDOW_WARM;
+        kl.intensity = 1.5f;
+        kl.range = 15f;
+    }
+
+    static void CreateDistantCitySilhouette(Transform parent, Vector3 center)
+    {
+        // Row of dark building silhouettes on the horizon
+        for (int i = -8; i <= 8; i++)
+        {
+            float x = center.x + i * 4f + Random.Range(-1f, 1f);
+            float h = Random.Range(2f, 7f);
+            if (Mathf.Abs(i) <= 1) h = Random.Range(6f, 10f); // taller center (Kredik Shaw hint)
+
+            var bldg = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bldg.name = "DistantBuilding";
+            bldg.transform.SetParent(parent);
+            bldg.transform.position = new Vector3(x, h * 0.5f, center.z);
+            bldg.transform.localScale = new Vector3(Random.Range(2f, 4f), h, Random.Range(1f, 3f));
+            // Very dark — almost blends with fog, just barely visible
+            ApplyColor(bldg, new Color(0.06f, 0.05f, 0.06f));
+        }
+
+        // Central spire hint (Kredik Shaw from a distance)
+        var spireHint = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        spireHint.name = "DistantKredikHint";
+        spireHint.transform.SetParent(parent);
+        spireHint.transform.position = new Vector3(center.x, 7f, center.z);
+        spireHint.transform.localScale = new Vector3(0.3f, 7f, 0.3f);
+        ApplyColor(spireHint, new Color(0.05f, 0.04f, 0.06f));
     }
 
     static void CreateSpireWindowLights(Transform parent, Vector3 center, float ringRadius, int count)

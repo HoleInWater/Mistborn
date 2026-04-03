@@ -9,7 +9,7 @@
  *                (Crimson Blade Interactive + Sanderson's logo if approved).
  *                Misty field stays visible behind logos.
  *   ~28s         Drums pick up → cut to Luthadel street scenes.
- *                Rolling credits: "Music by Malakei",
+ *                Rolling credits: "Music by Malakai Probert",
  *                "Based on the novels by Brandon Sanderson", etc.
  *   First drop   Long pan of Kredik Shaw and Luthadel from above.
  *                More credits, eventually:
@@ -103,6 +103,10 @@ public class TitleSequenceController : MonoBehaviour
     [Header("Mistcloak Wipe Transition")]
     [Tooltip("UI panel for the mistcloak wipe. RectTransform starts off-screen left, sweeps right.")]
     public RectTransform mistcloakWipePanel;
+    [Tooltip("Mistborn silhouette that runs across the screen before the wipe.")]
+    public RectTransform mistbornSilhouette;
+    [Tooltip("How long the silhouette takes to run across.")]
+    public float mistbornRunDuration = 0.8f;
     [Tooltip("How long the wipe takes to sweep across the screen.")]
     public float mistcloakWipeDuration = 1.2f;
 
@@ -120,7 +124,7 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("Pre-populated credit lines with their audio-synced times.")]
     public List<CreditLine> creditLines = new List<CreditLine>
     {
-        new CreditLine { time = 28f,  text = "Music by Malakei" },
+        new CreditLine { time = 28f,  text = "Music by Malakai Probert" },
         new CreditLine { time = 35f,  text = "Based on the novels by Brandon Sanderson" },
         new CreditLine { time = 42f,  text = "Produced by Crimson Blade Interactive" },
         new CreditLine { time = 49f,  text = "Creative Director — Landon Adams" },
@@ -294,7 +298,7 @@ public class TitleSequenceController : MonoBehaviour
 
     /// <summary>
     /// Phase 3: Hard cut to Luthadel streets. Misty field disappears.
-    /// Credits start rolling ("Music by Malakei", "Based on..." etc.).
+    /// Credits start rolling ("Music by Malakai Probert", "Based on..." etc.).
     /// </summary>
     void CutToLuthadel()
     {
@@ -357,14 +361,32 @@ public class TitleSequenceController : MonoBehaviour
     {
         if (mistcloakWipePanel == null)
         {
-            // Fallback: instant black if no wipe panel assigned
             if (blackOverlay != null) blackOverlay.alpha = 1f;
             yield break;
         }
 
-        // Start off-screen to the left (full screen width to the left)
+        float screenWidth = 1920f;
+
+        // ── Step 1: Mistborn silhouette sprints across the screen ─────────
+        if (mistbornSilhouette != null)
+        {
+            mistbornSilhouette.gameObject.SetActive(true);
+            float runElapsed = 0f;
+            while (runElapsed < mistbornRunDuration)
+            {
+                runElapsed += Time.deltaTime;
+                float t = runElapsed / mistbornRunDuration;
+                // Fast ease-in-out — bursts onto screen, crosses, exits right
+                float eased = t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
+                float x = Mathf.Lerp(-screenWidth * 0.7f, screenWidth * 0.7f, eased);
+                mistbornSilhouette.anchoredPosition = new Vector2(x, mistbornSilhouette.anchoredPosition.y);
+                yield return null;
+            }
+            mistbornSilhouette.gameObject.SetActive(false);
+        }
+
+        // ── Step 2: Mistcloak tassels sweep across as wipe ───────────────
         mistcloakWipePanel.gameObject.SetActive(true);
-        float screenWidth = 1920f; // reference resolution
         mistcloakWipePanel.anchoredPosition = new Vector2(-screenWidth * 1.5f, 0f);
 
         float elapsed = 0f;
@@ -372,17 +394,16 @@ public class TitleSequenceController : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = elapsed / mistcloakWipeDuration;
-            // Ease-in: starts slow, accelerates (like a running figure)
-            float eased = t * t;
+            // Follows the Mistborn — starts fast (right behind the figure), decelerates
+            float eased = 1f - (1f - t) * (1f - t); // ease-out
             float x = Mathf.Lerp(-screenWidth * 1.5f, screenWidth * 0.5f, eased);
             mistcloakWipePanel.anchoredPosition = new Vector2(x, 0f);
             yield return null;
         }
 
-        // Snap to cover entire screen
         mistcloakWipePanel.anchoredPosition = Vector2.zero;
 
-        // Brief hold — hard cut feel
+        // Hard cut hold
         yield return new WaitForSeconds(0.3f);
     }
 

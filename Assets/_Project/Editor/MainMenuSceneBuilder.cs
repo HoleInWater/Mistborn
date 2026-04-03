@@ -289,7 +289,7 @@ public class MainMenuSceneBuilder
             "MISTBORN\n" +
             "Based on the novels by Brandon Sanderson\n\n" +
             "Creative Director\nLandon Adams\n\n" +
-            "Music by\nMalakei\n\n" +
+            "Music by\nMalakai Probert\n\n" +
             "Developed by\nCrimson Blade Interactive\n\n" +
             "Built with Unity";
 
