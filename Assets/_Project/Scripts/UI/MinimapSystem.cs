@@ -39,19 +39,6 @@ public class MinimapSystem : MonoBehaviour
     private float     currentZoom;
     private UnityEngine.UI.Text _rotationButtonLabel;
 
-    // Auto-create MinimapSystem only in gameplay scenes (where a Player exists).
-    // Title screen, main menu, and loading scenes have no Player → skip.
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    static void AutoBootstrap()
-    {
-        if (Instance != null) return;
-        if (FindObjectOfType<MinimapSystem>() != null) return;
-        if (GameObject.FindGameObjectWithTag("Player") == null) return;
-
-        var go = new GameObject("MinimapSystem");
-        go.AddComponent<MinimapSystem>();
-    }
-
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -93,6 +80,7 @@ public class MinimapSystem : MonoBehaviour
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) player = p.transform;
+        bool hasPlayer = p != null;
 
         mainCam = Camera.main;
 
@@ -128,6 +116,11 @@ public class MinimapSystem : MonoBehaviour
 
         if (minimapDisplay != null)
             minimapDisplay.texture = minimapTexture;
+
+        // Hide immediately on non-gameplay scenes (no Player).
+        // OnSceneLoaded will re-show it when a gameplay scene loads.
+        if (!hasPlayer)
+            SetMinimapVisible(false);
 
         UpdateRotationButton();
     }

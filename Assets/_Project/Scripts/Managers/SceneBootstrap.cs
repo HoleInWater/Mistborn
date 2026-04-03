@@ -43,6 +43,7 @@ public class SceneBootstrap : MonoBehaviour
         EnsureSingleton<DamageNumbersUI>("DamageNumbersUI");
         EnsureSingleton<MetalWheelMistOverlay>("MetalWheelMistOverlay");
         EnsureSingleton<CursorManager>("CursorManager");
+        EnsureSingleton<MinimapSystem>("MinimapSystem");
 
         // PerformanceManager is optional — only add if the class exists in build
     }
