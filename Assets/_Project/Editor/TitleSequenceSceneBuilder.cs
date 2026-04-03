@@ -156,6 +156,30 @@ public class TitleSequenceSceneBuilder
         // Distant Luthadel silhouette on the horizon (city you're heading toward)
         CreateDistantCitySilhouette(mistyField.transform, new Vector3(0f, 0f, 70f));
 
+        // Ruined cart on the roadside
+        CreateRuinedCart(mistyField.transform, new Vector3(4f, 0f, 16f));
+
+        // Second broken fence on the other side of the path
+        CreateFencePost(mistyField.transform, new Vector3(5f, 0f, 10f));
+        CreateFencePost(mistyField.transform, new Vector3(5f, 0f, 12f));
+        CreateFallenRail(mistyField.transform, new Vector3(5f, 0.08f, 11f), 2.2f);
+
+        // Scrub vegetation (dead, brown/grey, low to ground)
+        CreateDeadShrub(mistyField.transform, new Vector3(-7f, 0f, 6f));
+        CreateDeadShrub(mistyField.transform, new Vector3(9f, 0f, 14f));
+        CreateDeadShrub(mistyField.transform, new Vector3(-1f, 0f, 22f));
+        CreateDeadShrub(mistyField.transform, new Vector3(3f, 0f, 4f));
+
+        // Ashmount glow at base (faint red-orange light on the horizon)
+        var ashGlow = new GameObject("AshmountGlow");
+        ashGlow.transform.SetParent(mistyField.transform);
+        ashGlow.transform.position = new Vector3(0f, 3f, 120f);
+        var ag = ashGlow.AddComponent<Light>();
+        ag.type = LightType.Point;
+        ag.color = new Color(1f, 0.3f, 0.05f);
+        ag.intensity = 2f;
+        ag.range = 30f;
+
         // ══════════════════════════════════════════════════════════════════
         // PHASE 3: LUTHADEL STREETS
         // ══════════════════════════════════════════════════════════════════
@@ -234,6 +258,25 @@ public class TitleSequenceSceneBuilder
         CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, -4f));
         CreateSmokeParticles(luthadelGroup.transform, new Vector3(6.5f, 11f, 6f));
         CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, 11f));
+
+        // Wall-mounted torches (different from lanterns — more rustic, brighter)
+        CreateWallTorch(luthadelGroup.transform, new Vector3(-3.3f, 2.5f, 2f), true);
+        CreateWallTorch(luthadelGroup.transform, new Vector3(3.1f, 2.8f, 18f), false);
+
+        // Guard patrol silhouette (standing, armored, with weapon shape)
+        CreateGuardSilhouette(luthadelGroup.transform, new Vector3(1.2f, 0f, -5f));
+
+        // More barrels and clutter near building edges
+        CreateBarrel(luthadelGroup.transform, new Vector3(2.4f, 0f, -8f));
+        CreateCrate(luthadelGroup.transform, new Vector3(-2.7f, 0f, 12f));
+        CreateCrate(luthadelGroup.transform, new Vector3(-2.4f, 0f, 12.5f));
+
+        // Puddle near a drain
+        CreatePuddle(luthadelGroup.transform, new Vector3(-0.5f, 0.003f, 9f), 0.5f);
+        CreatePuddle(luthadelGroup.transform, new Vector3(0.3f, 0.003f, -2f), 0.3f);
+
+        // Clothesline between buildings (stretched cylinder)
+        CreateClothesline(luthadelGroup.transform, new Vector3(0f, 5f, 4f), 7f);
 
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
@@ -343,6 +386,17 @@ public class TitleSequenceSceneBuilder
         CreateNobleKeep(kredikGroup.transform, new Vector3(-35f, 0f, 20f));
         CreateNobleKeep(kredikGroup.transform, new Vector3(-20f, 0f, -40f));
         CreateNobleKeep(kredikGroup.transform, new Vector3(25f, 0f, 35f));
+
+        // Mistborn silhouette crouching on a rooftop (visible from aerial)
+        CreateRooftopMistborn(kredikGroup.transform, new Vector3(22f, 10f, -18f));
+
+        // Smoke from forges / foundries in the industrial district
+        CreateSmokeParticles(kredikGroup.transform, new Vector3(-30f, 8f, -30f));
+        CreateSmokeParticles(kredikGroup.transform, new Vector3(-25f, 6f, -35f));
+
+        // A few bright Allomantic blue line flashes (foreshadowing)
+        CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(15f, 12f, 10f), new Vector3(20f, 5f, 15f));
+        CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(-10f, 15f, -8f), new Vector3(-12f, 3f, -5f));
 
         // Moonlight — brighter so city is visible from above
         var cityLight = new GameObject("CityMoonlight");
@@ -1058,6 +1112,232 @@ public class TitleSequenceSceneBuilder
         sign.transform.localScale = new Vector3(0.6f, 0.4f, 0.04f);
         sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
+    }
+
+    static void CreateRuinedCart(Transform parent, Vector3 pos)
+    {
+        // Cart bed (flat box, tilted — one wheel broken)
+        var bed = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bed.name = "CartBed";
+        bed.transform.SetParent(parent);
+        bed.transform.position = pos + new Vector3(0f, 0.3f, 0f);
+        bed.transform.localScale = new Vector3(1.2f, 0.1f, 2f);
+        bed.transform.rotation = Quaternion.Euler(0f, 15f, 8f); // tilted
+        ApplyColor(bed, COL_WOOD);
+
+        // Remaining wheel
+        var wheel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        wheel.name = "CartWheel";
+        wheel.transform.SetParent(parent);
+        wheel.transform.position = pos + new Vector3(-0.6f, 0.35f, 0.5f);
+        wheel.transform.localScale = new Vector3(0.6f, 0.04f, 0.6f);
+        wheel.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(wheel, new Color(COL_WOOD.r * 0.7f, COL_WOOD.g * 0.7f, COL_WOOD.b * 0.7f));
+
+        // Broken axle
+        var axle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        axle.name = "CartAxle";
+        axle.transform.SetParent(parent);
+        axle.transform.position = pos + new Vector3(0f, 0.15f, 0.5f);
+        axle.transform.localScale = new Vector3(0.05f, 0.7f, 0.05f);
+        axle.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(axle, COL_METAL);
+    }
+
+    static void CreateDeadShrub(Transform parent, Vector3 pos)
+    {
+        // Cluster of thin sticks poking up
+        for (int i = 0; i < 4; i++)
+        {
+            var stick = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            stick.name = "Twig";
+            stick.transform.SetParent(parent);
+            float h = Random.Range(0.3f, 0.7f);
+            stick.transform.position = pos + new Vector3(Random.Range(-0.15f, 0.15f), h * 0.5f, Random.Range(-0.15f, 0.15f));
+            stick.transform.localScale = new Vector3(0.02f, h * 0.5f, 0.02f);
+            stick.transform.rotation = Quaternion.Euler(Random.Range(-15f, 15f), Random.Range(0f, 360f), Random.Range(-15f, 15f));
+            ApplyColor(stick, new Color(0.16f, 0.12f, 0.08f));
+        }
+    }
+
+    static void CreateWallTorch(Transform parent, Vector3 pos, bool leftSide)
+    {
+        // Torch holder (metal bracket)
+        var holder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        holder.name = "TorchHolder";
+        holder.transform.SetParent(parent);
+        holder.transform.position = pos;
+        holder.transform.localScale = new Vector3(0.04f, 0.2f, 0.04f);
+        holder.transform.rotation = Quaternion.Euler(0f, 0f, leftSide ? -45f : 45f);
+        ApplyColor(holder, COL_METAL);
+
+        // Torch head (emissive)
+        float headX = leftSide ? pos.x + 0.2f : pos.x - 0.2f;
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "TorchFlame";
+        head.transform.SetParent(parent);
+        head.transform.position = new Vector3(headX, pos.y + 0.15f, pos.z);
+        head.transform.localScale = new Vector3(0.12f, 0.15f, 0.12f);
+        ApplyEmissive(head, new Color(1f, 0.5f, 0.1f));
+
+        // Light
+        var torchLight = new GameObject("TorchLight");
+        torchLight.transform.SetParent(parent);
+        torchLight.transform.position = head.transform.position;
+        var tl = torchLight.AddComponent<Light>();
+        tl.type = LightType.Point;
+        tl.color = new Color(1f, 0.6f, 0.2f);
+        tl.intensity = 2f;
+        tl.range = 6f;
+    }
+
+    static void CreateGuardSilhouette(Transform parent, Vector3 pos)
+    {
+        var guard = new GameObject("GuardSilhouette");
+        guard.transform.SetParent(parent);
+        guard.transform.position = pos;
+
+        Color guardColor = new Color(0.08f, 0.07f, 0.06f);
+
+        // Body (wider than skaa — armored)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(guard.transform);
+        body.transform.localPosition = new Vector3(0f, 0.7f, 0f);
+        body.transform.localScale = new Vector3(0.4f, 0.7f, 0.25f);
+        ApplyColor(body, guardColor);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(guard.transform);
+        head.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+        head.transform.localScale = new Vector3(0.2f, 0.22f, 0.2f);
+        ApplyColor(head, guardColor);
+
+        // Helmet crest
+        var crest = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        crest.name = "Crest";
+        crest.transform.SetParent(guard.transform);
+        crest.transform.localPosition = new Vector3(0f, 1.65f, 0f);
+        crest.transform.localScale = new Vector3(0.03f, 0.15f, 0.2f);
+        ApplyColor(crest, COL_METAL);
+
+        // Spear (long thin cylinder)
+        var spear = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        spear.name = "Spear";
+        spear.transform.SetParent(guard.transform);
+        spear.transform.localPosition = new Vector3(0.25f, 1f, 0f);
+        spear.transform.localScale = new Vector3(0.025f, 1.2f, 0.025f);
+        ApplyColor(spear, COL_METAL);
+
+        // Spear tip
+        var tip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        tip.name = "SpearTip";
+        tip.transform.SetParent(spear.transform, false);
+        tip.transform.localPosition = new Vector3(0f, 1.05f, 0f);
+        tip.transform.localScale = new Vector3(1.5f, 0.5f, 1.5f);
+        ApplyColor(tip, new Color(0.30f, 0.30f, 0.33f));
+    }
+
+    static void CreatePuddle(Transform parent, Vector3 pos, float size)
+    {
+        var puddle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        puddle.name = "Puddle";
+        puddle.transform.SetParent(parent);
+        puddle.transform.position = pos;
+        puddle.transform.localScale = new Vector3(size, 0.003f, size * Random.Range(0.6f, 1f));
+        ApplyColor(puddle, new Color(0.06f, 0.08f, 0.12f));
+    }
+
+    static void CreateClothesline(Transform parent, Vector3 pos, float span)
+    {
+        // Line (thin cylinder stretched across)
+        var line = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        line.name = "Clothesline";
+        line.transform.SetParent(parent);
+        line.transform.position = pos;
+        line.transform.localScale = new Vector3(0.01f, span * 0.5f, 0.01f);
+        line.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(line, new Color(0.20f, 0.18f, 0.14f));
+
+        // Hanging cloth pieces
+        for (int i = 0; i < 3; i++)
+        {
+            var cloth = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cloth.name = "Cloth";
+            cloth.transform.SetParent(parent);
+            float cx = pos.x + Random.Range(-2f, 2f);
+            cloth.transform.position = new Vector3(cx, pos.y - Random.Range(0.3f, 0.8f), pos.z + Random.Range(-0.1f, 0.1f));
+            cloth.transform.localScale = new Vector3(0.5f, Random.Range(0.4f, 0.7f), 0.02f);
+            cloth.transform.rotation = Quaternion.Euler(0f, Random.Range(-10f, 10f), Random.Range(-5f, 5f));
+
+            Color[] clothColors = {
+                new Color(0.30f, 0.25f, 0.20f), // brown rag
+                new Color(0.22f, 0.22f, 0.25f), // grey
+                new Color(0.20f, 0.15f, 0.10f), // dark tan
+            };
+            ApplyColor(cloth, clothColors[Random.Range(0, clothColors.Length)]);
+        }
+    }
+
+    static void CreateRooftopMistborn(Transform parent, Vector3 pos)
+    {
+        var mb = new GameObject("RooftopMistborn");
+        mb.transform.SetParent(parent);
+        mb.transform.position = pos;
+
+        Color mbColor = new Color(0.04f, 0.04f, 0.05f);
+
+        // Crouching body
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(mb.transform);
+        body.transform.localPosition = new Vector3(0f, 0.4f, 0f);
+        body.transform.localScale = new Vector3(0.3f, 0.4f, 0.25f);
+        body.transform.rotation = Quaternion.Euler(25f, -30f, 0f);
+        ApplyColor(body, mbColor);
+
+        // Head (hooded)
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(mb.transform);
+        head.transform.localPosition = new Vector3(0f, 0.75f, 0.1f);
+        head.transform.localScale = new Vector3(0.2f, 0.18f, 0.2f);
+        ApplyColor(head, mbColor);
+
+        // Mistcloak draping behind (multiple flat pieces)
+        for (int t = 0; t < 5; t++)
+        {
+            var tassel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tassel.name = "CloakTassel";
+            tassel.transform.SetParent(mb.transform);
+            tassel.transform.localPosition = new Vector3(
+                Random.Range(-0.2f, 0.2f), Random.Range(0.1f, 0.5f), -0.3f + t * -0.15f);
+            tassel.transform.localScale = new Vector3(0.15f, Random.Range(0.3f, 0.6f), 0.02f);
+            tassel.transform.rotation = Quaternion.Euler(Random.Range(-10f, 10f), Random.Range(-15f, 15f), Random.Range(-5f, 5f));
+            ApplyColor(tassel, new Color(mbColor.r + 0.02f, mbColor.g + 0.02f, mbColor.b + 0.02f));
+        }
+    }
+
+    static void CreateAllomanticLineFlash(Transform parent, Vector3 from, Vector3 to)
+    {
+        // A thin blue line between two points — hints at Allomancy in the city
+        var lineObj = new GameObject("AllomanticLine");
+        lineObj.transform.SetParent(parent);
+        lineObj.transform.position = from;
+        var lr = lineObj.AddComponent<LineRenderer>();
+        lr.positionCount = 2;
+        lr.SetPositions(new[] { from, to });
+        lr.startWidth = 0.05f;
+        lr.endWidth = 0.02f;
+        lr.startColor = new Color(0.3f, 0.55f, 1f, 0.6f);
+        lr.endColor = new Color(0.3f, 0.55f, 1f, 0.1f);
+        lr.useWorldSpace = true;
+
+        // Try to assign a working material
+        var mat = CreateSavedMaterial(new Color(0.3f, 0.55f, 1f, 0.6f), "AllomLine");
+        lr.material = mat;
     }
 
     static void CreateArchway(Transform parent, Vector3 pos, float span)
