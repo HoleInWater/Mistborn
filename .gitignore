@@ -22,13 +22,13 @@
 .DS_Store
 Thumbs.db
 
-# Audio files
-*.mp3
-*.wav
-*.flac
-*.ogg
-*.midi
-*.mid
+# Audio files (allow project audio, ignore loose files in root)
+# *.mp3
+# *.wav
+# *.flac
+# *.ogg
+# *.midi
+# *.mid
 
 # Archives
 *.zip
