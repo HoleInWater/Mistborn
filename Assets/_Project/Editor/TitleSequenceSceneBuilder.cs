@@ -60,9 +60,9 @@ public class TitleSequenceSceneBuilder
 
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // Reset material state and clean old generated materials
+        // Reset material counter
         _matCounter = 0;
-        _sourceMat = null;
+        // Clean old generated materials (only used for LineRenderer materials)
         if (AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
@@ -74,6 +74,16 @@ public class TitleSequenceSceneBuilder
         RenderSettings.fogColor = new Color(0.06f, 0.06f, 0.08f);
         RenderSettings.ambientMode = AmbientMode.Flat;
         RenderSettings.ambientLight = new Color(0.05f, 0.05f, 0.07f);
+
+        // Debug: log what shader Unity assigns to primitives on this pipeline
+        {
+            var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var probeMat = probe.GetComponent<Renderer>().sharedMaterial;
+            Debug.Log($"[TitleSequenceBuilder] Pipeline default shader: {probeMat.shader.name}");
+            Debug.Log($"[TitleSequenceBuilder] Has _BaseColor: {probeMat.HasProperty("_BaseColor")}");
+            Debug.Log($"[TitleSequenceBuilder] Has _Color: {probeMat.HasProperty("_Color")}");
+            Object.DestroyImmediate(probe);
+        }
 
         // ══════════════════════════════════════════════════════════════════
         // CAMERA
@@ -2264,62 +2274,37 @@ public class TitleSequenceSceneBuilder
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
-    // Clone from an existing project material that's known to work on HDRP.
-    // Shader.Find() is unreliable on HDRP — cloning a working asset is bulletproof.
+    // ═════════════════════════════════════════════════════════════════════════
+    // MATERIAL SYSTEM
+    //
+    // The ONLY approach that works on every pipeline: access renderer.material
+    // (not sharedMaterial) on each primitive AFTER Unity creates it. This triggers
+    // Unity's auto-instancing which creates a proper material copy using whatever
+    // shader the pipeline assigned to the primitive. Then we just set the color.
+    //
+    // No Shader.Find(). No material cloning. No asset saving.
+    // Unity does all the heavy lifting.
+    // ═════════════════════════════════════════════════════════════════════════
+
     private static int _matCounter = 0;
-    private static Material _sourceMat;
-
-    static Material GetSourceMaterial()
-    {
-        if (_sourceMat != null) return _sourceMat;
-
-        // Try known working materials in the project
-        string[] candidates = {
-            "Assets/_Project/Materials/Ground(Temp).mat",
-            "Assets/_Project/Materials/Metal.mat",
-            "Assets/_Project/Materials/Wood.mat",
-            "Assets/_Project/Materials/White.mat",
-            "Assets/_Project/Materials/Obsidian.mat",
-        };
-        foreach (var path in candidates)
-        {
-            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m != null) { _sourceMat = m; return m; }
-        }
-
-        // Fallback: search for ANY .mat in the project
-        string[] guids = AssetDatabase.FindAssets("t:Material", new[] { "Assets/_Project/Materials" });
-        foreach (var guid in guids)
-        {
-            var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
-            if (m != null) { _sourceMat = m; return m; }
-        }
-
-        // Last resort: grab from a primitive
-        var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _sourceMat = temp.GetComponent<Renderer>().sharedMaterial;
-        Object.DestroyImmediate(temp);
-        return _sourceMat;
-    }
 
     static Material CreateSavedMaterial(Color color, string label = "Mat")
     {
+        // For LineRenderers and other non-primitive uses, we need a saved material.
+        // Use a simple unlit approach.
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
             AssetDatabase.CreateFolder("Assets/_Project", "Materials");
         if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.CreateFolder("Assets/_Project/Materials", "TitleSequence");
 
-        // Clone from working source material (same shader, same pipeline setup)
-        var mat = new Material(GetSourceMaterial());
-        mat.name = $"TS_{label}_{_matCounter++}";
+        // Grab shader from a temp primitive (guaranteed to work)
+        var temp = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        var shader = temp.GetComponent<Renderer>().sharedMaterial.shader;
+        Object.DestroyImmediate(temp);
 
-        // Set color on every known property (covers HDRP, URP, Standard)
-        mat.color = color;
-        if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))      mat.SetColor("_Color", color);
-        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.1f);
-        if (mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", 0.1f);
-        if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic", 0f);
+        var mat = new Material(shader);
+        mat.name = $"TS_{label}_{_matCounter++}";
+        SetAllColorProperties(mat, color);
 
         string path = $"Assets/_Project/Materials/TitleSequence/{mat.name}.mat";
         AssetDatabase.CreateAsset(mat, path);
@@ -2330,31 +2315,46 @@ public class TitleSequenceSceneBuilder
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        rend.sharedMaterial = CreateSavedMaterial(color, "Col");
+
+        // renderer.material (NOT sharedMaterial) auto-instances the material.
+        // Unity clones the pipeline-correct material automatically.
+        Material mat = rend.material; // triggers instance creation
+        SetAllColorProperties(mat, color);
+        rend.material = mat;
     }
 
     static void ApplyEmissive(GameObject go, Color color)
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
+
         Color bright = color * 2.5f;
         bright.a = 1f;
 
-        var mat = CreateSavedMaterial(bright, "Emit");
+        Material mat = rend.material; // triggers instance creation
+        SetAllColorProperties(mat, bright);
 
         mat.EnableKeyword("_EMISSION");
-        if (mat.HasProperty("_EmissionColor"))
-            mat.SetColor("_EmissionColor", bright);
-        if (mat.HasProperty("_EmissiveColor"))
-            mat.SetColor("_EmissiveColor", bright);
-        if (mat.HasProperty("_EmissiveIntensity"))
-            mat.SetFloat("_EmissiveIntensity", 3f);
-        if (mat.HasProperty("_UseEmissiveIntensity"))
-            mat.SetFloat("_UseEmissiveIntensity", 1f);
+        if (mat.HasProperty("_EmissionColor"))  mat.SetColor("_EmissionColor", bright);
+        if (mat.HasProperty("_EmissiveColor"))  mat.SetColor("_EmissiveColor", bright);
+        if (mat.HasProperty("_EmissiveColorLDR")) mat.SetColor("_EmissiveColorLDR", bright);
+        if (mat.HasProperty("_EmissiveIntensity")) mat.SetFloat("_EmissiveIntensity", 3f);
+        if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 1f);
 
-        // Re-save after modifying
-        EditorUtility.SetDirty(mat);
-        rend.sharedMaterial = mat;
+        rend.material = mat;
+    }
+
+    static void SetAllColorProperties(Material mat, Color color)
+    {
+        // Cover every pipeline's color property name
+        if (mat.HasProperty("_BaseColor"))    mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))        mat.SetColor("_Color", color);
+        if (mat.HasProperty("_UnlitColor"))   mat.SetColor("_UnlitColor", color);
+        mat.color = color;
+
+        if (mat.HasProperty("_Smoothness"))   mat.SetFloat("_Smoothness", 0.1f);
+        if (mat.HasProperty("_Glossiness"))   mat.SetFloat("_Glossiness", 0.1f);
+        if (mat.HasProperty("_Metallic"))     mat.SetFloat("_Metallic", 0f);
     }
 
     static TextMeshProUGUI CreateTMP(Transform parent, string name, string text,
