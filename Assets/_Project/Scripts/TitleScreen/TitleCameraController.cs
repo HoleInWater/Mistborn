@@ -43,6 +43,12 @@ public class TitleCameraController : MonoBehaviour
     public float breathFrequency   = 0.4f;
     public float breathRotAmount   = 0.15f;
 
+    [Header("Title Hold Zoom")]
+    [Tooltip("Slow zoom in during the title reveal")]
+    public float titleZoomStart    = 55f;
+    public float titleZoomEnd      = 45f;
+    public float titleZoomDuration = 10f;
+
     private Phase currentPhase = Phase.MistyField;
     private float phaseTimer;
     private float orbitAngle;
@@ -51,9 +57,11 @@ public class TitleCameraController : MonoBehaviour
     private bool transitioning;
     private float transitionTime;
     private float transitionDuration = 1.5f;
+    private Camera cam;
 
     void Start()
     {
+        cam = GetComponent<Camera>();
         transform.position = fieldStartPos;
         transform.LookAt(fieldLookAt);
     }
@@ -100,7 +108,13 @@ public class TitleCameraController : MonoBehaviour
                 UpdateAerial();
                 break;
             case Phase.TitleHold:
+                // Gentle drift + slow zoom in for dramatic title reveal
                 transform.position += new Vector3(0f, Mathf.Sin(phaseTimer * 0.3f) * 0.002f, 0f);
+                if (cam != null)
+                {
+                    float zoomT = Mathf.Clamp01(phaseTimer / titleZoomDuration);
+                    cam.fieldOfView = Mathf.Lerp(titleZoomStart, titleZoomEnd, zoomT);
+                }
                 break;
         }
 
@@ -124,21 +138,31 @@ public class TitleCameraController : MonoBehaviour
         float t = Mathf.Clamp01(phaseTimer / streetDuration);
         t = t * t * (3f - 2f * t);
         transform.position = Vector3.Lerp(streetStartPos, streetEndPos, t);
-        transform.LookAt(transform.position + streetLookOffset);
+
+        // Slow side-to-side look (scanning the buildings as we walk through)
+        float lookScan = Mathf.Sin(phaseTimer * 0.25f) * 1.5f;
+        float lookUp   = Mathf.Sin(phaseTimer * 0.15f) * 0.3f;
+        Vector3 lookTarget = transform.position + streetLookOffset
+            + new Vector3(lookScan, lookUp, 0f);
+        transform.LookAt(lookTarget);
     }
 
     void UpdateAerial()
     {
         orbitAngle += aerialOrbitSpeed * Time.deltaTime;
-        float x = aerialCenter.x + Mathf.Cos(orbitAngle) * aerialRadius;
-        float z = aerialCenter.z + Mathf.Sin(orbitAngle) * aerialRadius;
-        transform.position = new Vector3(x, aerialHeight, z);
-        transform.LookAt(aerialCenter);
-        transform.rotation *= Quaternion.Euler(aerialTilt - 90f, 0f, 0f);
 
-        // Correct: look down at the city at an angle
-        Vector3 lookDir = (aerialCenter - transform.position).normalized;
-        transform.rotation = Quaternion.LookRotation(lookDir) * Quaternion.Euler(aerialTilt, 0f, 0f);
+        // Slowly descend toward the city as we orbit — getting closer to Kredik Shaw
+        float descentT = Mathf.Clamp01(phaseTimer / 20f);
+        float currentHeight = Mathf.Lerp(aerialHeight, aerialHeight * 0.7f, descentT);
+        float currentRadius = Mathf.Lerp(aerialRadius, aerialRadius * 0.75f, descentT);
+
+        float x = aerialCenter.x + Mathf.Cos(orbitAngle) * currentRadius;
+        float z = aerialCenter.z + Mathf.Sin(orbitAngle) * currentRadius;
+        transform.position = new Vector3(x, currentHeight, z);
+
+        // Look at Kredik Shaw — slightly above center for dramatic framing
+        Vector3 lookTarget = aerialCenter + new Vector3(0f, 10f, 0f);
+        transform.LookAt(lookTarget);
     }
 
     void ApplyBreathing()

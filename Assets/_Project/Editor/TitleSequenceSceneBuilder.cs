@@ -392,6 +392,22 @@ public class TitleSequenceSceneBuilder
         // Wagon parked by the market stalls
         CreateParkedWagon(luthadelGroup.transform, new Vector3(-2f, 0f, -11f));
 
+        // Kelsier's crew safehouse hint — building with a slightly ajar cellar door
+        // and a faint blue glow from within (someone is burning tin inside)
+        CreateSafehouseHint(luthadelGroup.transform, new Vector3(5.5f, 0f, -1f));
+
+        // Skaa huddled around a small fire in an alley entrance
+        CreateAlleyFire(luthadelGroup.transform, new Vector3(-3.8f, 0f, -8f));
+
+        // Loose cobblestones / broken street section
+        CreateBrokenStreet(luthadelGroup.transform, new Vector3(0.5f, 0f, 6f));
+
+        // Rat running along the gutter (tiny silhouette)
+        CreateRat(luthadelGroup.transform, new Vector3(0.2f, 0.02f, 4f));
+
+        // Wind-blown debris particles (leaves, paper, ash clumps)
+        CreateWindDebris(luthadelGroup.transform, new Vector3(0f, 1.5f, 5f));
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -528,6 +544,15 @@ public class TitleSequenceSceneBuilder
         // Height fog layers (visible from above — mist at different altitudes)
         CreateMistParticles(kredikGroup.transform, new Vector3(0f, 5f, 0f), 60f);
         CreateMistParticles(kredikGroup.transform, new Vector3(0f, 15f, 0f), 40f);
+
+        // Garrison / barracks near the city wall
+        CreateBarracks(kredikGroup.transform, new Vector3(45f, 0f, -30f));
+
+        // Market square (open area with scattered stalls)
+        CreateMarketSquare(kredikGroup.transform, new Vector3(-30f, 0f, 15f));
+
+        // Skaa quarter — denser, shorter buildings, no lights
+        CreateSkaaQuarter(kredikGroup.transform, new Vector3(35f, 0f, 30f));
 
         // Steeljumping Mistborn arc — a figure mid-flight between rooftops
         CreateSteeljumpArc(kredikGroup.transform, new Vector3(-15f, 12f, 15f), new Vector3(-8f, 18f, 10f), new Vector3(-2f, 8f, 6f));
@@ -1258,6 +1283,235 @@ public class TitleSequenceSceneBuilder
         sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
         sign.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.HangingSign;
+    }
+
+    static void CreateSafehouseHint(Transform parent, Vector3 pos)
+    {
+        // A cellar door slightly ajar at the base of a building
+        var door = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        door.name = "CellarDoor";
+        door.transform.SetParent(parent);
+        door.transform.position = pos + new Vector3(0f, 0.2f, -0.3f);
+        door.transform.localScale = new Vector3(0.6f, 0.04f, 0.5f);
+        door.transform.rotation = Quaternion.Euler(-20f, 0f, 0f); // slightly open
+        ApplyColor(door, new Color(COL_WOOD.r * 0.7f, COL_WOOD.g * 0.7f, COL_WOOD.b * 0.7f));
+
+        // Faint blue glow from inside (someone is burning tin)
+        var glow = new GameObject("TinGlow");
+        glow.transform.SetParent(parent);
+        glow.transform.position = pos + new Vector3(0f, -0.1f, -0.3f);
+        var gl = glow.AddComponent<Light>();
+        gl.type = LightType.Point;
+        gl.color = new Color(0.3f, 0.5f, 1f); // Allomantic blue
+        gl.intensity = 0.4f;
+        gl.range = 2f;
+        glow.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.WindowGlow;
+    }
+
+    static void CreateAlleyFire(Transform parent, Vector3 pos)
+    {
+        // Small campfire (emissive sphere + light)
+        var fire = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        fire.name = "AlleyFire";
+        fire.transform.SetParent(parent);
+        fire.transform.position = pos + new Vector3(0f, 0.1f, 0f);
+        fire.transform.localScale = new Vector3(0.15f, 0.1f, 0.15f);
+        ApplyEmissive(fire, new Color(1f, 0.4f, 0.05f));
+
+        var fireLight = new GameObject("FireLight");
+        fireLight.transform.SetParent(parent);
+        fireLight.transform.position = pos + new Vector3(0f, 0.2f, 0f);
+        var fl = fireLight.AddComponent<Light>();
+        fl.type = LightType.Point;
+        fl.color = new Color(1f, 0.5f, 0.1f);
+        fl.intensity = 1.5f;
+        fl.range = 4f;
+        fireLight.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.Torch;
+
+        // 2 huddled skaa around it
+        CreateSkaaSilhouette(parent, pos + new Vector3(-0.3f, 0f, 0.2f), true);
+        CreateSkaaSilhouette(parent, pos + new Vector3(0.3f, 0f, 0.15f), true);
+    }
+
+    static void CreateBrokenStreet(Transform parent, Vector3 pos)
+    {
+        // Missing cobblestones — a dark hole with scattered stones around it
+        var hole = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        hole.name = "BrokenStreetHole";
+        hole.transform.SetParent(parent);
+        hole.transform.position = pos + new Vector3(0f, -0.03f, 0f);
+        hole.transform.localScale = new Vector3(0.8f, 0.04f, 0.6f);
+        ApplyColor(hole, new Color(0.04f, 0.04f, 0.03f)); // dark earth underneath
+
+        // Loose cobblestones around the edge
+        for (int i = 0; i < 5; i++)
+        {
+            var stone = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stone.name = "LooseCobble";
+            stone.transform.SetParent(parent);
+            float s = Random.Range(0.06f, 0.12f);
+            stone.transform.position = pos + new Vector3(Random.Range(-0.5f, 0.5f), s * 0.5f, Random.Range(-0.4f, 0.4f));
+            stone.transform.localScale = new Vector3(s, s * 0.6f, s);
+            stone.transform.rotation = Quaternion.Euler(Random.Range(-20f, 20f), Random.Range(0f, 90f), Random.Range(-10f, 10f));
+            ApplyColor(stone, Color.Lerp(COL_COBBLE, COL_STONE_DARK, Random.Range(0f, 1f)));
+        }
+    }
+
+    static void CreateRat(Transform parent, Vector3 pos)
+    {
+        var rat = new GameObject("Rat");
+        rat.transform.SetParent(parent);
+        rat.transform.position = pos;
+
+        Color col = new Color(0.12f, 0.10f, 0.08f);
+
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(rat.transform);
+        body.transform.localPosition = Vector3.zero;
+        body.transform.localScale = new Vector3(0.025f, 0.015f, 0.04f);
+        body.transform.rotation = Quaternion.Euler(0f, Random.Range(-30f, 30f), 90f);
+        ApplyColor(body, col);
+
+        // Tail (thin cylinder)
+        var tail = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        tail.name = "Tail";
+        tail.transform.SetParent(rat.transform);
+        tail.transform.localPosition = new Vector3(-0.04f, 0.005f, 0f);
+        tail.transform.localScale = new Vector3(0.004f, 0.03f, 0.004f);
+        tail.transform.rotation = Quaternion.Euler(0f, 0f, 70f);
+        ApplyColor(tail, new Color(0.15f, 0.12f, 0.10f));
+    }
+
+    static void CreateWindDebris(Transform parent, Vector3 pos)
+    {
+        var obj = new GameObject("WindDebris");
+        obj.transform.SetParent(parent);
+        obj.transform.position = pos;
+        var ps = obj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 2f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.1f);
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(0.25f, 0.22f, 0.18f, 0.5f),
+            new Color(0.35f, 0.30f, 0.25f, 0.7f)
+        );
+        main.maxParticles = 20;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = 0.05f;
+        main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
+        var em = ps.emission;
+        em.rateOverTime = 3f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(8f, 0.5f, 20f);
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.5f;
+        noise.frequency = 0.4f;
+        noise.scrollSpeed = 0.3f;
+        noise.octaveCount = 2;
+        var rot = ps.rotationOverLifetime;
+        rot.enabled = true;
+        rot.z = new ParticleSystem.MinMaxCurve(-3f, 3f);
+    }
+
+    static void CreateBarracks(Transform parent, Vector3 pos)
+    {
+        // Long rectangular building — military garrison
+        var main = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        main.name = "Barracks";
+        main.transform.SetParent(parent);
+        main.transform.position = pos + new Vector3(0f, 3f, 0f);
+        main.transform.localScale = new Vector3(15f, 6f, 6f);
+        ApplyColor(main, COL_STONE_GREY);
+
+        // Roof
+        var roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        roof.name = "BarracksRoof";
+        roof.transform.SetParent(main.transform, false);
+        roof.transform.localPosition = new Vector3(0f, 0.53f, 0f);
+        roof.transform.localScale = new Vector3(1.05f, 0.05f, 1.1f);
+        ApplyColor(roof, COL_ROOF_SLATE);
+
+        // Yard fence
+        for (int i = -3; i <= 3; i++)
+        {
+            var fencePost = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            fencePost.name = "YardPost";
+            fencePost.transform.SetParent(parent);
+            fencePost.transform.position = pos + new Vector3(i * 2.5f, 1f, 5f);
+            fencePost.transform.localScale = new Vector3(0.08f, 1f, 0.08f);
+            ApplyColor(fencePost, COL_WOOD);
+        }
+
+        // Training dummy in the yard
+        var dummy = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        dummy.name = "TrainingDummy";
+        dummy.transform.SetParent(parent);
+        dummy.transform.position = pos + new Vector3(3f, 1f, 7f);
+        dummy.transform.localScale = new Vector3(0.3f, 0.8f, 0.2f);
+        ApplyColor(dummy, COL_WOOD);
+    }
+
+    static void CreateMarketSquare(Transform parent, Vector3 pos)
+    {
+        // Open square — lighter ground
+        var square = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        square.name = "MarketSquare";
+        square.transform.SetParent(parent);
+        square.transform.position = pos + new Vector3(0f, 0.05f, 0f);
+        square.transform.localScale = new Vector3(12f, 0.1f, 12f);
+        ApplyColor(square, COL_COBBLE);
+
+        // Fountain in the center (dried up — water is scarce)
+        var fountain = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        fountain.name = "Fountain";
+        fountain.transform.SetParent(parent);
+        fountain.transform.position = pos + new Vector3(0f, 0.6f, 0f);
+        fountain.transform.localScale = new Vector3(2f, 0.6f, 2f);
+        ApplyColor(fountain, COL_STONE_LIGHT);
+
+        // Scattered stalls around the edges
+        for (int i = 0; i < 6; i++)
+        {
+            float angle = i * 60f * Mathf.Deg2Rad;
+            Vector3 stallPos = pos + new Vector3(Mathf.Cos(angle) * 4.5f, 0f, Mathf.Sin(angle) * 4.5f);
+            var stall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stall.name = "MarketStall";
+            stall.transform.SetParent(parent);
+            stall.transform.position = stallPos + new Vector3(0f, 0.8f, 0f);
+            stall.transform.localScale = new Vector3(2f, 1.6f, 1.5f);
+            stall.transform.rotation = Quaternion.Euler(0f, i * 60f, 0f);
+            Color[] stallColors = { COL_WOOD, COL_STONE_RED, COL_STONE_MED };
+            ApplyColor(stall, stallColors[i % stallColors.Length]);
+        }
+    }
+
+    static void CreateSkaaQuarter(Transform parent, Vector3 pos)
+    {
+        // Dense cluster of small, short buildings — no lights, oppressive
+        for (int i = 0; i < 15; i++)
+        {
+            float x = pos.x + Random.Range(-8f, 8f);
+            float z = pos.z + Random.Range(-8f, 8f);
+            float h = Random.Range(2f, 5f); // shorter than noble buildings
+            float w = Random.Range(2f, 4f);
+            float d = Random.Range(2f, 4f);
+
+            var hovel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hovel.name = "SkaaHovel";
+            hovel.transform.SetParent(parent);
+            hovel.transform.position = new Vector3(x, h * 0.5f, z);
+            hovel.transform.localScale = new Vector3(w, h, d);
+            hovel.transform.rotation = Quaternion.Euler(0f, Random.Range(-10f, 10f), 0f);
+            // Darker, dirtier colors — no maintenance, no wealth
+            ApplyColor(hovel, new Color(
+                Random.Range(0.10f, 0.16f),
+                Random.Range(0.08f, 0.14f),
+                Random.Range(0.07f, 0.12f)));
+        }
     }
 
     static void CreateBuriedWheel(Transform parent, Vector3 pos)
