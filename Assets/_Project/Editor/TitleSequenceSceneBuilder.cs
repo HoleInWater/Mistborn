@@ -194,6 +194,15 @@ public class TitleSequenceSceneBuilder
         // Scattered coins on the dirt path (a Mistborn passed through here)
         CreateScatteredCoins(mistyField.transform, new Vector3(1f, 0.02f, 11f));
 
+        // Watchtower near the city wall (visible from the field — guards keep watch)
+        CreateWatchtower(mistyField.transform, new Vector3(15f, 0f, 55f));
+
+        // Skeleton / remains near the road (grim reminder — the Final Empire is cruel)
+        CreateSkeleton(mistyField.transform, new Vector3(-2f, 0f, 18f));
+
+        // Gibbet post (iron cage on a pole — executed criminal left as warning)
+        CreateGibbetPost(mistyField.transform, new Vector3(6f, 0f, 25f));
+
         // Ashmount glow at base (faint red-orange light on the horizon)
         var ashGlow = new GameObject("AshmountGlow");
         ashGlow.transform.SetParent(mistyField.transform);
@@ -334,6 +343,26 @@ public class TitleSequenceSceneBuilder
         // Stone well in a widened area
         CreateWell(luthadelGroup.transform, new Vector3(0f, 0f, -10f));
 
+        // Gallows / stocks in a small square (oppressive regime)
+        CreateGallows(luthadelGroup.transform, new Vector3(0f, 0f, 24f));
+
+        // Sleeping skaa in a doorway
+        CreateSleepingSkaa(luthadelGroup.transform, new Vector3(-3.2f, 0f, 9f));
+        CreateSleepingSkaa(luthadelGroup.transform, new Vector3(2.8f, 0f, -7f));
+
+        // Notice board on a wall (Lord Ruler's decree)
+        CreateNoticeBoard(luthadelGroup.transform, new Vector3(-3.3f, 3f, 6f), true);
+
+        // Drainage pipe on building facade
+        CreateDrainPipe(luthadelGroup.transform, new Vector3(-3.4f, 0f, -4f), 10f);
+        CreateDrainPipe(luthadelGroup.transform, new Vector3(3.2f, 0f, 14f), 8f);
+
+        // Second guard patrol (pair walking together — more presence)
+        CreateGuardSilhouette(luthadelGroup.transform, new Vector3(-0.8f, 0f, 22f));
+
+        // Skaa worker carrying a sack
+        CreateSkaaWorker(luthadelGroup.transform, new Vector3(0.5f, 0f, 13f));
+
         // Stray cat on a crate
         CreateStrayAnimal(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.3f));
 
@@ -469,6 +498,17 @@ public class TitleSequenceSceneBuilder
 
         // Dock/pier along one canal (cargo loading area)
         CreateDock(kredikGroup.transform, new Vector3(25f, 0f, 2f));
+
+        // Steel Ministry building (distinctive, separate from noble keeps)
+        CreateSteelMinistry(kredikGroup.transform, new Vector3(-15f, 0f, 30f));
+
+        // Guards at the Kredik Shaw gate
+        CreateGuardSilhouette(kredikGroup.transform, new Vector3(-2f, 0f, 15.5f));
+        CreateGuardSilhouette(kredikGroup.transform, new Vector3(2f, 0f, 15.5f));
+
+        // Height fog layers (visible from above — mist at different altitudes)
+        CreateMistParticles(kredikGroup.transform, new Vector3(0f, 5f, 0f), 60f);
+        CreateMistParticles(kredikGroup.transform, new Vector3(0f, 15f, 0f), 40f);
 
         // Steeljumping Mistborn arc — a figure mid-flight between rooftops
         CreateSteeljumpArc(kredikGroup.transform, new Vector3(-15f, 12f, 15f), new Vector3(-8f, 18f, 10f), new Vector3(-2f, 8f, 6f));
@@ -2321,6 +2361,298 @@ public class TitleSequenceSceneBuilder
         noise.strength = 0.15f;
         noise.frequency = 0.5f;
         noise.octaveCount = 1;
+    }
+
+    static void CreateWatchtower(Transform parent, Vector3 pos)
+    {
+        // Tall cylindrical tower with lookout platform
+        var tower = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        tower.name = "Watchtower";
+        tower.transform.SetParent(parent);
+        tower.transform.position = pos + new Vector3(0f, 6f, 0f);
+        tower.transform.localScale = new Vector3(1.5f, 6f, 1.5f);
+        ApplyColor(tower, COL_STONE_GREY);
+
+        // Lookout platform
+        var platform = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        platform.name = "LookoutPlatform";
+        platform.transform.SetParent(parent);
+        platform.transform.position = pos + new Vector3(0f, 12.2f, 0f);
+        platform.transform.localScale = new Vector3(2.2f, 0.15f, 2.2f);
+        ApplyColor(platform, COL_STONE_MED);
+
+        // Torch at top
+        var torchLight = new GameObject("WatchtowerTorch");
+        torchLight.transform.SetParent(parent);
+        torchLight.transform.position = pos + new Vector3(0f, 13f, 0f);
+        var wl = torchLight.AddComponent<Light>();
+        wl.type = LightType.Point;
+        wl.color = COL_LANTERN;
+        wl.intensity = 3f;
+        wl.range = 15f;
+        torchLight.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.Torch;
+    }
+
+    static void CreateSkeleton(Transform parent, Vector3 pos)
+    {
+        Color boneColor = new Color(0.35f, 0.32f, 0.28f);
+
+        // Ribcage (flattened sphere)
+        var ribs = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        ribs.name = "Skeleton";
+        ribs.transform.SetParent(parent);
+        ribs.transform.position = pos + new Vector3(0f, 0.08f, 0f);
+        ribs.transform.localScale = new Vector3(0.25f, 0.08f, 0.15f);
+        ribs.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+        ApplyColor(ribs, boneColor);
+
+        // Skull
+        var skull = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        skull.name = "Skull";
+        skull.transform.SetParent(parent);
+        skull.transform.position = pos + new Vector3(0.2f, 0.06f, 0f);
+        skull.transform.localScale = new Vector3(0.1f, 0.08f, 0.08f);
+        ApplyColor(skull, boneColor);
+    }
+
+    static void CreateGibbetPost(Transform parent, Vector3 pos)
+    {
+        // Tall post with iron cage at top
+        var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        post.name = "GibbetPost";
+        post.transform.SetParent(parent);
+        post.transform.position = pos + new Vector3(0f, 2f, 0f);
+        post.transform.localScale = new Vector3(0.08f, 2f, 0.08f);
+        ApplyColor(post, COL_WOOD);
+
+        // Cross beam
+        var beam = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        beam.name = "GibbetBeam";
+        beam.transform.SetParent(parent);
+        beam.transform.position = pos + new Vector3(0.4f, 3.8f, 0f);
+        beam.transform.localScale = new Vector3(0.05f, 0.5f, 0.05f);
+        beam.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(beam, COL_WOOD);
+
+        // Iron cage (wireframe approximation — cube with visible edges)
+        var cage = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cage.name = "GibbetCage";
+        cage.transform.SetParent(parent);
+        cage.transform.position = pos + new Vector3(0.7f, 3.2f, 0f);
+        cage.transform.localScale = new Vector3(0.4f, 0.6f, 0.4f);
+        ApplyColor(cage, COL_METAL);
+    }
+
+    static void CreateGallows(Transform parent, Vector3 pos)
+    {
+        // Execution platform
+        var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        platform.name = "GallowsPlatform";
+        platform.transform.SetParent(parent);
+        platform.transform.position = pos + new Vector3(0f, 0.3f, 0f);
+        platform.transform.localScale = new Vector3(3f, 0.6f, 2f);
+        ApplyColor(platform, COL_WOOD);
+
+        // Upright posts
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var upright = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            upright.name = "GallowsUpright";
+            upright.transform.SetParent(parent);
+            upright.transform.position = pos + new Vector3(side * 0.8f, 2.5f, -0.5f);
+            upright.transform.localScale = new Vector3(0.1f, 2f, 0.1f);
+            ApplyColor(upright, COL_WOOD);
+        }
+
+        // Crossbeam
+        var crossbeam = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        crossbeam.name = "GallowsBeam";
+        crossbeam.transform.SetParent(parent);
+        crossbeam.transform.position = pos + new Vector3(0f, 4.5f, -0.5f);
+        crossbeam.transform.localScale = new Vector3(0.08f, 1f, 0.08f);
+        crossbeam.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(crossbeam, COL_WOOD);
+
+        // Noose (thin cylinder hanging down)
+        var rope = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        rope.name = "GallowsRope";
+        rope.transform.SetParent(parent);
+        rope.transform.position = pos + new Vector3(0f, 3.5f, -0.5f);
+        rope.transform.localScale = new Vector3(0.02f, 0.8f, 0.02f);
+        ApplyColor(rope, new Color(0.28f, 0.22f, 0.14f));
+
+        // Steps up to the platform
+        for (int s = 0; s < 3; s++)
+        {
+            var step = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            step.name = "GallowsStep";
+            step.transform.SetParent(parent);
+            step.transform.position = pos + new Vector3(0f, s * 0.1f, 0.7f + s * 0.3f);
+            step.transform.localScale = new Vector3(1.5f, 0.1f, 0.3f);
+            ApplyColor(step, COL_WOOD);
+        }
+    }
+
+    static void CreateSleepingSkaa(Transform parent, Vector3 pos)
+    {
+        var skaa = new GameObject("SleepingSkaa");
+        skaa.transform.SetParent(parent);
+        skaa.transform.position = pos;
+
+        Color col = new Color(0.08f, 0.07f, 0.06f);
+
+        // Body curled on the ground
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(skaa.transform);
+        body.transform.localPosition = new Vector3(0f, 0.12f, 0f);
+        body.transform.localScale = new Vector3(0.25f, 0.12f, 0.35f);
+        body.transform.rotation = Quaternion.Euler(0f, Random.Range(-20f, 20f), 90f);
+        ApplyColor(body, col);
+
+        // Blanket / rag over them
+        var blanket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        blanket.name = "Blanket";
+        blanket.transform.SetParent(skaa.transform);
+        blanket.transform.localPosition = new Vector3(0f, 0.15f, 0f);
+        blanket.transform.localScale = new Vector3(0.6f, 0.03f, 0.4f);
+        ApplyColor(blanket, new Color(0.15f, 0.12f, 0.10f));
+    }
+
+    static void CreateNoticeBoard(Transform parent, Vector3 pos, bool leftSide)
+    {
+        // Wooden board mounted on wall
+        var board = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        board.name = "NoticeBoard";
+        board.transform.SetParent(parent);
+        board.transform.position = pos;
+        board.transform.localScale = new Vector3(0.06f, 0.6f, 0.8f);
+        ApplyColor(board, COL_WOOD);
+
+        // Paper notices (lighter rectangles on the board)
+        for (int n = 0; n < 3; n++)
+        {
+            var notice = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            notice.name = "Notice";
+            notice.transform.SetParent(board.transform, false);
+            notice.transform.localPosition = new Vector3(
+                leftSide ? 0.55f : -0.55f,
+                Random.Range(-0.3f, 0.3f),
+                Random.Range(-0.3f, 0.3f));
+            notice.transform.localScale = new Vector3(0.1f, 0.35f, 0.25f);
+            notice.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-5f, 5f));
+            ApplyColor(notice, new Color(0.40f, 0.36f, 0.28f)); // aged paper
+        }
+    }
+
+    static void CreateDrainPipe(Transform parent, Vector3 pos, float height)
+    {
+        var pipe = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        pipe.name = "DrainPipe";
+        pipe.transform.SetParent(parent);
+        pipe.transform.position = pos + new Vector3(0f, height * 0.5f, 0f);
+        pipe.transform.localScale = new Vector3(0.08f, height * 0.5f, 0.08f);
+        ApplyColor(pipe, COL_METAL);
+
+        // Elbow at bottom
+        var elbow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        elbow.name = "DrainElbow";
+        elbow.transform.SetParent(parent);
+        elbow.transform.position = pos + new Vector3(0f, 0.15f, 0.08f);
+        elbow.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        ApplyColor(elbow, COL_METAL);
+    }
+
+    static void CreateSkaaWorker(Transform parent, Vector3 pos)
+    {
+        var worker = new GameObject("SkaaWorker");
+        worker.transform.SetParent(parent);
+        worker.transform.position = pos;
+
+        Color col = new Color(0.07f, 0.06f, 0.05f);
+
+        // Hunched body (carrying heavy load)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(worker.transform);
+        body.transform.localPosition = new Vector3(0f, 0.65f, 0f);
+        body.transform.localScale = new Vector3(0.3f, 0.6f, 0.22f);
+        body.transform.rotation = Quaternion.Euler(15f, Random.Range(-10f, 10f), 0f);
+        ApplyColor(body, col);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(worker.transform);
+        head.transform.localPosition = new Vector3(0f, 1.25f, 0.1f);
+        head.transform.localScale = new Vector3(0.17f, 0.18f, 0.17f);
+        ApplyColor(head, col);
+
+        // Sack on back
+        var sack = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sack.name = "Sack";
+        sack.transform.SetParent(worker.transform);
+        sack.transform.localPosition = new Vector3(0f, 1.0f, -0.2f);
+        sack.transform.localScale = new Vector3(0.3f, 0.25f, 0.25f);
+        ApplyColor(sack, new Color(0.20f, 0.17f, 0.12f));
+    }
+
+    static void CreateSteelMinistry(Transform parent, Vector3 pos)
+    {
+        // Distinctive tall building — the Canton of Inquisition headquarters
+        var main = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        main.name = "SteelMinistry";
+        main.transform.SetParent(parent);
+        float h = 22f;
+        main.transform.position = pos + new Vector3(0f, h * 0.5f, 0f);
+        main.transform.localScale = new Vector3(12f, h, 10f);
+        ApplyColor(main, COL_STONE_DARK);
+
+        // Central spire (taller than the building, thinner)
+        var spire = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        spire.name = "MinistrySpire";
+        spire.transform.SetParent(parent);
+        spire.transform.position = pos + new Vector3(0f, h + 6f, 0f);
+        spire.transform.localScale = new Vector3(1.5f, 6f, 1.5f);
+        ApplyColor(spire, COL_SPIRE);
+
+        // Spire tip
+        var tip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        tip.name = "MinistrySpireTip";
+        tip.transform.SetParent(spire.transform, false);
+        tip.transform.localPosition = new Vector3(0f, 1.1f, 0f);
+        tip.transform.localScale = new Vector3(0.5f, 1.5f, 0.5f);
+        ApplyColor(tip, COL_SPIRE_TIP);
+
+        // Iron symbol on front (cube representing the Steel Ministry emblem)
+        var emblem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        emblem.name = "MinistryEmblem";
+        emblem.transform.SetParent(parent);
+        emblem.transform.position = pos + new Vector3(0f, h * 0.7f, 5.05f);
+        emblem.transform.localScale = new Vector3(2f, 2f, 0.15f);
+        ApplyColor(emblem, COL_METAL);
+
+        // Steps leading up
+        for (int s = 0; s < 5; s++)
+        {
+            var step = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            step.name = "MinistryStep";
+            step.transform.SetParent(parent);
+            step.transform.position = pos + new Vector3(0f, s * 0.2f, 5.5f + s * 0.5f);
+            step.transform.localScale = new Vector3(8f - s * 0.5f, 0.2f, 0.5f);
+            ApplyColor(step, COL_STONE_MED);
+        }
+
+        // Bright window glow (Inquisitors never sleep)
+        var glow = new GameObject("MinistryGlow");
+        glow.transform.SetParent(parent);
+        glow.transform.position = pos + new Vector3(0f, h * 0.6f, 0f);
+        var gl = glow.AddComponent<Light>();
+        gl.type = LightType.Point;
+        gl.color = new Color(0.8f, 0.4f, 0.15f);
+        gl.intensity = 2f;
+        gl.range = 12f;
+        glow.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.WindowGlow;
     }
 
     static void CreateBanner(Transform parent, Vector3 pos)
