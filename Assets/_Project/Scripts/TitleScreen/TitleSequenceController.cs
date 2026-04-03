@@ -107,18 +107,18 @@ public class TitleSequenceController : MonoBehaviour
     public TextMeshProUGUI creditText;
     public CanvasGroup creditTextGroup;
     [Tooltip("How quickly each line fades in / out.")]
-    public float creditFadeTime = 0.6f;
+    public float creditFadeTime = 1.2f;
     [Tooltip("How long each line stays fully visible.")]
-    public float creditHoldTime = 2.5f;
+    public float creditHoldTime = 3.5f;
 
     [Tooltip("Pre-populated credit lines with their audio-synced times.")]
     public List<CreditLine> creditLines = new List<CreditLine>
     {
         new CreditLine { time = 28f,  text = "Music by Malakei" },
-        new CreditLine { time = 33f,  text = "Based on the novels by Brandon Sanderson" },
-        new CreditLine { time = 38f,  text = "Produced by Crimson Blade Interactive" },
-        new CreditLine { time = 46f,  text = "Creative Director — Landon Adams" },
-        new CreditLine { time = 51f,  text = "Crimson Blade Interactive\nproudly presents" },
+        new CreditLine { time = 35f,  text = "Based on the novels by Brandon Sanderson" },
+        new CreditLine { time = 42f,  text = "Produced by Crimson Blade Interactive" },
+        new CreditLine { time = 49f,  text = "Creative Director — Landon Adams" },
+        new CreditLine { time = 55f,  text = "Crimson Blade Interactive\nproudly presents" },
     };
 
     [Serializable]

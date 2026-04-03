@@ -321,10 +321,10 @@ public class TitleSequenceSceneBuilder
         tsc.creditLines = new List<TitleSequenceController.CreditLine>
         {
             new TitleSequenceController.CreditLine { time = 28f, text = "Music by Malakei" },
-            new TitleSequenceController.CreditLine { time = 33f, text = "Based on the novels by\nBrandon Sanderson" },
-            new TitleSequenceController.CreditLine { time = 38f, text = "Produced by\nCrimson Blade Interactive" },
-            new TitleSequenceController.CreditLine { time = 46f, text = "Creative Director\nLandon Adams" },
-            new TitleSequenceController.CreditLine { time = 52f, text = "Crimson Blade Interactive\nproudly presents" },
+            new TitleSequenceController.CreditLine { time = 35f, text = "Based on the novels by\nBrandon Sanderson" },
+            new TitleSequenceController.CreditLine { time = 42f, text = "Produced by\nCrimson Blade Interactive" },
+            new TitleSequenceController.CreditLine { time = 49f, text = "Creative Director\nLandon Adams" },
+            new TitleSequenceController.CreditLine { time = 55f, text = "Crimson Blade Interactive\nproudly presents" },
         };
 
         manager.AddComponent<SceneBootstrap>();
