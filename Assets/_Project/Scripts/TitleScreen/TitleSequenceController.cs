@@ -1,27 +1,25 @@
 /* TitleSequenceController.cs
  *
- * PURPOSE:
- * Drives the cinematic title sequence synced to the main theme audio track.
- * All timings are in seconds from audio start, set in the Inspector so designers
- * can tune to the exact beat without recompiling.
+ * Cinematic title intro synced to the main theme.
  *
- * SEQUENCE OVERVIEW (default timings, adjust in Inspector):
- *   0 – 9s     Fade from black → misty field, ash falls in distance
- *   ~9s        Percussion enters → company logo animation
- *   ~28s       Drums pick up → Luthadel street scenes + rolling credits
- *   ~45s       Build → Kredik Shaw panoramic pan + "proudly presents"
- *   Drop       Rock drop → MISTBORN title in glowing blue Allomantic lines
+ * SEQUENCE (from the design prompt):
  *
- * SETUP:
- *   1. Create a "TitleSequence" scene with this on a manager GameObject.
- *   2. Assign the main theme AudioClip.
- *   3. Assign CanvasGroup references for each visual layer (overlay, logos, credits, title).
- *   4. Assign camera Animators or Cinemachine brains for each camera cut.
- *   5. Populate the creditLines list with text + timing pairs.
+ *   0–9s         Black fades to mist-covered field. Ash falls in distance.
+ *   ~9s          Percussion enters → company logo animation
+ *                (Crimson Blade Interactive + Sanderson's logo if approved).
+ *                Misty field stays visible behind logos.
+ *   ~28s         Drums pick up → cut to Luthadel street scenes.
+ *                Rolling credits: "Music by Malakei",
+ *                "Based on the novels by Brandon Sanderson", etc.
+ *   First drop   Long pan of Kredik Shaw and Luthadel from above.
+ *                More credits, eventually:
+ *                "Crimson Blade Interactive proudly presents"
+ *   Rock drop    MISTBORN title drawn in semi-transparent glowing blue lines.
+ *
+ * All timings are Inspector-tunable to sync with whatever main theme track is used.
  */
 
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
@@ -31,310 +29,374 @@ using TMPro;
 public class TitleSequenceController : MonoBehaviour
 {
     // ── Audio ────────────────────────────────────────────────────────────────
-    [Header("Audio")]
-    [Tooltip("Main theme track. Sequence timings are relative to this clip.")]
+
+    [Header("Audio — Main Theme")]
     public AudioClip mainThemeClip;
     public AudioSource musicSource;
     [Range(0f, 1f)] public float musicVolume = 1f;
 
-    // ── Timing Cues (seconds from audio start) ──────────────────────────────
-    [Header("Timing Cues — Sync to Main Theme Beats")]
-    [Tooltip("Seconds: black screen fades to misty field")]
+    // ── Timing ───────────────────────────────────────────────────────────────
+
+    [Header("Phase 1 — Black → Misty Field (0 s)")]
+    [Tooltip("How long the black-to-field fade lasts.")]
     public float fadeInDuration = 9f;
 
-    [Tooltip("Seconds: percussion enters, company logo starts")]
+    [Header("Phase 2 — Percussion → Company Logos (~9 s)")]
+    [Tooltip("Audio time when percussion enters and logos start.")]
     public float logoStartTime = 9f;
-    public float logoDuration = 5f;
+    [Tooltip("How long the logos stay on screen.")]
+    public float logoDuration = 6f;
+    [Tooltip("Fade-in / fade-out speed for logos.")]
+    public float logoFadeSpeed = 1.2f;
 
-    [Tooltip("Seconds: drums pick up, Luthadel street scenes + credit lines")]
+    [Header("Phase 3 — Drums → Luthadel Streets + Credits (~28 s)")]
+    [Tooltip("Audio time when drums pick up — cut to Luthadel streets.")]
     public float streetsStartTime = 28f;
 
-    [Tooltip("Seconds: Kredik Shaw panoramic pan begins")]
-    public float panoramicStartTime = 45f;
+    [Header("Phase 4 — First Drop → Kredik Shaw Pan")]
+    [Tooltip("Audio time for the first drop — long pan over Kredik Shaw + Luthadel.")]
+    public float kredikShawStartTime = 45f;
 
-    [Tooltip("Seconds: rock drop — MISTBORN title appears")]
+    [Header("Phase 5 — Rock Drop → MISTBORN Title")]
+    [Tooltip("Audio time of the rock drop — title drawn in blue Allomantic lines.")]
     public float titleDropTime = 60f;
-    public float titleAnimDuration = 3f;
+    [Tooltip("How long the title takes to draw.")]
+    public float titleDrawDuration = 3f;
+    [Tooltip("How long the finished title stays before transitioning.")]
+    public float postTitleHold = 5f;
 
-    [Tooltip("Seconds after title fully visible: transition to main menu")]
-    public float postTitleHold = 4f;
+    // ── Scene References ─────────────────────────────────────────────────────
 
-    // ── Visual Layers ────────────────────────────────────────────────────────
-    [Header("Visual Layers")]
-    [Tooltip("Full-screen black overlay for fade-in")]
+    [Header("Visuals — Phase 1: Misty Field")]
+    [Tooltip("Full-screen black overlay image (starts opaque, fades to transparent).")]
     public CanvasGroup blackOverlay;
-
-    [Tooltip("Misty field background (enabled at start, fades in behind black)")]
+    [Tooltip("The misty field environment. Active from the start. Stays behind logos.")]
     public GameObject mistyFieldScene;
+    [Tooltip("Ash particle system in the distance.")]
+    public ParticleSystem ashParticles;
+    [Tooltip("Mist / fog particle system or volume.")]
+    public ParticleSystem mistParticles;
 
-    [Tooltip("Company logo UI group (Crimson Blade Interactive + optional Sanderson)")]
-    public CanvasGroup companyLogoGroup;
-    public Animator companyLogoAnimator;
+    [Header("Visuals — Phase 2: Company Logos")]
+    [Tooltip("Crimson Blade Interactive logo group (UI).")]
+    public CanvasGroup crimsonBladeLogoGroup;
+    public Animator crimsonBladeLogoAnimator;
+    [Tooltip("Brandon Sanderson / Dragonsteel logo group (if approved).")]
+    public CanvasGroup sandersonLogoGroup;
+    public Animator sandersonLogoAnimator;
 
-    [Tooltip("Luthadel streets camera/scene group")]
-    public GameObject luthadel​StreetsGroup;
+    [Header("Visuals — Phase 3: Luthadel Streets")]
+    [Tooltip("Camera / scene group for Luthadel street scenes.")]
+    public GameObject luthadelStreetsGroup;
 
-    [Tooltip("Kredik Shaw panoramic camera/scene group")]
+    [Header("Visuals — Phase 4: Kredik Shaw Pan")]
+    [Tooltip("Camera / scene group for the Kredik Shaw + Luthadel aerial pan.")]
     public GameObject kredikShawGroup;
 
-    [Tooltip("CanvasGroup for the MISTBORN title (AllomanticTitleRenderer lives here)")]
+    [Header("Visuals — Phase 5: Title")]
+    [Tooltip("CanvasGroup holding the MISTBORN title (AllomanticTitleRenderer).")]
     public CanvasGroup titleGroup;
 
     // ── Credits ──────────────────────────────────────────────────────────────
-    [Header("Rolling Credits")]
-    [Tooltip("TMP text element used to display credit lines one at a time")]
+
+    [Header("Credit Lines")]
+    [Tooltip("TMP element for displaying one credit line at a time.")]
     public TextMeshProUGUI creditText;
     public CanvasGroup creditTextGroup;
-    public float creditFadeDuration = 0.8f;
-    public float creditHoldDuration = 3f;
+    [Tooltip("How quickly each line fades in / out.")]
+    public float creditFadeTime = 0.6f;
+    [Tooltip("How long each line stays fully visible.")]
+    public float creditHoldTime = 2.5f;
 
-    [Tooltip("Credit lines displayed in order during the streets + panoramic phases")]
-    public List<CreditLine> creditLines = new List<CreditLine>();
+    [Tooltip("Pre-populated credit lines with their audio-synced times.")]
+    public List<CreditLine> creditLines = new List<CreditLine>
+    {
+        new CreditLine { time = 28f,  text = "Music by Malakei" },
+        new CreditLine { time = 33f,  text = "Based on the novels by Brandon Sanderson" },
+        new CreditLine { time = 38f,  text = "Produced by Crimson Blade Interactive" },
+        new CreditLine { time = 46f,  text = "Creative Director — Landon Adams" },
+        new CreditLine { time = 51f,  text = "Crimson Blade Interactive\nproudly presents" },
+    };
 
     [Serializable]
     public class CreditLine
     {
-        [Tooltip("Time (seconds from audio start) when this credit appears")]
         public float time;
         [TextArea] public string text;
     }
 
-    // ── Scene Transition ─────────────────────────────────────────────────────
+    // ── Transition ───────────────────────────────────────────────────────────
+
     [Header("Scene Transition")]
-    [Tooltip("Scene to load after title sequence (main menu or gameplay)")]
     public string nextSceneName = "MainMenu";
     public bool allowSkip = true;
     public KeyCode skipKey = KeyCode.Escape;
     public KeyCode skipKeyAlt = KeyCode.Space;
 
-    // ── Private State ────────────────────────────────────────────────────────
+    // ── State ────────────────────────────────────────────────────────────────
+
     private float sequenceTime;
     private bool sequenceComplete;
     private bool isSkipping;
-    private Coroutine creditCoroutine;
 
-    // Track which phases have been triggered
-    private bool logoTriggered;
-    private bool streetsTriggered;
-    private bool panoramicTriggered;
-    private bool titleTriggered;
+    private bool phase2Triggered;
+    private bool phase3Triggered;
+    private bool phase4Triggered;
+    private bool phase5Triggered;
+
+    private int nextCreditIndex;
+    private Coroutine activeCreditCoroutine;
+
+    // ═════════════════════════════════════════════════════════════════════════
 
     void Start()
     {
-        // Initial state: everything hidden
-        SetAlpha(blackOverlay, 1f);
-        SetAlpha(companyLogoGroup, 0f);
-        SetAlpha(titleGroup, 0f);
-        SetAlpha(creditTextGroup, 0f);
+        // ── Initial visual state ─────────────────────────────────────────
+        SetAlpha(blackOverlay, 1f);           // screen is black
+        SetAlpha(crimsonBladeLogoGroup, 0f);  // logos hidden
+        SetAlpha(sandersonLogoGroup, 0f);
+        SetAlpha(titleGroup, 0f);             // title hidden
+        SetAlpha(creditTextGroup, 0f);        // credits hidden
 
+        // Misty field is already there, hidden behind the black overlay
         if (mistyFieldScene != null) mistyFieldScene.SetActive(true);
-        if (luthadel​StreetsGroup != null) luthadel​StreetsGroup.SetActive(false);
+
+        // Start ash falling immediately (visible as black fades)
+        if (ashParticles != null) ashParticles.Play();
+        if (mistParticles != null) mistParticles.Play();
+
+        // Other scene groups off until their phase
+        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
         if (kredikShawGroup != null) kredikShawGroup.SetActive(false);
 
-        // Start music
+        // ── Start the music ──────────────────────────────────────────────
         if (musicSource != null && mainThemeClip != null)
         {
             musicSource.clip = mainThemeClip;
             musicSource.volume = musicVolume;
+            musicSource.loop = false;
             musicSource.Play();
         }
 
         sequenceTime = 0f;
+        nextCreditIndex = 0;
     }
 
     void Update()
     {
         if (sequenceComplete) return;
 
-        // Skip support
-        if (allowSkip && (Input.GetKeyDown(skipKey) || Input.GetKeyDown(skipKeyAlt)))
+        // Skip
+        if (allowSkip && !isSkipping
+            && (Input.GetKeyDown(skipKey) || Input.GetKeyDown(skipKeyAlt)))
         {
-            SkipToMenu();
+            SkipSequence();
             return;
         }
 
         sequenceTime += Time.deltaTime;
 
-        // ── Phase 1: Fade from black (0 → fadeInDuration) ────────────────
+        // ── Phase 1: Fade from black → misty field with ash (0 – fadeInDuration) ──
         if (sequenceTime <= fadeInDuration && blackOverlay != null)
         {
-            blackOverlay.alpha = Mathf.Lerp(1f, 0f, sequenceTime / fadeInDuration);
+            // Slow fade — the misty field and ash become visible behind the overlay
+            blackOverlay.alpha = 1f - (sequenceTime / fadeInDuration);
         }
-        else if (blackOverlay != null && blackOverlay.alpha > 0f)
+        else if (blackOverlay != null && blackOverlay.alpha > 0.001f)
         {
             blackOverlay.alpha = 0f;
         }
 
-        // ── Phase 2: Company logo (logoStartTime) ────────────────────────
-        if (!logoTriggered && sequenceTime >= logoStartTime)
+        // ── Phase 2: Percussion → company logos (over the misty field) ────────────
+        if (!phase2Triggered && sequenceTime >= logoStartTime)
         {
-            logoTriggered = true;
-            StartCoroutine(ShowCompanyLogo());
+            phase2Triggered = true;
+            StartCoroutine(PlayLogos());
         }
 
-        // ── Phase 3: Luthadel streets + credits (streetsStartTime) ───────
-        if (!streetsTriggered && sequenceTime >= streetsStartTime)
+        // ── Phase 3: Drums → cut to Luthadel streets + rolling credits ────────────
+        if (!phase3Triggered && sequenceTime >= streetsStartTime)
         {
-            streetsTriggered = true;
-            CutToStreetsPhase();
+            phase3Triggered = true;
+            CutToLuthadel();
         }
 
-        // ── Phase 4: Kredik Shaw panoramic (panoramicStartTime) ──────────
-        if (!panoramicTriggered && sequenceTime >= panoramicStartTime)
+        // ── Phase 4: First drop → Kredik Shaw aerial pan ──────────────────────────
+        if (!phase4Triggered && sequenceTime >= kredikShawStartTime)
         {
-            panoramicTriggered = true;
-            CutToPanoramicPhase();
+            phase4Triggered = true;
+            CutToKredikShaw();
         }
 
-        // ── Phase 5: Title drop (titleDropTime) ─────────────────────────
-        if (!titleTriggered && sequenceTime >= titleDropTime)
+        // ── Phase 5: Rock drop → MISTBORN title ──────────────────────────────────
+        if (!phase5Triggered && sequenceTime >= titleDropTime)
         {
-            titleTriggered = true;
-            StartCoroutine(ShowTitle());
+            phase5Triggered = true;
+            StartCoroutine(DropTitle());
         }
 
-        // Drive credit lines based on time
-        UpdateCredits();
+        // ── Credit line playback (time-based) ─────────────────────────────────────
+        TickCredits();
     }
 
-    // ── Phase Implementations ────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PHASE IMPLEMENTATIONS
+    // ═══════════════════════════════════════════════════════════════════════════
 
-    IEnumerator ShowCompanyLogo()
+    /// <summary>
+    /// Phase 2: Logos appear over the misty field. Field stays visible behind them.
+    /// </summary>
+    IEnumerator PlayLogos()
     {
-        if (companyLogoAnimator != null)
-            companyLogoAnimator.SetTrigger("Play");
+        // Crimson Blade Interactive logo
+        if (crimsonBladeLogoAnimator != null)
+            crimsonBladeLogoAnimator.SetTrigger("Play");
 
-        // Fade in logo
-        yield return FadeCanvasGroup(companyLogoGroup, 0f, 1f, 1f);
+        yield return Fade(crimsonBladeLogoGroup, 0f, 1f, logoFadeSpeed);
+        yield return new WaitForSeconds(logoDuration * 0.4f);
 
-        // Hold for logoDuration minus fade time
-        yield return new WaitForSeconds(Mathf.Max(0f, logoDuration - 2f));
+        // Sanderson / Dragonsteel logo (if approved — just fade in alongside or after)
+        if (sandersonLogoGroup != null)
+        {
+            if (sandersonLogoAnimator != null)
+                sandersonLogoAnimator.SetTrigger("Play");
 
-        // Fade out logo
-        yield return FadeCanvasGroup(companyLogoGroup, 1f, 0f, 1f);
+            yield return Fade(sandersonLogoGroup, 0f, 1f, logoFadeSpeed);
+            yield return new WaitForSeconds(logoDuration * 0.4f);
+            yield return Fade(sandersonLogoGroup, 1f, 0f, logoFadeSpeed);
+        }
+
+        // Fade out Crimson Blade logo before streets phase
+        yield return Fade(crimsonBladeLogoGroup, 1f, 0f, logoFadeSpeed);
     }
 
-    void CutToStreetsPhase()
+    /// <summary>
+    /// Phase 3: Hard cut to Luthadel streets. Misty field disappears.
+    /// Credits start rolling ("Music by Malakei", "Based on..." etc.).
+    /// </summary>
+    void CutToLuthadel()
     {
-        // Swap camera/scene — misty field out, Luthadel streets in
         if (mistyFieldScene != null) mistyFieldScene.SetActive(false);
-        if (luthadel​StreetsGroup != null) luthadel​StreetsGroup.SetActive(true);
-
-        // Start credit line coroutine
-        creditCoroutine = StartCoroutine(PlayCreditLines());
+        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
+        // Credits are driven by TickCredits() based on creditLines timing
     }
 
-    void CutToPanoramicPhase()
+    /// <summary>
+    /// Phase 4: First drop — cut to long aerial pan of Kredik Shaw + Luthadel.
+    /// More credits continue, building toward "proudly presents".
+    /// </summary>
+    void CutToKredikShaw()
     {
-        // Swap to Kredik Shaw panoramic
-        if (luthadel​StreetsGroup != null) luthadel​StreetsGroup.SetActive(false);
+        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
         if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
     }
 
-    IEnumerator ShowTitle()
+    /// <summary>
+    /// Phase 5: Rock drop — MISTBORN drawn in blue Allomantic lines.
+    /// Fade out any remaining credits, then draw the title.
+    /// </summary>
+    IEnumerator DropTitle()
     {
-        // Trigger the AllomanticTitleRenderer to draw the blue lines
-        AllomanticTitleRenderer titleRenderer = titleGroup?.GetComponentInChildren<AllomanticTitleRenderer>();
+        // Clear any lingering credit text
+        if (activeCreditCoroutine != null)
+            StopCoroutine(activeCreditCoroutine);
+        yield return Fade(creditTextGroup, creditTextGroup != null ? creditTextGroup.alpha : 0f, 0f, 0.3f);
+
+        // Fire the AllomanticTitleRenderer
+        AllomanticTitleRenderer titleRenderer = titleGroup != null
+            ? titleGroup.GetComponentInChildren<AllomanticTitleRenderer>()
+            : null;
         if (titleRenderer != null)
-            titleRenderer.StartDrawing(titleAnimDuration);
+            titleRenderer.StartDrawing(titleDrawDuration);
 
-        // Fade in the title group
-        yield return FadeCanvasGroup(titleGroup, 0f, 1f, titleAnimDuration);
+        // Fade in the title CanvasGroup in sync with the drawing
+        yield return Fade(titleGroup, 0f, 1f, titleDrawDuration);
 
-        // Hold
+        // Hold the finished title on screen
         yield return new WaitForSeconds(postTitleHold);
 
-        // Sequence complete — transition
-        TransitionToNextScene();
+        // Done — transition to main menu
+        TransitionOut();
     }
 
-    // ── Credit Line System ───────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CREDIT LINE SYSTEM
+    // ═══════════════════════════════════════════════════════════════════════════
 
-    private int currentCreditIndex = 0;
-
-    void UpdateCredits()
+    void TickCredits()
     {
-        if (creditLines == null || creditLines.Count == 0) return;
+        if (creditLines == null || nextCreditIndex >= creditLines.Count) return;
 
-        // Check if any new credit line should appear based on sequence time
-        while (currentCreditIndex < creditLines.Count
-            && sequenceTime >= creditLines[currentCreditIndex].time)
+        while (nextCreditIndex < creditLines.Count
+            && sequenceTime >= creditLines[nextCreditIndex].time)
         {
-            ShowCreditLine(creditLines[currentCreditIndex]);
-            currentCreditIndex++;
+            string text = creditLines[nextCreditIndex].text;
+            nextCreditIndex++;
+
+            if (activeCreditCoroutine != null)
+                StopCoroutine(activeCreditCoroutine);
+            activeCreditCoroutine = StartCoroutine(ShowCreditLine(text));
         }
     }
 
-    void ShowCreditLine(CreditLine line)
-    {
-        if (creditCoroutine != null)
-            StopCoroutine(creditCoroutine);
-        creditCoroutine = StartCoroutine(AnimateCreditLine(line.text));
-    }
-
-    IEnumerator AnimateCreditLine(string text)
+    IEnumerator ShowCreditLine(string text)
     {
         if (creditText == null || creditTextGroup == null) yield break;
 
-        // Fade out current
-        if (creditTextGroup.alpha > 0f)
-            yield return FadeCanvasGroup(creditTextGroup, creditTextGroup.alpha, 0f, creditFadeDuration * 0.5f);
+        // Fade out previous line if visible
+        if (creditTextGroup.alpha > 0.01f)
+            yield return Fade(creditTextGroup, creditTextGroup.alpha, 0f, creditFadeTime * 0.4f);
 
-        // Set new text
         creditText.text = text;
 
         // Fade in
-        yield return FadeCanvasGroup(creditTextGroup, 0f, 1f, creditFadeDuration);
+        yield return Fade(creditTextGroup, 0f, 1f, creditFadeTime);
 
         // Hold
-        yield return new WaitForSeconds(creditHoldDuration);
+        yield return new WaitForSeconds(creditHoldTime);
 
         // Fade out
-        yield return FadeCanvasGroup(creditTextGroup, 1f, 0f, creditFadeDuration);
+        yield return Fade(creditTextGroup, 1f, 0f, creditFadeTime);
     }
 
-    IEnumerator PlayCreditLines()
-    {
-        // Fallback: if credits aren't time-based, play them sequentially
-        // (UpdateCredits handles time-based playback, this is the backup)
-        yield break;
-    }
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TRANSITION / SKIP
+    // ═══════════════════════════════════════════════════════════════════════════
 
-    // ── Transition ───────────────────────────────────────────────────────────
-
-    void TransitionToNextScene()
+    void TransitionOut()
     {
         if (sequenceComplete) return;
         sequenceComplete = true;
-        StartCoroutine(FadeAndLoadScene());
+        StartCoroutine(FadeToBlackAndLoad());
     }
 
-    void SkipToMenu()
+    void SkipSequence()
     {
         if (isSkipping) return;
         isSkipping = true;
         sequenceComplete = true;
 
+        // Fade music out quickly
         if (musicSource != null)
-            StartCoroutine(FadeAudio(musicSource, 0f, 1f));
+            StartCoroutine(FadeAudio(musicSource, 0f, 0.8f));
 
-        StartCoroutine(FadeAndLoadScene());
+        StartCoroutine(FadeToBlackAndLoad());
     }
 
-    IEnumerator FadeAndLoadScene()
+    IEnumerator FadeToBlackAndLoad()
     {
-        // Fade to black
         if (blackOverlay != null)
-            yield return FadeCanvasGroup(blackOverlay, blackOverlay.alpha, 1f, 1.5f);
+            yield return Fade(blackOverlay, blackOverlay.alpha, 1f, 1.5f);
 
-        // Load next scene
         if (!string.IsNullOrEmpty(nextSceneName))
             SceneManager.LoadScene(nextSceneName);
     }
 
-    // ── Utility ──────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════════════════════════════════
 
-    IEnumerator FadeCanvasGroup(CanvasGroup group, float from, float to, float duration)
+    IEnumerator Fade(CanvasGroup group, float from, float to, float duration)
     {
         if (group == null) yield break;
         float elapsed = 0f;
@@ -348,21 +410,21 @@ public class TitleSequenceController : MonoBehaviour
         group.alpha = to;
     }
 
-    IEnumerator FadeAudio(AudioSource source, float targetVolume, float duration)
+    IEnumerator FadeAudio(AudioSource source, float target, float duration)
     {
-        float startVolume = source.volume;
+        float start = source.volume;
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            source.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+            source.volume = Mathf.Lerp(start, target, elapsed / duration);
             yield return null;
         }
-        source.volume = targetVolume;
+        source.volume = target;
     }
 
-    void SetAlpha(CanvasGroup group, float alpha)
+    void SetAlpha(CanvasGroup group, float a)
     {
-        if (group != null) group.alpha = alpha;
+        if (group != null) group.alpha = a;
     }
 }
