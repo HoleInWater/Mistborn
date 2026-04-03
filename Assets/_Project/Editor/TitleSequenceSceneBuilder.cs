@@ -203,6 +203,15 @@ public class TitleSequenceSceneBuilder
         // Gibbet post (iron cage on a pole — executed criminal left as warning)
         CreateGibbetPost(mistyField.transform, new Vector3(6f, 0f, 25f));
 
+        // Wagon wheel half-buried in ash (trade route long abandoned)
+        CreateBuriedWheel(mistyField.transform, new Vector3(-6f, 0f, 12f));
+
+        // Iron mile-marker post (metal — dangerous in a world of Allomancers)
+        CreateMileMarker(mistyField.transform, new Vector3(2f, 0f, 9f));
+
+        // Crow/raven perched on the gibbet (life finds a way)
+        CreateBird(mistyField.transform, new Vector3(6.7f, 3.5f, 25f));
+
         // Ashmount glow at base (faint red-orange light on the horizon)
         var ashGlow = new GameObject("AshmountGlow");
         ashGlow.transform.SetParent(mistyField.transform);
@@ -372,6 +381,16 @@ public class TitleSequenceSceneBuilder
 
         // Light drizzle particles (very subtle rain)
         CreateDrizzleParticles(luthadelGroup.transform, new Vector3(0f, 10f, 5f));
+
+        // Ash sweep pile (skaa pushed ash to the side of the street)
+        CreateAshPile(luthadelGroup.transform, new Vector3(-2.8f, 0.03f, 0f), 1.2f);
+        CreateAshPile(luthadelGroup.transform, new Vector3(2.6f, 0.03f, 8f), 0.9f);
+
+        // Iron gate between districts (metal bars — Allomancy hazard)
+        CreateIronGate(luthadelGroup.transform, new Vector3(0f, 0f, -14f));
+
+        // Wagon parked by the market stalls
+        CreateParkedWagon(luthadelGroup.transform, new Vector3(-2f, 0f, -11f));
 
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
@@ -962,6 +981,7 @@ public class TitleSequenceSceneBuilder
         body.transform.position = pos + new Vector3(pos.x > 0 ? -0.4f : 0.4f, -0.2f, 0f);
         body.transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
         ApplyEmissive(body, COL_LANTERN * 0.5f);
+        body.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.Lantern;
 
         // Point light with flicker
         var lightObj = new GameObject("LanternLight");
@@ -1237,6 +1257,149 @@ public class TitleSequenceSceneBuilder
         sign.transform.localScale = new Vector3(0.6f, 0.4f, 0.04f);
         sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
+        sign.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.HangingSign;
+    }
+
+    static void CreateBuriedWheel(Transform parent, Vector3 pos)
+    {
+        var wheel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        wheel.name = "BuriedWheel";
+        wheel.transform.SetParent(parent);
+        wheel.transform.position = pos + new Vector3(0f, 0.15f, 0f);
+        wheel.transform.localScale = new Vector3(0.7f, 0.04f, 0.7f);
+        wheel.transform.rotation = Quaternion.Euler(65f, Random.Range(0f, 90f), 0f);
+        ApplyColor(wheel, new Color(COL_WOOD.r * 0.6f, COL_WOOD.g * 0.6f, COL_WOOD.b * 0.6f));
+    }
+
+    static void CreateMileMarker(Transform parent, Vector3 pos)
+    {
+        // Iron post marking distance to Luthadel
+        var post = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        post.name = "MileMarker";
+        post.transform.SetParent(parent);
+        post.transform.position = pos + new Vector3(0f, 0.5f, 0f);
+        post.transform.localScale = new Vector3(0.1f, 1f, 0.08f);
+        post.transform.rotation = Quaternion.Euler(0f, Random.Range(-10f, 10f), Random.Range(-3f, 3f));
+        ApplyColor(post, COL_METAL);
+
+        // Sign plate
+        var plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        plate.name = "MarkerPlate";
+        plate.transform.SetParent(post.transform, false);
+        plate.transform.localPosition = new Vector3(0f, 0.35f, 0.5f);
+        plate.transform.localScale = new Vector3(3f, 2f, 0.2f);
+        ApplyColor(plate, new Color(COL_METAL.r - 0.05f, COL_METAL.g - 0.05f, COL_METAL.b - 0.03f));
+    }
+
+    static void CreateBird(Transform parent, Vector3 pos)
+    {
+        var bird = new GameObject("Bird");
+        bird.transform.SetParent(parent);
+        bird.transform.position = pos;
+
+        Color col = new Color(0.05f, 0.05f, 0.06f);
+
+        var body = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        body.name = "Body";
+        body.transform.SetParent(bird.transform);
+        body.transform.localPosition = Vector3.zero;
+        body.transform.localScale = new Vector3(0.08f, 0.06f, 0.1f);
+        ApplyColor(body, col);
+
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(bird.transform);
+        head.transform.localPosition = new Vector3(0f, 0.035f, 0.05f);
+        head.transform.localScale = new Vector3(0.04f, 0.04f, 0.04f);
+        ApplyColor(head, col);
+
+        // Beak
+        var beak = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        beak.name = "Beak";
+        beak.transform.SetParent(bird.transform);
+        beak.transform.localPosition = new Vector3(0f, 0.03f, 0.08f);
+        beak.transform.localScale = new Vector3(0.01f, 0.008f, 0.025f);
+        ApplyColor(beak, new Color(0.20f, 0.15f, 0.05f));
+    }
+
+    static void CreateIronGate(Transform parent, Vector3 pos)
+    {
+        // Two stone pillars with iron gate between them
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var pillar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pillar.name = "GatePillar";
+            pillar.transform.SetParent(parent);
+            pillar.transform.position = pos + new Vector3(side * 2f, 2f, 0f);
+            pillar.transform.localScale = new Vector3(0.8f, 4f, 0.8f);
+            ApplyColor(pillar, COL_STONE_GREY);
+        }
+
+        // Iron bars
+        for (int i = -3; i <= 3; i++)
+        {
+            var bar = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            bar.name = "GateBar";
+            bar.transform.SetParent(parent);
+            bar.transform.position = pos + new Vector3(i * 0.4f, 2f, 0f);
+            bar.transform.localScale = new Vector3(0.04f, 2f, 0.04f);
+            ApplyColor(bar, COL_METAL);
+        }
+
+        // Horizontal crossbar
+        var crossbar = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        crossbar.name = "GateCrossbar";
+        crossbar.transform.SetParent(parent);
+        crossbar.transform.position = pos + new Vector3(0f, 3f, 0f);
+        crossbar.transform.localScale = new Vector3(0.05f, 2.2f, 0.05f);
+        crossbar.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(crossbar, COL_METAL);
+
+        // Arch over the gate
+        var arch = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        arch.name = "GateArch";
+        arch.transform.SetParent(parent);
+        arch.transform.position = pos + new Vector3(0f, 4.2f, 0f);
+        arch.transform.localScale = new Vector3(5f, 0.6f, 0.8f);
+        ApplyColor(arch, COL_STONE_MED);
+    }
+
+    static void CreateParkedWagon(Transform parent, Vector3 pos)
+    {
+        // Flat bed wagon with wheels
+        var bed = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bed.name = "WagonBed";
+        bed.transform.SetParent(parent);
+        bed.transform.position = pos + new Vector3(0f, 0.5f, 0f);
+        bed.transform.localScale = new Vector3(1.0f, 0.08f, 2.0f);
+        ApplyColor(bed, COL_WOOD);
+
+        // Side walls
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "WagonSide";
+            wall.transform.SetParent(parent);
+            wall.transform.position = pos + new Vector3(side * 0.5f, 0.7f, 0f);
+            wall.transform.localScale = new Vector3(0.04f, 0.4f, 2.0f);
+            ApplyColor(wall, new Color(COL_WOOD.r * 0.85f, COL_WOOD.g * 0.85f, COL_WOOD.b * 0.85f));
+        }
+
+        // Wheels
+        for (int wz = -1; wz <= 1; wz += 2)
+        {
+            var wheel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            wheel.name = "WagonWheel";
+            wheel.transform.SetParent(parent);
+            wheel.transform.position = pos + new Vector3(0.55f, 0.3f, wz * 0.7f);
+            wheel.transform.localScale = new Vector3(0.5f, 0.04f, 0.5f);
+            wheel.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+            ApplyColor(wheel, COL_WOOD);
+        }
+
+        // Some cargo on the wagon
+        CreateCrate(parent, pos + new Vector3(0f, 0.55f, 0.3f));
+        CreateBarrel(parent, pos + new Vector3(-0.2f, 0.55f, -0.5f));
     }
 
     static void CreateSkaaShanty(Transform parent, Vector3 pos)
@@ -1826,6 +1989,7 @@ public class TitleSequenceSceneBuilder
                 new Color(0.20f, 0.15f, 0.10f), // dark tan
             };
             ApplyColor(cloth, clothColors[Random.Range(0, clothColors.Length)]);
+            cloth.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.Cloth;
         }
     }
 
@@ -2441,6 +2605,7 @@ public class TitleSequenceSceneBuilder
         cage.transform.position = pos + new Vector3(0.7f, 3.2f, 0f);
         cage.transform.localScale = new Vector3(0.4f, 0.6f, 0.4f);
         ApplyColor(cage, COL_METAL);
+        cage.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.HangingSign;
     }
 
     static void CreateGallows(Transform parent, Vector3 pos)
@@ -2673,6 +2838,7 @@ public class TitleSequenceSceneBuilder
         cloth.transform.localScale = new Vector3(0.03f, 1.5f, 0.8f);
         cloth.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-3f, 3f));
         ApplyColor(cloth, new Color(0.35f, 0.08f, 0.05f)); // dark blood red
+        cloth.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.Banner;
 
         // Gold trim strip
         var trim = GameObject.CreatePrimitive(PrimitiveType.Cube);

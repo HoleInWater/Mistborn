@@ -3827,8 +3827,88 @@ blocked by the ash column — consistent with persistent light ashfall.
 
 ---
 
+---
+
+## 17. Pendulum Physics — Hanging Objects & Swinging Metal
+
+*Gibbets, hanging signs, lanterns, chains, and cage traps all swing as
+physical pendulums. Allomantic Pushes on hanging metal objects create
+dramatic pendulum motion — a Coinshot pushing a metal sign makes it
+swing with predictable physics.*
+
+---
+
+### Physical Pendulum Period
+
+```
+T = 2π × √(I / (m × g × d))
+
+Where:
+  T = period of one full swing (seconds)
+  I = moment of inertia about the pivot (kg·m²)
+  m = mass of the object (kg)
+  g = gravitational acceleration (9.81 m/s²)
+  d = distance from pivot to center of mass (m)
+```
+
+### Angular Frequency
+
+```
+ω = √(m × g × d / I)
+
+For small oscillations (θ < 15°):
+  θ(t) = θ_max × cos(ω × t)
+```
+
+### Common Hanging Objects
+
+```
+Object          │ I (kg·m²)  │ m (kg)  │ d (m) │ T (s) │ Notes
+────────────────┼────────────┼─────────┼───────┼───────┼──────────────
+Hanging sign    │ 0.08       │ 2       │ 0.15  │ 1.47  │ Creaks in wind
+Metal lantern   │ 0.02       │ 1.5     │ 0.2   │ 0.82  │ Quick gentle swing
+Gibbet cage     │ 0.5        │ 5       │ 0.3   │ 1.16  │ Heavy, slow
+Iron chain (1m) │ 0.3        │ 3       │ 0.5   │ 0.90  │ Catenary motion
+Banner pole     │ 0.15       │ 1       │ 0.4   │ 1.23  │ Cloth dampens
+Cage trap       │ 1.0        │ 8       │ 0.4   │ 1.13  │ Swings when triggered
+```
+
+### Simple Pendulum (Uniform Rod Pivoted at End)
+
+```
+T = 2π × √(2L / (3g))
+
+Where L = total length of the rod.
+For a 1m rod: T = 2π × √(2/29.43) ≈ 1.64s
+```
+
+### Allomantic Interaction
+
+```
+When a Coinshot pushes a hanging metal object:
+
+1. Push force → impulse → initial angular velocity
+   ω₀ = J / I  (where J = impulse = F × Δt)
+
+2. Object swings as a pendulum with period T
+   Maximum angle: θ_max = ω₀ / ω
+
+3. Damping from air resistance and pivot friction:
+   θ(t) = θ_max × e^(−γt) × cos(ωt)
+   γ = damping coefficient (typically 0.1–0.5 for metal objects)
+
+4. A Lurcher pulling on the same object while it swings
+   can amplify the oscillation (resonance) if timed to the period.
+```
+
+**Game application:** `TitleObjectSway` uses the period formula to set
+realistic swing speeds. The gibbet cage at `swaySpeed = 0.85 Hz` matches
+`T ≈ 1.16s` from the physical pendulum calculation.
+
+---
+
 *Document compiled from r/Mistborn, r/Cosmere, and 17th Shard community analysis*
 *Brandon Sanderson's official WoB from Arcanum.coppermind.net*
 *Cosmere Era: 1022-1025 FE*
 *Last Updated: April 2026*
-*Version: 4.0 - Includes Ash Physics and MAG Burn Rates*
+*Version: 5.0 - Includes Pendulum Physics and Ash Aerosols*
