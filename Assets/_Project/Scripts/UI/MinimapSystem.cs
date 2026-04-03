@@ -56,6 +56,28 @@ public class MinimapSystem : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        // Hide minimap on non-gameplay scenes (title, menu, loading)
+        bool isGameplay = scene.name != "TitleSequence"
+                       && scene.name != "MainMenu"
+                       && scene.name != "LoadingScreen";
+        SetMinimapVisible(isGameplay);
+    }
+
+    /// <summary>Show or hide the minimap and its camera.</summary>
+    public void SetMinimapVisible(bool visible)
+    {
+        if (minimapCamera != null) minimapCamera.enabled = visible;
+        if (minimapDisplay != null) minimapDisplay.transform.parent.gameObject.SetActive(visible);
     }
 
     void Start()
