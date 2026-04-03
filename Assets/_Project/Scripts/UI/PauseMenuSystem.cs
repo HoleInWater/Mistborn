@@ -32,8 +32,9 @@ public class PauseMenuSystem : MonoBehaviour
             MistbornTimeManager.Instance.SetPaused(true);
         else
             Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if (CursorManager.Instance != null)
+            CursorManager.Instance.SetState(CursorManager.CursorState.Menu);
+        else { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
         GameFlowManager.Instance?.PauseGame();
     }
 
@@ -45,8 +46,9 @@ public class PauseMenuSystem : MonoBehaviour
             MistbornTimeManager.Instance.SetPaused(false);
         else
             Time.timeScale = 1f;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (CursorManager.Instance != null)
+            CursorManager.Instance.SetState(CursorManager.CursorState.Gameplay);
+        else { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
         GameFlowManager.Instance?.ResumeGame();
     }
 

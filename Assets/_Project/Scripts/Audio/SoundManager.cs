@@ -147,18 +147,180 @@ public class SoundManager : MonoBehaviour
     public void PlayParrySound()      =>                         PlayOneShot(sfxSource,       impactSounds,     sfxVolume * 0.8f);
     public void PlayDeathSound()      =>                         PlayOneShot(sfxSource,       impactSounds,     sfxVolume);
 
+    // ── Music Tracks (assign in Inspector) ─────────────────────────────────
+    [Header("Music Tracks")]
+    public AudioClip explorationTrack;
+    public AudioClip combatTrack;
+    public AudioClip bossTrack;
+    public AudioClip mainThemeTrack;
+
+    [Header("Ambient Tracks")]
+    public AudioClip ambientRain;
+    public AudioClip ambientWind;
+    public AudioClip ambientMist;
+    public AudioClip ambientAshfall;
+
+    [Header("Music Crossfade")]
+    [Range(0.5f, 5f)] public float crossfadeDuration = 1.5f;
+
+    private AudioSource _musicSourceB;  // second source for crossfading
+    private Coroutine _crossfadeCoroutine;
+    private Coroutine _ambientCoroutine;
+
+    /// <summary>
+    /// Crossfade from the current music track to a new one.
+    /// If newClip is null or the same clip is already playing, does nothing.
+    /// </summary>
+    public void CrossfadeMusic(AudioClip newClip, float fadeDuration = -1f, bool loop = true)
+    {
+        if (newClip == null) return;
+        if (musicSource != null && musicSource.clip == newClip && musicSource.isPlaying) return;
+
+        if (fadeDuration < 0f) fadeDuration = crossfadeDuration;
+
+        // Lazy-create the second music source for crossfading
+        if (_musicSourceB == null)
+        {
+            _musicSourceB = gameObject.AddComponent<AudioSource>();
+            _musicSourceB.playOnAwake = false;
+            _musicSourceB.loop = true;
+            _musicSourceB.volume = 0f;
+        }
+
+        if (_crossfadeCoroutine != null) StopCoroutine(_crossfadeCoroutine);
+        _crossfadeCoroutine = StartCoroutine(CrossfadeCoroutine(newClip, fadeDuration, loop));
+    }
+
+    System.Collections.IEnumerator CrossfadeCoroutine(AudioClip newClip, float duration, bool loop)
+    {
+        // B plays the new track, fading in; A (current) fades out
+        _musicSourceB.clip = newClip;
+        _musicSourceB.loop = loop;
+        _musicSourceB.volume = 0f;
+        _musicSourceB.Play();
+
+        float elapsed = 0f;
+        float startVol = musicSource != null ? musicSource.volume : 0f;
+        float targetVol = musicVolume * masterVolume;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / duration;
+            if (musicSource != null) musicSource.volume = Mathf.Lerp(startVol, 0f, t);
+            _musicSourceB.volume = Mathf.Lerp(0f, targetVol, t);
+            yield return null;
+        }
+
+        // Swap: B becomes the primary, A stops
+        if (musicSource != null) musicSource.Stop();
+
+        // Swap references so musicSource always points to the active one
+        var temp = musicSource;
+        musicSource = _musicSourceB;
+        _musicSourceB = temp;
+
+        _crossfadeCoroutine = null;
+    }
+
     public void PlayAmbientForWeather(string weatherType)
     {
-        // Placeholder — plays footstep as ambient until proper weather clips are assigned
+        AudioClip clip = weatherType switch
+        {
+            "Rain"    => ambientRain,
+            "Wind"    => ambientWind,
+            "Mist"    => ambientMist,
+            "Ashfall" => ambientAshfall,
+            _         => ambientMist
+        };
+
+        if (clip == null || allomancySource == null) return;
+
+        // Use allomancySource as ambient layer (it's not always in use)
+        if (allomancySource.clip == clip && allomancySource.isPlaying) return;
+
+        if (_ambientCoroutine != null) StopCoroutine(_ambientCoroutine);
+        _ambientCoroutine = StartCoroutine(FadeToAmbient(clip));
+    }
+
+    System.Collections.IEnumerator FadeToAmbient(AudioClip clip)
+    {
+        // Fade out current ambient
+        if (allomancySource.isPlaying)
+        {
+            float startVol = allomancySource.volume;
+            float elapsed = 0f;
+            while (elapsed < 1f)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                allomancySource.volume = Mathf.Lerp(startVol, 0f, elapsed);
+                yield return null;
+            }
+            allomancySource.Stop();
+        }
+
+        // Fade in new ambient
+        allomancySource.clip = clip;
+        allomancySource.loop = true;
+        allomancySource.volume = 0f;
+        allomancySource.Play();
+
+        float e2 = 0f;
+        float target = sfxVolume * masterVolume * 0.4f;
+        while (e2 < 1.5f)
+        {
+            e2 += Time.unscaledDeltaTime;
+            allomancySource.volume = Mathf.Lerp(0f, target, e2 / 1.5f);
+            yield return null;
+        }
     }
 
     public void TransitionToBoss()
     {
-        // Placeholder — would crossfade to boss music track
+        CrossfadeMusic(bossTrack);
     }
 
-    public void TransitionToExploration() { }
-    public void TransitionToCombat() { }
+    public void TransitionToExploration()
+    {
+        CrossfadeMusic(explorationTrack);
+    }
+
+    public void TransitionToCombat()
+    {
+        CrossfadeMusic(combatTrack);
+    }
+
+    /// <summary>Play the main theme (title screen / main menu).</summary>
+    public void PlayMainTheme()
+    {
+        CrossfadeMusic(mainThemeTrack);
+    }
+
+    /// <summary>Stop all music with a fade out.</summary>
+    public void StopMusic(float fadeDuration = 1f)
+    {
+        if (_crossfadeCoroutine != null) StopCoroutine(_crossfadeCoroutine);
+        _crossfadeCoroutine = StartCoroutine(FadeMusicOut(fadeDuration));
+    }
+
+    System.Collections.IEnumerator FadeMusicOut(float duration)
+    {
+        float startA = musicSource != null ? musicSource.volume : 0f;
+        float startB = _musicSourceB != null ? _musicSourceB.volume : 0f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / duration;
+            if (musicSource != null) musicSource.volume = Mathf.Lerp(startA, 0f, t);
+            if (_musicSourceB != null) _musicSourceB.volume = Mathf.Lerp(startB, 0f, t);
+            yield return null;
+        }
+
+        if (musicSource != null) musicSource.Stop();
+        if (_musicSourceB != null) _musicSourceB.Stop();
+    }
 
     private void PlayOneShot(AudioSource source, AudioClip[] clips, float volume)
     {

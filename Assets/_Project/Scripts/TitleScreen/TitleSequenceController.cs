@@ -239,6 +239,18 @@ public class TitleSequenceController : MonoBehaviour
         TickCredits();
     }
 
+    void Awake()
+    {
+        // Title sequence is a cutscene — cursor hidden
+        if (CursorManager.Instance != null)
+            CursorManager.Instance.SetState(CursorManager.CursorState.Cutscene);
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // PHASE IMPLEMENTATIONS
     // ═══════════════════════════════════════════════════════════════════════════
@@ -388,8 +400,24 @@ public class TitleSequenceController : MonoBehaviour
         if (blackOverlay != null)
             yield return Fade(blackOverlay, blackOverlay.alpha, 1f, 1.5f);
 
+        // Show cursor for the menu scene
+        if (CursorManager.Instance != null)
+            CursorManager.Instance.SetState(CursorManager.CursorState.Menu);
+        else
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        // Use LoadingScreen if available for async loading, otherwise direct
         if (!string.IsNullOrEmpty(nextSceneName))
-            SceneManager.LoadScene(nextSceneName);
+        {
+            LoadingScreen ls = FindObjectOfType<LoadingScreen>();
+            if (ls != null)
+                ls.LoadScene(nextSceneName);
+            else
+                SceneManager.LoadScene(nextSceneName);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
