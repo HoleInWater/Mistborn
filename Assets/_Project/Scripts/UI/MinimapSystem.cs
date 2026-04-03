@@ -66,11 +66,19 @@ public class MinimapSystem : MonoBehaviour
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        // Hide minimap on non-gameplay scenes (title, menu, loading)
-        bool isGameplay = scene.name != "TitleSequence"
-                       && scene.name != "MainMenu"
-                       && scene.name != "LoadingScreen";
-        SetMinimapVisible(isGameplay);
+        // Hide minimap if there's no Player in the scene — covers title, menu,
+        // loading, and any other non-gameplay scene regardless of naming.
+        // Delay one frame so all scene objects have Awake'd.
+        StartCoroutine(CheckPlayerNextFrame());
+    }
+
+    System.Collections.IEnumerator CheckPlayerNextFrame()
+    {
+        yield return null;
+        bool hasPlayer = GameObject.FindGameObjectWithTag("Player") != null;
+        SetMinimapVisible(hasPlayer);
+        if (hasPlayer)
+            player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     /// <summary>Show or hide the minimap and its camera.</summary>
