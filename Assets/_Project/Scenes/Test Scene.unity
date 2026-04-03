@@ -2299,6 +2299,7 @@ MonoBehaviour:
   strongPullTint: {r: 0, g: 1, b: 1, a: 0.3}
   pullTintDuration: 0.2
   debugPullOperations: 1
+  pullCooldown: 0.2
 --- !u!114 &641062202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2650,7 +2651,7 @@ GameObject:
   - component: {fileID: 659927167}
   - component: {fileID: 659927170}
   - component: {fileID: 659927172}
-  - component: {fileID: 659927171}
+  - component: {fileID: 659927173}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Enemy
@@ -2786,7 +2787,7 @@ MonoBehaviour:
   useFlanking: 1
   autoPatrol: 1
   animator: {fileID: 659927172}
-  animCtrl: {fileID: 0}
+  animCtrl: {fileID: 659927173}
   navAgent: {fileID: 659927169}
   target: {fileID: 641062187}
   weapon: {fileID: 11400000, guid: 1af4da0786856864a93c90277385bb10, type: 2}
@@ -2860,24 +2861,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &659927171
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 659927161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b21a1c0cd20954144a169d49944da3f7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
-  attackClip: {fileID: 7400000, guid: 7bcdf452e2082204ebceaf76a7703b32, type: 2}
-  heavyAttackClip: {fileID: 7400000, guid: 7de1bc3861c1120449ef971dc9f2e7f8, type: 2}
-  deathClip: {fileID: 7400000, guid: 70f40c3a61ab9774e870c267738c6598, type: 2}
-  fadeIn: 0.08
-  fadeOut: 0.15
-  upperBodyMask: {fileID: 31900000, guid: ba2586c195f947e4091306cab4581b9c, type: 2}
 --- !u!95 &659927172
 Animator:
   serializedVersion: 7
@@ -2900,6 +2883,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &659927173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 659927161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21a1c0cd20954144a169d49944da3f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationController
 --- !u!1 &697172410
 GameObject:
   m_ObjectHideFlags: 0
