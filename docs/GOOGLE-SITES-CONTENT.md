@@ -136,17 +136,38 @@ Sections: Screenshots | Videos | Concept Art
 
 **Crimson Blade Interactive** is an independent game studio dedicated to bringing Brandon Sanderson's Cosmere to life as interactive experiences.
 
+LEADERSHIP
+
 **Garrett** — Lead Manager
 Leads the team and keeps the project on track. Oversees coordination between departments and ensures the vision stays cohesive.
 
-**Landon Adams** — Creative Director & Lead Developer
-The driving force behind the Mistborn game. Handles game design, core programming, Allomancy physics systems, and world building.
+**Ezra** — Co-Leader
+Shares leadership responsibilities and helps guide the overall direction of the project alongside Garrett.
+
+SECTION LEADS
+
+**Deegan** — Section Leader
+Leads a development section and coordinates team members within their department.
+
+**Lori** — Section Leader
+Manages a development section and oversees workflow and task delegation for their team.
 
 **Tannon Thompson** — Developer & QA
 Contributes to the codebase and runs testing across all game systems. Helps catch bugs and ensure gameplay quality.
 
+CORE TEAM
+
+**Landon Adams** — Creative Director & Lead Developer
+The driving force behind the Mistborn game. Handles game design, core programming, Allomancy physics systems, and world building.
+
 **Malakai Probert** — Composer
 Creator of the original Mistborn game soundtrack. His music captures the dark atmosphere and epic scale of the Final Empire.
+
+**David** — Team Member
+Works within Deegan's section contributing to the project's development efforts.
+
+**Nora** — Team Member
+Contributes to the project under the leadership team, supporting ongoing development.
 
 **Join the Crew**
 We're looking for passionate artists, animators, and developers who love the Cosmere. If you want to help build the Final Empire, get in touch.
