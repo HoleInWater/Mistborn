@@ -170,6 +170,12 @@ public class TitleSequenceSceneBuilder
         CreateDeadShrub(mistyField.transform, new Vector3(-1f, 0f, 22f));
         CreateDeadShrub(mistyField.transform, new Vector3(3f, 0f, 4f));
 
+        // Collapsed stone ruin (old structure from before the Lord Ruler)
+        CreateRuin(mistyField.transform, new Vector3(-10f, 0f, 20f));
+
+        // Scattered coins on the dirt path (a Mistborn passed through here)
+        CreateScatteredCoins(mistyField.transform, new Vector3(1f, 0.02f, 11f));
+
         // Ashmount glow at base (faint red-orange light on the horizon)
         var ashGlow = new GameObject("AshmountGlow");
         ashGlow.transform.SetParent(mistyField.transform);
@@ -278,6 +284,21 @@ public class TitleSequenceSceneBuilder
         // Clothesline between buildings (stretched cylinder)
         CreateClothesline(luthadelGroup.transform, new Vector3(0f, 5f, 4f), 7f);
 
+        // Sewer grate (metal — important for Allomancy world-building)
+        CreateSewerGrate(luthadelGroup.transform, new Vector3(0.5f, 0.01f, -1f));
+        CreateSewerGrate(luthadelGroup.transform, new Vector3(-0.3f, 0.01f, 17f));
+
+        // Market stall (collapsed for the night — tarps over tables)
+        CreateMarketStall(luthadelGroup.transform, new Vector3(-2.5f, 0f, 7f), true);
+        CreateMarketStall(luthadelGroup.transform, new Vector3(2.3f, 0f, -9f), false);
+
+        // Noble carriage parked on the street (one of the keeps must be nearby)
+        CreateNobleCarriage(luthadelGroup.transform, new Vector3(1.5f, 0f, 20f));
+
+        // Scattered metal debris (nails, scrap — glints in the lantern light)
+        CreateMetalDebris(luthadelGroup.transform, new Vector3(-1f, 0.01f, 1f));
+        CreateMetalDebris(luthadelGroup.transform, new Vector3(0.8f, 0.01f, 11f));
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -362,8 +383,8 @@ public class TitleSequenceSceneBuilder
         // Overhead ash
         CreateAshParticles(kredikGroup.transform, new Vector3(0f, 70f, 0f), 120f);
 
-        // City lights — scattered point lights for windows from above
-        for (int i = 0; i < 20; i++)
+        // City lights — scattered point lights for windows from above (with flicker)
+        for (int i = 0; i < 30; i++)
         {
             var ptLight = new GameObject("CityWindowLight");
             ptLight.transform.SetParent(kredikGroup.transform);
@@ -374,6 +395,8 @@ public class TitleSequenceSceneBuilder
             pl.color = Color.Lerp(COL_WINDOW_WARM, COL_LANTERN, Random.Range(0f, 1f));
             pl.intensity = Random.Range(0.5f, 1.5f);
             pl.range = Random.Range(5f, 12f);
+            var wf = ptLight.AddComponent<TitleLightFlicker>();
+            wf.style = TitleLightFlicker.FlickerStyle.WindowGlow;
         }
 
         // Canals running through the city (Luthadel has canals)
@@ -840,7 +863,7 @@ public class TitleSequenceSceneBuilder
         body.transform.localScale = new Vector3(0.2f, 0.3f, 0.2f);
         ApplyEmissive(body, COL_LANTERN * 0.5f);
 
-        // Point light
+        // Point light with flicker
         var lightObj = new GameObject("LanternLight");
         lightObj.transform.SetParent(parent);
         lightObj.transform.position = body.transform.position;
@@ -849,6 +872,8 @@ public class TitleSequenceSceneBuilder
         light.color = COL_LANTERN;
         light.intensity = 1.5f;
         light.range = 8f;
+        var flicker = lightObj.AddComponent<TitleLightFlicker>();
+        flicker.style = TitleLightFlicker.FlickerStyle.Lantern;
     }
 
     static void CreateKredikShaw(Transform parent, Vector3 center)
@@ -1114,6 +1139,182 @@ public class TitleSequenceSceneBuilder
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
     }
 
+    static void CreateRuin(Transform parent, Vector3 pos)
+    {
+        // Collapsed wall sections at different angles
+        var wall1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wall1.name = "RuinWall";
+        wall1.transform.SetParent(parent);
+        wall1.transform.position = pos + new Vector3(0f, 0.8f, 0f);
+        wall1.transform.localScale = new Vector3(3f, 1.6f, 0.3f);
+        wall1.transform.rotation = Quaternion.Euler(0f, 20f, 5f);
+        ApplyColor(wall1, COL_STONE_GREY);
+
+        var wall2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wall2.name = "RuinWallFallen";
+        wall2.transform.SetParent(parent);
+        wall2.transform.position = pos + new Vector3(1.5f, 0.2f, 0.5f);
+        wall2.transform.localScale = new Vector3(2f, 0.3f, 1.5f);
+        wall2.transform.rotation = Quaternion.Euler(0f, -10f, 0f);
+        ApplyColor(wall2, COL_STONE_MED);
+
+        // Rubble (scattered small cubes)
+        for (int i = 0; i < 6; i++)
+        {
+            var rubble = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            rubble.name = "Rubble";
+            rubble.transform.SetParent(parent);
+            float s = Random.Range(0.1f, 0.3f);
+            rubble.transform.position = pos + new Vector3(Random.Range(-2f, 2f), s * 0.5f, Random.Range(-1f, 2f));
+            rubble.transform.localScale = new Vector3(s, s, s * Random.Range(0.5f, 1.5f));
+            rubble.transform.rotation = Quaternion.Euler(Random.Range(-20f, 20f), Random.Range(0f, 90f), Random.Range(-15f, 15f));
+            ApplyColor(rubble, Color.Lerp(COL_STONE_GREY, COL_STONE_DARK, Random.Range(0f, 1f)));
+        }
+    }
+
+    static void CreateScatteredCoins(Transform parent, Vector3 pos)
+    {
+        // Small metal discs — hints that a Mistborn was here
+        for (int i = 0; i < 5; i++)
+        {
+            var coin = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            coin.name = "Coin";
+            coin.transform.SetParent(parent);
+            coin.transform.position = pos + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
+            coin.transform.localScale = new Vector3(0.04f, 0.003f, 0.04f);
+            // Copper clips — slightly shiny
+            ApplyColor(coin, new Color(0.45f, 0.30f, 0.15f)); // copper color
+        }
+    }
+
+    static void CreateSewerGrate(Transform parent, Vector3 pos)
+    {
+        var grate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        grate.name = "SewerGrate";
+        grate.transform.SetParent(parent);
+        grate.transform.position = pos;
+        grate.transform.localScale = new Vector3(0.6f, 0.02f, 0.6f);
+        ApplyColor(grate, COL_METAL);
+
+        // Bars across the grate
+        for (int i = 0; i < 4; i++)
+        {
+            var bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bar.name = "GrateBar";
+            bar.transform.SetParent(grate.transform, false);
+            bar.transform.localPosition = new Vector3(0f, 0.5f, -0.35f + i * 0.23f);
+            bar.transform.localScale = new Vector3(0.95f, 0.5f, 0.06f);
+            ApplyColor(bar, new Color(0.22f, 0.22f, 0.25f));
+        }
+    }
+
+    static void CreateMarketStall(Transform parent, Vector3 pos, bool leftSide)
+    {
+        // Table
+        var table = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        table.name = "StallTable";
+        table.transform.SetParent(parent);
+        table.transform.position = pos + new Vector3(0f, 0.5f, 0f);
+        table.transform.localScale = new Vector3(1.5f, 0.06f, 0.8f);
+        ApplyColor(table, COL_WOOD);
+
+        // Legs
+        for (int lx = -1; lx <= 1; lx += 2)
+        {
+            for (int lz = -1; lz <= 1; lz += 2)
+            {
+                var leg = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                leg.name = "StallLeg";
+                leg.transform.SetParent(parent);
+                leg.transform.position = pos + new Vector3(lx * 0.6f, 0.25f, lz * 0.3f);
+                leg.transform.localScale = new Vector3(0.04f, 0.25f, 0.04f);
+                ApplyColor(leg, COL_WOOD);
+            }
+        }
+
+        // Tarp draped over (closed for the night)
+        var tarp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        tarp.name = "StallTarp";
+        tarp.transform.SetParent(parent);
+        tarp.transform.position = pos + new Vector3(0f, 0.6f, 0f);
+        tarp.transform.localScale = new Vector3(1.7f, 0.02f, 1.0f);
+        tarp.transform.rotation = Quaternion.Euler(0f, 0f, leftSide ? 5f : -5f);
+        Color[] tarpColors = {
+            new Color(0.28f, 0.20f, 0.12f),
+            new Color(0.18f, 0.16f, 0.22f),
+            new Color(0.25f, 0.22f, 0.18f),
+        };
+        ApplyColor(tarp, tarpColors[Random.Range(0, tarpColors.Length)]);
+    }
+
+    static void CreateNobleCarriage(Transform parent, Vector3 pos)
+    {
+        // Carriage body
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        body.name = "CarriageBody";
+        body.transform.SetParent(parent);
+        body.transform.position = pos + new Vector3(0f, 1f, 0f);
+        body.transform.localScale = new Vector3(1.5f, 1.2f, 2.5f);
+        ApplyColor(body, new Color(0.15f, 0.08f, 0.05f)); // dark polished wood
+
+        // Roof
+        var roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        roof.name = "CarriageRoof";
+        roof.transform.SetParent(body.transform, false);
+        roof.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+        roof.transform.localScale = new Vector3(1.1f, 0.08f, 1.05f);
+        ApplyColor(roof, new Color(0.10f, 0.06f, 0.04f));
+
+        // Wheels (4)
+        for (int wx = -1; wx <= 1; wx += 2)
+        {
+            for (int wz = -1; wz <= 1; wz += 2)
+            {
+                var wheel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                wheel.name = "CarriageWheel";
+                wheel.transform.SetParent(parent);
+                float wSize = wz > 0 ? 0.45f : 0.35f; // back wheels bigger
+                wheel.transform.position = pos + new Vector3(wx * 0.8f, wSize, wz * 0.9f);
+                wheel.transform.localScale = new Vector3(wSize * 2f, 0.06f, wSize * 2f);
+                wheel.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                ApplyColor(wheel, COL_WOOD);
+            }
+        }
+
+        // Gold trim (thin strip along the middle — noble wealth)
+        var trim = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        trim.name = "CarriageTrim";
+        trim.transform.SetParent(body.transform, false);
+        trim.transform.localPosition = new Vector3(0.51f, 0f, 0f);
+        trim.transform.localScale = new Vector3(0.02f, 0.15f, 0.9f);
+        ApplyColor(trim, new Color(0.50f, 0.40f, 0.15f)); // gold
+
+        var trim2 = Object.Instantiate(trim, body.transform);
+        trim2.transform.localPosition = new Vector3(-0.51f, 0f, 0f);
+    }
+
+    static void CreateMetalDebris(Transform parent, Vector3 pos)
+    {
+        // Nails, scraps, bent metal — important in a world where metal = power
+        for (int i = 0; i < 4; i++)
+        {
+            PrimitiveType type = Random.Range(0, 2) == 0 ? PrimitiveType.Cylinder : PrimitiveType.Cube;
+            var piece = GameObject.CreatePrimitive(type);
+            piece.name = "MetalScrap";
+            piece.transform.SetParent(parent);
+            float s = Random.Range(0.02f, 0.08f);
+            piece.transform.position = pos + new Vector3(Random.Range(-0.3f, 0.3f), s * 0.5f, Random.Range(-0.3f, 0.3f));
+            piece.transform.localScale = type == PrimitiveType.Cylinder
+                ? new Vector3(s * 0.3f, s * 2f, s * 0.3f)
+                : new Vector3(s, s * 0.3f, s * 0.5f);
+            piece.transform.rotation = Quaternion.Euler(Random.Range(-45f, 45f), Random.Range(0f, 180f), Random.Range(-30f, 30f));
+            ApplyColor(piece, new Color(
+                COL_METAL.r + Random.Range(-0.05f, 0.05f),
+                COL_METAL.g + Random.Range(-0.05f, 0.05f),
+                COL_METAL.b + Random.Range(-0.03f, 0.05f)));
+        }
+    }
+
     static void CreateRuinedCart(Transform parent, Vector3 pos)
     {
         // Cart bed (flat box, tilted — one wheel broken)
@@ -1180,7 +1381,7 @@ public class TitleSequenceSceneBuilder
         head.transform.localScale = new Vector3(0.12f, 0.15f, 0.12f);
         ApplyEmissive(head, new Color(1f, 0.5f, 0.1f));
 
-        // Light
+        // Light with flicker
         var torchLight = new GameObject("TorchLight");
         torchLight.transform.SetParent(parent);
         torchLight.transform.position = head.transform.position;
@@ -1189,6 +1390,8 @@ public class TitleSequenceSceneBuilder
         tl.color = new Color(1f, 0.6f, 0.2f);
         tl.intensity = 2f;
         tl.range = 6f;
+        var tf = torchLight.AddComponent<TitleLightFlicker>();
+        tf.style = TitleLightFlicker.FlickerStyle.Torch;
     }
 
     static void CreateGuardSilhouette(Transform parent, Vector3 pos)
