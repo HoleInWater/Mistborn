@@ -408,6 +408,17 @@ public class TitleSequenceSceneBuilder
         // Wind-blown debris particles (leaves, paper, ash clumps)
         CreateWindDebris(luthadelGroup.transform, new Vector3(0f, 1.5f, 5f));
 
+        // Terrisman steward (tall, robed — distinctive from other silhouettes)
+        CreateTerrismanSilhouette(luthadelGroup.transform, new Vector3(-1.5f, 0f, 17f));
+
+        // Rain splash particles at puddle locations
+        CreateRainSplash(luthadelGroup.transform, new Vector3(-0.5f, 0.01f, 9f));
+        CreateRainSplash(luthadelGroup.transform, new Vector3(0.3f, 0.01f, -2f));
+
+        // Light shaft from a lantern (volumetric cone of light hitting the street)
+        CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
+        CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -785,6 +796,10 @@ public class TitleSequenceSceneBuilder
         tsc.creditText            = creditTMP;
         tsc.creditTextGroup       = creditCG;
         tsc.cameraController      = camCtrl;
+
+        // Ambient audio (assign clips in Inspector — wind, dripping, bells, etc.)
+        var ambAudio = manager.AddComponent<TitleAmbientAudio>();
+        tsc.ambientAudio          = ambAudio;
         tsc.mistbornSilhouette    = mbRT;
         tsc.mistcloakWipePanel    = wipeRT;
         tsc.nextSceneName         = "MainMenu";
@@ -1283,6 +1298,125 @@ public class TitleSequenceSceneBuilder
         sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
         sign.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.HangingSign;
+    }
+
+    static void CreateTerrismanSilhouette(Transform parent, Vector3 pos)
+    {
+        var terris = new GameObject("TerrismanSilhouette");
+        terris.transform.SetParent(parent);
+        terris.transform.position = pos;
+
+        Color col = new Color(0.06f, 0.05f, 0.05f);
+
+        // Tall body (Terrisman are described as tall)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(terris.transform);
+        body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+        body.transform.localScale = new Vector3(0.3f, 0.9f, 0.22f);
+        ApplyColor(body, col);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(terris.transform);
+        head.transform.localPosition = new Vector3(0f, 1.85f, 0f);
+        head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
+        ApplyColor(head, col);
+
+        // Distinctive V-shaped robes (wider at the bottom — Terris style)
+        var robeBottom = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        robeBottom.name = "RobeSkirt";
+        robeBottom.transform.SetParent(terris.transform);
+        robeBottom.transform.localPosition = new Vector3(0f, 0.25f, 0f);
+        robeBottom.transform.localScale = new Vector3(0.55f, 0.5f, 0.35f);
+        ApplyColor(robeBottom, new Color(0.10f, 0.08f, 0.07f));
+
+        // Terris earring (small metallic sphere — stores Feruchemical charge)
+        var earring = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        earring.name = "Earring";
+        earring.transform.SetParent(terris.transform);
+        earring.transform.localPosition = new Vector3(0.1f, 1.82f, 0f);
+        earring.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
+        ApplyColor(earring, COL_METAL);
+
+        // Arm bracelets (metalminds — Feruchemical storage)
+        for (int arm = -1; arm <= 1; arm += 2)
+        {
+            var bracelet = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            bracelet.name = "Metalmind";
+            bracelet.transform.SetParent(terris.transform);
+            bracelet.transform.localPosition = new Vector3(arm * 0.2f, 1.1f, 0f);
+            bracelet.transform.localScale = new Vector3(0.08f, 0.015f, 0.08f);
+            ApplyColor(bracelet, COL_METAL);
+        }
+    }
+
+    static void CreateRainSplash(Transform parent, Vector3 pos)
+    {
+        var obj = new GameObject("RainSplash");
+        obj.transform.SetParent(parent);
+        obj.transform.position = pos;
+        var ps = obj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = 0.3f;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.03f);
+        main.startColor = new Color(0.5f, 0.55f, 0.6f, 0.3f);
+        main.maxParticles = 30;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = 0.5f;
+        var em = ps.emission;
+        em.rateOverTime = 12f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Circle;
+        shape.radius = 0.3f;
+        // Splash upward
+        shape.rotation = new Vector3(-90f, 0f, 0f);
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        var grad = new Gradient();
+        grad.SetKeys(
+            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new[] { new GradientAlphaKey(0.3f, 0f), new GradientAlphaKey(0f, 1f) }
+        );
+        col.color = new ParticleSystem.MinMaxGradient(grad);
+    }
+
+    static void CreateLightShaft(Transform parent, Vector3 pos, float direction)
+    {
+        // Cone of light visible in the mist/dust (approximated with a stretched transparent cube)
+        var shaft = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        shaft.name = "LightShaft";
+        shaft.transform.SetParent(parent);
+        shaft.transform.position = pos + new Vector3(direction * 0.8f, -1.5f, 0f);
+        shaft.transform.localScale = new Vector3(1.2f, 3f, 0.8f);
+        shaft.transform.rotation = Quaternion.Euler(0f, 0f, direction > 0 ? -15f : 15f);
+        // Very faint warm color — the light cone itself
+        ApplyColor(shaft, new Color(0.9f, 0.6f, 0.2f, 0.03f));
+
+        // Dust motes in the light beam
+        var dustObj = new GameObject("LightDust");
+        dustObj.transform.SetParent(parent);
+        dustObj.transform.position = pos + new Vector3(direction * 0.5f, -1f, 0f);
+        var ps = dustObj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = 4f;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.01f, 0.05f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.025f);
+        main.startColor = new Color(0.9f, 0.7f, 0.4f, 0.4f);
+        main.maxParticles = 20;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        var em = ps.emission;
+        em.rateOverTime = 5f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(0.8f, 2f, 0.5f);
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.05f;
+        noise.frequency = 0.3f;
+        noise.octaveCount = 1;
     }
 
     static void CreateSafehouseHint(Transform parent, Vector3 pos)

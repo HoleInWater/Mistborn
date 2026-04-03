@@ -96,6 +96,9 @@ public class TitleSequenceController : MonoBehaviour
     [Header("Camera Controller")]
     public TitleCameraController cameraController;
 
+    [Header("Ambient Audio")]
+    public TitleAmbientAudio ambientAudio;
+
     [Header("Visuals — Phase 5: Title")]
     [Tooltip("CanvasGroup holding the MISTBORN title (AllomanticTitleRenderer).")]
     public CanvasGroup titleGroup;
@@ -177,6 +180,9 @@ public class TitleSequenceController : MonoBehaviour
         // Start ash falling immediately (visible as black fades)
         if (ashParticles != null) ashParticles.Play();
         if (mistParticles != null) mistParticles.Play();
+
+        // Ambient audio — wind and distant rumbles for the field
+        if (ambientAudio != null) ambientAudio.SetPhase(1);
 
         // Other scene groups off until their phase
         if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
@@ -306,6 +312,7 @@ public class TitleSequenceController : MonoBehaviour
         if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
         if (cameraController != null)
             cameraController.SetPhase(TitleCameraController.Phase.LuthadelStreets);
+        if (ambientAudio != null) ambientAudio.SetPhase(3);
     }
 
     /// <summary>
@@ -318,6 +325,7 @@ public class TitleSequenceController : MonoBehaviour
         if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
         if (cameraController != null)
             cameraController.SetPhase(TitleCameraController.Phase.KredikShawAerial);
+        if (ambientAudio != null) ambientAudio.SetPhase(4);
     }
 
     /// <summary>
@@ -329,6 +337,7 @@ public class TitleSequenceController : MonoBehaviour
         // Camera holds for the title
         if (cameraController != null)
             cameraController.SetPhase(TitleCameraController.Phase.TitleHold);
+        if (ambientAudio != null) ambientAudio.SetPhase(5);
 
         // Clear any lingering credit text
         if (activeCreditCoroutine != null)
