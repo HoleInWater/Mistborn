@@ -320,6 +320,20 @@ public class TitleSequenceSceneBuilder
         // Obligator silhouette (robed figure — distinct from guards and skaa)
         CreateObligatorSilhouette(luthadelGroup.transform, new Vector3(-1f, 0f, 19f));
 
+        // Lord Ruler's banner on tall building (dark red with gold trim)
+        CreateBanner(luthadelGroup.transform, new Vector3(-5.5f, 9f, 4f));
+        CreateBanner(luthadelGroup.transform, new Vector3(6.5f, 12f, 6f));
+
+        // Metal chains between buildings (world-building — metal is controlled)
+        CreateChain(luthadelGroup.transform, new Vector3(-3.3f, 6f, -1f), new Vector3(3.3f, 5.5f, -1f));
+
+        // Balcony on a noble building
+        CreateBalcony(luthadelGroup.transform, new Vector3(3.2f, 5f, 6f), false);
+        CreateBalcony(luthadelGroup.transform, new Vector3(-3.4f, 6f, 11f), true);
+
+        // Stone well in a widened area
+        CreateWell(luthadelGroup.transform, new Vector3(0f, 0f, -10f));
+
         // Stray cat on a crate
         CreateStrayAnimal(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.3f));
 
@@ -455,6 +469,9 @@ public class TitleSequenceSceneBuilder
 
         // Dock/pier along one canal (cargo loading area)
         CreateDock(kredikGroup.transform, new Vector3(25f, 0f, 2f));
+
+        // Steeljumping Mistborn arc — a figure mid-flight between rooftops
+        CreateSteeljumpArc(kredikGroup.transform, new Vector3(-15f, 12f, 15f), new Vector3(-8f, 18f, 10f), new Vector3(-2f, 8f, 6f));
 
         // Smoke from forges / foundries in the industrial district
         CreateSmokeParticles(kredikGroup.transform, new Vector3(-30f, 8f, -30f));
@@ -2037,6 +2054,17 @@ public class TitleSequenceSceneBuilder
         return ps;
     }
 
+    /// <summary>
+    /// Creates Scadrial's mist particle system.
+    ///
+    /// Lore: the mists are Preservation's power made manifest. They come every night,
+    /// rolling in at dusk and retreating at dawn. They cling to the ground, swirl
+    /// around objects, and are thick enough to limit visibility to a few dozen meters.
+    /// Allomancers can "feel" the mists — they're not normal fog.
+    ///
+    /// Visually: thick, slow-moving tendrils that coalesce and dissipate.
+    /// Slightly luminous — they have a faint inner light (Preservation's investiture).
+    /// </summary>
     static ParticleSystem CreateMistParticles(Transform parent, Vector3 pos, float spread)
     {
         var obj = new GameObject("MistParticles");
@@ -2044,30 +2072,62 @@ public class TitleSequenceSceneBuilder
         obj.transform.position = pos;
         var ps = obj.AddComponent<ParticleSystem>();
         var main = ps.main;
-        main.startLifetime = 14f;
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.03f, 0.15f);
-        main.startSize = new ParticleSystem.MinMaxCurve(4f, 10f);
-        main.startColor = COL_MIST;
-        main.maxParticles = 30;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(10f, 18f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.02f, 0.12f);
+        // Large soft clouds that overlap to create thick fog banks
+        main.startSize = new ParticleSystem.MinMaxCurve(3f, 12f);
+        // Two-color: pale grey-white with subtle blue tint (Preservation's power)
+        main.startColor = new ParticleSystem.MinMaxGradient(
+            new Color(0.65f, 0.68f, 0.75f, 0.12f),  // cool blue-grey
+            new Color(0.80f, 0.80f, 0.85f, 0.20f)    // brighter white
+        );
+        main.maxParticles = 50;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
+
         var em = ps.emission;
-        em.rateOverTime = 3f;
+        em.rateOverTime = 5f;
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(spread, 0.3f, spread);
-        // Gentle drift via noise (avoids velocity curve mode mismatch)
+        shape.scale = new Vector3(spread, 0.5f, spread);
+
+        // Mist flows and swirls — not random but organic
         var noise = ps.noise;
         noise.enabled = true;
-        noise.strength = 0.1f;
-        noise.frequency = 0.3f;
-        noise.scrollSpeed = 0.1f;
-        noise.octaveCount = 1;
+        noise.strength = 0.15f;
+        noise.frequency = 0.2f;        // slow, large-scale movement
+        noise.scrollSpeed = 0.08f;     // gradual wind change
+        noise.octaveCount = 2;
+        noise.damping = true;
+
+        // Slow rotation — mist tendrils curl
+        var rot = ps.rotationOverLifetime;
+        rot.enabled = true;
+        rot.z = new ParticleSystem.MinMaxCurve(-0.15f, 0.15f);
+
+        // Grow slightly as they spread out, then shrink as they dissipate
+        var sizeOL = ps.sizeOverLifetime;
+        sizeOL.enabled = true;
+        sizeOL.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+            new Keyframe(0f, 0.5f), new Keyframe(0.3f, 1.0f),
+            new Keyframe(0.7f, 1.1f), new Keyframe(1f, 0.3f)));
+
+        // Fade: appear gradually, hold, fade slowly
         var col = ps.colorOverLifetime;
         col.enabled = true;
         var grad = new Gradient();
         grad.SetKeys(
-            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-            new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.5f, 0.3f), new GradientAlphaKey(0f, 1f) }
+            new[] {
+                new GradientColorKey(new Color(0.75f, 0.78f, 0.85f), 0f),
+                new GradientColorKey(Color.white, 0.4f),
+                new GradientColorKey(new Color(0.70f, 0.72f, 0.80f), 1f)
+            },
+            new[] {
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(0.6f, 0.15f),
+                new GradientAlphaKey(0.5f, 0.7f),
+                new GradientAlphaKey(0f, 1f)
+            }
         );
         col.color = new ParticleSystem.MinMaxGradient(grad);
         return ps;
@@ -2261,6 +2321,197 @@ public class TitleSequenceSceneBuilder
         noise.strength = 0.15f;
         noise.frequency = 0.5f;
         noise.octaveCount = 1;
+    }
+
+    static void CreateBanner(Transform parent, Vector3 pos)
+    {
+        // Pole (metal — this is controlled by the Lord Ruler)
+        var pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        pole.name = "BannerPole";
+        pole.transform.SetParent(parent);
+        pole.transform.position = pos + new Vector3(0f, 1f, 0f);
+        pole.transform.localScale = new Vector3(0.04f, 1f, 0.04f);
+        ApplyColor(pole, COL_METAL);
+
+        // Banner cloth (dark red — the Lord Ruler's colors)
+        var cloth = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cloth.name = "BannerCloth";
+        cloth.transform.SetParent(parent);
+        cloth.transform.position = pos + new Vector3(0f, 0.5f, 0.15f);
+        cloth.transform.localScale = new Vector3(0.03f, 1.5f, 0.8f);
+        cloth.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-3f, 3f));
+        ApplyColor(cloth, new Color(0.35f, 0.08f, 0.05f)); // dark blood red
+
+        // Gold trim strip
+        var trim = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        trim.name = "BannerTrim";
+        trim.transform.SetParent(cloth.transform, false);
+        trim.transform.localPosition = new Vector3(0f, -0.48f, 0f);
+        trim.transform.localScale = new Vector3(1.1f, 0.05f, 1.05f);
+        ApplyColor(trim, new Color(0.50f, 0.40f, 0.12f)); // gold
+    }
+
+    static void CreateChain(Transform parent, Vector3 from, Vector3 to)
+    {
+        // Chain = series of small links between two points
+        Vector3 dir = to - from;
+        float length = dir.magnitude;
+        int links = Mathf.Max(3, Mathf.FloorToInt(length / 0.3f));
+        float sag = length * 0.08f; // catenary sag
+
+        for (int i = 0; i <= links; i++)
+        {
+            float t = (float)i / links;
+            Vector3 pos = Vector3.Lerp(from, to, t);
+            // Catenary sag (parabolic approximation)
+            float sagAmount = 4f * sag * t * (1f - t);
+            pos.y -= sagAmount;
+
+            var link = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            link.name = "ChainLink";
+            link.transform.SetParent(parent);
+            link.transform.position = pos;
+            link.transform.localScale = new Vector3(0.04f, 0.06f, 0.04f);
+            link.transform.rotation = Quaternion.Euler(0f, i * 45f, i % 2 == 0 ? 0f : 90f);
+            ApplyColor(link, COL_METAL);
+        }
+    }
+
+    static void CreateBalcony(Transform parent, Vector3 pos, bool leftSide)
+    {
+        float dir = leftSide ? 1f : -1f;
+
+        // Platform
+        var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        platform.name = "BalconyPlatform";
+        platform.transform.SetParent(parent);
+        platform.transform.position = pos + new Vector3(dir * 0.5f, 0f, 0f);
+        platform.transform.localScale = new Vector3(1.2f, 0.1f, 1.5f);
+        ApplyColor(platform, COL_STONE_MED);
+
+        // Railing (metal)
+        var rail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        rail.name = "BalconyRail";
+        rail.transform.SetParent(parent);
+        rail.transform.position = pos + new Vector3(dir * 1.1f, 0.4f, 0f);
+        rail.transform.localScale = new Vector3(0.05f, 0.8f, 1.5f);
+        ApplyColor(rail, COL_METAL);
+
+        // Support brackets
+        var bracket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bracket.name = "BalconyBracket";
+        bracket.transform.SetParent(parent);
+        bracket.transform.position = pos + new Vector3(dir * 0.3f, -0.3f, 0f);
+        bracket.transform.localScale = new Vector3(0.8f, 0.08f, 0.08f);
+        bracket.transform.rotation = Quaternion.Euler(0f, 0f, leftSide ? -30f : 30f);
+        ApplyColor(bracket, COL_METAL);
+    }
+
+    static void CreateWell(Transform parent, Vector3 pos)
+    {
+        // Circular stone wall
+        var wall = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        wall.name = "WellWall";
+        wall.transform.SetParent(parent);
+        wall.transform.position = pos + new Vector3(0f, 0.4f, 0f);
+        wall.transform.localScale = new Vector3(1.0f, 0.4f, 1.0f);
+        ApplyColor(wall, COL_STONE_GREY);
+
+        // Inner void (darker cylinder, slightly smaller)
+        var inner = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        inner.name = "WellInner";
+        inner.transform.SetParent(parent);
+        inner.transform.position = pos + new Vector3(0f, 0.45f, 0f);
+        inner.transform.localScale = new Vector3(0.8f, 0.45f, 0.8f);
+        ApplyColor(inner, new Color(0.03f, 0.03f, 0.04f)); // very dark — deep hole
+
+        // Roof structure (two posts + crossbeam + bucket rope)
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            post.name = "WellPost";
+            post.transform.SetParent(parent);
+            post.transform.position = pos + new Vector3(side * 0.45f, 1.2f, 0f);
+            post.transform.localScale = new Vector3(0.06f, 0.8f, 0.06f);
+            ApplyColor(post, COL_WOOD);
+        }
+
+        var beam = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        beam.name = "WellBeam";
+        beam.transform.SetParent(parent);
+        beam.transform.position = pos + new Vector3(0f, 2f, 0f);
+        beam.transform.localScale = new Vector3(0.05f, 0.5f, 0.05f);
+        beam.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+        ApplyColor(beam, COL_WOOD);
+
+        // Bucket (small cube dangling)
+        var bucket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bucket.name = "WellBucket";
+        bucket.transform.SetParent(parent);
+        bucket.transform.position = pos + new Vector3(0.1f, 1.3f, 0f);
+        bucket.transform.localScale = new Vector3(0.15f, 0.18f, 0.15f);
+        ApplyColor(bucket, new Color(COL_WOOD.r * 0.7f, COL_WOOD.g * 0.7f, COL_WOOD.b * 0.7f));
+    }
+
+    static void CreateSteeljumpArc(Transform parent, Vector3 start, Vector3 apex, Vector3 end)
+    {
+        // A Mistborn mid-steeljump — visualized as a figure + blue line trail
+        // positioned at the apex of the arc
+
+        var mb = new GameObject("SteeljumpingMistborn");
+        mb.transform.SetParent(parent);
+        mb.transform.position = apex;
+
+        Color col = new Color(0.04f, 0.04f, 0.05f);
+
+        // Body in flight pose (leaning forward)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(mb.transform);
+        body.transform.localPosition = Vector3.zero;
+        body.transform.localScale = new Vector3(0.25f, 0.6f, 0.2f);
+        body.transform.rotation = Quaternion.Euler(45f, 0f, 0f); // leaning forward in flight
+        ApplyColor(body, col);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(mb.transform);
+        head.transform.localPosition = new Vector3(0f, 0.4f, 0.3f);
+        head.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
+        ApplyColor(head, col);
+
+        // Mistcloak streaming behind
+        for (int t = 0; t < 6; t++)
+        {
+            var tassel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tassel.name = "CloakTrail";
+            tassel.transform.SetParent(mb.transform);
+            tassel.transform.localPosition = new Vector3(
+                Random.Range(-0.15f, 0.15f),
+                Random.Range(-0.3f, 0.1f),
+                -0.4f - t * 0.2f);
+            tassel.transform.localScale = new Vector3(
+                0.1f + Random.Range(0f, 0.1f),
+                Random.Range(0.2f, 0.5f),
+                0.02f);
+            tassel.transform.rotation = Quaternion.Euler(
+                Random.Range(-20f, -5f), Random.Range(-10f, 10f), Random.Range(-5f, 5f));
+            ApplyColor(tassel, new Color(col.r + 0.02f, col.g + 0.02f, col.b + 0.02f));
+        }
+
+        // Blue Allomantic line from the figure down to the push point (start = coin/anchor)
+        var lineObj = new GameObject("SteeljumpLine");
+        lineObj.transform.SetParent(parent);
+        var lr = lineObj.AddComponent<LineRenderer>();
+        lr.positionCount = 2;
+        lr.SetPositions(new[] { apex, start });
+        lr.startWidth = 0.06f;
+        lr.endWidth = 0.02f;
+        lr.startColor = new Color(0.3f, 0.55f, 1f, 0.7f);
+        lr.endColor = new Color(0.3f, 0.55f, 1f, 0.15f);
+        lr.useWorldSpace = true;
+        lr.material = CreateSavedMaterial(new Color(0.3f, 0.55f, 1f, 0.5f), "SteelLine");
     }
 
     static void CreateDrizzleParticles(Transform parent, Vector3 pos)
