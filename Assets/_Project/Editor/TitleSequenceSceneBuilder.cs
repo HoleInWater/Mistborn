@@ -619,51 +619,57 @@ public class TitleSequenceSceneBuilder
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
-    static Shader FindUnlitShader()
+    // Cache the default pipeline material by grabbing it from a temp primitive.
+    // This is the ONLY reliable way to get a working material on any pipeline
+    // (Built-in, URP, HDRP) because Unity auto-assigns the correct one.
+    private static Material _baseMat;
+    static Material GetBaseMaterial()
     {
-        // Unlit shaders work on every pipeline — just show color, no lighting setup needed
-        string[] candidates = {
-            "HDRP/Unlit",
-            "Universal Render Pipeline/Unlit",
-            "Unlit/Color"
-        };
-        foreach (var name in candidates)
-        {
-            var s = Shader.Find(name);
-            if (s != null) return s;
-        }
-        return null;
+        if (_baseMat != null) return _baseMat;
+        var temp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        _baseMat = new Material(temp.GetComponent<Renderer>().sharedMaterial);
+        Object.DestroyImmediate(temp);
+        return _baseMat;
     }
 
     static void ApplyColor(GameObject go, Color color)
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var shader = FindUnlitShader();
-        if (shader == null) return;
-        var mat = new Material(shader);
+        var mat = new Material(GetBaseMaterial());
+        // Set every known color property so it works on any pipeline
         mat.color = color;
-        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))     mat.SetColor("_Color", color);
-        if (mat.HasProperty("_UnlitColor")) mat.SetColor("_UnlitColor", color);
-        rend.material = mat;
+        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", color);
+        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0.05f);
+        if (mat.HasProperty("_Glossiness"))  mat.SetFloat("_Glossiness", 0.05f);
+        if (mat.HasProperty("_Metallic"))    mat.SetFloat("_Metallic", 0f);
+        rend.sharedMaterial = mat;
     }
 
     static void ApplyEmissive(GameObject go, Color color)
     {
-        // For emissive objects (windows, lanterns), use a brighter unlit color
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var shader = FindUnlitShader();
-        if (shader == null) return;
-        var mat = new Material(shader);
+        var mat = new Material(GetBaseMaterial());
         Color bright = color * 2.5f;
         bright.a = 1f;
         mat.color = bright;
-        if (mat.HasProperty("_BaseColor"))  mat.SetColor("_BaseColor", bright);
-        if (mat.HasProperty("_Color"))      mat.SetColor("_Color", bright);
-        if (mat.HasProperty("_UnlitColor")) mat.SetColor("_UnlitColor", bright);
-        rend.material = mat;
+        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", bright);
+        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", bright);
+        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0f);
+        if (mat.HasProperty("_Glossiness"))  mat.SetFloat("_Glossiness", 0f);
+        // Emission
+        mat.EnableKeyword("_EMISSION");
+        if (mat.HasProperty("_EmissionColor"))
+            mat.SetColor("_EmissionColor", bright);
+        if (mat.HasProperty("_EmissiveColor"))
+            mat.SetColor("_EmissiveColor", bright);
+        if (mat.HasProperty("_EmissiveIntensity"))
+            mat.SetFloat("_EmissiveIntensity", 3f);
+        if (mat.HasProperty("_UseEmissiveIntensity"))
+            mat.SetFloat("_UseEmissiveIntensity", 1f);
+        rend.sharedMaterial = mat;
     }
 
     static TextMeshProUGUI CreateTMP(Transform parent, string name, string text,
