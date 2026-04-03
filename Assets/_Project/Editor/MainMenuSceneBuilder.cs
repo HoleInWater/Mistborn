@@ -38,7 +38,7 @@ public class MainMenuSceneBuilder
     const float REF_W = 1920f;
     const float REF_H = 1080f;
 
-    [MenuItem("Tools/Mistborn/Build Main Menu Scene")]
+    [MenuItem("Mistborn/Scenes/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
     {
         // Confirm if current scene has unsaved changes
