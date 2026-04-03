@@ -569,11 +569,13 @@ public class TitleSequenceSceneBuilder
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
         shape.scale = new Vector3(spread, 0.1f, spread);
-        var vel = ps.velocityOverLifetime;
-        vel.enabled = true;
-        vel.x = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
-        vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
-        vel.z = new ParticleSystem.MinMaxCurve(-0.15f, 0.15f);
+        // Wind via noise module instead of velocity curves (avoids mode mismatch)
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.3f;
+        noise.frequency = 0.5f;
+        noise.scrollSpeed = 0.2f;
+        noise.octaveCount = 2;
         return ps;
     }
 
@@ -595,11 +597,13 @@ public class TitleSequenceSceneBuilder
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
         shape.scale = new Vector3(spread, 0.3f, spread);
-        var vel = ps.velocityOverLifetime;
-        vel.enabled = true;
-        vel.x = new ParticleSystem.MinMaxCurve(-0.08f, 0.08f);
-        vel.y = new ParticleSystem.MinMaxCurve(0f, 0f);
-        vel.z = new ParticleSystem.MinMaxCurve(0.03f, 0.1f);
+        // Gentle drift via noise (avoids velocity curve mode mismatch)
+        var noise = ps.noise;
+        noise.enabled = true;
+        noise.strength = 0.1f;
+        noise.frequency = 0.3f;
+        noise.scrollSpeed = 0.1f;
+        noise.octaveCount = 1;
         var col = ps.colorOverLifetime;
         col.enabled = true;
         var grad = new Gradient();
