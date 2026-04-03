@@ -619,13 +619,39 @@ public class TitleSequenceSceneBuilder
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
+    static Shader FindWorkingShader()
+    {
+        // Try HDRP first, then URP, then Standard (Built-in)
+        string[] candidates = {
+            "HDRP/Lit",
+            "Universal Render Pipeline/Lit",
+            "Standard"
+        };
+        foreach (var name in candidates)
+        {
+            var s = Shader.Find(name);
+            if (s != null) return s;
+        }
+        // Absolute fallback
+        return Shader.Find("Unlit/Color");
+    }
+
     static void ApplyColor(GameObject go, Color color)
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var mat = new Material(Shader.Find("Standard"));
+        var shader = FindWorkingShader();
+        if (shader == null) return;
+        var mat = new Material(shader);
+
+        // Set color via multiple property names (different pipelines use different names)
         mat.color = color;
-        mat.SetFloat("_Glossiness", 0f);
+        if (mat.HasProperty("_BaseColor"))    mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))        mat.SetColor("_Color", color);
+        if (mat.HasProperty("_Smoothness"))   mat.SetFloat("_Smoothness", 0f);
+        if (mat.HasProperty("_Glossiness"))   mat.SetFloat("_Glossiness", 0f);
+        if (mat.HasProperty("_Metallic"))     mat.SetFloat("_Metallic", 0f);
+
         rend.material = mat;
     }
 
@@ -633,11 +659,25 @@ public class TitleSequenceSceneBuilder
     {
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
-        var mat = new Material(Shader.Find("Standard"));
+        var shader = FindWorkingShader();
+        if (shader == null) return;
+        var mat = new Material(shader);
+
         mat.color = color;
-        mat.SetFloat("_Glossiness", 0f);
+        if (mat.HasProperty("_BaseColor"))    mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))        mat.SetColor("_Color", color);
+        if (mat.HasProperty("_Smoothness"))   mat.SetFloat("_Smoothness", 0f);
+        if (mat.HasProperty("_Glossiness"))   mat.SetFloat("_Glossiness", 0f);
+
+        // Emission
         mat.EnableKeyword("_EMISSION");
-        mat.SetColor("_EmissionColor", color * 2f);
+        if (mat.HasProperty("_EmissiveColor"))
+            mat.SetColor("_EmissiveColor", color * 3f);    // HDRP
+        if (mat.HasProperty("_EmissionColor"))
+            mat.SetColor("_EmissionColor", color * 3f);    // Standard/URP
+        if (mat.HasProperty("_UseEmissiveIntensity"))
+            mat.SetFloat("_UseEmissiveIntensity", 1f);     // HDRP
+
         rend.material = mat;
     }
 
