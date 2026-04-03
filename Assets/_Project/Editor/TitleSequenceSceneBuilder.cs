@@ -173,6 +173,13 @@ public class TitleSequenceSceneBuilder
         // Collapsed stone ruin (old structure from before the Lord Ruler)
         CreateRuin(mistyField.transform, new Vector3(-10f, 0f, 20f));
 
+        // Skaa shanty — lean-to shelters outside the city walls
+        CreateSkaaShanty(mistyField.transform, new Vector3(8f, 0f, 28f));
+        CreateSkaaShanty(mistyField.transform, new Vector3(12f, 0f, 30f));
+
+        // Stray dog silhouette near the path
+        CreateStrayAnimal(mistyField.transform, new Vector3(3f, 0f, 8f));
+
         // Scattered coins on the dirt path (a Mistborn passed through here)
         CreateScatteredCoins(mistyField.transform, new Vector3(1f, 0.02f, 11f));
 
@@ -299,6 +306,19 @@ public class TitleSequenceSceneBuilder
         CreateMetalDebris(luthadelGroup.transform, new Vector3(-1f, 0.01f, 1f));
         CreateMetalDebris(luthadelGroup.transform, new Vector3(0.8f, 0.01f, 11f));
 
+        // Obligator silhouette (robed figure — distinct from guards and skaa)
+        CreateObligatorSilhouette(luthadelGroup.transform, new Vector3(-1f, 0f, 19f));
+
+        // Stray cat on a crate
+        CreateStrayAnimal(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.3f));
+
+        // Alley entrance between buildings (dark recessed gap)
+        CreateAlleyEntrance(luthadelGroup.transform, new Vector3(-3.3f, 0f, -8f), true);
+        CreateAlleyEntrance(luthadelGroup.transform, new Vector3(3.1f, 0f, 9f), false);
+
+        // Light drizzle particles (very subtle rain)
+        CreateDrizzleParticles(luthadelGroup.transform, new Vector3(0f, 10f, 5f));
+
         // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
@@ -410,8 +430,20 @@ public class TitleSequenceSceneBuilder
         CreateNobleKeep(kredikGroup.transform, new Vector3(-20f, 0f, -40f));
         CreateNobleKeep(kredikGroup.transform, new Vector3(25f, 0f, 35f));
 
+        // Steel Inquisitor standing atop the central spire — ICONIC
+        CreateInquisitorSilhouette(kredikGroup.transform, new Vector3(0f, 36f, 0f));
+
         // Mistborn silhouette crouching on a rooftop (visible from aerial)
         CreateRooftopMistborn(kredikGroup.transform, new Vector3(22f, 10f, -18f));
+
+        // Bridges over the canals
+        CreateCanalBridge(kredikGroup.transform, new Vector3(18f, 0.5f, 0f), 0f);
+        CreateCanalBridge(kredikGroup.transform, new Vector3(-15f, 0.5f, 0f), 0f);
+        CreateCanalBridge(kredikGroup.transform, new Vector3(0f, 0.5f, 22f), 90f);
+        CreateCanalBridge(kredikGroup.transform, new Vector3(0f, 0.5f, -20f), 90f);
+
+        // Dock/pier along one canal (cargo loading area)
+        CreateDock(kredikGroup.transform, new Vector3(25f, 0f, 2f));
 
         // Smoke from forges / foundries in the industrial district
         CreateSmokeParticles(kredikGroup.transform, new Vector3(-30f, 8f, -30f));
@@ -1137,6 +1169,251 @@ public class TitleSequenceSceneBuilder
         sign.transform.localScale = new Vector3(0.6f, 0.4f, 0.04f);
         sign.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), Random.Range(-3f, 3f));
         ApplyColor(sign, new Color(0.22f, 0.15f, 0.08f)); // weathered wood
+    }
+
+    static void CreateSkaaShanty(Transform parent, Vector3 pos)
+    {
+        // Lean-to shelter — pole + slanted board + tarp
+        var pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        pole.name = "ShantyPole";
+        pole.transform.SetParent(parent);
+        pole.transform.position = pos + new Vector3(0f, 0.8f, 0f);
+        pole.transform.localScale = new Vector3(0.05f, 0.8f, 0.05f);
+        ApplyColor(pole, COL_WOOD);
+
+        var pole2 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        pole2.name = "ShantyPole2";
+        pole2.transform.SetParent(parent);
+        pole2.transform.position = pos + new Vector3(1.2f, 0.4f, 0f);
+        pole2.transform.localScale = new Vector3(0.05f, 0.4f, 0.05f);
+        ApplyColor(pole2, COL_WOOD);
+
+        // Slanted roof panel
+        var roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        roof.name = "ShantyRoof";
+        roof.transform.SetParent(parent);
+        roof.transform.position = pos + new Vector3(0.6f, 0.9f, 0f);
+        roof.transform.localScale = new Vector3(1.5f, 0.03f, 1.2f);
+        roof.transform.rotation = Quaternion.Euler(0f, Random.Range(-10f, 10f), -20f);
+
+        Color[] roofColors = {
+            new Color(0.22f, 0.18f, 0.12f),
+            new Color(0.18f, 0.15f, 0.18f),
+            new Color(0.20f, 0.16f, 0.10f),
+        };
+        ApplyColor(roof, roofColors[Random.Range(0, roofColors.Length)]);
+
+        // Blanket / sleeping roll underneath
+        var blanket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        blanket.name = "Blanket";
+        blanket.transform.SetParent(parent);
+        blanket.transform.position = pos + new Vector3(0.4f, 0.05f, 0f);
+        blanket.transform.localScale = new Vector3(0.8f, 0.06f, 0.5f);
+        ApplyColor(blanket, new Color(0.22f, 0.18f, 0.15f));
+    }
+
+    static void CreateStrayAnimal(Transform parent, Vector3 pos)
+    {
+        var animal = new GameObject("StrayAnimal");
+        animal.transform.SetParent(parent);
+        animal.transform.position = pos;
+
+        Color col = new Color(0.12f, 0.10f, 0.08f);
+
+        // Body (elongated capsule)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(animal.transform);
+        body.transform.localPosition = new Vector3(0f, 0.2f, 0f);
+        body.transform.localScale = new Vector3(0.12f, 0.12f, 0.2f);
+        body.transform.rotation = Quaternion.Euler(0f, Random.Range(-30f, 30f), 90f);
+        ApplyColor(body, col);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(animal.transform);
+        head.transform.localPosition = new Vector3(0.2f, 0.22f, 0f);
+        head.transform.localScale = new Vector3(0.1f, 0.08f, 0.08f);
+        ApplyColor(head, col);
+    }
+
+    static void CreateObligatorSilhouette(Transform parent, Vector3 pos)
+    {
+        var obligator = new GameObject("ObligatorSilhouette");
+        obligator.transform.SetParent(parent);
+        obligator.transform.position = pos;
+
+        Color col = new Color(0.05f, 0.04f, 0.04f);
+
+        // Tall robed body (wider at bottom — robes)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(obligator.transform);
+        body.transform.localPosition = new Vector3(0f, 0.8f, 0f);
+        body.transform.localScale = new Vector3(0.35f, 0.8f, 0.25f);
+        ApplyColor(body, col);
+
+        // Head (bald — obligators shave their heads)
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(obligator.transform);
+        head.transform.localPosition = new Vector3(0f, 1.65f, 0f);
+        head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
+        ApplyColor(head, new Color(0.08f, 0.07f, 0.06f)); // slightly lighter (skin visible)
+
+        // Robe hem (wider cube at feet)
+        var hem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        hem.name = "RobeHem";
+        hem.transform.SetParent(obligator.transform);
+        hem.transform.localPosition = new Vector3(0f, 0.15f, 0f);
+        hem.transform.localScale = new Vector3(0.5f, 0.3f, 0.35f);
+        ApplyColor(hem, col);
+
+        // Tattoo lines (thin bright strips on the face — the obligator markings)
+        for (int t = 0; t < 3; t++)
+        {
+            var line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            line.name = "TattooLine";
+            line.transform.SetParent(obligator.transform);
+            line.transform.localPosition = new Vector3(0.09f, 1.63f + t * 0.04f, -0.02f + t * 0.02f);
+            line.transform.localScale = new Vector3(0.005f, 0.008f, 0.05f);
+            ApplyColor(line, new Color(0.15f, 0.08f, 0.08f)); // red-brown ink
+        }
+    }
+
+    static void CreateAlleyEntrance(Transform parent, Vector3 pos, bool leftSide)
+    {
+        // Dark recessed gap between buildings
+        float dir = leftSide ? -1f : 1f;
+        var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        floor.name = "AlleyFloor";
+        floor.transform.SetParent(parent);
+        floor.transform.position = pos + new Vector3(dir * 1.5f, 0f, 0f);
+        floor.transform.localScale = new Vector3(2f, 0.02f, 2.5f);
+        ApplyColor(floor, new Color(0.05f, 0.04f, 0.04f)); // very dark — can't see in
+
+        // Shadow / darkness indicator (thin dark cube at the entrance)
+        var shadow = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        shadow.name = "AlleyShadow";
+        shadow.transform.SetParent(parent);
+        shadow.transform.position = pos + new Vector3(dir * 0.3f, 2f, 0f);
+        shadow.transform.localScale = new Vector3(0.6f, 4f, 2.5f);
+        ApplyColor(shadow, new Color(0.03f, 0.03f, 0.03f));
+    }
+
+    static void CreateInquisitorSilhouette(Transform parent, Vector3 pos)
+    {
+        // The most terrifying figure in the Final Empire — standing atop Kredik Shaw
+        var inq = new GameObject("InquisitorSilhouette");
+        inq.transform.SetParent(parent);
+        inq.transform.position = pos;
+
+        Color col = new Color(0.03f, 0.03f, 0.04f);
+
+        // Tall, gaunt body
+        var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        body.name = "Body";
+        body.transform.SetParent(inq.transform);
+        body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+        body.transform.localScale = new Vector3(0.3f, 0.9f, 0.2f);
+        ApplyColor(body, col);
+
+        // Head
+        var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        head.name = "Head";
+        head.transform.SetParent(inq.transform);
+        head.transform.localPosition = new Vector3(0f, 1.85f, 0f);
+        head.transform.localScale = new Vector3(0.2f, 0.22f, 0.2f);
+        ApplyColor(head, col);
+
+        // Spike eyes — two small emissive cylinders where the eyes should be
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            spike.name = "EyeSpike";
+            spike.transform.SetParent(inq.transform);
+            spike.transform.localPosition = new Vector3(side * 0.04f, 1.87f, 0.09f);
+            spike.transform.localScale = new Vector3(0.015f, 0.12f, 0.015f);
+            spike.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            ApplyColor(spike, COL_METAL);
+        }
+
+        // Long robes / coat trailing
+        var coat = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        coat.name = "Coat";
+        coat.transform.SetParent(inq.transform);
+        coat.transform.localPosition = new Vector3(0f, 0.5f, -0.15f);
+        coat.transform.localScale = new Vector3(0.4f, 1.2f, 0.08f);
+        coat.transform.rotation = Quaternion.Euler(5f, 0f, 0f);
+        ApplyColor(coat, new Color(0.04f, 0.04f, 0.05f));
+
+        // Axe in hand
+        var axeHandle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        axeHandle.name = "AxeHandle";
+        axeHandle.transform.SetParent(inq.transform);
+        axeHandle.transform.localPosition = new Vector3(0.22f, 0.9f, 0.05f);
+        axeHandle.transform.localScale = new Vector3(0.02f, 0.5f, 0.02f);
+        axeHandle.transform.rotation = Quaternion.Euler(0f, 0f, 15f);
+        ApplyColor(axeHandle, COL_WOOD);
+
+        var axeHead = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        axeHead.name = "AxeHead";
+        axeHead.transform.SetParent(axeHandle.transform, false);
+        axeHead.transform.localPosition = new Vector3(0.3f, 0.9f, 0f);
+        axeHead.transform.localScale = new Vector3(8f, 3f, 1f);
+        ApplyColor(axeHead, COL_METAL);
+    }
+
+    static void CreateCanalBridge(Transform parent, Vector3 pos, float angleDeg)
+    {
+        var bridge = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bridge.name = "CanalBridge";
+        bridge.transform.SetParent(parent);
+        bridge.transform.position = pos + new Vector3(0f, 0.8f, 0f);
+        bridge.transform.localScale = new Vector3(5f, 0.4f, 3.5f);
+        bridge.transform.rotation = Quaternion.Euler(0f, angleDeg, 0f);
+        ApplyColor(bridge, COL_STONE_MED);
+
+        // Bridge railings
+        for (int side = -1; side <= 1; side += 2)
+        {
+            var rail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            rail.name = "BridgeRail";
+            rail.transform.SetParent(bridge.transform, false);
+            rail.transform.localPosition = new Vector3(0f, 1.2f, side * 0.45f);
+            rail.transform.localScale = new Vector3(0.95f, 0.5f, 0.04f);
+            ApplyColor(rail, COL_METAL);
+        }
+    }
+
+    static void CreateDock(Transform parent, Vector3 pos)
+    {
+        // Wooden platform extending over canal
+        var platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        platform.name = "DockPlatform";
+        platform.transform.SetParent(parent);
+        platform.transform.position = pos + new Vector3(0f, 0.3f, 0f);
+        platform.transform.localScale = new Vector3(6f, 0.15f, 3f);
+        ApplyColor(platform, COL_WOOD);
+
+        // Support posts
+        for (int i = 0; i < 4; i++)
+        {
+            var post = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            post.name = "DockPost";
+            post.transform.SetParent(parent);
+            float px = pos.x + (i % 2 == 0 ? -2.5f : 2.5f);
+            float pz = pos.z + (i < 2 ? -1f : 1f);
+            post.transform.position = new Vector3(px, 0.4f, pz);
+            post.transform.localScale = new Vector3(0.15f, 0.5f, 0.15f);
+            ApplyColor(post, new Color(COL_WOOD.r * 0.8f, COL_WOOD.g * 0.8f, COL_WOOD.b * 0.8f));
+        }
+
+        // Crates on the dock
+        CreateCrate(parent, pos + new Vector3(-1f, 0.38f, 0.5f));
+        CreateCrate(parent, pos + new Vector3(-0.5f, 0.38f, 0.2f));
+        CreateBarrel(parent, pos + new Vector3(1.5f, 0.38f, -0.3f));
     }
 
     static void CreateRuin(Transform parent, Vector3 pos)
@@ -1912,6 +2189,35 @@ public class TitleSequenceSceneBuilder
         noise.strength = 0.15f;
         noise.frequency = 0.5f;
         noise.octaveCount = 1;
+    }
+
+    static void CreateDrizzleParticles(Transform parent, Vector3 pos)
+    {
+        var obj = new GameObject("DrizzleParticles");
+        obj.transform.SetParent(parent);
+        obj.transform.position = pos;
+        var ps = obj.AddComponent<ParticleSystem>();
+        var main = ps.main;
+        main.startLifetime = 1.5f;
+        main.startSpeed = new ParticleSystem.MinMaxCurve(6f, 10f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.01f, 0.02f);
+        main.startColor = new Color(0.5f, 0.5f, 0.55f, 0.25f);
+        main.maxParticles = 300;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.gravityModifier = 1f;
+        var em = ps.emission;
+        em.rateOverTime = 80f;
+        var shape = ps.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(15f, 0.1f, 30f);
+        // Stretch particles to look like rain streaks
+        var renderer = obj.GetComponent<ParticleSystemRenderer>();
+        if (renderer != null)
+        {
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.velocityScale = 0.1f;
+            renderer.lengthScale = 3f;
+        }
     }
 
     static void CreateEmberParticles(Transform parent, Vector3 pos)
