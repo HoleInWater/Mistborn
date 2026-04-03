@@ -93,6 +93,9 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("Camera / scene group for the Kredik Shaw + Luthadel aerial pan.")]
     public GameObject kredikShawGroup;
 
+    [Header("Camera Controller")]
+    public TitleCameraController cameraController;
+
     [Header("Visuals — Phase 5: Title")]
     [Tooltip("CanvasGroup holding the MISTBORN title (AllomanticTitleRenderer).")]
     public CanvasGroup titleGroup;
@@ -290,7 +293,8 @@ public class TitleSequenceController : MonoBehaviour
     {
         if (mistyFieldScene != null) mistyFieldScene.SetActive(false);
         if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
-        // Credits are driven by TickCredits() based on creditLines timing
+        if (cameraController != null)
+            cameraController.SetPhase(TitleCameraController.Phase.LuthadelStreets);
     }
 
     /// <summary>
@@ -301,6 +305,8 @@ public class TitleSequenceController : MonoBehaviour
     {
         if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
         if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
+        if (cameraController != null)
+            cameraController.SetPhase(TitleCameraController.Phase.KredikShawAerial);
     }
 
     /// <summary>
@@ -309,6 +315,10 @@ public class TitleSequenceController : MonoBehaviour
     /// </summary>
     IEnumerator DropTitle()
     {
+        // Camera holds for the title
+        if (cameraController != null)
+            cameraController.SetPhase(TitleCameraController.Phase.TitleHold);
+
         // Clear any lingering credit text
         if (activeCreditCoroutine != null)
             StopCoroutine(activeCreditCoroutine);
