@@ -27,18 +27,31 @@ public class TitleSequenceSceneBuilder
     static readonly Color COL_TEXT    = new Color(0.91f, 0.84f, 0.72f, 1f);
     static readonly Color COL_TITLE  = new Color(0.27f, 0.53f, 1f, 0.6f);
     static readonly Color COL_CREDIT = new Color(0.91f, 0.84f, 0.72f, 0.9f);
-    static readonly Color COL_ASH_PARTICLE = new Color(0.35f, 0.32f, 0.28f, 0.7f);
-    static readonly Color COL_MIST   = new Color(0.7f, 0.72f, 0.75f, 0.15f);
+    static readonly Color COL_ASH_PARTICLE = new Color(0.45f, 0.40f, 0.35f, 0.8f);
+    static readonly Color COL_MIST   = new Color(0.75f, 0.75f, 0.80f, 0.2f);
 
-    // Building palette
-    static readonly Color COL_STONE_DARK  = new Color(0.12f, 0.11f, 0.10f);
-    static readonly Color COL_STONE_MED   = new Color(0.18f, 0.16f, 0.14f);
-    static readonly Color COL_STONE_LIGHT = new Color(0.22f, 0.20f, 0.17f);
-    static readonly Color COL_METAL       = new Color(0.25f, 0.25f, 0.28f);
-    static readonly Color COL_GROUND      = new Color(0.08f, 0.07f, 0.06f);
-    static readonly Color COL_SKY         = new Color(0.04f, 0.03f, 0.05f);
-    static readonly Color COL_LANTERN     = new Color(0.9f, 0.45f, 0.1f);
-    static readonly Color COL_SPIRE       = new Color(0.10f, 0.10f, 0.12f);
+    // Building palette — brighter values with more contrast between them
+    static readonly Color COL_STONE_DARK  = new Color(0.18f, 0.15f, 0.13f);  // dark brown-grey
+    static readonly Color COL_STONE_MED   = new Color(0.30f, 0.26f, 0.22f);  // warm brown
+    static readonly Color COL_STONE_LIGHT = new Color(0.38f, 0.34f, 0.28f);  // light sandy
+    static readonly Color COL_STONE_RED   = new Color(0.32f, 0.18f, 0.14f);  // reddish brick
+    static readonly Color COL_STONE_GREY  = new Color(0.28f, 0.28f, 0.30f);  // cool grey
+    static readonly Color COL_WOOD        = new Color(0.25f, 0.18f, 0.10f);  // dark wood
+    static readonly Color COL_ROOF_SLATE  = new Color(0.20f, 0.22f, 0.25f);  // blue-grey slate
+    static readonly Color COL_ROOF_TILE   = new Color(0.35f, 0.20f, 0.12f);  // clay tile
+    static readonly Color COL_METAL       = new Color(0.35f, 0.35f, 0.40f);  // steel blue-grey
+    static readonly Color COL_GROUND      = new Color(0.12f, 0.10f, 0.08f);  // dark ash earth
+    static readonly Color COL_GROUND_LIGHT = new Color(0.18f, 0.15f, 0.12f); // lighter path
+    static readonly Color COL_COBBLE      = new Color(0.22f, 0.20f, 0.18f);  // cobblestone
+    static readonly Color COL_SKY         = new Color(0.05f, 0.04f, 0.06f);  // near-black sky
+    static readonly Color COL_LANTERN     = new Color(1.0f, 0.55f, 0.15f);   // warm orange
+    static readonly Color COL_WINDOW_WARM = new Color(0.9f, 0.6f, 0.2f);     // warm window glow
+    static readonly Color COL_WINDOW_COOL = new Color(0.4f, 0.5f, 0.7f);     // cool window (tin?)
+    static readonly Color COL_SPIRE       = new Color(0.14f, 0.13f, 0.16f);  // dark steel
+    static readonly Color COL_SPIRE_TIP   = new Color(0.22f, 0.20f, 0.25f);  // lighter tips
+    static readonly Color COL_ROCK        = new Color(0.20f, 0.18f, 0.15f);  // visible rocks
+    static readonly Color COL_ROCK_DARK   = new Color(0.14f, 0.12f, 0.10f);  // darker rocks
+    static readonly Color COL_ASH_GROUND  = new Color(0.15f, 0.14f, 0.13f);  // ash deposits
 
     [MenuItem("Mistborn/Scenes/Build Title Sequence Scene")]
     public static void Build()
@@ -72,24 +85,28 @@ public class TitleSequenceSceneBuilder
         // ══════════════════════════════════════════════════════════════════
         var mistyField = new GameObject("MistyFieldScene");
 
-        // Ground — multiple overlapping planes for depth
-        CreateGroundPlane(mistyField.transform, Vector3.zero, 50f);
-        CreateGroundPlane(mistyField.transform, new Vector3(0, -0.02f, 30f), 40f);
+        // Ground — main field + ash deposits for color variation
+        CreateGroundPlane(mistyField.transform, Vector3.zero, 50f, COL_GROUND);
+        CreateGroundPlane(mistyField.transform, new Vector3(-8f, 0.01f, 15f), 8f, COL_ASH_GROUND);
+        CreateGroundPlane(mistyField.transform, new Vector3(5f, 0.01f, 25f), 6f, COL_GROUND_LIGHT);
+        CreateGroundPlane(mistyField.transform, new Vector3(-3f, 0.01f, 5f), 4f, COL_ASH_GROUND);
 
-        // Distant horizon hills (stretched cubes as silhouettes)
-        CreateHill(mistyField.transform, new Vector3(-30f, 2f, 80f), new Vector3(25f, 5f, 4f));
-        CreateHill(mistyField.transform, new Vector3(15f, 1.5f, 90f), new Vector3(30f, 4f, 3f));
-        CreateHill(mistyField.transform, new Vector3(-10f, 3f, 100f), new Vector3(40f, 7f, 5f));
-        CreateHill(mistyField.transform, new Vector3(40f, 2.5f, 85f), new Vector3(20f, 6f, 4f));
+        // Distant horizon hills — varied colors for depth
+        CreateHill(mistyField.transform, new Vector3(-30f, 2f, 80f), new Vector3(25f, 5f, 4f), new Color(0.10f, 0.09f, 0.11f));
+        CreateHill(mistyField.transform, new Vector3(15f, 1.5f, 90f), new Vector3(30f, 4f, 3f), new Color(0.08f, 0.07f, 0.09f));
+        CreateHill(mistyField.transform, new Vector3(-10f, 3f, 100f), new Vector3(40f, 7f, 5f), new Color(0.06f, 0.06f, 0.08f));
+        CreateHill(mistyField.transform, new Vector3(40f, 2.5f, 85f), new Vector3(20f, 6f, 4f), new Color(0.09f, 0.08f, 0.10f));
+        // Ashmount silhouette — taller, reddish tint (active volcano glow at base)
+        CreateHill(mistyField.transform, new Vector3(0f, 6f, 120f), new Vector3(15f, 14f, 8f), new Color(0.12f, 0.08f, 0.06f));
 
         // Dim sun
         var sunObj = new GameObject("DimSun");
         sunObj.transform.SetParent(mistyField.transform);
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
-        sun.color = new Color(0.65f, 0.25f, 0.1f);
-        sun.intensity = 0.25f;
-        sunObj.transform.rotation = Quaternion.Euler(20f, -25f, 0f);
+        sun.color = new Color(0.70f, 0.30f, 0.12f);
+        sun.intensity = 0.35f;
+        sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
         var ashPS = CreateAshParticles(mistyField.transform, new Vector3(0f, 12f, 10f), 80f);
@@ -97,12 +114,25 @@ public class TitleSequenceSceneBuilder
         // Mist particles
         var mistPS = CreateMistParticles(mistyField.transform, new Vector3(0f, 0.3f, 8f), 40f);
 
-        // Scattered dead objects (rocks / stumps)
-        CreateRock(mistyField.transform, new Vector3(-5f, 0.15f, 8f), 0.5f);
-        CreateRock(mistyField.transform, new Vector3(3f, 0.1f, 12f), 0.3f);
-        CreateRock(mistyField.transform, new Vector3(-8f, 0.2f, 15f), 0.7f);
-        CreateRock(mistyField.transform, new Vector3(7f, 0.12f, 6f), 0.25f);
-        CreateRock(mistyField.transform, new Vector3(-2f, 0.18f, 20f), 0.45f);
+        // Scattered rocks — varied colors and sizes for visual interest
+        CreateRock(mistyField.transform, new Vector3(-5f, 0.2f, 8f), 0.6f, COL_ROCK);
+        CreateRock(mistyField.transform, new Vector3(3f, 0.12f, 12f), 0.35f, COL_ROCK_DARK);
+        CreateRock(mistyField.transform, new Vector3(-8f, 0.25f, 15f), 0.8f, COL_ROCK);
+        CreateRock(mistyField.transform, new Vector3(7f, 0.15f, 6f), 0.3f, COL_ROCK_DARK);
+        CreateRock(mistyField.transform, new Vector3(-2f, 0.22f, 20f), 0.55f, COL_ROCK);
+        CreateRock(mistyField.transform, new Vector3(10f, 0.18f, 18f), 0.4f, COL_STONE_MED);
+        CreateRock(mistyField.transform, new Vector3(-12f, 0.3f, 10f), 1.0f, COL_ROCK_DARK);
+        CreateRock(mistyField.transform, new Vector3(1f, 0.1f, 3f), 0.2f, COL_ROCK);
+
+        // Dead tree stumps (tall thin cylinders)
+        CreateStump(mistyField.transform, new Vector3(-4f, 0f, 14f), 1.5f);
+        CreateStump(mistyField.transform, new Vector3(6f, 0f, 22f), 2.0f);
+        CreateStump(mistyField.transform, new Vector3(-9f, 0f, 9f), 1.2f);
+
+        // Ash piles (flat stretched spheres, lighter color)
+        CreateAshPile(mistyField.transform, new Vector3(2f, 0.05f, 10f), 1.5f);
+        CreateAshPile(mistyField.transform, new Vector3(-6f, 0.05f, 18f), 2.0f);
+        CreateAshPile(mistyField.transform, new Vector3(8f, 0.03f, 7f), 1.0f);
 
         // ══════════════════════════════════════════════════════════════════
         // PHASE 3: LUTHADEL STREETS
@@ -110,41 +140,61 @@ public class TitleSequenceSceneBuilder
         var luthadelGroup = new GameObject("LuthadelStreetsGroup");
         luthadelGroup.SetActive(false);
 
-        // Street ground
-        CreateStreetGround(luthadelGroup.transform);
+        // Street ground — cobblestone center, dirt edges
+        CreateStreetGround(luthadelGroup.transform, Vector3.zero, new Vector3(2f, 1f, 10f), COL_COBBLE);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.01f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.01f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        // Ash deposits on street
+        CreateAshPile(luthadelGroup.transform, new Vector3(-1f, 0.02f, 5f), 0.8f);
+        CreateAshPile(luthadelGroup.transform, new Vector3(1.5f, 0.02f, -3f), 0.6f);
 
-        // Buildings — left side
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, -12f), new Vector3(5f, 8f, 6f), COL_STONE_DARK);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6.5f, 0f, -4f), new Vector3(6f, 10f, 7f), COL_STONE_MED);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-5.5f, 0f, 4f), new Vector3(4.5f, 7f, 6f), COL_STONE_DARK);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, 11f), new Vector3(5.5f, 12f, 5f), COL_STONE_LIGHT);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-7f, 0f, 18f), new Vector3(6f, 9f, 7f), COL_STONE_MED);
+        // Buildings — left side (each unique color and shape)
+        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, -12f), new Vector3(5f, 8f, 6f), COL_STONE_DARK, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(-6.5f, 0f, -4f), new Vector3(6f, 10f, 7f), COL_STONE_RED, COL_ROOF_TILE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(-5.5f, 0f, 4f), new Vector3(4.5f, 7f, 6f), COL_STONE_MED, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, 11f), new Vector3(5.5f, 12f, 5f), COL_STONE_LIGHT, COL_ROOF_TILE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(-7f, 0f, 18f), new Vector3(6f, 9f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
 
-        // Buildings — right side
-        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, -10f), new Vector3(5f, 9f, 8f), COL_STONE_MED);
-        CreateBuilding(luthadelGroup.transform, new Vector3(5.5f, 0f, -1f), new Vector3(4f, 6f, 5f), COL_STONE_DARK);
-        CreateBuilding(luthadelGroup.transform, new Vector3(6.5f, 0f, 6f), new Vector3(6f, 11f, 6f), COL_STONE_LIGHT);
-        CreateBuilding(luthadelGroup.transform, new Vector3(5f, 0f, 14f), new Vector3(5f, 8f, 7f), COL_STONE_DARK);
-        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, 22f), new Vector3(5.5f, 10f, 5f), COL_STONE_MED);
+        // Buildings — right side (different colors from left)
+        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, -10f), new Vector3(5f, 9f, 8f), COL_STONE_MED, COL_ROOF_TILE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(5.5f, 0f, -1f), new Vector3(4f, 6f, 5f), COL_STONE_LIGHT, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(6.5f, 0f, 6f), new Vector3(6f, 11f, 6f), COL_STONE_RED, COL_ROOF_TILE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(5f, 0f, 14f), new Vector3(5f, 8f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, 22f), new Vector3(5.5f, 10f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
 
-        // Lanterns on walls
+        // Back-row buildings (visible above front buildings, different heights)
+        CreateBuilding(luthadelGroup.transform, new Vector3(-12f, 0f, -8f), new Vector3(5f, 14f, 6f), COL_STONE_GREY, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(-11f, 0f, 7f), new Vector3(4f, 16f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(11f, 0f, -5f), new Vector3(5f, 13f, 7f), COL_STONE_RED, COL_ROOF_SLATE);
+        CreateBuilding(luthadelGroup.transform, new Vector3(12f, 0f, 10f), new Vector3(4.5f, 15f, 5f), COL_STONE_MED, COL_ROOF_TILE);
+
+        // Lanterns — more of them, staggered
         CreateLantern(luthadelGroup.transform, new Vector3(-3.2f, 4f, -8f));
-        CreateLantern(luthadelGroup.transform, new Vector3(3.2f, 3.5f, 0f));
-        CreateLantern(luthadelGroup.transform, new Vector3(-3f, 4.5f, 8f));
-        CreateLantern(luthadelGroup.transform, new Vector3(3.5f, 4f, 16f));
+        CreateLantern(luthadelGroup.transform, new Vector3(3.2f, 3.5f, -2f));
+        CreateLantern(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f));
+        CreateLantern(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f));
+        CreateLantern(luthadelGroup.transform, new Vector3(-3.3f, 3.8f, 16f));
+        CreateLantern(luthadelGroup.transform, new Vector3(3.0f, 4.2f, 20f));
 
-        // Street ash
+        // Street clutter — barrels, crates
+        CreateBarrel(luthadelGroup.transform, new Vector3(-2.8f, 0f, -6f));
+        CreateBarrel(luthadelGroup.transform, new Vector3(-2.5f, 0f, -5.5f));
+        CreateCrate(luthadelGroup.transform, new Vector3(2.6f, 0f, 3f));
+        CreateCrate(luthadelGroup.transform, new Vector3(2.9f, 0f, 3.5f));
+        CreateCrate(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.2f)); // stacked
+
+        // Street particles
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
 
-        // Dim street light
+        // Dim street light — slightly brighter so buildings are visible
         var streetSun = new GameObject("StreetAmbient");
         streetSun.transform.SetParent(luthadelGroup.transform);
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
-        sl.color = new Color(0.3f, 0.2f, 0.15f);
-        sl.intensity = 0.15f;
-        streetSun.transform.rotation = Quaternion.Euler(40f, 10f, 0f);
+        sl.color = new Color(0.35f, 0.25f, 0.18f);
+        sl.intensity = 0.25f;
+        streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
         // PHASE 4: KREDIK SHAW + CITY FROM ABOVE
@@ -169,12 +219,12 @@ public class TitleSequenceSceneBuilder
             }
         }
 
-        // City ground
+        // City ground — varied patches
         var cityGround = GameObject.CreatePrimitive(PrimitiveType.Plane);
         cityGround.name = "CityGround";
         cityGround.transform.SetParent(kredikGroup.transform);
         cityGround.transform.localScale = new Vector3(30f, 1f, 30f);
-        ApplyColor(cityGround, new Color(0.06f, 0.05f, 0.05f));
+        ApplyColor(cityGround, new Color(0.10f, 0.08f, 0.07f));
 
         // Mist rolling through streets from above
         var cityMist = CreateMistParticles(kredikGroup.transform, new Vector3(0f, 2f, 0f), 80f);
@@ -184,14 +234,28 @@ public class TitleSequenceSceneBuilder
         // Overhead ash
         CreateAshParticles(kredikGroup.transform, new Vector3(0f, 70f, 0f), 120f);
 
-        // Very dim overhead light
+        // City lights — scattered point lights for windows from above
+        for (int i = 0; i < 20; i++)
+        {
+            var ptLight = new GameObject("CityWindowLight");
+            ptLight.transform.SetParent(kredikGroup.transform);
+            ptLight.transform.position = new Vector3(
+                Random.Range(-50f, 50f), Random.Range(3f, 8f), Random.Range(-50f, 50f));
+            var pl = ptLight.AddComponent<Light>();
+            pl.type = LightType.Point;
+            pl.color = Color.Lerp(COL_WINDOW_WARM, COL_LANTERN, Random.Range(0f, 1f));
+            pl.intensity = Random.Range(0.5f, 1.5f);
+            pl.range = Random.Range(5f, 12f);
+        }
+
+        // Moonlight — brighter so city is visible from above
         var cityLight = new GameObject("CityMoonlight");
         cityLight.transform.SetParent(kredikGroup.transform);
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
-        cl.color = new Color(0.2f, 0.2f, 0.3f);
-        cl.intensity = 0.1f;
-        cityLight.transform.rotation = Quaternion.Euler(60f, -20f, 0f);
+        cl.color = new Color(0.25f, 0.25f, 0.35f);
+        cl.intensity = 0.2f;
+        cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
         // UI CANVAS
@@ -365,74 +429,156 @@ public class TitleSequenceSceneBuilder
     // ENVIRONMENT BUILDERS
     // ═════════════════════════════════════════════════════════════════════════
 
-    static void CreateGroundPlane(Transform parent, Vector3 pos, float scale)
+    static void CreateGroundPlane(Transform parent, Vector3 pos, float scale, Color color)
     {
         var plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         plane.name = "Ground";
         plane.transform.SetParent(parent);
         plane.transform.position = pos;
         plane.transform.localScale = new Vector3(scale, 1f, scale);
-        ApplyColor(plane, COL_GROUND);
+        ApplyColor(plane, color);
     }
 
-    static void CreateHill(Transform parent, Vector3 pos, Vector3 scale)
+    static void CreateHill(Transform parent, Vector3 pos, Vector3 scale, Color color)
     {
         var hill = GameObject.CreatePrimitive(PrimitiveType.Cube);
         hill.name = "Hill";
         hill.transform.SetParent(parent);
         hill.transform.position = pos;
         hill.transform.localScale = scale;
-        ApplyColor(hill, new Color(COL_GROUND.r + 0.02f, COL_GROUND.g + 0.02f, COL_GROUND.b + 0.01f));
+        ApplyColor(hill, color);
     }
 
-    static void CreateRock(Transform parent, Vector3 pos, float size)
+    static void CreateRock(Transform parent, Vector3 pos, float size, Color color)
     {
         var rock = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         rock.name = "Rock";
         rock.transform.SetParent(parent);
         rock.transform.position = pos;
-        rock.transform.localScale = new Vector3(size, size * 0.6f, size);
-        rock.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), Random.Range(-10f, 10f));
-        ApplyColor(rock, new Color(0.12f, 0.11f, 0.10f));
+        rock.transform.localScale = new Vector3(size, size * 0.6f, size * Random.Range(0.7f, 1.3f));
+        rock.transform.rotation = Quaternion.Euler(Random.Range(-15f, 15f), Random.Range(0f, 360f), Random.Range(-10f, 10f));
+        ApplyColor(rock, color);
     }
 
-    static void CreateStreetGround(Transform parent)
+    static void CreateStump(Transform parent, Vector3 pos, float height)
+    {
+        var stump = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        stump.name = "DeadTreeStump";
+        stump.transform.SetParent(parent);
+        stump.transform.position = pos + new Vector3(0f, height * 0.5f, 0f);
+        stump.transform.localScale = new Vector3(0.15f, height * 0.5f, 0.15f);
+        stump.transform.rotation = Quaternion.Euler(Random.Range(-5f, 5f), 0f, Random.Range(-8f, 8f));
+        ApplyColor(stump, COL_WOOD);
+    }
+
+    static void CreateAshPile(Transform parent, Vector3 pos, float size)
+    {
+        var pile = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        pile.name = "AshPile";
+        pile.transform.SetParent(parent);
+        pile.transform.position = pos;
+        pile.transform.localScale = new Vector3(size, size * 0.15f, size * Random.Range(0.8f, 1.2f));
+        ApplyColor(pile, COL_ASH_GROUND);
+    }
+
+    static void CreateStreetGround(Transform parent, Vector3 offset, Vector3 scale, Color color)
     {
         var street = GameObject.CreatePrimitive(PrimitiveType.Plane);
         street.name = "StreetGround";
         street.transform.SetParent(parent);
-        street.transform.position = Vector3.zero;
-        street.transform.localScale = new Vector3(4f, 1f, 10f);
-        ApplyColor(street, new Color(0.10f, 0.09f, 0.08f));
+        street.transform.position = offset;
+        street.transform.localScale = scale;
+        ApplyColor(street, color);
     }
 
-    static void CreateBuilding(Transform parent, Vector3 pos, Vector3 size, Color color)
+    static void CreateBarrel(Transform parent, Vector3 pos)
     {
+        var barrel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        barrel.name = "Barrel";
+        barrel.transform.SetParent(parent);
+        barrel.transform.position = pos + new Vector3(0f, 0.4f, 0f);
+        barrel.transform.localScale = new Vector3(0.35f, 0.4f, 0.35f);
+        ApplyColor(barrel, COL_WOOD);
+    }
+
+    static void CreateCrate(Transform parent, Vector3 pos)
+    {
+        var crate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        crate.name = "Crate";
+        crate.transform.SetParent(parent);
+        crate.transform.position = pos + new Vector3(0f, 0.3f, 0f);
+        crate.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        crate.transform.rotation = Quaternion.Euler(0f, Random.Range(-15f, 15f), 0f);
+        ApplyColor(crate, new Color(COL_WOOD.r + 0.05f, COL_WOOD.g + 0.03f, COL_WOOD.b));
+    }
+
+    static void CreateBuilding(Transform parent, Vector3 pos, Vector3 size, Color wallColor, Color roofColor)
+    {
+        // Main body
         var bldg = GameObject.CreatePrimitive(PrimitiveType.Cube);
         bldg.name = "Building";
         bldg.transform.SetParent(parent);
         bldg.transform.position = pos + new Vector3(0f, size.y * 0.5f, 0f);
         bldg.transform.localScale = size;
         bldg.transform.rotation = Quaternion.Euler(0f, Random.Range(-3f, 3f), 0f);
-        ApplyColor(bldg, color);
+        ApplyColor(bldg, wallColor);
 
-        // Window glow (small emissive cube recessed into the face)
-        int windowCount = Mathf.FloorToInt(size.y / 2.5f);
-        for (int w = 0; w < windowCount; w++)
+        // Roof — flat slab on top, distinct color
+        var roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        roof.name = "Roof";
+        roof.transform.SetParent(bldg.transform, false);
+        roof.transform.localPosition = new Vector3(0f, 0.52f, 0f);
+        roof.transform.localScale = new Vector3(1.05f, 0.06f, 1.05f);
+        ApplyColor(roof, roofColor);
+
+        // Trim / ledge near the top — different shade from wall
+        var trim = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        trim.name = "Trim";
+        trim.transform.SetParent(bldg.transform, false);
+        trim.transform.localPosition = new Vector3(0f, 0.45f, 0f);
+        trim.transform.localScale = new Vector3(1.02f, 0.03f, 1.02f);
+        Color trimColor = Color.Lerp(wallColor, roofColor, 0.5f);
+        ApplyColor(trim, trimColor);
+
+        // Windows — varied warm/cool glow
+        int windowRows = Mathf.FloorToInt(size.y / 2.5f);
+        for (int w = 0; w < windowRows; w++)
         {
             float wy = pos.y + 2f + w * 2.5f;
             if (wy > pos.y + size.y - 1f) break;
 
-            // Only add windows facing the street (inner face)
+            // Street-facing windows
             float wx = pos.x > 0 ? pos.x - size.x * 0.5f + 0.05f : pos.x + size.x * 0.5f - 0.05f;
 
-            var win = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            win.name = "Window";
-            win.transform.SetParent(bldg.transform, true);
-            win.transform.position = new Vector3(wx, wy, pos.z + Random.Range(-1f, 1f));
-            win.transform.localScale = new Vector3(0.1f, 0.8f, 0.5f);
-            ApplyEmissive(win, COL_LANTERN * 0.3f);
+            // 2 windows per row at different z positions
+            for (int wz = 0; wz < 2; wz++)
+            {
+                float zOff = pos.z + (wz == 0 ? -size.z * 0.2f : size.z * 0.2f);
+                var win = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                win.name = "Window";
+                win.transform.SetParent(bldg.transform, true);
+                win.transform.position = new Vector3(wx, wy, zOff);
+                win.transform.localScale = new Vector3(0.08f, 0.7f, 0.4f);
+
+                // Some windows warm, some cool, some dark (unlit)
+                float roll = Random.Range(0f, 1f);
+                if (roll < 0.4f)
+                    ApplyEmissive(win, COL_WINDOW_WARM * Random.Range(0.2f, 0.5f));
+                else if (roll < 0.6f)
+                    ApplyEmissive(win, COL_WINDOW_COOL * 0.3f);
+                else
+                    ApplyColor(win, new Color(0.05f, 0.05f, 0.05f)); // dark / shuttered
+            }
         }
+
+        // Door on ground floor (darker rectangle)
+        float doorX = pos.x > 0 ? pos.x - size.x * 0.5f + 0.05f : pos.x + size.x * 0.5f - 0.05f;
+        var door = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        door.name = "Door";
+        door.transform.SetParent(bldg.transform, true);
+        door.transform.position = new Vector3(doorX, pos.y + 0.9f, pos.z);
+        door.transform.localScale = new Vector3(0.08f, 1.6f, 0.7f);
+        ApplyColor(door, new Color(COL_WOOD.r * 0.7f, COL_WOOD.g * 0.7f, COL_WOOD.b * 0.7f));
     }
 
     static void CreateLantern(Transform parent, Vector3 pos)
@@ -503,34 +649,66 @@ public class TitleSequenceSceneBuilder
 
     static void CreateSpire(Transform parent, Vector3 pos, float radius, float height)
     {
+        // Vary the spire color slightly so they're not all identical
+        Color spireCol = new Color(
+            COL_SPIRE.r + Random.Range(-0.02f, 0.03f),
+            COL_SPIRE.g + Random.Range(-0.02f, 0.03f),
+            COL_SPIRE.b + Random.Range(-0.01f, 0.04f));
+
         // Cylinder body
         var body = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         body.name = "Spire";
         body.transform.SetParent(parent);
         body.transform.position = pos + new Vector3(0f, height * 0.5f, 0f);
         body.transform.localScale = new Vector3(radius, height * 0.5f, radius);
-        ApplyColor(body, COL_SPIRE);
+        ApplyColor(body, spireCol);
 
-        // Cone tip (stretched sphere)
+        // Cone tip (stretched sphere) — lighter
         var tip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         tip.name = "SpireTip";
         tip.transform.SetParent(body.transform, false);
         tip.transform.localPosition = new Vector3(0f, 1.1f, 0f);
-        tip.transform.localScale = new Vector3(0.6f, 1.5f, 0.6f);
-        ApplyColor(tip, new Color(COL_SPIRE.r + 0.03f, COL_SPIRE.g + 0.03f, COL_SPIRE.b + 0.04f));
+        tip.transform.localScale = new Vector3(0.5f, 1.8f, 0.5f);
+        ApplyColor(tip, COL_SPIRE_TIP);
+
+        // Mid-ring detail (architectural band)
+        var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        ring.name = "SpireRing";
+        ring.transform.SetParent(body.transform, false);
+        ring.transform.localPosition = new Vector3(0f, 0.3f, 0f);
+        ring.transform.localScale = new Vector3(1.15f, 0.02f, 1.15f);
+        ApplyColor(ring, COL_METAL);
 
         // Slight random lean
         body.transform.rotation = Quaternion.Euler(Random.Range(-2f, 2f), Random.Range(0f, 360f), Random.Range(-2f, 2f));
     }
 
+    // Color palette for city blocks seen from above
+    static readonly Color[] CITY_COLORS = {
+        new Color(0.18f, 0.15f, 0.13f),  // dark brown
+        new Color(0.24f, 0.20f, 0.16f),  // medium brown
+        new Color(0.30f, 0.26f, 0.22f),  // light brown
+        new Color(0.28f, 0.18f, 0.14f),  // reddish
+        new Color(0.22f, 0.22f, 0.25f),  // cool grey
+        new Color(0.16f, 0.14f, 0.12f),  // very dark
+        new Color(0.20f, 0.18f, 0.20f),  // purple-grey
+    };
+
+    static readonly Color[] CITY_ROOF_COLORS = {
+        new Color(0.20f, 0.22f, 0.25f),  // slate
+        new Color(0.30f, 0.18f, 0.10f),  // clay
+        new Color(0.15f, 0.15f, 0.18f),  // dark slate
+        new Color(0.25f, 0.22f, 0.18f),  // tan
+    };
+
     static void CreateCityBlock(Transform parent, Vector3 center)
     {
-        int count = Random.Range(3, 6);
+        int count = Random.Range(3, 7);
         for (int i = 0; i < count; i++)
         {
             float x = center.x + Random.Range(-6f, 6f);
             float z = center.z + Random.Range(-6f, 6f);
-            float h = Random.Range(3f, 9f);
+            float h = Random.Range(3f, 10f);
             float w = Random.Range(3f, 7f);
             float d = Random.Range(3f, 7f);
 
@@ -539,10 +717,31 @@ public class TitleSequenceSceneBuilder
             bldg.transform.SetParent(parent);
             bldg.transform.position = new Vector3(x, h * 0.5f, z);
             bldg.transform.localScale = new Vector3(w, h, d);
-            bldg.transform.rotation = Quaternion.Euler(0f, Random.Range(-5f, 5f), 0f);
+            bldg.transform.rotation = Quaternion.Euler(0f, Random.Range(-8f, 8f), 0f);
 
-            Color c = Color.Lerp(COL_STONE_DARK, COL_STONE_MED, Random.Range(0f, 1f));
-            ApplyColor(bldg, c);
+            ApplyColor(bldg, CITY_COLORS[Random.Range(0, CITY_COLORS.Length)]);
+
+            // Roof slab
+            var roof = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            roof.name = "CityRoof";
+            roof.transform.SetParent(bldg.transform, false);
+            roof.transform.localPosition = new Vector3(0f, 0.52f, 0f);
+            roof.transform.localScale = new Vector3(1.03f, 0.04f, 1.03f);
+            ApplyColor(roof, CITY_ROOF_COLORS[Random.Range(0, CITY_ROOF_COLORS.Length)]);
+
+            // Random window light (30% chance per building)
+            if (Random.Range(0f, 1f) < 0.3f)
+            {
+                var winLight = new GameObject("WindowGlow");
+                winLight.transform.SetParent(bldg.transform, false);
+                winLight.transform.localPosition = new Vector3(
+                    Random.Range(-0.3f, 0.3f), Random.Range(-0.2f, 0.2f), 0.5f);
+                var wl = winLight.AddComponent<Light>();
+                wl.type = LightType.Point;
+                wl.color = COL_WINDOW_WARM;
+                wl.intensity = 0.4f;
+                wl.range = 3f;
+            }
         }
     }
 
@@ -706,11 +905,26 @@ public class TitleSequenceSceneBuilder
         var cg = obj.AddComponent<CanvasGroup>();
         cg.alpha = 0f;
 
+        // Logo image placeholder (white square — assign your actual logo PNG here)
+        var imgObj = new GameObject("LogoImage");
+        imgObj.transform.SetParent(obj.transform, false);
+        var img = imgObj.AddComponent<Image>();
+        img.color = new Color(1f, 1f, 1f, 0.9f);
+        var imgRT = imgObj.GetComponent<RectTransform>();
+        imgRT.anchorMin = imgRT.anchorMax = imgRT.pivot = new Vector2(0.5f, 0.5f);
+        imgRT.anchoredPosition = new Vector2(0f, 30f);
+        imgRT.sizeDelta = new Vector2(200f, 200f);
+        // Set to "None" sprite — designer replaces with actual logo
+        img.sprite = null;
+        img.preserveAspect = true;
+
+        // Text below the image
         var tmp = CreateTMP(obj.transform, "LogoText", text, fontSize,
             COL_TEXT, TextAlignmentOptions.Center);
         var rt = tmp.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.sizeDelta = new Vector2(700f, 160f);
+        rt.anchoredPosition = new Vector2(0f, -100f);
+        rt.sizeDelta = new Vector2(700f, 100f);
 
         return obj;
     }
