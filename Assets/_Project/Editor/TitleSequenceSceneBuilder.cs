@@ -453,7 +453,7 @@ public class TitleSequenceSceneBuilder
         sl.type = LightType.Directional;
         sl.color = new Color(0.35f, 0.25f, 0.18f);
         sl.intensity = 800f; // HDRP lux
-        SetupHDRPLight(sl, 800f); — dim street ambient
+        SetupHDRPLight(sl, 800f); // dim street ambient
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -607,7 +607,7 @@ public class TitleSequenceSceneBuilder
         cl.type = LightType.Directional;
         cl.color = new Color(0.25f, 0.25f, 0.35f);
         cl.intensity = 1000f; // HDRP lux
-        SetupHDRPLight(cl, 1000f); — moonlight over city
+        SetupHDRPLight(cl, 1000f); // moonlight over city
         cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
