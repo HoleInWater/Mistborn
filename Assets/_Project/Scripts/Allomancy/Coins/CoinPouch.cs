@@ -16,7 +16,7 @@ public class CoinPouch : MonoBehaviour
     [Header("Throw Settings")]
     public float throwForce = 5f;
     public float pushForce = 800f;
-    public float coinMass = 0.05f;
+    public float coinMass = AllomancyPhysicsFormulas.CLIP_MASS; // 0.003 kg — official Shire Post Mint
     public float coinLifetime = 30f;
     public Transform throwPoint;
 
