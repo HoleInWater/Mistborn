@@ -81,7 +81,7 @@ public class TitleSequenceSceneBuilder
         // This hides distant Z-fighting and adds atmospheric depth.
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
-        RenderSettings.fogDensity = 0.015f;
+        RenderSettings.fogDensity = 0.006f;
         RenderSettings.fogColor = new Color(0.06f, 0.06f, 0.08f);
 
         // HDRP sky + exposure Volume — essential or everything is black
@@ -136,8 +136,8 @@ public class TitleSequenceSceneBuilder
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
         sun.color = new Color(0.70f, 0.30f, 0.12f);
-        sun.intensity = 1500f; // HDRP lux
-        SetupHDRPLight(sun, 1500f); // dim overcast sun through ash
+        sun.intensity = 2000f; // HDRP lux
+        SetupHDRPLight(sun, 2000f); // overcast dusk through ash
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
@@ -456,8 +456,8 @@ public class TitleSequenceSceneBuilder
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
         sl.color = new Color(0.35f, 0.25f, 0.18f);
-        sl.intensity = 800f; // HDRP lux
-        SetupHDRPLight(sl, 800f); // dim street ambient
+        sl.intensity = 2000f; // HDRP lux
+        SetupHDRPLight(sl, 2000f); // street ambient
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -610,8 +610,8 @@ public class TitleSequenceSceneBuilder
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
         cl.color = new Color(0.25f, 0.25f, 0.35f);
-        cl.intensity = 1000f; // HDRP lux
-        SetupHDRPLight(cl, 1000f); // moonlight over city
+        cl.intensity = 2000f; // HDRP lux
+        SetupHDRPLight(cl, 2000f); // moonlight over city
         cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
