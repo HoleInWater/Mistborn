@@ -947,6 +947,30 @@ public class TitleSequenceSceneBuilder
         if (particleMat == null)
             Debug.LogWarning("[TitleSequenceBuilder] Could not find or create HDRP particle material! Particles will be pink.");
 
+        // Try to find the soft circle texture and assign it to the particle material
+        if (particleMat != null)
+        {
+            string[] texGuids = AssetDatabase.FindAssets("SoftCircle_128 t:Texture2D");
+            if (texGuids.Length > 0)
+            {
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(texGuids[0]));
+                if (tex != null)
+                {
+                    // Set on all known texture property names
+                    if (particleMat.HasProperty("_MainTex"))     particleMat.SetTexture("_MainTex", tex);
+                    if (particleMat.HasProperty("_BaseColorMap")) particleMat.SetTexture("_BaseColorMap", tex);
+                    if (particleMat.HasProperty("_BaseMap"))     particleMat.SetTexture("_BaseMap", tex);
+                    if (particleMat.HasProperty("_UnlitColorMap")) particleMat.SetTexture("_UnlitColorMap", tex);
+                    EditorUtility.SetDirty(particleMat);
+                    Debug.Log("[TitleSequenceBuilder] Applied SoftCircle texture to particle material");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[TitleSequenceBuilder] SoftCircle_128 texture not found. Run Mistborn → Effects → Generate Particle Textures first.");
+            }
+        }
+
         // Temporarily activate ALL scene groups so we can find their particle renderers.
         // FindObjectsOfType only finds active objects — inactive groups get missed.
         var inactiveGroups = new List<GameObject>();
@@ -1154,25 +1178,25 @@ public class TitleSequenceSceneBuilder
         Color trimColor = Color.Lerp(wallColor, roofColor, 0.5f);
         ApplyColor(trim, trimColor);
 
-        // Windows — varied warm/cool glow
+        // Windows — LOCAL space so they stick out from the wall regardless of building scale
         int windowRows = Mathf.FloorToInt(size.y / 2.5f);
         for (int w = 0; w < windowRows; w++)
         {
-            float wy = pos.y + 2f + w * 2.5f;
-            if (wy > pos.y + size.y - 1f) break;
+            // Local Y: from bottom (0) to top (1) of the unit cube
+            float localY = -0.5f + (2f + w * 2.5f) / size.y;
+            if (localY > 0.4f) break;
 
-            // Street-facing windows
-            float wx = pos.x > 0 ? pos.x - size.x * 0.5f + 0.15f : pos.x + size.x * 0.5f - 0.15f;
+            // Street-facing side: localX = +0.52 or -0.52 (just outside the wall)
+            float localX = pos.x > 0 ? -0.52f : 0.52f;
 
-            // 2 windows per row at different z positions
             for (int wz = 0; wz < 2; wz++)
             {
-                float zOff = pos.z + (wz == 0 ? -size.z * 0.2f : size.z * 0.2f);
+                float localZ = (wz == 0) ? -0.2f : 0.2f;
                 var win = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 win.name = "Window";
-                win.transform.SetParent(bldg.transform, true);
-                win.transform.position = new Vector3(wx, wy, zOff);
-                win.transform.localScale = new Vector3(0.08f, 0.7f, 0.4f);
+                win.transform.SetParent(bldg.transform, false);
+                win.transform.localPosition = new Vector3(localX, localY, localZ);
+                win.transform.localScale = new Vector3(0.02f, 0.08f, 0.06f);
 
                 // Some windows warm, some cool, some dark (unlit)
                 float roll = Random.Range(0f, 1f);
@@ -1185,13 +1209,13 @@ public class TitleSequenceSceneBuilder
             }
         }
 
-        // Door on ground floor (darker rectangle)
-        float doorX = pos.x > 0 ? pos.x - size.x * 0.5f + 0.15f : pos.x + size.x * 0.5f - 0.15f;
+        // Door on ground floor — LOCAL space, outside the wall face
         var door = GameObject.CreatePrimitive(PrimitiveType.Cube);
         door.name = "Door";
-        door.transform.SetParent(bldg.transform, true);
-        door.transform.position = new Vector3(doorX, pos.y + 0.9f, pos.z);
-        door.transform.localScale = new Vector3(0.08f, 1.6f, 0.7f);
+        door.transform.SetParent(bldg.transform, false);
+        float doorLocalX = pos.x > 0 ? -0.52f : 0.52f;
+        door.transform.localPosition = new Vector3(doorLocalX, -0.35f, 0f);
+        door.transform.localScale = new Vector3(0.02f, 0.18f, 0.1f);
         ApplyColor(door, new Color(COL_WOOD.r * 0.7f, COL_WOOD.g * 0.7f, COL_WOOD.b * 0.7f));
     }
 
