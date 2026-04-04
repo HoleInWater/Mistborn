@@ -308,24 +308,43 @@ public class TitleSequenceController : MonoBehaviour
     /// </summary>
     void CutToLuthadel()
     {
-        if (mistyFieldScene != null) mistyFieldScene.SetActive(false);
-        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
-        if (cameraController != null)
-            cameraController.SetPhase(TitleCameraController.Phase.LuthadelStreets);
-        if (ambientAudio != null) ambientAudio.SetPhase(3);
+        StartCoroutine(FadeTransition(() => {
+            if (mistyFieldScene != null) mistyFieldScene.SetActive(false);
+            if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
+            if (cameraController != null)
+                cameraController.SetPhase(TitleCameraController.Phase.LuthadelStreets);
+            if (ambientAudio != null) ambientAudio.SetPhase(3);
+        }));
+    }
+
+    void CutToKredikShaw()
+    {
+        StartCoroutine(FadeTransition(() => {
+            if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
+            if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
+            if (cameraController != null)
+                cameraController.SetPhase(TitleCameraController.Phase.KredikShawAerial);
+            if (ambientAudio != null) ambientAudio.SetPhase(4);
+        }));
     }
 
     /// <summary>
-    /// Phase 4: First drop — cut to long aerial pan of Kredik Shaw + Luthadel.
-    /// More credits continue, building toward "proudly presents".
+    /// Smooth fade to black, swap scenes, fade back in.
+    /// Prevents jarring hard cuts between phases.
     /// </summary>
-    void CutToKredikShaw()
+    IEnumerator FadeTransition(System.Action swapScenes, float fadeDuration = 1.2f)
     {
-        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
-        if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
-        if (cameraController != null)
-            cameraController.SetPhase(TitleCameraController.Phase.KredikShawAerial);
-        if (ambientAudio != null) ambientAudio.SetPhase(4);
+        // Fade to black
+        yield return Fade(blackOverlay, blackOverlay != null ? blackOverlay.alpha : 0f, 1f, fadeDuration);
+
+        // Swap scene groups while screen is black
+        swapScenes?.Invoke();
+
+        // Brief hold on black
+        yield return new WaitForSeconds(0.3f);
+
+        // Fade back in
+        yield return Fade(blackOverlay, 1f, 0f, fadeDuration);
     }
 
     /// <summary>

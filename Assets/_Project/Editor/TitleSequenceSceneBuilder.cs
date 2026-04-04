@@ -144,12 +144,9 @@ public class TitleSequenceSceneBuilder
         var ashPS = CreateAshParticles(mistyField.transform, new Vector3(0f, 12f, 10f), 80f);
 
         // Mist particles
-        // Multiple mist layers for thick, lore-accurate Preservation mists
-        var mistPS = CreateMistParticles(mistyField.transform, new Vector3(0f, 0.3f, 8f), 40f);
-        CreateMistParticles(mistyField.transform, new Vector3(0f, 1.5f, 15f), 50f);
-        CreateMistParticles(mistyField.transform, new Vector3(0f, 0.5f, 0f), 30f);
-        CreateMistParticles(mistyField.transform, new Vector3(0f, 3f, 20f), 35f);
-        CreateMistParticles(mistyField.transform, new Vector3(0f, 5f, 30f), 60f);
+        // Mist layers — 2 is enough with fog handling the rest
+        var mistPS = CreateMistParticles(mistyField.transform, new Vector3(0f, 0.5f, 8f), 40f);
+        CreateMistParticles(mistyField.transform, new Vector3(0f, 2f, 20f), 35f);
 
         // Mist controller — makes mists roll in, pulse, and react
         mistyField.AddComponent<TitleMistController>();
@@ -441,11 +438,9 @@ public class TitleSequenceSceneBuilder
         CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
         CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
 
-        // Street particles — ash, mist, and ground fog
+        // Street particles — ash + one mist layer
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
-        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
-        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 1f, 10f), 12f);
-        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.1f, -5f), 10f);
+        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.5f, 5f), 15f);
 
         // Mist controller for the street too
         luthadelGroup.AddComponent<TitleMistController>();
@@ -934,7 +929,22 @@ public class TitleSequenceSceneBuilder
         if (particleMat == null)
             Debug.LogWarning("[TitleSequenceBuilder] Could not find or create HDRP particle material! Particles will be pink.");
 
-        // Apply to ALL particle system renderers in the scene
+        // Temporarily activate ALL scene groups so we can find their particle renderers.
+        // FindObjectsOfType only finds active objects — inactive groups get missed.
+        var inactiveGroups = new List<GameObject>();
+        foreach (var root in scene.GetRootGameObjects())
+        {
+            foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+            {
+                if (!child.gameObject.activeSelf)
+                {
+                    child.gameObject.SetActive(true);
+                    inactiveGroups.Add(child.gameObject);
+                }
+            }
+        }
+
+        // Apply to ALL particle system renderers (now including previously inactive ones)
         int particleFixCount = 0;
         foreach (var psr in Object.FindObjectsOfType<ParticleSystemRenderer>())
         {
@@ -945,7 +955,15 @@ public class TitleSequenceSceneBuilder
                 particleFixCount++;
             }
         }
-        Debug.Log($"[TitleSequenceBuilder] Applied particle material to {particleFixCount} particle renderers");
+
+        // Re-deactivate the groups that were inactive
+        foreach (var go in inactiveGroups)
+        {
+            go.SetActive(false);
+            EditorUtility.SetDirty(go);
+        }
+
+        Debug.Log($"[TitleSequenceBuilder] Applied particle material to {particleFixCount} particle renderers (activated {inactiveGroups.Count} inactive objects to find them)");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -2820,24 +2838,24 @@ public class TitleSequenceSceneBuilder
         obj.transform.position = pos;
         var ps = obj.AddComponent<ParticleSystem>();
         var main = ps.main;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(15f, 25f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.05f, 0.2f);
-        // HUGE soft clouds — thick, screen-filling mist banks
-        main.startSize = new ParticleSystem.MinMaxCurve(8f, 25f);
-        // Much more opaque — you should barely see through these
+        main.startLifetime = new ParticleSystem.MinMaxCurve(12f, 20f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.03f, 0.12f);
+        // Moderate size — visible but not screen-filling squares
+        main.startSize = new ParticleSystem.MinMaxCurve(4f, 10f);
+        // Subtle opacity — you can see through them, they add atmosphere
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(0.75f, 0.78f, 0.85f, 0.30f),  // cool blue-grey
-            new Color(0.90f, 0.90f, 0.95f, 0.50f)    // bright white, very visible
+            new Color(0.70f, 0.73f, 0.80f, 0.08f),  // very transparent
+            new Color(0.85f, 0.85f, 0.90f, 0.15f)    // slightly more visible
         );
-        main.maxParticles = 150;
+        main.maxParticles = 40;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
 
         var em = ps.emission;
-        em.rateOverTime = 15f; // Heavy mist emission
+        em.rateOverTime = 4f; // Gentle mist, not a wall of squares
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(spread, 3f, spread); // Tall emission volume
+        shape.scale = new Vector3(spread, 1.5f, spread);
 
         // Mist flows and swirls — slow, organic, supernatural
         var noise = ps.noise;

@@ -56,7 +56,7 @@ public class TitleCameraController : MonoBehaviour
     private Quaternion transitionStartRot;
     private bool transitioning;
     private float transitionTime;
-    private float transitionDuration = 1.5f;
+    private float transitionDuration = 3f; // Slower, smoother scene transitions
     private Camera cam;
 
     void Start()
@@ -118,8 +118,9 @@ public class TitleCameraController : MonoBehaviour
                 break;
         }
 
-        // Camera breathing — subtle sway on all phases
-        ApplyBreathing();
+        // Camera breathing — only when NOT transitioning (prevents lurching)
+        if (!transitioning)
+            ApplyBreathing();
     }
 
     void UpdateMistyField()
