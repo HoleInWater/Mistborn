@@ -818,7 +818,49 @@ public class TitleSequenceSceneBuilder
         manager.AddComponent<SceneBootstrap>();
 
         // ══════════════════════════════════════════════════════════════════
-        // SAVE
+        // APPLY MATERIALS TO ALL RENDERERS (force re-link after asset creation)
+        // ══════════════════════════════════════════════════════════════════
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        // Force reassign — find every Renderer in the scene and re-set its material
+        // from the cached dictionary so Unity serializes the reference properly
+        int appliedCount = 0;
+        foreach (var rend in Object.FindObjectsOfType<Renderer>())
+        {
+            if (rend.sharedMaterial != null && AssetDatabase.Contains(rend.sharedMaterial))
+            {
+                // Material is already a saved asset — good, just mark dirty
+                EditorUtility.SetDirty(rend);
+                appliedCount++;
+            }
+            else if (rend.sharedMaterial != null)
+            {
+                // Material is an instance (not saved) — try to find matching saved one
+                Color col = Color.white;
+                if (rend.sharedMaterial.HasProperty("_BaseColor"))
+                    col = rend.sharedMaterial.GetColor("_BaseColor");
+                else if (rend.sharedMaterial.HasProperty("_Color"))
+                    col = rend.sharedMaterial.GetColor("_Color");
+                else
+                    col = rend.sharedMaterial.color;
+
+                string hex = ColorUtility.ToHtmlStringRGB(col);
+                string subfolder = CategorizeColor(col);
+                string path = $"{MAT_ROOT}/{subfolder}/Col_{hex}.mat";
+                var saved = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (saved != null)
+                {
+                    rend.sharedMaterial = saved;
+                    EditorUtility.SetDirty(rend);
+                    appliedCount++;
+                }
+            }
+        }
+        Debug.Log($"[TitleSequenceBuilder] Applied materials to {appliedCount} renderers, {_namedMats.Count} unique materials created");
+
+        // ══════════════════════════════════════════════════════════════════
+        // SAVE SCENE
         // ══════════════════════════════════════════════════════════════════
         EditorSceneManager.MarkSceneDirty(scene);
         string scenePath = "Assets/_Project/Scenes/TitleSequence.unity";
