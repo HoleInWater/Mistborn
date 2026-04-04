@@ -1,2 +1,0 @@
-# Unity 2022 LTS
-This file marks the Unity version for the project.
