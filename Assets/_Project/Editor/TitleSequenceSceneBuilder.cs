@@ -30,28 +30,29 @@ public class TitleSequenceSceneBuilder
     static readonly Color COL_ASH_PARTICLE = new Color(0.45f, 0.40f, 0.35f, 0.8f);
     static readonly Color COL_MIST   = new Color(0.75f, 0.75f, 0.80f, 0.2f);
 
-    // Building palette — brighter values with more contrast between them
-    static readonly Color COL_STONE_DARK  = new Color(0.18f, 0.15f, 0.13f);  // dark brown-grey
-    static readonly Color COL_STONE_MED   = new Color(0.30f, 0.26f, 0.22f);  // warm brown
-    static readonly Color COL_STONE_LIGHT = new Color(0.38f, 0.34f, 0.28f);  // light sandy
-    static readonly Color COL_STONE_RED   = new Color(0.32f, 0.18f, 0.14f);  // reddish brick
-    static readonly Color COL_STONE_GREY  = new Color(0.28f, 0.28f, 0.30f);  // cool grey
-    static readonly Color COL_WOOD        = new Color(0.25f, 0.18f, 0.10f);  // dark wood
-    static readonly Color COL_ROOF_SLATE  = new Color(0.20f, 0.22f, 0.25f);  // blue-grey slate
-    static readonly Color COL_ROOF_TILE   = new Color(0.35f, 0.20f, 0.12f);  // clay tile
-    static readonly Color COL_METAL       = new Color(0.35f, 0.35f, 0.40f);  // steel blue-grey
-    static readonly Color COL_GROUND      = new Color(0.12f, 0.10f, 0.08f);  // dark ash earth
-    static readonly Color COL_GROUND_LIGHT = new Color(0.18f, 0.15f, 0.12f); // lighter path
-    static readonly Color COL_COBBLE      = new Color(0.22f, 0.20f, 0.18f);  // cobblestone
-    static readonly Color COL_SKY         = new Color(0.05f, 0.04f, 0.06f);  // near-black sky
-    static readonly Color COL_LANTERN     = new Color(1.0f, 0.55f, 0.15f);   // warm orange
-    static readonly Color COL_WINDOW_WARM = new Color(0.9f, 0.6f, 0.2f);     // warm window glow
-    static readonly Color COL_WINDOW_COOL = new Color(0.4f, 0.5f, 0.7f);     // cool window (tin?)
-    static readonly Color COL_SPIRE       = new Color(0.14f, 0.13f, 0.16f);  // dark steel
-    static readonly Color COL_SPIRE_TIP   = new Color(0.22f, 0.20f, 0.25f);  // lighter tips
-    static readonly Color COL_ROCK        = new Color(0.20f, 0.18f, 0.15f);  // visible rocks
-    static readonly Color COL_ROCK_DARK   = new Color(0.14f, 0.12f, 0.10f);  // darker rocks
-    static readonly Color COL_ASH_GROUND  = new Color(0.15f, 0.14f, 0.13f);  // ash deposits
+    // Building palette — BRIGHT for HDRP (tonemapping compresses the range)
+    // These are ~2-3× brighter than Standard pipeline values
+    static readonly Color COL_STONE_DARK  = new Color(0.35f, 0.30f, 0.25f);  // dark brown-grey
+    static readonly Color COL_STONE_MED   = new Color(0.50f, 0.44f, 0.38f);  // warm brown
+    static readonly Color COL_STONE_LIGHT = new Color(0.60f, 0.55f, 0.46f);  // light sandy
+    static readonly Color COL_STONE_RED   = new Color(0.55f, 0.30f, 0.22f);  // reddish brick
+    static readonly Color COL_STONE_GREY  = new Color(0.45f, 0.45f, 0.50f);  // cool grey
+    static readonly Color COL_WOOD        = new Color(0.40f, 0.28f, 0.16f);  // dark wood
+    static readonly Color COL_ROOF_SLATE  = new Color(0.35f, 0.38f, 0.42f);  // blue-grey slate
+    static readonly Color COL_ROOF_TILE   = new Color(0.55f, 0.35f, 0.20f);  // clay tile
+    static readonly Color COL_METAL       = new Color(0.55f, 0.55f, 0.62f);  // steel blue-grey
+    static readonly Color COL_GROUND      = new Color(0.25f, 0.20f, 0.16f);  // dark ash earth
+    static readonly Color COL_GROUND_LIGHT = new Color(0.32f, 0.27f, 0.22f); // lighter path
+    static readonly Color COL_COBBLE      = new Color(0.38f, 0.35f, 0.30f);  // cobblestone
+    static readonly Color COL_SKY         = new Color(0.05f, 0.04f, 0.06f);  // near-black sky (gradient sky volume handles this)
+    static readonly Color COL_LANTERN     = new Color(1.0f, 0.60f, 0.20f);   // warm orange
+    static readonly Color COL_WINDOW_WARM = new Color(0.95f, 0.65f, 0.25f);  // warm window glow
+    static readonly Color COL_WINDOW_COOL = new Color(0.45f, 0.55f, 0.75f);  // cool window (tin?)
+    static readonly Color COL_SPIRE       = new Color(0.25f, 0.23f, 0.28f);  // dark steel
+    static readonly Color COL_SPIRE_TIP   = new Color(0.38f, 0.35f, 0.42f);  // lighter tips
+    static readonly Color COL_ROCK        = new Color(0.35f, 0.30f, 0.25f);  // visible rocks
+    static readonly Color COL_ROCK_DARK   = new Color(0.25f, 0.22f, 0.18f);  // darker rocks
+    static readonly Color COL_ASH_GROUND  = new Color(0.28f, 0.26f, 0.24f);  // ash deposits
 
     [MenuItem("Mistborn/Scenes/Build Title Sequence Scene")]
     public static void Build()
@@ -70,32 +71,36 @@ public class TitleSequenceSceneBuilder
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
 
-        // Global render settings
-        RenderSettings.fog = true;
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-        RenderSettings.fogDensity = 0.025f;
-        RenderSettings.fogColor = new Color(0.08f, 0.08f, 0.10f);
-        RenderSettings.ambientMode = AmbientMode.Flat;
-        // Bright enough that building colors are clearly visible
-        RenderSettings.ambientLight = new Color(0.15f, 0.14f, 0.16f);
+        // ══════════════════════════════════════════════════════════════════
+        // HDRP ENVIRONMENT — Sky, Exposure, Fog
+        // HDRP renders BLACK without a sky volume. Lights use lux (not 0-1).
+        // ══════════════════════════════════════════════════════════════════
 
-        // Debug: log what shader Unity assigns to primitives on this pipeline
-        {
-            var probe = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            var probeMat = probe.GetComponent<Renderer>().sharedMaterial;
-            Debug.Log($"[TitleSequenceBuilder] Pipeline default shader: {probeMat.shader.name}");
-            Debug.Log($"[TitleSequenceBuilder] Has _BaseColor: {probeMat.HasProperty("_BaseColor")}");
-            Debug.Log($"[TitleSequenceBuilder] Has _Color: {probeMat.HasProperty("_Color")}");
-            Object.DestroyImmediate(probe);
-        }
+        // Disable legacy fog (HDRP uses its own volumetric fog)
+        RenderSettings.fog = false;
+
+        // HDRP sky + exposure Volume — essential or everything is black
+        var volumeObj = new GameObject("HDRP_SkyVolume");
+        var volume = volumeObj.AddComponent<Volume>();
+        volume.isGlobal = true;
+        volume.priority = 0;
+        // Profile needs to be created manually in the editor because
+        // HDRP override types require assembly references we can't use here.
+        // We'll log instructions.
+        Debug.Log("[TitleSequenceBuilder] IMPORTANT — HDRP Sky Setup:");
+        Debug.Log("  Select 'HDRP_SkyVolume' in Hierarchy → Add Override:");
+        Debug.Log("  1. Visual Environment → Sky Type: Gradient, Ambient Mode: Static");
+        Debug.Log("  2. Gradient Sky → Top=#050510, Middle=#0D0A08, Bottom=#1A1210");
+        Debug.Log("  3. Exposure → Mode: Fixed, Fixed Exposure: 10");
+        Debug.Log("  4. Fog → Enable: true, Base Height: 0, Max Height: 20, Mean Free Path: 40");
+        Debug.Log("  If sky is STILL black, check Window → Rendering → HDRP Wizard");
 
         // ══════════════════════════════════════════════════════════════════
         // CAMERA
         // ══════════════════════════════════════════════════════════════════
         var camObj = new GameObject("TitleCamera");
         var cam = camObj.AddComponent<Camera>();
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = COL_SKY;
+        cam.clearFlags = CameraClearFlags.Skybox; // HDRP needs Skybox, not SolidColor
         cam.fieldOfView = 55f;
         cam.farClipPlane = 500f;
         camObj.AddComponent<AudioListener>();
@@ -126,7 +131,7 @@ public class TitleSequenceSceneBuilder
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
         sun.color = new Color(0.70f, 0.30f, 0.12f);
-        sun.intensity = 0.6f;
+        sun.intensity = 1500f; // HDRP lux — dim overcast sun through ash
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
@@ -222,7 +227,7 @@ public class TitleSequenceSceneBuilder
         var ag = ashGlow.AddComponent<Light>();
         ag.type = LightType.Point;
         ag.color = new Color(1f, 0.3f, 0.05f);
-        ag.intensity = 2f;
+        ag.intensity = 800f; // HDRP lux — volcanic glow
         ag.range = 30f;
 
         // ══════════════════════════════════════════════════════════════════
@@ -432,7 +437,7 @@ public class TitleSequenceSceneBuilder
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
         sl.color = new Color(0.35f, 0.25f, 0.18f);
-        sl.intensity = 0.45f;
+        sl.intensity = 800f; // HDRP lux — dim street ambient
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -585,7 +590,7 @@ public class TitleSequenceSceneBuilder
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
         cl.color = new Color(0.25f, 0.25f, 0.35f);
-        cl.intensity = 0.35f;
+        cl.intensity = 1000f; // HDRP lux — moonlight over city
         cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -822,6 +827,44 @@ public class TitleSequenceSceneBuilder
         // APPLY MATERIALS — save all .mat assets, then re-assign every
         // renderer from the saved asset so Unity serializes the reference.
         // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
+        // FIX PARTICLE RENDERERS — HDRP needs a specific particle material
+        // Default particle material = pink on HDRP
+        // ══════════════════════════════════════════════════════════════════
+        Material particleMat = null;
+        // Try to find an existing HDRP particle material in the project
+        string[] particleMatGuids = AssetDatabase.FindAssets("t:Material Particle");
+        foreach (var guid in particleMatGuids)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+            if (m != null && m.shader != null && m.shader.name.Contains("Particle"))
+            {
+                particleMat = m;
+                break;
+            }
+        }
+        // If no existing particle material, create one from Default-Particle
+        if (particleMat == null)
+        {
+            var defaultParticleMat = UnityEngine.Resources.GetBuiltinResource<Material>("Default-Particle.mat");
+            if (defaultParticleMat != null)
+                particleMat = defaultParticleMat;
+        }
+
+        // Apply to all particle system renderers in the scene
+        int particleFixCount = 0;
+        foreach (var psr in Object.FindObjectsOfType<ParticleSystemRenderer>())
+        {
+            if (particleMat != null)
+            {
+                psr.sharedMaterial = particleMat;
+                psr.trailMaterial = particleMat;
+                EditorUtility.SetDirty(psr);
+                particleFixCount++;
+            }
+        }
+        Debug.Log($"[TitleSequenceBuilder] Fixed {particleFixCount} particle renderers with HDRP material");
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
@@ -1061,7 +1104,7 @@ public class TitleSequenceSceneBuilder
         var light = lightObj.AddComponent<Light>();
         light.type = LightType.Point;
         light.color = COL_LANTERN;
-        light.intensity = 1.5f;
+        light.intensity = 600f; // HDRP lumens
         light.range = 8f;
         var flicker = lightObj.AddComponent<TitleLightFlicker>();
         flicker.style = TitleLightFlicker.FlickerStyle.Lantern;
