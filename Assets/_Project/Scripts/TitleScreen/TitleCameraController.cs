@@ -34,15 +34,21 @@ public class TitleCameraController : MonoBehaviour
     public float   aerialRadius     = 40f;
     public float   aerialOrbitSpeed = 0.03f;
 
-    [Header("Title Hold -- continues orbit")]
+    [Header("Title Hold -- dramatic reveal position")]
+    [Tooltip("Orbit angle (radians) where the camera should be when title drops")]
+    public float   titleRevealAngle  = 2.5f; // facing Kredik Shaw from a dramatic angle
     public float   titleZoomStart    = 55f;
-    public float   titleZoomEnd      = 45f;
-    public float   titleZoomDuration = 10f;
+    public float   titleZoomEnd      = 42f;
+    public float   titleZoomDuration = 12f;
+
+    [Header("Camera Smoothing")]
+    [Tooltip("How smoothly the camera follows its target path (lower = smoother)")]
+    public float positionSmoothTime = 0.5f;
+    public float rotationSmoothSpeed = 3f;
 
     [Header("Camera Breathing")]
-    public float breathAmplitude   = 0.02f;
-    public float breathFrequency   = 0.3f;
-    public float breathRotAmount   = 0.08f;
+    public float breathAmplitude   = 0.015f;
+    public float breathFrequency   = 0.25f;
 
     private Phase currentPhase = Phase.MistyField;
     private float phaseTimer;
@@ -53,6 +59,7 @@ public class TitleCameraController : MonoBehaviour
     private float transitionTime;
     private float transitionDuration = 3f;
     private Camera cam;
+    private Vector3 _smoothVelocity; // for SmoothDamp
 
     void Start()
     {
@@ -63,14 +70,15 @@ public class TitleCameraController : MonoBehaviour
 
     public void SetPhase(Phase phase)
     {
-        // TitleHold: seamlessly continue orbiting — no transition needed
+        // TitleHold: continue orbiting but smoothly rotate to the reveal angle
         if (phase == Phase.TitleHold)
         {
             currentPhase = phase;
             phaseTimer = 0f;
-            // Keep the current orbit angle so there's zero camera movement on switch
             Vector3 dir = transform.position - aerialCenter;
             orbitAngle = Mathf.Atan2(dir.z, dir.x);
+            // Don't set transitioning — just let UpdateAerial keep running
+            // The orbit will naturally reach the title reveal angle
             return;
         }
 
@@ -138,10 +146,12 @@ public class TitleCameraController : MonoBehaviour
     {
         float t = Mathf.Clamp01(phaseTimer / fieldDuration);
         t = t * t * (3f - 2f * t);
-        transform.position = Vector3.Lerp(fieldStartPos, fieldEndPos, t);
 
-        Vector3 look = fieldLookAt + new Vector3(0f, Mathf.Sin(phaseTimer * 0.5f) * 0.05f, 0f);
-        transform.LookAt(look);
+        Vector3 targetPos = Vector3.Lerp(fieldStartPos, fieldEndPos, t);
+        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref _smoothVelocity, positionSmoothTime);
+
+        Vector3 look = fieldLookAt + new Vector3(0f, Mathf.Sin(phaseTimer * 0.4f) * 0.03f, 0f);
+        SmoothLookAt(look);
     }
 
     void UpdateStreets()
@@ -149,52 +159,57 @@ public class TitleCameraController : MonoBehaviour
         float t = Mathf.Clamp01(phaseTimer / streetDuration);
         t = t * t * (3f - 2f * t);
 
-        // Main dolly path
-        Vector3 pos = Vector3.Lerp(streetStartPos, streetEndPos, t);
+        Vector3 targetPos = Vector3.Lerp(streetStartPos, streetEndPos, t);
 
         // Near the end, veer toward a building doorway for clean transition
         float exitT = Mathf.Clamp01((phaseTimer - (streetDuration - streetExitTime)) / streetExitTime);
         if (exitT > 0f)
         {
-            float eased = exitT * exitT; // accelerate into the building
-            pos = Vector3.Lerp(pos, streetExitPos, eased);
+            float eased = exitT * exitT;
+            targetPos = Vector3.Lerp(targetPos, streetExitPos, eased);
         }
 
-        transform.position = pos;
+        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref _smoothVelocity, positionSmoothTime);
 
-        // Slow side-to-side scan, reduced amplitude
-        float lookScan = Mathf.Sin(phaseTimer * 0.2f) * 0.8f;
-        Vector3 lookTarget = transform.position + streetLookOffset + new Vector3(lookScan, 0f, 0f);
-
-        // Near exit, look toward the doorway
+        // Gentle forward look only — no side scanning
+        Vector3 lookTarget = transform.position + streetLookOffset;
         if (exitT > 0f)
             lookTarget = Vector3.Lerp(lookTarget, streetExitPos + Vector3.forward * 2f, exitT);
 
-        transform.LookAt(lookTarget);
+        SmoothLookAt(lookTarget);
     }
 
     void UpdateAerial()
     {
         orbitAngle += aerialOrbitSpeed * Time.deltaTime;
 
-        // Slowly descend and tighten orbit
         float descentT = Mathf.Clamp01(phaseTimer / 25f);
         float currentHeight = Mathf.Lerp(aerialHeight, aerialHeight * 0.65f, descentT);
         float currentRadius = Mathf.Lerp(aerialRadius, aerialRadius * 0.7f, descentT);
 
         float x = aerialCenter.x + Mathf.Cos(orbitAngle) * currentRadius;
         float z = aerialCenter.z + Mathf.Sin(orbitAngle) * currentRadius;
-        transform.position = new Vector3(x, currentHeight, z);
+        Vector3 targetPos = new Vector3(x, currentHeight, z);
 
-        // Always look at Kredik Shaw center
+        // Smooth damp instead of hard set — no snapping
+        transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref _smoothVelocity, positionSmoothTime * 0.3f);
+
         Vector3 lookTarget = aerialCenter + new Vector3(0f, 10f, 0f);
-        transform.LookAt(lookTarget);
+        SmoothLookAt(lookTarget);
+    }
+
+    /// <summary>Smoothly rotate toward a look target instead of snapping.</summary>
+    void SmoothLookAt(Vector3 target)
+    {
+        Vector3 dir = target - transform.position;
+        if (dir.sqrMagnitude < 0.001f) return;
+        Quaternion targetRot = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSmoothSpeed * Time.deltaTime);
     }
 
     void ApplyBreathing()
     {
         float t = Time.time;
-        // Position only — NO rotation (prevents barrel roll on static/orbit cameras)
         float bx = Mathf.Sin(t * breathFrequency) * breathAmplitude;
         float by = Mathf.Sin(t * breathFrequency * 0.7f) * breathAmplitude * 0.5f;
         transform.position += new Vector3(bx, by, 0f);

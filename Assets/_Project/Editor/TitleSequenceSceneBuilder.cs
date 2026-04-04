@@ -158,9 +158,9 @@ public class TitleSequenceSceneBuilder
         var ashPS = CreateAshParticles(mistyField.transform, new Vector3(0f, 12f, 10f), 80f);
 
         // Mist particles
-        // Mist layers — 2 is enough with fog handling the rest
-        var mistPS = CreateMistParticles(mistyField.transform, new Vector3(0f, 0.5f, 8f), 40f);
-        CreateMistParticles(mistyField.transform, new Vector3(0f, 2f, 20f), 35f);
+        // Mist — use GPU Fog Particles prefab if available, fallback to basic particles
+        var mistPS = SpawnGPUFog(mistyField.transform, new Vector3(0f, 0.5f, 8f), 40f);
+        SpawnGPUFog(mistyField.transform, new Vector3(0f, 2f, 20f), 35f);
 
         // Mist controller — makes mists roll in, pulse, and react
         mistyField.AddComponent<TitleMistController>();
@@ -421,7 +421,8 @@ public class TitleSequenceSceneBuilder
         CreateAshPile(luthadelGroup.transform, new Vector3(2.6f, 0.03f, 8f), 0.9f);
 
         // Iron gate between districts (metal bars — Allomancy hazard)
-        CreateIronGate(luthadelGroup.transform, new Vector3(0f, 0f, -14f));
+        // Iron gate removed — camera was clipping through the bars
+        // CreateIronGate(luthadelGroup.transform, new Vector3(0f, 0f, -14f));
 
         // Wagon parked by the market stalls
         CreateParkedWagon(luthadelGroup.transform, new Vector3(-2f, 0f, -11f));
@@ -453,9 +454,9 @@ public class TitleSequenceSceneBuilder
         CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
         CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
 
-        // Street particles — ash + one mist layer
+        // Street particles — ash + fog
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
-        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.5f, 5f), 15f);
+        SpawnGPUFog(luthadelGroup.transform, new Vector3(0f, 0.5f, 5f), 15f);
 
         // Mist controller for the street too
         luthadelGroup.AddComponent<TitleMistController>();
@@ -534,7 +535,7 @@ public class TitleSequenceSceneBuilder
         ApplyColor(cityGround, new Color(0.10f, 0.08f, 0.07f));
 
         // Mist rolling through streets from above
-        var cityMist = CreateMistParticles(kredikGroup.transform, new Vector3(0f, 2f, 0f), 80f);
+        var cityMist = SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 2f, 0f), 80f);
         var cm = cityMist.main;
         cm.startSize = new ParticleSystem.MinMaxCurve(5f, 15f);
 
@@ -591,8 +592,8 @@ public class TitleSequenceSceneBuilder
         CreateGuardSilhouette(kredikGroup.transform, new Vector3(2f, 0f, 15.5f));
 
         // Height fog layers (visible from above — mist at different altitudes)
-        CreateMistParticles(kredikGroup.transform, new Vector3(0f, 5f, 0f), 60f);
-        CreateMistParticles(kredikGroup.transform, new Vector3(0f, 15f, 0f), 40f);
+        SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 5f, 0f), 60f);
+        SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 15f, 0f), 40f);
 
         // Garrison / barracks near the city wall
         CreateBarracks(kredikGroup.transform, new Vector3(45f, 0f, -30f));
@@ -2873,6 +2874,55 @@ public class TitleSequenceSceneBuilder
     /// Visually: thick, slow-moving tendrils that coalesce and dissipate.
     /// Slightly luminous — they have a faint inner light (Preservation's investiture).
     /// </summary>
+    /// <summary>
+    /// Spawns the GPU Fog Particles "Ground Fog" prefab if available.
+    /// Falls back to CreateMistParticles if the prefab isn't found.
+    /// The prefab uses procedural noise for realistic volumetric fog.
+    /// </summary>
+    static ParticleSystem SpawnGPUFog(Transform parent, Vector3 pos, float spread)
+    {
+        // Try to find the Ground Fog prefab
+        string[] guids = AssetDatabase.FindAssets("Ground Fog t:Prefab");
+        if (guids.Length > 0)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab != null)
+            {
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                instance.transform.SetParent(parent);
+                instance.transform.position = pos;
+                // Scale the fog to match our spread
+                instance.transform.localScale = new Vector3(spread * 0.1f, 1f, spread * 0.1f);
+
+                var ps = instance.GetComponent<ParticleSystem>();
+                return ps;
+            }
+        }
+
+        // Fallback: try Falling Fog
+        guids = AssetDatabase.FindAssets("Falling Fog t:Prefab");
+        if (guids.Length > 0)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab != null)
+            {
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                instance.transform.SetParent(parent);
+                instance.transform.position = pos;
+                instance.transform.localScale = new Vector3(spread * 0.1f, 1f, spread * 0.1f);
+
+                var ps = instance.GetComponent<ParticleSystem>();
+                return ps;
+            }
+        }
+
+        // Final fallback: basic mist particles
+        Debug.LogWarning("[TitleSequenceBuilder] GPU Fog prefabs not found — using basic particles");
+        return CreateMistParticles(parent, pos, spread);
+    }
+
     static ParticleSystem CreateMistParticles(Transform parent, Vector3 pos, float spread)
     {
         var obj = new GameObject("MistParticles");
