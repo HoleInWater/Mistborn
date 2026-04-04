@@ -861,8 +861,8 @@ public class TitleSequenceSceneBuilder
             // then reset Light.intensity to 1 so they don't multiply
             float savedIntensity = light.intensity;
             light.intensity = 1f;
-            hd.SetIntensity(savedIntensity,
-                light.type == LightType.Directional ? LightUnit.Lux : LightUnit.Lumen);
+            hd.intensity = savedIntensity;
+            hd.lightUnit = light.type == LightType.Directional ? LightUnit.Lux : LightUnit.Lumen;
             EditorUtility.SetDirty(light.gameObject);
         }
         Debug.Log($"[TitleSequenceBuilder] Fixed {lightFixCount} lights with HDAdditionalLightData, intensity transferred to HDRP");
@@ -3600,11 +3600,10 @@ public class TitleSequenceSceneBuilder
         var hd = light.GetComponent<HDAdditionalLightData>();
         if (hd == null) hd = light.gameObject.AddComponent<HDAdditionalLightData>();
 
-        // HDRP reads intensity from HDAdditionalLightData, NOT Light.intensity.
-        // Set Light.intensity to 1 so it doesn't multiply with the HD value.
+        // HDRP reads from HDAdditionalLightData.intensity (same pattern as SkyController.cs)
         light.intensity = 1f;
-        hd.SetIntensity(intensityLuxOrLumens,
-            light.type == LightType.Directional ? LightUnit.Lux : LightUnit.Lumen);
+        hd.intensity = intensityLuxOrLumens;
+        hd.lightUnit = light.type == LightType.Directional ? LightUnit.Lux : LightUnit.Lumen;
     }
 
     // MATERIAL SYSTEM — Clone from existing HDRP material, save to disk

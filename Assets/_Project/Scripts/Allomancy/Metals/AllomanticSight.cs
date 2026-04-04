@@ -257,15 +257,15 @@ public class AllomanticSight : MonoBehaviour
                 else
                 {
                     // Normal pushable metals
-                    float mass = target.GetEffectiveMass();
-                    baseColor = mass > 10f ? heavyMetalColor : metalColor;
+                    float objMass = target.GetEffectiveMass();
+                    baseColor = objMass > 10f ? heavyMetalColor : metalColor;
                 }
             }
             else
             {
                 // No AllomanticTarget component - use mass-based color
-                float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
-                baseColor = mass > 10f ? heavyMetalColor : metalColor;
+                float objMass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+                baseColor = objMass > 10f ? heavyMetalColor : metalColor;
             }
             
             // Distance and mass affect line appearance (lore-accurate)
