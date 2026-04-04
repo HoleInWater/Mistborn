@@ -119,5 +119,64 @@ public class FallDamage : MonoBehaviour
         }
 
         animator?.SetTrigger("Land");
+
+        // Pewter superhero landing — slam creates AOE shockwave
+        if (pewterActive && fallSpeed > safeFallSpeed * 1.5f)
+            PewterSlam(fallSpeed);
+    }
+
+    /// <summary>
+    /// Lore: a Mistborn burning Pewter can survive falls that would kill a normal
+    /// person, and their landing impact can crack stone and stagger nearby enemies.
+    /// This is the "superhero landing" — knee down, fist to the ground, shockwave.
+    /// </summary>
+    void PewterSlam(float fallSpeed)
+    {
+        float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
+
+        // KE = ½mv² — the slam damage scales with how fast you were falling
+        float playerMass = playerRb != null ? playerRb.mass : 70f;
+        float impactKE = AllomancyPhysicsFormulas.CalculateKineticEnergy(playerMass, fallSpeed);
+
+        // Shockwave radius scales with impact energy (capped)
+        float radius = Mathf.Clamp(Mathf.Sqrt(impactKE) * 0.1f * flare, 3f, 12f);
+        float damage = Mathf.Clamp(impactKE * 0.01f * flare, 5f, 40f);
+
+        // Find and damage/stagger nearby enemies
+        Collider[] hits = Physics.OverlapSphere(transform.position, radius);
+        foreach (var col in hits)
+        {
+            if (col.gameObject == this.gameObject) continue;
+
+            // Damage
+            IDamageable target = col.GetComponentInParent<IDamageable>();
+            target?.TakeDamage(damage);
+
+            // Knockback — push enemies away from landing point
+            Rigidbody enemyRb = col.attachedRigidbody;
+            if (enemyRb != null && !enemyRb.isKinematic)
+            {
+                Vector3 awayDir = (col.transform.position - transform.position).normalized;
+                awayDir.y = 0.3f; // slight upward angle
+                float knockForce = damage * 0.5f;
+                enemyRb.AddForce(awayDir * knockForce, ForceMode.Impulse);
+            }
+
+            // Stagger animation
+            var enemyAI = col.GetComponentInParent<EnemyAI>();
+            if (enemyAI != null)
+                enemyAI.animator?.SetTrigger("Hit");
+        }
+
+        // Effects — dramatic impact
+        CameraShakeManager.Instance?.Shake(0.4f * flare, 0.3f * flare);
+        SoundManager.Instance?.PlayImpactSound();
+        HitstopManager.Instance?.PewterSlam();
+        GroundSlamEffect.Spawn(transform.position, radius, flare);
+
+        // Drain extra pewter for the slam
+        if (allomancer != null)
+            allomancer.DrainMetal(AllomancySkill.MetalType.Pewter,
+                AllomancyConstants.PewterDrainRate * 2f);
     }
 }

@@ -133,7 +133,7 @@ public class TitleSequenceSceneBuilder
         sun.type = LightType.Directional;
         sun.color = new Color(0.70f, 0.30f, 0.12f);
         sun.intensity = 1500f; // HDRP lux
-        SetupHDRPLight(sun, 1500f); — dim overcast sun through ash
+        SetupHDRPLight(sun, 1500f); // dim overcast sun through ash
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
