@@ -158,12 +158,21 @@ public class TitleSequenceSceneBuilder
         var ashPS = CreateAshParticles(mistyField.transform, new Vector3(0f, 12f, 10f), 80f);
 
         // Mist particles
-        // Mist — use GPU Fog Particles prefab if available, fallback to basic particles
-        var mistPS = SpawnGPUFog(mistyField.transform, new Vector3(0f, 0.5f, 8f), 40f);
-        SpawnGPUFog(mistyField.transform, new Vector3(0f, 2f, 20f), 35f);
+        // Lore-accurate mist — low-lying ground fog, few feet deep
+        // Uses MistSystem which generates its own soft texture at runtime (no squares)
+        var fieldMist = new GameObject("FieldMist");
+        fieldMist.transform.SetParent(mistyField.transform);
+        fieldMist.transform.localPosition = new Vector3(0f, 0f, 10f);
+        var fieldMistSys = fieldMist.AddComponent<MistSystem>();
+        fieldMistSys.coverageRadius = 45f;
+        fieldMistSys.mistHeight = 2.5f;    // lore: few feet deep
+        fieldMistSys.layerCount = 3;
+        fieldMistSys.particleSize = 5f;
+        fieldMistSys.emissionRate = 6f;
+        fieldMistSys.maxParticlesPerLayer = 40;
+        var mistPS = fieldMist.GetComponentInChildren<ParticleSystem>();
 
-        // Mist controller — makes mists roll in, pulse, and react
-        mistyField.AddComponent<TitleMistController>();
+        // MistSystem handles pulsing internally (Preservation's heartbeat)
 
         // Scattered rocks — varied colors and sizes for visual interest
         CreateRock(mistyField.transform, new Vector3(-5f, 0.2f, 8f), 0.6f, COL_ROCK);
@@ -454,12 +463,20 @@ public class TitleSequenceSceneBuilder
         CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
         CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
 
-        // Street particles — ash + fog
+        // Street particles — ash + lore-accurate ground mist
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
-        SpawnGPUFog(luthadelGroup.transform, new Vector3(0f, 0.5f, 5f), 15f);
+        var streetMist = new GameObject("StreetMist");
+        streetMist.transform.SetParent(luthadelGroup.transform);
+        streetMist.transform.localPosition = new Vector3(0f, 0f, 5f);
+        var streetMistSys = streetMist.AddComponent<MistSystem>();
+        streetMistSys.coverageRadius = 15f;
+        streetMistSys.mistHeight = 1.5f;    // lower in streets — channeled by buildings
+        streetMistSys.layerCount = 2;
+        streetMistSys.particleSize = 4f;
+        streetMistSys.emissionRate = 5f;
+        streetMistSys.maxParticlesPerLayer = 30;
 
-        // Mist controller for the street too
-        luthadelGroup.AddComponent<TitleMistController>();
+        // MistSystem handles its own pulsing
 
         // Dim street light — slightly brighter so buildings are visible
         var streetSun = new GameObject("StreetAmbient");
@@ -535,7 +552,18 @@ public class TitleSequenceSceneBuilder
         ApplyColor(cityGround, new Color(0.10f, 0.08f, 0.07f));
 
         // Mist rolling through streets from above
-        var cityMist = SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 2f, 0f), 80f);
+        // City mist — visible from above, ground-hugging
+        var cityMistObj = new GameObject("CityMist");
+        cityMistObj.transform.SetParent(kredikGroup.transform);
+        cityMistObj.transform.localPosition = Vector3.zero;
+        var cityMistSys = cityMistObj.AddComponent<MistSystem>();
+        cityMistSys.coverageRadius = 70f;
+        cityMistSys.mistHeight = 4f;     // slightly higher for aerial visibility
+        cityMistSys.layerCount = 3;
+        cityMistSys.particleSize = 10f;  // bigger for aerial view
+        cityMistSys.emissionRate = 10f;
+        cityMistSys.maxParticlesPerLayer = 50;
+        var cityMist = cityMistObj.GetComponentInChildren<ParticleSystem>();
         var cm = cityMist.main;
         cm.startSize = new ParticleSystem.MinMaxCurve(5f, 15f);
 
@@ -592,8 +620,18 @@ public class TitleSequenceSceneBuilder
         CreateGuardSilhouette(kredikGroup.transform, new Vector3(2f, 0f, 15.5f));
 
         // Height fog layers (visible from above — mist at different altitudes)
-        SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 5f, 0f), 60f);
-        SpawnGPUFog(kredikGroup.transform, new Vector3(0f, 15f, 0f), 40f);
+        // Additional mist layer at slightly higher altitude for aerial depth
+        var upperMistObj = new GameObject("UpperMist");
+        upperMistObj.transform.SetParent(kredikGroup.transform);
+        upperMistObj.transform.localPosition = new Vector3(0f, 8f, 0f);
+        var upperMistSys = upperMistObj.AddComponent<MistSystem>();
+        upperMistSys.coverageRadius = 50f;
+        upperMistSys.mistHeight = 3f;
+        upperMistSys.layerCount = 2;
+        upperMistSys.particleSize = 12f;
+        upperMistSys.emissionRate = 4f;
+        upperMistSys.maxParticlesPerLayer = 25;
+        upperMistSys.mistColor = new Color(0.7f, 0.73f, 0.8f, 0.08f); // thinner up high
 
         // Garrison / barracks near the city wall
         CreateBarracks(kredikGroup.transform, new Vector3(45f, 0f, -30f));
