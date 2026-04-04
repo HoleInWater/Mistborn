@@ -2892,26 +2892,11 @@ public class TitleSequenceSceneBuilder
                 var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
                 instance.transform.SetParent(parent);
                 instance.transform.position = pos;
-                // Scale the fog to match our spread
                 instance.transform.localScale = new Vector3(spread * 0.1f, 1f, spread * 0.1f);
 
-                var ps = instance.GetComponent<ParticleSystem>();
-                return ps;
-            }
-        }
-
-        // Fallback: try Falling Fog
-        guids = AssetDatabase.FindAssets("Falling Fog t:Prefab");
-        if (guids.Length > 0)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab != null)
-            {
-                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-                instance.transform.SetParent(parent);
-                instance.transform.position = pos;
-                instance.transform.localScale = new Vector3(spread * 0.1f, 1f, spread * 0.1f);
+                // Replace the URP/Built-In material with HDRP particle material
+                // (the GPU Fog shaders don't work on HDRP)
+                SwapToHDRPParticleMaterial(instance);
 
                 var ps = instance.GetComponent<ParticleSystem>();
                 return ps;
@@ -2921,6 +2906,50 @@ public class TitleSequenceSceneBuilder
         // Final fallback: basic mist particles
         Debug.LogWarning("[TitleSequenceBuilder] GPU Fog prefabs not found — using basic particles");
         return CreateMistParticles(parent, pos, spread);
+    }
+
+    /// <summary>
+    /// Swaps all particle renderer materials on a GameObject to an HDRP-compatible
+    /// particle material. The GPU Fog prefab uses URP shaders which are pink on HDRP.
+    /// </summary>
+    static void SwapToHDRPParticleMaterial(GameObject obj)
+    {
+        // Find or create the HDRP particle material
+        string matPath = "Assets/_Project/Materials/TitleSequence/HDRP_Particle.mat";
+        Material hdrpParticleMat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+
+        if (hdrpParticleMat == null)
+        {
+            // Try to find an HDRP particle shader
+            string[] shaderNames = { "HDRP/Particles/Unlit", "HDRP/Particles/Lit" };
+            Shader shader = null;
+            foreach (var sn in shaderNames)
+            {
+                shader = Shader.Find(sn);
+                if (shader != null) break;
+            }
+
+            if (shader != null)
+            {
+                hdrpParticleMat = new Material(shader);
+                hdrpParticleMat.name = "HDRP_Particle";
+                hdrpParticleMat.color = new Color(1f, 1f, 1f, 0.5f);
+                if (hdrpParticleMat.HasProperty("_BaseColor"))
+                    hdrpParticleMat.SetColor("_BaseColor", new Color(1f, 1f, 1f, 0.5f));
+
+                EnsureMatFolder("");
+                AssetDatabase.CreateAsset(hdrpParticleMat, matPath);
+            }
+        }
+
+        if (hdrpParticleMat == null) return;
+
+        // Apply to all particle renderers in this object and children
+        foreach (var psr in obj.GetComponentsInChildren<ParticleSystemRenderer>(true))
+        {
+            psr.sharedMaterial = hdrpParticleMat;
+            EditorUtility.SetDirty(psr);
+        }
     }
 
     static ParticleSystem CreateMistParticles(Transform parent, Vector3 pos, float spread)
