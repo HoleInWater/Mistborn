@@ -135,10 +135,20 @@ public class TitleSequenceSceneBuilder
         sunObj.transform.SetParent(mistyField.transform);
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
-        sun.color = new Color(0.70f, 0.30f, 0.12f);
-        sun.intensity = 2000f; // HDRP lux
-        SetupHDRPLight(sun, 2000f); // overcast dusk through ash
+        sun.color = new Color(0.85f, 0.35f, 0.12f); // redder sun — ash-filtered
+        sun.intensity = 15000f; // EV10 needs high lux
+        SetupHDRPLight(sun, 15000f);
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
+
+        // Red fill light from the ashmount glow (lore: constant volcanic light)
+        var redFill = new GameObject("RedFillLight");
+        redFill.transform.SetParent(mistyField.transform);
+        var redLight = redFill.AddComponent<Light>();
+        redLight.type = LightType.Directional;
+        redLight.color = new Color(0.9f, 0.2f, 0.05f); // deep red
+        redLight.intensity = 5000f;
+        SetupHDRPLight(redLight, 5000f);
+        redFill.transform.rotation = Quaternion.Euler(5f, 10f, 0f); // low angle from ashmount direction
 
         // Ash particles
         var ashPS = CreateAshParticles(mistyField.transform, new Vector3(0f, 12f, 10f), 80f);
@@ -238,7 +248,7 @@ public class TitleSequenceSceneBuilder
         var ag = ashGlow.AddComponent<Light>();
         ag.type = LightType.Point;
         ag.color = new Color(1f, 0.3f, 0.05f);
-        ag.intensity = 800f; // HDRP lux — volcanic glow
+        ag.intensity = 15000f; // EV10 — bright volcanic glow
         ag.range = 30f;
 
         // ══════════════════════════════════════════════════════════════════
@@ -248,7 +258,7 @@ public class TitleSequenceSceneBuilder
         luthadelGroup.SetActive(false);
 
         // Street ground — cobblestone center, dirt edges
-        CreateStreetGround(luthadelGroup.transform, Vector3.zero, new Vector3(2f, 1f, 10f), COL_COBBLE);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(0f, -0.05f, 0f), new Vector3(2f, 1f, 10f), COL_COBBLE);
         CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
         CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
         // Ash deposits on street
@@ -450,9 +460,9 @@ public class TitleSequenceSceneBuilder
         streetSun.transform.SetParent(luthadelGroup.transform);
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
-        sl.color = new Color(0.35f, 0.25f, 0.18f);
-        sl.intensity = 2000f; // HDRP lux
-        SetupHDRPLight(sl, 2000f); // street ambient
+        sl.color = new Color(0.6f, 0.25f, 0.12f); // reddish street light — ash-filtered
+        sl.intensity = 10000f; // EV10 compensation
+        SetupHDRPLight(sl, 10000f); // street ambient (EV10)
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -599,15 +609,15 @@ public class TitleSequenceSceneBuilder
         CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(15f, 12f, 10f), new Vector3(20f, 5f, 15f));
         CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(-10f, 15f, -8f), new Vector3(-12f, 3f, -5f));
 
-        // Moonlight — brighter so city is visible from above
-        var cityLight = new GameObject("CityMoonlight");
+        // Scadrial has NO MOON — light comes from ashmount glow and city fires
+        var cityLight = new GameObject("AshmountGlow_City");
         cityLight.transform.SetParent(kredikGroup.transform);
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
-        cl.color = new Color(0.25f, 0.25f, 0.35f);
-        cl.intensity = 2000f; // HDRP lux
-        SetupHDRPLight(cl, 2000f); // moonlight over city
-        cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
+        cl.color = new Color(0.7f, 0.2f, 0.08f); // deep red from volcanic glow
+        cl.intensity = 10000f; // EV10 compensation
+        SetupHDRPLight(cl, 10000f); // ashmount glow (no moon on Scadrial)
+        cityLight.transform.rotation = Quaternion.Euler(30f, -20f, 0f); // low angle — horizon glow
 
         // ══════════════════════════════════════════════════════════════════
         // UI CANVAS
@@ -1204,7 +1214,7 @@ public class TitleSequenceSceneBuilder
         var light = lightObj.AddComponent<Light>();
         light.type = LightType.Point;
         light.color = COL_LANTERN;
-        light.intensity = 600f; // HDRP lumens
+        light.intensity = 8000f; // EV10 lumens
         light.range = 8f;
         var flicker = lightObj.AddComponent<TitleLightFlicker>();
         flicker.style = TitleLightFlicker.FlickerStyle.Lantern;
@@ -2896,6 +2906,16 @@ public class TitleSequenceSceneBuilder
             }
         );
         col.color = new ParticleSystem.MinMaxGradient(grad);
+
+        // Render as horizontal billboards — flat fog planes, not upright squares
+        var renderer = obj.GetComponent<ParticleSystemRenderer>();
+        if (renderer != null)
+        {
+            renderer.renderMode = ParticleSystemRenderMode.HorizontalBillboard;
+            renderer.minParticleSize = 0f;
+            renderer.maxParticleSize = 1f;
+        }
+
         return ps;
     }
 

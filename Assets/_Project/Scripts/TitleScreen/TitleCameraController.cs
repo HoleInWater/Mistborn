@@ -73,18 +73,21 @@ public class TitleCameraController : MonoBehaviour
         transitioning = true;
         transitionTime = 0f;
         currentPhase = phase;
-        phaseTimer = 0f;
+        // Don't reset phaseTimer here — reset it when transition ENDS
+        // so the movement path starts smoothly from where we arrive
     }
 
     void Update()
     {
-        phaseTimer += Time.deltaTime;
+        if (!transitioning)
+            phaseTimer += Time.deltaTime;
 
         if (transitioning)
         {
             transitionTime += Time.deltaTime;
             float t = Mathf.Clamp01(transitionTime / transitionDuration);
-            t = t * t * (3f - 2f * t); // smoothstep
+            // Smoother ease — cubic ease-in-out instead of smoothstep
+            t = t < 0.5f ? 4f * t * t * t : 1f - Mathf.Pow(-2f * t + 2f, 3f) / 2f;
 
             Vector3 targetPos = GetPhaseStartPosition();
             Quaternion targetRot = GetPhaseStartRotation();
@@ -92,7 +95,11 @@ public class TitleCameraController : MonoBehaviour
             transform.position = Vector3.Lerp(transitionStartPos, targetPos, t);
             transform.rotation = Quaternion.Slerp(transitionStartRot, targetRot, t);
 
-            if (t >= 1f) transitioning = false;
+            if (t >= 1f)
+            {
+                transitioning = false;
+                phaseTimer = 0f; // NOW reset — movement starts fresh from arrival
+            }
             return;
         }
 

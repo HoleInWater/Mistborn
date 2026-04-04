@@ -90,10 +90,16 @@ public class AllomanticTitleRenderer : MonoBehaviour
         float startTime = Time.time;
 
         // ── Trace phase: reveal characters left to right ─────────────────
+        // Each letter takes slightly less time than the last (accelerating draw)
+        // This prevents "MIST" from appearing all at once — early letters are slower
         for (int i = 0; i < count; i++)
         {
+            // Accelerating: first letter takes 1.5x average, last takes 0.6x
+            float speedCurve = Mathf.Lerp(1.5f, 0.6f, (float)i / Mathf.Max(1, count - 1));
+            float thisCharDuration = perChar * speedCurve;
+
             charRevealTime[i] = Time.time;
-            float charEnd = Time.time + perChar;
+            float charEnd = Time.time + thisCharDuration;
 
             while (Time.time < charEnd)
             {
