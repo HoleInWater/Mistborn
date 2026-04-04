@@ -17,6 +17,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.HighDefinition;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using TMPro;
@@ -131,7 +132,8 @@ public class TitleSequenceSceneBuilder
         var sun = sunObj.AddComponent<Light>();
         sun.type = LightType.Directional;
         sun.color = new Color(0.70f, 0.30f, 0.12f);
-        sun.intensity = 1500f; // HDRP lux — dim overcast sun through ash
+        sun.intensity = 1500f; // HDRP lux
+        SetupHDRPLight(sun, 1500f); — dim overcast sun through ash
         sunObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
 
         // Ash particles
@@ -437,7 +439,8 @@ public class TitleSequenceSceneBuilder
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
         sl.color = new Color(0.35f, 0.25f, 0.18f);
-        sl.intensity = 800f; // HDRP lux — dim street ambient
+        sl.intensity = 800f; // HDRP lux
+        SetupHDRPLight(sl, 800f); — dim street ambient
         streetSun.transform.rotation = Quaternion.Euler(35f, 15f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -590,7 +593,8 @@ public class TitleSequenceSceneBuilder
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
         cl.color = new Color(0.25f, 0.25f, 0.35f);
-        cl.intensity = 1000f; // HDRP lux — moonlight over city
+        cl.intensity = 1000f; // HDRP lux
+        SetupHDRPLight(cl, 1000f); — moonlight over city
         cityLight.transform.rotation = Quaternion.Euler(55f, -20f, 0f);
 
         // ══════════════════════════════════════════════════════════════════
@@ -827,6 +831,25 @@ public class TitleSequenceSceneBuilder
         // APPLY MATERIALS — save all .mat assets, then re-assign every
         // renderer from the saved asset so Unity serializes the reference.
         // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
+        // FIX ALL LIGHTS — ensure every Light has HDAdditionalLightData
+        // HDRP completely ignores Light.intensity without this component.
+        // ══════════════════════════════════════════════════════════════════
+        int lightFixCount = 0;
+        foreach (var light in Object.FindObjectsOfType<Light>())
+        {
+            var hd = light.GetComponent<HDAdditionalLightData>();
+            if (hd == null)
+            {
+                hd = light.gameObject.AddComponent<HDAdditionalLightData>();
+                lightFixCount++;
+            }
+            hd.intensity = light.intensity;
+            hd.lightUnit = light.type == LightType.Directional ? LightUnit.Lux : LightUnit.Lumen;
+            EditorUtility.SetDirty(light.gameObject);
+        }
+        Debug.Log($"[TitleSequenceBuilder] Fixed {lightFixCount} lights with HDAdditionalLightData, intensity transferred to HDRP");
+
         // ══════════════════════════════════════════════════════════════════
         // FIX PARTICLE RENDERERS — HDRP needs a specific particle material
         // Default particle material = pink on HDRP
@@ -3548,6 +3571,26 @@ public class TitleSequenceSceneBuilder
     // ═════════════════════════════════════════════════════════════════════════
 
     // ═════════════════════════════════════════════════════════════════════════
+    // ═════════════════════════════════════════════════════════════════════════
+    // HDRP LIGHT HELPER
+    //
+    // HDRP ignores Light.intensity — it uses HDAdditionalLightData.intensity.
+    // Every light must have this component or it renders at default (near zero).
+    // ═════════════════════════════════════════════════════════════════════════
+
+    static void SetupHDRPLight(Light light, float intensityLuxOrLumens)
+    {
+        var hd = light.GetComponent<HDAdditionalLightData>();
+        if (hd == null) hd = light.gameObject.AddComponent<HDAdditionalLightData>();
+        hd.intensity = intensityLuxOrLumens;
+
+        // Directional lights use Lux, Point/Spot use Lumen
+        if (light.type == LightType.Directional)
+            hd.lightUnit = LightUnit.Lux;
+        else
+            hd.lightUnit = LightUnit.Lumen;
+    }
+
     // MATERIAL SYSTEM — Clone from existing HDRP material, save to disk
     //
     // Clones Ground(Temp).mat (known working HDRP Lit material) and sets
