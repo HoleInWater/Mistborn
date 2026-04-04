@@ -282,7 +282,7 @@ public class Pewter : MonoBehaviour
         // Cap crash damage at 50% of max health — should never instant-kill
         if (healthSystem != null)
         {
-            float maxCrashDamage = healthSystem.maxHealth * 0.5f;
+            float maxCrashDamage = healthSystem.GetMaxHealth() * 0.5f;
             float actualDamage = Mathf.Min(crashDamage, maxCrashDamage);
             float newHealth = Mathf.Max(1f, healthSystem.GetCurrentHealth() - actualDamage);
             healthSystem.health = newHealth;
