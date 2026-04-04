@@ -262,9 +262,10 @@ public class TitleSequenceSceneBuilder
         luthadelGroup.SetActive(false);
 
         // Street ground — cobblestone center, dirt edges
-        CreateStreetGround(luthadelGroup.transform, new Vector3(0f, -0.05f, 0f), new Vector3(2f, 1f, 10f), COL_COBBLE);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        // Street ground well below building bases to avoid Z-fighting
+        CreateStreetGround(luthadelGroup.transform, new Vector3(0f, -0.3f, 0f), new Vector3(2f, 1f, 10f), COL_COBBLE);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
         // Ash deposits on street
         CreateAshPile(luthadelGroup.transform, new Vector3(-1f, 0.10f, 5f), 0.8f);
         CreateAshPile(luthadelGroup.transform, new Vector3(1.5f, 0.10f, -3f), 0.6f);
@@ -816,8 +817,8 @@ public class TitleSequenceSceneBuilder
         tsc.logoDuration        = 6f;
         tsc.logoFadeSpeed       = 1.2f;
         tsc.streetsStartTime    = 28f;
-        tsc.kredikShawStartTime = 45f;
-        tsc.titleDropTime       = 60f;
+        tsc.kredikShawStartTime = 48f;
+        tsc.titleDropTime       = 63f;
         tsc.titleDrawDuration   = 3f;
         tsc.postTitleHold       = 8f; // Let title sit before mistcloak transition
 
@@ -844,11 +845,11 @@ public class TitleSequenceSceneBuilder
 
         tsc.creditLines = new List<TitleSequenceController.CreditLine>
         {
-            new TitleSequenceController.CreditLine { time = 28f, text = "Music by Malakai Probert" },
-            new TitleSequenceController.CreditLine { time = 35f, text = "Based on the novels by\nBrandon Sanderson" },
-            new TitleSequenceController.CreditLine { time = 42f, text = "Produced by\nCrimson Blade Interactive" },
-            new TitleSequenceController.CreditLine { time = 49f, text = "Creative Director\nLandon Adams" },
-            new TitleSequenceController.CreditLine { time = 55f, text = "Crimson Blade Interactive\nproudly presents" },
+            new TitleSequenceController.CreditLine { time = 31f, text = "Music by Malakai Probert" },
+            new TitleSequenceController.CreditLine { time = 37f, text = "Based on the novels by\nBrandon Sanderson" },
+            new TitleSequenceController.CreditLine { time = 43f, text = "Produced by\nCrimson Blade Interactive" },
+            new TitleSequenceController.CreditLine { time = 50f, text = "Creative Director\nLandon Adams" },
+            new TitleSequenceController.CreditLine { time = 56f, text = "Crimson Blade Interactive\nproudly presents" },
         };
 
         manager.AddComponent<SceneBootstrap>();
@@ -1161,7 +1162,7 @@ public class TitleSequenceSceneBuilder
             if (wy > pos.y + size.y - 1f) break;
 
             // Street-facing windows
-            float wx = pos.x > 0 ? pos.x - size.x * 0.5f + 0.05f : pos.x + size.x * 0.5f - 0.05f;
+            float wx = pos.x > 0 ? pos.x - size.x * 0.5f + 0.15f : pos.x + size.x * 0.5f - 0.15f;
 
             // 2 windows per row at different z positions
             for (int wz = 0; wz < 2; wz++)
@@ -1185,7 +1186,7 @@ public class TitleSequenceSceneBuilder
         }
 
         // Door on ground floor (darker rectangle)
-        float doorX = pos.x > 0 ? pos.x - size.x * 0.5f + 0.05f : pos.x + size.x * 0.5f - 0.05f;
+        float doorX = pos.x > 0 ? pos.x - size.x * 0.5f + 0.15f : pos.x + size.x * 0.5f - 0.15f;
         var door = GameObject.CreatePrimitive(PrimitiveType.Cube);
         door.name = "Door";
         door.transform.SetParent(bldg.transform, true);
@@ -2914,18 +2915,8 @@ public class TitleSequenceSceneBuilder
         );
         col.color = new ParticleSystem.MinMaxGradient(grad);
 
-        // Render as stretched billboards — elongated horizontally so they look
-        // like wisps/tendrils instead of square cards. velocityScale stretches
-        // in the direction of movement, lengthScale adds base stretch.
-        var renderer = obj.GetComponent<ParticleSystemRenderer>();
-        if (renderer != null)
-        {
-            renderer.renderMode = ParticleSystemRenderMode.Stretch;
-            renderer.velocityScale = 0.5f;  // stretch in movement direction
-            renderer.lengthScale = 3f;      // base elongation (3:1 ratio)
-            renderer.minParticleSize = 0f;
-            renderer.maxParticleSize = 0.5f;
-        }
+        // Default Billboard rendering — standard particle look
+        // (no stretch, no horizontal, just normal particles)
 
         return ps;
     }

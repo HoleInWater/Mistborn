@@ -55,11 +55,11 @@ public class TitleSequenceController : MonoBehaviour
 
     [Header("Phase 4 — First Drop → Kredik Shaw Pan")]
     [Tooltip("Audio time for the first drop — long pan over Kredik Shaw + Luthadel.")]
-    public float kredikShawStartTime = 45f;
+    public float kredikShawStartTime = 48f;
 
     [Header("Phase 5 — Rock Drop → MISTBORN Title")]
     [Tooltip("Audio time of the rock drop — title drawn in blue Allomantic lines.")]
-    public float titleDropTime = 60f;
+    public float titleDropTime = 63f;
     [Tooltip("How long the title takes to draw.")]
     public float titleDrawDuration = 3f;
     [Tooltip("How long the finished title stays before transitioning.")]
@@ -127,11 +127,11 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("Pre-populated credit lines with their audio-synced times.")]
     public List<CreditLine> creditLines = new List<CreditLine>
     {
-        new CreditLine { time = 28f,  text = "Music by Malakai Probert" },
-        new CreditLine { time = 35f,  text = "Based on the novels by Brandon Sanderson" },
-        new CreditLine { time = 42f,  text = "Produced by Crimson Blade Interactive" },
-        new CreditLine { time = 49f,  text = "Creative Director — Landon Adams" },
-        new CreditLine { time = 55f,  text = "Crimson Blade Interactive\nproudly presents" },
+        new CreditLine { time = 31f,  text = "Music by Malakai Probert" },
+        new CreditLine { time = 37f,  text = "Based on the novels by Brandon Sanderson" },
+        new CreditLine { time = 43f,  text = "Produced by Crimson Blade Interactive" },
+        new CreditLine { time = 50f,  text = "Creative Director -- Landon Adams" },
+        new CreditLine { time = 56f,  text = "Crimson Blade Interactive\nproudly presents" },
     };
 
     [Serializable]

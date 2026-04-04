@@ -63,18 +63,22 @@ public class TitleCameraController : MonoBehaviour
 
     public void SetPhase(Phase phase)
     {
+        // TitleHold: seamlessly continue orbiting — no transition needed
+        if (phase == Phase.TitleHold)
+        {
+            currentPhase = phase;
+            phaseTimer = 0f;
+            // Keep the current orbit angle so there's zero camera movement on switch
+            Vector3 dir = transform.position - aerialCenter;
+            orbitAngle = Mathf.Atan2(dir.z, dir.x);
+            return;
+        }
+
         transitionStartPos = transform.position;
         transitionStartRot = transform.rotation;
         transitioning = true;
         transitionTime = 0f;
         currentPhase = phase;
-
-        // Preserve orbit angle continuity when switching to TitleHold
-        if (phase == Phase.TitleHold)
-        {
-            Vector3 dir = transform.position - aerialCenter;
-            orbitAngle = Mathf.Atan2(dir.z, dir.x);
-        }
     }
 
     void Update()
