@@ -72,9 +72,9 @@ public class TitleSequenceSceneBuilder
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
 
-        // Batch all asset creation — prevents Unity from reimporting after EACH material
-        // This makes the build 5-10x faster
-        AssetDatabase.StartAssetEditing();
+        // Removed StartAssetEditing — it was causing Unity to hang if any error
+        // occurred during build. The massive batched import at StopAssetEditing
+        // was actually slower than incremental imports for this many assets.
 
         // ══════════════════════════════════════════════════════════════════
         // HDRP ENVIRONMENT — Sky, Exposure, Fog
@@ -897,8 +897,7 @@ public class TitleSequenceSceneBuilder
         // APPLY MATERIALS — save all .mat assets, then re-assign every
         // renderer from the saved asset so Unity serializes the reference.
         // ══════════════════════════════════════════════════════════════════
-        // End the asset editing batch — let Unity import everything at once
-        AssetDatabase.StopAssetEditing();
+        // Asset editing batch removed — was causing hangs
 
         // ══════════════════════════════════════════════════════════════════
         // FIX ALL LIGHTS — ensure every Light has HDAdditionalLightData
