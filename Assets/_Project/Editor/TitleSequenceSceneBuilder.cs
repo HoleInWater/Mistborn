@@ -3590,33 +3590,31 @@ public class TitleSequenceSceneBuilder
         var mat = new Material(source);
         mat.name = name;
 
-        // Set color
-        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", color);
+        // Set color — skip HasProperty checks, just set everything directly.
+        // HDRP materials have all these properties but HasProperty can be unreliable
+        // when the material was just cloned.
+        mat.SetColor("_BaseColor", color);
+        mat.SetColor("_Color", color);
         mat.color = color;
+        mat.SetFloat("_Smoothness", 0.1f);
+        mat.SetFloat("_Metallic", 0f);
 
-        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0.1f);
-        if (mat.HasProperty("_Metallic"))    mat.SetFloat("_Metallic", 0f);
+        // Kill emission on ALL materials (source has _EmissionColor = white)
+        mat.DisableKeyword("_EMISSION");
+        mat.SetColor("_EmissiveColor", Color.black);
+        mat.SetColor("_EmissiveColorLDR", Color.black);
+        mat.SetColor("_EmissionColor", Color.black);
+        mat.SetFloat("_UseEmissiveIntensity", 0f);
+        mat.SetFloat("_EmissiveIntensity", 0f);
+        mat.SetFloat("_AlbedoAffectEmissive", 0f);
 
-        // HDRP: explicitly control emission — turn OFF for non-emissive,
-        // set carefully for emissive (UseEmissiveIntensity OFF, just use raw color)
         if (emissive)
         {
             mat.EnableKeyword("_EMISSION");
-            if (mat.HasProperty("_EmissiveColor"))        mat.SetColor("_EmissiveColor", color);
-            if (mat.HasProperty("_EmissionColor"))        mat.SetColor("_EmissionColor", color);
-            // Do NOT use EmissiveIntensity — it multiplies and blows out to white
-            if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 0f);
-            if (mat.HasProperty("_EmissiveIntensity"))    mat.SetFloat("_EmissiveIntensity", 1f);
-        }
-        else
-        {
-            // Explicitly turn off emission (source mat might have it on)
-            mat.DisableKeyword("_EMISSION");
-            if (mat.HasProperty("_EmissiveColor"))        mat.SetColor("_EmissiveColor", Color.black);
-            if (mat.HasProperty("_EmissionColor"))        mat.SetColor("_EmissionColor", Color.black);
-            if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 0f);
-            if (mat.HasProperty("_EmissiveIntensity"))    mat.SetFloat("_EmissiveIntensity", 0f);
+            mat.SetColor("_EmissiveColor", color);
+            mat.SetColor("_EmissiveColorLDR", color);
+            mat.SetColor("_EmissionColor", color);
+            // Keep UseEmissiveIntensity OFF — raw color is enough
         }
 
         AssetDatabase.CreateAsset(mat, path);
