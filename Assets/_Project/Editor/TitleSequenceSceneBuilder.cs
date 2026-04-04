@@ -873,41 +873,79 @@ public class TitleSequenceSceneBuilder
 
         // ══════════════════════════════════════════════════════════════════
         // FIX PARTICLE RENDERERS — HDRP needs a specific particle material
-        // Default particle material = pink on HDRP
+        // Default particle material = pink on HDRP. Must use HDRP/Particles shader.
         // ══════════════════════════════════════════════════════════════════
         Material particleMat = null;
-        // Try to find an existing HDRP particle material in the project
-        string[] particleMatGuids = AssetDatabase.FindAssets("t:Material Particle");
-        foreach (var guid in particleMatGuids)
-        {
-            var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
-            if (m != null && m.shader != null && m.shader.name.Contains("Particle"))
-            {
-                particleMat = m;
-                break;
-            }
-        }
-        // If no existing particle material, create one from Default-Particle
+
+        // Step 1: Try to find HDRP particle shader and create a proper material
+        string particleMatPath = "Assets/_Project/Materials/TitleSequence/HDRP_Particle.mat";
+        particleMat = AssetDatabase.LoadAssetAtPath<Material>(particleMatPath);
+
         if (particleMat == null)
         {
-            var defaultParticleMat = UnityEngine.Resources.GetBuiltinResource<Material>("Default-Particle.mat");
-            if (defaultParticleMat != null)
-                particleMat = defaultParticleMat;
+            // Try HDRP particle shaders
+            string[] particleShaderNames = {
+                "HDRP/Particles/Lit",
+                "HDRP/Particles/Unlit",
+                "Particles/Standard Unlit",
+                "Universal Render Pipeline/Particles/Unlit",
+            };
+
+            Shader particleShader = null;
+            foreach (var sn in particleShaderNames)
+            {
+                particleShader = Shader.Find(sn);
+                if (particleShader != null)
+                {
+                    Debug.Log($"[TitleSequenceBuilder] Found particle shader: {sn}");
+                    break;
+                }
+            }
+
+            if (particleShader != null)
+            {
+                particleMat = new Material(particleShader);
+                particleMat.name = "HDRP_Particle";
+                particleMat.color = Color.white;
+                if (particleMat.HasProperty("_BaseColor"))
+                    particleMat.SetColor("_BaseColor", Color.white);
+
+                EnsureMatFolder("");
+                AssetDatabase.CreateAsset(particleMat, particleMatPath);
+                Debug.Log("[TitleSequenceBuilder] Created HDRP particle material");
+            }
+            else
+            {
+                // Last resort: search for ANY material with "Particle" in its shader name
+                string[] allMatGuids = AssetDatabase.FindAssets("t:Material");
+                foreach (var guid in allMatGuids)
+                {
+                    var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+                    if (m != null && m.shader != null && m.shader.name.Contains("Particle"))
+                    {
+                        particleMat = m;
+                        Debug.Log($"[TitleSequenceBuilder] Found existing particle material: {AssetDatabase.GUIDToAssetPath(guid)}");
+                        break;
+                    }
+                }
+            }
         }
 
-        // Apply to all particle system renderers in the scene
+        if (particleMat == null)
+            Debug.LogWarning("[TitleSequenceBuilder] Could not find or create HDRP particle material! Particles will be pink.");
+
+        // Apply to ALL particle system renderers in the scene
         int particleFixCount = 0;
         foreach (var psr in Object.FindObjectsOfType<ParticleSystemRenderer>())
         {
             if (particleMat != null)
             {
                 psr.sharedMaterial = particleMat;
-                psr.trailMaterial = particleMat;
                 EditorUtility.SetDirty(psr);
                 particleFixCount++;
             }
         }
-        Debug.Log($"[TitleSequenceBuilder] Fixed {particleFixCount} particle renderers with HDRP material");
+        Debug.Log($"[TitleSequenceBuilder] Applied particle material to {particleFixCount} particle renderers");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
