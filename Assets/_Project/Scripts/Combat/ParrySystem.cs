@@ -43,7 +43,7 @@ public class ParrySystem : MonoBehaviour
         if (parryTimer <= 0f && isParrying)
         {
             isParrying = false;
-            Debug.Log("[ParrySystem] Parry window closed");
+            // Parry window closed
         }
     }
 
@@ -52,7 +52,7 @@ public class ParrySystem : MonoBehaviour
     {
         if (cooldownTimer > 0f)
         {
-            Debug.Log($"[ParrySystem] Parry on cooldown ({cooldownTimer:F2}s remaining)");
+
             return;
         }
         isParrying    = true;
@@ -60,14 +60,14 @@ public class ParrySystem : MonoBehaviour
         cooldownTimer = parryCooldown;
         animCtrl?.PlayParry();
         stamina?.UseStamina(parryStaminaCost);
-        Debug.Log($"[ParrySystem] PARRY active — window={parryWindow}s");
+        // Parry active
     }
 
     /// <summary>Called by PlayerCombat each frame to sync block state.</summary>
     public void SetBlocking(bool blocking)
     {
         if (blocking != isBlocking)
-            Debug.Log($"[ParrySystem] IsBlocking → {blocking}");
+
         isBlocking = blocking;
         animCtrl?.SetBlocking(blocking);
         if (blocking && stamina != null)
@@ -81,7 +81,7 @@ public class ParrySystem : MonoBehaviour
     {
         if (isParrying)
         {
-            Debug.Log($"[ParrySystem] PERFECT PARRY — blocked {damage:F1} dmg");
+            // Perfect parry
             CameraShakeManager.Instance?.Shake(0.1f, 0.1f);
             SoundManager.Instance?.PlayParrySound();
             AchievementSystem.Instance?.TryUnlock("parry_perfect");
@@ -95,7 +95,7 @@ public class ParrySystem : MonoBehaviour
                 reduction *= 1.3f;
 
             float finalDamage = damage * (1f - Mathf.Clamp01(reduction));
-            Debug.Log($"[ParrySystem] BLOCK — {damage:F1} → {finalDamage:F1} dmg (reduction={reduction:P0})");
+            // Block absorbed damage
             SoundManager.Instance?.PlayBlockSound();
             return finalDamage;
         }

@@ -41,9 +41,19 @@ public class Bronze : MonoBehaviour
         pulseMaterial = new Material(s);
     }
 
+    private List<GameObject> _activePulses = new List<GameObject>();
+
     void OnDestroy()
     {
         if (pulseMaterial != null) Destroy(pulseMaterial);
+
+        // Clean up any pulse GameObjects that are mid-animation.
+        // Without this, destroying Bronze mid-pulse leaks GameObjects.
+        foreach (var pulse in _activePulses)
+        {
+            if (pulse != null) Destroy(pulse);
+        }
+        _activePulses.Clear();
     }
     
     void Update()
@@ -175,6 +185,7 @@ public class Bronze : MonoBehaviour
             lr.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)));
         }
 
+        _activePulses.Add(pulse);
         StartCoroutine(AnimatePulse(pulse, lr, category));
     }
 
@@ -207,6 +218,7 @@ public class Bronze : MonoBehaviour
             lr.startColor = new Color(c.r, c.g, c.b, 1f - t);
             yield return null;
         }
+        _activePulses.Remove(obj);
         Destroy(obj);
     }
 
