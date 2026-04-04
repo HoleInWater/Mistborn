@@ -965,15 +965,6 @@ public class Tin : MonoBehaviour
         if (CurrentState != TinState.Off)
             OnStopBurning(false);
 
-        // Destroy the Tin Volume so it doesn't leak across scene reloads.
-        // Without this, the vignette/exposure overrides persist as orphaned objects.
-        if (_tinVolume != null)
-        {
-            _tinVolume.weight = 0f;
-            if (_tinVolume.gameObject != null && _tinVolume.gameObject != this.gameObject)
-                Destroy(_tinVolume.gameObject);
-        }
-
         // Clear stale entries from the NavMeshAgent cache (destroyed enemies)
         navAgentCache.Clear();
     }

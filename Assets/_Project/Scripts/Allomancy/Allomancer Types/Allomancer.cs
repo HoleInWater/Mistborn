@@ -144,11 +144,6 @@ public class Allomancer : MonoBehaviour
             nicroburstTimer = 0f;
         }
 
-        // Fix race condition: check reserve BEFORE allowing burn this frame.
-        // Without this, isBurningMetal can be true for one frame after reserve hits 0,
-        // causing effects to fire with no reserve cost.
-        canBurnMetal = metalReserves[(int)GetCurrentMetal()] > 0;
-
         bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
         bool isUsingMetal = isBurningMetal || isFlaring;
 

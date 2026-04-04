@@ -123,56 +123,6 @@ public class Duralumin : MonoBehaviour
                 // Mass Soothe — instant max-power calm/stun on all enemies in range
                 player.GetComponentInChildren<Brass>()?.TriggerDuraluminBurst();
                 break;
-
-            case AllomancySkill.MetalType.Copper:
-                // Massive coppercloud — hides all allies in huge radius for a burst
-                CameraShakeManager.Instance?.Shake(0.3f, 0.2f);
-                break;
-
-            case AllomancySkill.MetalType.Bronze:
-                // Seeker pulse — detect ALL Allomancers on the map for a brief moment
-                CameraShakeManager.Instance?.Shake(0.4f, 0.3f);
-                break;
-
-            case AllomancySkill.MetalType.Gold:
-                // Intense vision of past self — brief stun/disorientation
-                CameraShakeManager.Instance?.Shake(0.8f, 0.5f);
-                break;
-
-            case AllomancySkill.MetalType.Electrum:
-                // Flash of future shadows — brief invulnerability (dodge window)
-                CameraShakeManager.Instance?.Shake(0.5f, 0.3f);
-                break;
-
-            case AllomancySkill.MetalType.Atium:
-                // Extended future vision — if Duralumin + Atium, see far into the future
-                CameraShakeManager.Instance?.Shake(1f, 0.8f);
-                break;
-
-            case AllomancySkill.MetalType.Bendalloy:
-                // Massive speed bubble — very fast time inside for a brief duration
-                CameraShakeManager.Instance?.Shake(0.4f, 0.2f);
-                break;
-
-            case AllomancySkill.MetalType.Cadmium:
-                // Massive slow bubble — nearly freezes time in large area briefly
-                CameraShakeManager.Instance?.Shake(0.4f, 0.2f);
-                break;
-
-            case AllomancySkill.MetalType.Chromium:
-                // Leeching burst — strip ALL metals from ALL nearby Allomancers
-                CameraShakeManager.Instance?.Shake(0.5f, 0.3f);
-                break;
-
-            case AllomancySkill.MetalType.Nicrosil:
-                // Nicroburst — supercharge target's current burn to extreme levels
-                CameraShakeManager.Instance?.Shake(0.5f, 0.3f);
-                break;
-
-            case AllomancySkill.MetalType.Aluminum:
-                // Duralumin + Aluminum = purge everything (both drain, nothing happens)
-                // This is lore-accurate — a waste of both metals
-                break;
         }
 
         // Lore: burning Duralumin instantly expends ALL of the paired metal too

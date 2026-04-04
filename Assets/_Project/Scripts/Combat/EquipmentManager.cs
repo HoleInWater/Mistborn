@@ -50,10 +50,17 @@ public class EquipmentManager : MonoBehaviour
                     "RightHand", "Hand_R", "hand_r", "mixamorig:RightHand",
                     "Bip01_R_Hand", "RHand", "Right Hand");
 
+            if (rightHandBone == null)
+                Debug.LogWarning("[EquipmentManager] Could not find right hand bone — " +
+                                 "assign it manually in the Inspector.");
+            else
+                Debug.Log($"[EquipmentManager] Hand bone found: {rightHandBone.name}");
         }
 
         if (startingWeapon != null)
             EquipWeapon(startingWeapon);
+        else
+            Debug.Log("[EquipmentManager] No starting weapon — player is unarmed.");
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -66,6 +73,7 @@ public class EquipmentManager : MonoBehaviour
 
         // Cache attach point — used here and in LateUpdate
         _attachPoint = rightHandBone != null ? rightHandBone : transform;
+        Debug.Log($"[EquipmentManager] Attaching '{data.weaponName}' to '{_attachPoint.name}'");
 
         if (data.prefab != null)
         {
@@ -106,6 +114,8 @@ public class EquipmentManager : MonoBehaviour
             SetLayerRecursive(_weaponInstance, 0);
         }
 
+        Debug.Log($"[EquipmentManager] Equipped: {data.weaponName}  " +
+                  $"dmg={data.damage} range={data.attackRange} speed={data.attackSpeed}/s");
         NotificationSystem.Instance?.ShowNotification($"Equipped: {data.weaponName}");
     }
 

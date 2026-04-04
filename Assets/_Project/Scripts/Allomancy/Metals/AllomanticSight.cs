@@ -229,12 +229,10 @@ public class AllomanticSight : MonoBehaviour
             if (line == null) continue;
             
             // Set line start and end positions
-            // Start: chest (center of self) — lore accurate
-            // End: metal's center of mass — even if it's in empty space (hollow objects)
+            // Start: origin point (chest or camera)
+            // End: at the metal object's center (transform.position)
             line.SetPosition(0, originPoint);
-            Rigidbody metalRb = metal.attachedRigidbody;
-            Vector3 metalPos = metalRb != null ? metalRb.worldCenterOfMass : metalObject.transform.position;
-            line.SetPosition(1, metalPos);
+            line.SetPosition(1, metalObject.transform.position);
             
             // GetComponentInParent so AllomanticTarget on a root object is found
             // even when the collider is on a child mesh
@@ -257,38 +255,33 @@ public class AllomanticSight : MonoBehaviour
                 else
                 {
                     // Normal pushable metals
-                    float objMass = target.GetEffectiveMass();
-                    baseColor = objMass > 10f ? heavyMetalColor : metalColor;
+                    float mass = target.GetEffectiveMass();
+                    baseColor = mass > 10f ? heavyMetalColor : metalColor;
                 }
             }
             else
             {
                 // No AllomanticTarget component - use mass-based color
-                float objMass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
-                baseColor = objMass > 10f ? heavyMetalColor : metalColor;
+                float mass = metal.attachedRigidbody != null ? metal.attachedRigidbody.mass : 1f;
+                baseColor = mass > 10f ? heavyMetalColor : metalColor;
             }
             
-            // Distance and mass affect line appearance (lore-accurate)
-            float distance = Vector3.Distance(originPoint, metalPos);
-            float mass = metalRb != null ? metalRb.mass : 1f;
-
-            // Lore: thicker blue lines = more metal mass. Faint thin lines = small metal.
-            // A coin is a hairline. A steel beam is a thick rope of blue light.
-            float massFactor = Mathf.Clamp(Mathf.Log10(Mathf.Max(0.1f, mass)) + 2f, 0.3f, 3f);
-            float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
-
-            // Pulsing shimmer — each line pulses independently (different phase per object)
+            // Calculate distance for width calculation
+            float distance = Vector3.Distance(originPoint, metalObject.transform.position);
+            
+            // Add pulsing alpha for shimmer effect
             if (enableLinePulse)
             {
-                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed + metal.GetInstanceID() * 0.37f);
-                baseColor.a = 0.6f + alphaPulse * 0.3f;
+                float alphaPulse = Mathf.Sin(Time.time * pulseSpeed * 0.5f + metal.GetInstanceID() * 0.2f);
+                baseColor.a = 0.7f + alphaPulse * 0.3f; // Vary alpha between 0.4 and 1.0
             }
-
-            // Width: mass × distance — thick nearby beams, thin distant coins
-            float currentLineWidth = lineWidth * massFactor * (0.4f + distanceFactor * 0.6f);
-
+            
+            // Make width based on distance (closer = thicker)
+            float distanceFactor = 1f - Mathf.Clamp01(distance / metalRange);
+            float currentLineWidth = lineWidth * (0.5f + distanceFactor * 0.5f);
+            
             line.startWidth = currentLineWidth;
-            line.endWidth = currentLineWidth * 0.6f; // Tapers toward the metal
+            line.endWidth = currentLineWidth * 0.8f; // Slightly thinner at the end
             
             line.startColor = baseColor;
             line.endColor = baseColor;

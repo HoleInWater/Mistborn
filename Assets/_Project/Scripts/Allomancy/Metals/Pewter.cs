@@ -279,12 +279,9 @@ public class Pewter : MonoBehaviour
         _crashTimer  = crashDuration;
 
         // Sudden fatigue surge: deal health damage, drain stamina, slow the player
-        // Cap crash damage at 50% of max health — should never instant-kill
         if (healthSystem != null)
         {
-            float maxCrashDamage = healthSystem.GetMaxHealth() * 0.5f;
-            float actualDamage = Mathf.Min(crashDamage, maxCrashDamage);
-            float newHealth = Mathf.Max(1f, healthSystem.GetCurrentHealth() - actualDamage);
+            float newHealth = Mathf.Max(1f, healthSystem.GetCurrentHealth() - crashDamage);
             healthSystem.health = newHealth;
         }
 

@@ -68,6 +68,9 @@ public class PlayerCombat : MonoBehaviour
         stamina = GetComponent<PlayerStamina>();
         enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0) enemyLayer = ~0;
+
+        Debug.Log($"[PlayerCombat] Initialized. ParrySystem={parrySystem != null}, " +
+                  $"ComboSystem={comboSystem != null}, Animator={animator != null}");
     }
 
     void Update()
@@ -95,6 +98,7 @@ public class PlayerCombat : MonoBehaviour
             if (!mouse1Blocking && held >= parryTapThreshold)
             {
                 mouse1Blocking = true;
+                Debug.Log("[PlayerCombat] BLOCK started");
             }
 
             parrySystem?.SetBlocking(mouse1Blocking);
@@ -108,10 +112,12 @@ public class PlayerCombat : MonoBehaviour
             {
                 parrySystem?.SetBlocking(false);
                 parrySystem?.TryParry();
+                Debug.Log("[PlayerCombat] PARRY attempted");
             }
             else
             {
                 parrySystem?.SetBlocking(false);
+                Debug.Log("[PlayerCombat] BLOCK released");
                 if (held < heavyAttackHoldMax)
                     HeavyAttack();
             }
@@ -128,6 +134,7 @@ public class PlayerCombat : MonoBehaviour
         float cooldown = equipment != null ? equipment.GetAttackCooldown(attackCooldown) : attackCooldown;
         if (Time.time - lastAttackTime < cooldown)
         {
+            Debug.Log("[PlayerCombat] Light attack on cooldown");
             return;
         }
         lastAttackTime = Time.time;
@@ -142,6 +149,7 @@ public class PlayerCombat : MonoBehaviour
         bool hit = HitEnemiesInRange(damage, eKnockback);
         if (hit) StartCoroutine(Hitstop());
 
+        Debug.Log($"[PlayerCombat] LIGHT ATTACK — weapon={equipment?.Equipped?.weaponName ?? "Unarmed"} damage={damage:F1}, hit={hit}, combo={comboSystem?.CurrentCombo}");
         SoundManager.Instance?.PlayAttackSound();
     }
 
@@ -149,10 +157,12 @@ public class PlayerCombat : MonoBehaviour
     {
         if (Time.time - lastHeavyAttackTime < heavyAttackCooldown)
         {
+            Debug.Log("[PlayerCombat] Heavy attack on cooldown");
             return;
         }
         if (stamina != null && stamina.currentStamina < 25f)
         {
+            Debug.Log("[PlayerCombat] Heavy attack blocked — not enough stamina");
             return;
         }
 
@@ -170,6 +180,7 @@ public class PlayerCombat : MonoBehaviour
         bool hit = HitEnemiesInRange(damage, eHeavyKnockback);
         if (hit) StartCoroutine(Hitstop());
 
+        Debug.Log($"[PlayerCombat] HEAVY ATTACK — weapon={equipment?.Equipped?.weaponName ?? "Unarmed"} damage={damage:F1}, hit={hit}");
         CameraShakeManager.Instance?.Shake(0.15f, 0.1f);
         SoundManager.Instance?.PlayAttackSound();
     }
@@ -223,6 +234,7 @@ public class PlayerCombat : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(attackPos, range);
         bool hitAnything = false;
 
+        Debug.Log($"[PlayerCombat] OverlapSphere at {attackPos} r={range:F1} — {hits.Length} colliders");
 
         // Track already-hit roots so multi-collider enemies only take damage once per swing
         HashSet<Transform> hitRoots = new HashSet<Transform>();
@@ -241,6 +253,7 @@ public class PlayerCombat : MonoBehaviour
 
             if (enemyAI == null && damageable == null)
             {
+                Debug.Log($"[PlayerCombat] {col.name} on {col.transform.root.name} — no target, skipping");
                 continue;
             }
 
@@ -255,10 +268,12 @@ public class PlayerCombat : MonoBehaviour
             if (enemyAI != null)
             {
                 enemyAI.TakeDamage(damage);
+                Debug.Log($"[PlayerCombat] HIT '{enemyAI.name}' for {damage:F1} dmg");
             }
             else
             {
                 damageable.TakeDamage(damage);
+                Debug.Log($"[PlayerCombat] HIT '{root.name}' for {damage:F1} dmg");
             }
 
             // Knockback
