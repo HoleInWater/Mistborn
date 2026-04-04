@@ -77,8 +77,12 @@ public class TitleSequenceSceneBuilder
         // HDRP renders BLACK without a sky volume. Lights use lux (not 0-1).
         // ══════════════════════════════════════════════════════════════════
 
-        // Disable legacy fog (HDRP uses its own volumetric fog)
-        RenderSettings.fog = false;
+        // Re-enable legacy fog as a fallback until HDRP Volume fog is set up.
+        // This hides distant Z-fighting and adds atmospheric depth.
+        RenderSettings.fog = true;
+        RenderSettings.fogMode = FogMode.ExponentialSquared;
+        RenderSettings.fogDensity = 0.015f;
+        RenderSettings.fogColor = new Color(0.06f, 0.06f, 0.08f);
 
         // HDRP sky + exposure Volume — essential or everything is black
         var volumeObj = new GameObject("HDRP_SkyVolume");
@@ -114,9 +118,9 @@ public class TitleSequenceSceneBuilder
 
         // Ground — main field + ash deposits for color variation
         CreateGroundPlane(mistyField.transform, Vector3.zero, 50f, COL_GROUND);
-        CreateGroundPlane(mistyField.transform, new Vector3(-8f, 0.06f, 15f), 8f, COL_ASH_GROUND);
-        CreateGroundPlane(mistyField.transform, new Vector3(5f, 0.06f, 25f), 6f, COL_GROUND_LIGHT);
-        CreateGroundPlane(mistyField.transform, new Vector3(-3f, 0.06f, 5f), 4f, COL_ASH_GROUND);
+        CreateGroundPlane(mistyField.transform, new Vector3(-8f, 0.12f, 15f), 8f, COL_ASH_GROUND);
+        CreateGroundPlane(mistyField.transform, new Vector3(5f, 0.14f, 25f), 6f, COL_GROUND_LIGHT);
+        CreateGroundPlane(mistyField.transform, new Vector3(-3f, 0.11f, 5f), 4f, COL_ASH_GROUND);
 
         // Distant horizon hills — varied colors for depth
         CreateHill(mistyField.transform, new Vector3(-30f, 2f, 80f), new Vector3(25f, 5f, 4f), new Color(0.10f, 0.09f, 0.11f));
@@ -168,7 +172,7 @@ public class TitleSequenceSceneBuilder
         // Ash piles (flat stretched spheres, lighter color)
         CreateAshPile(mistyField.transform, new Vector3(2f, 0.05f, 10f), 1.5f);
         CreateAshPile(mistyField.transform, new Vector3(-6f, 0.05f, 18f), 2.0f);
-        CreateAshPile(mistyField.transform, new Vector3(8f, 0.03f, 7f), 1.0f);
+        CreateAshPile(mistyField.transform, new Vector3(8f, 0.10f, 7f), 1.0f);
 
         // Broken fence line (posts + fallen rail)
         CreateFencePost(mistyField.transform, new Vector3(-3f, 0f, 6f));
@@ -177,7 +181,7 @@ public class TitleSequenceSceneBuilder
         CreateFallenRail(mistyField.transform, new Vector3(-3f, 0.15f, 7f), 2.2f);
 
         // Dirt path (slightly lighter ground strip)
-        CreateGroundPlane(mistyField.transform, new Vector3(1f, 0.07f, 12f), 1.5f, COL_GROUND_LIGHT);
+        CreateGroundPlane(mistyField.transform, new Vector3(1f, 0.15f, 12f), 1.5f, COL_GROUND_LIGHT);
 
         // Ember particles near ashmount (glowing orange specks in distance)
         CreateEmberParticles(mistyField.transform, new Vector3(0f, 8f, 100f));
@@ -248,11 +252,11 @@ public class TitleSequenceSceneBuilder
 
         // Street ground — cobblestone center, dirt edges
         CreateStreetGround(luthadelGroup.transform, Vector3.zero, new Vector3(2f, 1f, 10f), COL_COBBLE);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.08f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.08f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.15f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
         // Ash deposits on street
-        CreateAshPile(luthadelGroup.transform, new Vector3(-1f, 0.02f, 5f), 0.8f);
-        CreateAshPile(luthadelGroup.transform, new Vector3(1.5f, 0.02f, -3f), 0.6f);
+        CreateAshPile(luthadelGroup.transform, new Vector3(-1f, 0.10f, 5f), 0.8f);
+        CreateAshPile(luthadelGroup.transform, new Vector3(1.5f, 0.10f, -3f), 0.6f);
 
         // Buildings — left side (each unique color and shape)
         CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, -12f), new Vector3(5f, 8f, 6f), COL_STONE_DARK, COL_ROOF_SLATE);
@@ -475,7 +479,7 @@ public class TitleSequenceSceneBuilder
         var courtyard = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         courtyard.name = "Courtyard";
         courtyard.transform.SetParent(kredikGroup.transform);
-        courtyard.transform.position = new Vector3(0f, 0.2f, 0f);
+        courtyard.transform.position = new Vector3(0f, 0.4f, 0f);
         courtyard.transform.localScale = new Vector3(12f, 0.2f, 12f);
         ApplyColor(courtyard, new Color(0.13f, 0.11f, 0.10f));
 
@@ -492,7 +496,7 @@ public class TitleSequenceSceneBuilder
             var road = GameObject.CreatePrimitive(PrimitiveType.Cube);
             road.name = "Road";
             road.transform.SetParent(kredikGroup.transform);
-            road.transform.position = new Vector3(0f, 0.05f, 0f);
+            road.transform.position = new Vector3(0f, 0.15f, 0f);
             road.transform.localScale = new Vector3(2f, 0.1f, 120f);
             road.transform.rotation = Quaternion.Euler(0f, angle, 0f);
             ApplyColor(road, new Color(0.07f, 0.06f, 0.06f));
@@ -1709,7 +1713,7 @@ public class TitleSequenceSceneBuilder
         var square = GameObject.CreatePrimitive(PrimitiveType.Cube);
         square.name = "MarketSquare";
         square.transform.SetParent(parent);
-        square.transform.position = pos + new Vector3(0f, 0.05f, 0f);
+        square.transform.position = pos + new Vector3(0f, 0.15f, 0f);
         square.transform.localScale = new Vector3(12f, 0.1f, 12f);
         ApplyColor(square, COL_COBBLE);
 
@@ -2778,31 +2782,31 @@ public class TitleSequenceSceneBuilder
         obj.transform.position = pos;
         var ps = obj.AddComponent<ParticleSystem>();
         var main = ps.main;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(12f, 22f);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.03f, 0.15f);
-        // Large soft clouds — thick enough to partially obscure the scene
-        main.startSize = new ParticleSystem.MinMaxCurve(5f, 18f);
-        // More opaque — these are Preservation's mists, they're THICK
+        main.startLifetime = new ParticleSystem.MinMaxCurve(15f, 25f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.05f, 0.2f);
+        // HUGE soft clouds — thick, screen-filling mist banks
+        main.startSize = new ParticleSystem.MinMaxCurve(8f, 25f);
+        // Much more opaque — you should barely see through these
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(0.70f, 0.73f, 0.80f, 0.20f),  // cool blue-grey, more visible
-            new Color(0.85f, 0.85f, 0.90f, 0.35f)    // brighter white, more visible
+            new Color(0.75f, 0.78f, 0.85f, 0.30f),  // cool blue-grey
+            new Color(0.90f, 0.90f, 0.95f, 0.50f)    // bright white, very visible
         );
-        main.maxParticles = 100;
+        main.maxParticles = 150;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
 
         var em = ps.emission;
-        em.rateOverTime = 10f; // Thick Preservation mists
+        em.rateOverTime = 15f; // Heavy mist emission
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(spread, 1.5f, spread); // Taller emission volume
+        shape.scale = new Vector3(spread, 3f, spread); // Tall emission volume
 
-        // Mist flows and swirls — not random but organic
+        // Mist flows and swirls — slow, organic, supernatural
         var noise = ps.noise;
         noise.enabled = true;
-        noise.strength = 0.15f;
-        noise.frequency = 0.2f;        // slow, large-scale movement
-        noise.scrollSpeed = 0.08f;     // gradual wind change
+        noise.strength = 0.2f;
+        noise.frequency = 0.15f;       // very slow, large-scale movement
+        noise.scrollSpeed = 0.06f;     // gradual wind change
         noise.octaveCount = 2;
         noise.damping = true;
 
