@@ -64,6 +64,7 @@ public class TitleSequenceSceneBuilder
         _sourceMat = null;
         _matCache.Clear();
         _namedMats.Clear();
+        _pendingAssignments.Clear();
         // Clean old generated materials and recreate fresh
         if (AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
@@ -818,46 +819,32 @@ public class TitleSequenceSceneBuilder
         manager.AddComponent<SceneBootstrap>();
 
         // ══════════════════════════════════════════════════════════════════
-        // APPLY MATERIALS TO ALL RENDERERS (force re-link after asset creation)
+        // APPLY MATERIALS — save all .mat assets, then re-assign every
+        // renderer from the saved asset so Unity serializes the reference.
         // ══════════════════════════════════════════════════════════════════
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        // Force reassign — find every Renderer in the scene and re-set its material
-        // from the cached dictionary so Unity serializes the reference properly
         int appliedCount = 0;
-        foreach (var rend in Object.FindObjectsOfType<Renderer>())
+        foreach (var pair in _pendingAssignments)
         {
-            if (rend.sharedMaterial != null && AssetDatabase.Contains(rend.sharedMaterial))
-            {
-                // Material is already a saved asset — good, just mark dirty
-                EditorUtility.SetDirty(rend);
-                appliedCount++;
-            }
-            else if (rend.sharedMaterial != null)
-            {
-                // Material is an instance (not saved) — try to find matching saved one
-                Color col = Color.white;
-                if (rend.sharedMaterial.HasProperty("_BaseColor"))
-                    col = rend.sharedMaterial.GetColor("_BaseColor");
-                else if (rend.sharedMaterial.HasProperty("_Color"))
-                    col = rend.sharedMaterial.GetColor("_Color");
-                else
-                    col = rend.sharedMaterial.color;
+            if (pair.Item1 == null || pair.Item2 == null) continue;
 
-                string hex = ColorUtility.ToHtmlStringRGB(col);
-                string subfolder = CategorizeColor(col);
-                string path = $"{MAT_ROOT}/{subfolder}/Col_{hex}.mat";
-                var saved = AssetDatabase.LoadAssetAtPath<Material>(path);
+            // Re-load the material from disk to get the persisted asset reference
+            string assetPath = AssetDatabase.GetAssetPath(pair.Item2);
+            if (!string.IsNullOrEmpty(assetPath))
+            {
+                Material saved = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
                 if (saved != null)
                 {
-                    rend.sharedMaterial = saved;
-                    EditorUtility.SetDirty(rend);
+                    pair.Item1.sharedMaterial = saved;
+                    EditorUtility.SetDirty(pair.Item1);
+                    EditorUtility.SetDirty(pair.Item1.gameObject);
                     appliedCount++;
                 }
             }
         }
-        Debug.Log($"[TitleSequenceBuilder] Applied materials to {appliedCount} renderers, {_namedMats.Count} unique materials created");
+        Debug.Log($"[TitleSequenceBuilder] Re-applied {appliedCount} materials ({_namedMats.Count} unique) to renderers");
 
         // ══════════════════════════════════════════════════════════════════
         // SAVE SCENE
@@ -3527,6 +3514,8 @@ public class TitleSequenceSceneBuilder
 
     private static Material _sourceMat;
     private static Dictionary<string, Material> _matCache = new Dictionary<string, Material>();
+    // Track every (renderer → material) assignment so we can re-apply after SaveAssets
+    private static List<System.Tuple<Renderer, Material>> _pendingAssignments = new List<System.Tuple<Renderer, Material>>();
 
     static readonly string MAT_ROOT = "Assets/_Project/Materials/TitleSequence";
 
@@ -3640,11 +3629,14 @@ public class TitleSequenceSceneBuilder
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
 
-        // Generate a deterministic name from the color
         string hex = ColorUtility.ToHtmlStringRGB(color);
         string subfolder = CategorizeColor(color);
         Material mat = Mat(subfolder, $"Col_{hex}", color);
-        if (mat != null) rend.sharedMaterial = mat;
+        if (mat != null)
+        {
+            rend.sharedMaterial = mat;
+            _pendingAssignments.Add(new System.Tuple<Renderer, Material>(rend, mat));
+        }
     }
 
     static void ApplyEmissive(GameObject go, Color color)
@@ -3656,7 +3648,11 @@ public class TitleSequenceSceneBuilder
         bright.a = 1f;
         string hex = ColorUtility.ToHtmlStringRGB(bright);
         Material mat = Mat("Emissive", $"Emit_{hex}", bright, true);
-        if (mat != null) rend.sharedMaterial = mat;
+        if (mat != null)
+        {
+            rend.sharedMaterial = mat;
+            _pendingAssignments.Add(new System.Tuple<Renderer, Material>(rend, mat));
+        }
     }
 
     static Material CreateSavedMaterial(Color color, string label)
