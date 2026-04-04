@@ -68,8 +68,6 @@ public class PlayerCombat : MonoBehaviour
         stamina = GetComponent<PlayerStamina>();
         enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0) enemyLayer = ~0;
-
-                  $"ComboSystem={comboSystem != null}, Animator={animator != null}");
     }
 
     void Update()

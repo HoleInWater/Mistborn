@@ -50,14 +50,10 @@ public class EquipmentManager : MonoBehaviour
                     "RightHand", "Hand_R", "hand_r", "mixamorig:RightHand",
                     "Bip01_R_Hand", "RHand", "Right Hand");
 
-            if (rightHandBone == null)
-                                 "assign it manually in the Inspector.");
-            else
         }
 
         if (startingWeapon != null)
             EquipWeapon(startingWeapon);
-        else
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -110,7 +106,6 @@ public class EquipmentManager : MonoBehaviour
             SetLayerRecursive(_weaponInstance, 0);
         }
 
-                  $"dmg={data.damage} range={data.attackRange} speed={data.attackSpeed}/s");
         NotificationSystem.Instance?.ShowNotification($"Equipped: {data.weaponName}");
     }
 

@@ -145,6 +145,10 @@ public class TitleSequenceSceneBuilder
         CreateMistParticles(mistyField.transform, new Vector3(0f, 1.5f, 15f), 50f);
         CreateMistParticles(mistyField.transform, new Vector3(0f, 0.5f, 0f), 30f);
         CreateMistParticles(mistyField.transform, new Vector3(0f, 3f, 20f), 35f);
+        CreateMistParticles(mistyField.transform, new Vector3(0f, 5f, 30f), 60f);
+
+        // Mist controller — makes mists roll in, pulse, and react
+        mistyField.AddComponent<TitleMistController>();
 
         // Scattered rocks — varied colors and sizes for visual interest
         CreateRock(mistyField.transform, new Vector3(-5f, 0.2f, 8f), 0.6f, COL_ROCK);
@@ -433,9 +437,14 @@ public class TitleSequenceSceneBuilder
         CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
         CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
 
-        // Street particles
+        // Street particles — ash, mist, and ground fog
         CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.2f, 5f), 15f);
+        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 1f, 10f), 12f);
+        CreateMistParticles(luthadelGroup.transform, new Vector3(0f, 0.1f, -5f), 10f);
+
+        // Mist controller for the street too
+        luthadelGroup.AddComponent<TitleMistController>();
 
         // Dim street light — slightly brighter so buildings are visible
         var streetSun = new GameObject("StreetAmbient");
