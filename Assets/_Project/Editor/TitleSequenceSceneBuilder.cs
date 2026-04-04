@@ -72,6 +72,10 @@ public class TitleSequenceSceneBuilder
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
 
+        // Batch all asset creation — prevents Unity from reimporting after EACH material
+        // This makes the build 5-10x faster
+        AssetDatabase.StartAssetEditing();
+
         // ══════════════════════════════════════════════════════════════════
         // HDRP ENVIRONMENT — Sky, Exposure, Fog
         // HDRP renders BLACK without a sky volume. Lights use lux (not 0-1).
@@ -853,6 +857,9 @@ public class TitleSequenceSceneBuilder
         // APPLY MATERIALS — save all .mat assets, then re-assign every
         // renderer from the saved asset so Unity serializes the reference.
         // ══════════════════════════════════════════════════════════════════
+        // End the asset editing batch — let Unity import everything at once
+        AssetDatabase.StopAssetEditing();
+
         // ══════════════════════════════════════════════════════════════════
         // FIX ALL LIGHTS — ensure every Light has HDAdditionalLightData
         // HDRP completely ignores Light.intensity without this component.
@@ -2907,13 +2914,17 @@ public class TitleSequenceSceneBuilder
         );
         col.color = new ParticleSystem.MinMaxGradient(grad);
 
-        // Render as horizontal billboards — flat fog planes, not upright squares
+        // Render as stretched billboards — elongated horizontally so they look
+        // like wisps/tendrils instead of square cards. velocityScale stretches
+        // in the direction of movement, lengthScale adds base stretch.
         var renderer = obj.GetComponent<ParticleSystemRenderer>();
         if (renderer != null)
         {
-            renderer.renderMode = ParticleSystemRenderMode.HorizontalBillboard;
+            renderer.renderMode = ParticleSystemRenderMode.Stretch;
+            renderer.velocityScale = 0.5f;  // stretch in movement direction
+            renderer.lengthScale = 3f;      // base elongation (3:1 ratio)
             renderer.minParticleSize = 0f;
-            renderer.maxParticleSize = 1f;
+            renderer.maxParticleSize = 0.5f;
         }
 
         return ps;
