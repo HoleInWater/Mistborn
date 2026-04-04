@@ -1,6 +1,6 @@
-# Mistborn Era One: World Lore (1022-1025 FE)
+# Ashwalker Era One: World Lore (1022-1025 FE)
 
-*The events of Mistborn: The Final Empire, The Well of Ascension, and The Hero of Ages*
+*The events of Ashwalker: The Ashen Dominion, The The Wellspring, and The The Prophesied One*
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Year | Event | Source |
 |------|-------|--------|
-| 1019 FE | The Eleventh Metal (Kelsier's final heist attempt) | Short Story |
-| 1022 FE | Mistborn: The Final Empire | Novel #1 |
-| 1024 FE | The Well of Ascension | Novel #2 |
-| 1025 FE | The Hero of Ages | Novel #3 |
+| 1019 FE | The Eleventh Metal (Darius's final heist attempt) | Short Story |
+| 1022 FE | Ashwalker: The Ashen Dominion | Novel #1 |
+| 1024 FE | The The Wellspring | Novel #2 |
+| 1025 FE | The The Prophesied One | Novel #3 |
 
 *Note: Secret History (1022-1025 FE) occurs concurrently but should be read after The Bands of Mourning.*
 
@@ -19,29 +19,29 @@
 
 ## The World
 
-### The Empire of the Lord Ruler
+### The Empire of the Ashen King
 
-The world of Scadrial exists under the rule of the Lord Ruler (Rashek), who seized power at the Well of Ascension approximately 1,000 years before Era 1. The planet is shrouded in perpetual mists that appear at night and linger into the morning.
+The world of Ashara exists under the rule of the Ashen King (Varek), who seized power at the The Wellspring approximately 1,000 years before Era 1. The planet is shrouded in perpetual mists that appear at night and linger into the morning.
 
 #### Geography
 
 **Central Dominance**
-- **Luthadel** - The capital city, largest in the empire. Home to the Lord Ruler's palace, the Canton of Inquisition, and the Assembly. Population approximately 400,000.
-- **The Pits of Hathsin** - The only known source of atium, located near Luthadel. Heavily guarded by the obligators.
-- **The Kandra Homelands** - Subterranean caverns beneath theDominant Mountains, home to the kandra people.
+- **Cinderhold** - The capital city, largest in the empire. Home to the Ashen King's palace, the Diocese of Inquisition, and the Assembly. Population approximately 400,000.
+- **The Ember Pits** - The only known source of oraculum, located near Cinderhold. Heavily guarded by the prelates.
+- **The Fleshkin Homelands** - Subterranean caverns beneath theDominant Mountains, home to the fleshkin people.
 
 **The Dominances**
 
 | Dominance | Characteristics |
 |-----------|-----------------|
-| Central | Political power, nobility, Luthadel |
-| Northern | Colder climate, Terris people, warehouses |
+| Central | Political power, nobility, Cinderhold |
+| Northern | Colder climate, Valdris people, warehouses |
 | Western | Coastal, Venture army stronghold |
-| Eastern | Industrial, koloss activity |
+| Eastern | Industrial, bloodbrute activity |
 | Southern | Rumored to be desolate, source of mists |
 
 **The Terrain**
-- Ash falls constantly from active volcanoes (remnants of the Final Empire's creation)
+- Ash falls constantly from active volcanoes (remnants of the Ashen Dominion's creation)
 - The sun rises in the north and sets in the south
 - Pits and caverns riddle the landscape
 - Metal is scarce and valuable
@@ -51,51 +51,51 @@ The world of Scadrial exists under the rule of the Lord Ruler (Rashek), who seiz
 **Class Structure**
 
 1. **Nobility (High Imperial)**
-   - Descendants of those who helped the Lord Ruler seize power
+   - Descendants of those who helped the Ashen King seize power
    - Live in luxurious keeps with servants
-   - Practice Allomancy openly
+   - Practice Metallurgy openly
    - Attend balls, engage in political maneuvering
-   - Look down upon skaas as beneath notice
+   - Look down upon lowborns as beneath notice
 
-2. **Skaa**
-   - The working class, descendants of those who opposed the Lord Ruler
+2. **Lowborn**
+   - The working class, descendants of those who opposed the Ashen King
    - Officially free but practically enslaved
    - Work in factories, mines, and households
    - Live in cramped, dangerous slums
    - Often killed with impunity by nobles
 
-3. **Terris**
-   - Originally a scholarly race with access to Feruchemy
+3. **Valdris**
+   - Originally a scholarly race with access to Storecraft
    - Now bred as stewards, servants, and breeders
    - Maintain secret traditions and prophecies
    - Located primarily in the Northern Dominance
 
 **Social Customs**
-- Dark, muted clothing (bright colors indicate Allomancy)
-- Flaring brass/burnished steel for Allomancy
+- Dark, muted clothing (bright colors indicate Metallurgy)
+- Flaring brass/burnished steel for Metallurgy
 - Formal address required between classes
 - Balls and social gatherings as political tools
 - Arranged marriages common among nobility
 
 **Religion**
 - The Church of the Survivor (after 1022 FE)
-  - Worship of Kelsier as the "Survivor"
-  - Illegal but widespread among skaas
+  - Worship of Darius as the "Survivor"
+  - Illegal but widespread among lowborns
   - Symbol: Double fish (faded representation)
 - The Ministry (official religion)
-  - Worship of the Lord Ruler as a god
-  - Steel Ministry governs religious practices
-  - Obligators serve as priests
+  - Worship of the Ashen King as a god
+  - Iron Clergy governs religious practices
+  - Prelates serve as priests
 
 **Entertainment**
-- Shadow wrestling (fights with Allomancy)
+- Shadow wrestling (fights with Metallurgy)
 - Games of wit and strategy
-- Poetry and music in skaa taverns
-- Noble balls featuring Allomancy displays
+- Poetry and music in lowborn taverns
+- Noble balls featuring Metallurgy displays
 
 #### Food
 
-**Skaa Food**
+**Lowborn Food**
 - Mush (basic grain mixture)
 - Thin stews with minimal meat
 - Root vegetables
@@ -108,7 +108,7 @@ The world of Scadrial exists under the rule of the Lord Ruler (Rashek), who seiz
 - Exotic spices (imported before ash destruction)
 - Fine wines and spirits
 - Sweets and pastries
-- All foods preserved with tin or allomantic means
+- All foods preserved with tin or metallurgic means
 
 **Common Ingredients**
 - Ash-grown mushrooms
@@ -120,53 +120,53 @@ The world of Scadrial exists under the rule of the Lord Ruler (Rashek), who seiz
 
 ## The Empire's Structure
 
-### The Lord Ruler (Rashek)
+### The Ashen King (Varek)
 
-- Immortal ruler, creator of the Final Empire
-- Controls the Deepness (the mists that hide Ruin's prison)
-- Maintains power through Allomancy and Feruchemy
+- Immortal ruler, creator of the Ashen Dominion
+- Controls the The Blight (the mists that hide The Unmaker's prison)
+- Maintains power through Metallurgy and Storecraft
 - Died in 1022 FE during the confrontation at the Well
 
-### The Canton of Inquisition
+### The Diocese of Inquisition
 
-**Obligators**
+**Prelates**
 - Priests and administrators of the Ministry
 - Collect taxes, maintain records, enforce laws
-- Can practice Allomancy (typically Pewter and Copper)
+- Can practice Metallurgy (typically Pewter and Copper)
 - Wear grey robes with deep brown vestments
-- Led by the Inquisitors
+- Led by the Sentinels
 
-**Inquisitors**
-- Hemalurgically-created beings with metal spikes
+**Sentinels**
+- Bloodforgedally-created beings with metal spikes
 - Possess enhanced senses and near-immortality
-- Hunt Allomancers and heretics
+- Hunt Metallurgists and heretics
 - Have spiked hands and holes in their skulls
-- Serve the Lord Ruler directly
-- Two spiked Steel Ministry obligators
+- Serve the Ashen King directly
+- Two spiked Iron Clergy prelates
 
-### The Assembly (Luthadel)
+### The Assembly (Cinderhold)
 
-A council of nobles that advises the Lord Ruler and handles day-to-day governance of Luthadel. After the Lord Ruler's death, the Assembly becomes the primary governing body until the collapse.
+A council of nobles that advises the Ashen King and handles day-to-day governance of Cinderhold. After the Ashen King's death, the Assembly becomes the primary governing body until the collapse.
 
 **Major Noble Houses**
 - House Venture (military power, the Army)
 - House Elariel (political cunning)
 - House Hasting (wealth and commerce)
-- House Renoux (recently risen, later becomes House Pershwald)
+- House Haleworth (recently risen, later becomes House Pershwald)
 - House Lekal (security and information)
 
-### The Steel Ministry
+### The Iron Clergy
 
-The official religious organization of the empire, governing worship and education of Allomancy.
+The official religious organization of the empire, governing worship and education of Metallurgy.
 
 **Structure**
 - High Prelan (supreme religious leader)
 - Prelans (regional leaders)
-- Obligators (priests/administrators)
+- Prelates (priests/administrators)
 - Canal crews (enforcers)
 
 **Temples**
-- Temple of the Lord Ruler in Luthadel
+- Temple of the Ashen King in Cinderhold
 - Regional temples in major cities
 - Small shrines throughout the empire
 
@@ -175,21 +175,21 @@ The official religious organization of the empire, governing worship and educati
 The empire's primary military force, commanded by House Venture.
 
 **Composition**
-- Koloss mercenary units (up to 200,000 in the main army)
+- Bloodbrute mercenary units (up to 200,000 in the main army)
 - Human infantry
-- Noble officers with Allomancy
+- Noble officers with Metallurgy
 - War wagons (mobile artillery)
 
 **Leadership**
 - General penetration offices
 - House Venture maintains command
-- Mercenary koloss led by human commanders
+- Mercenary bloodbrute led by human commanders
 
 ---
 
-## Allomancy
+## Metallurgy
 
-A magic system allowing the "burning" of metals to gain supernatural powers. Discovered from Preservation's power at the Well of Ascension.
+A magic system allowing the "burning" of metals to gain supernatural powers. Discovered from The Warden's power at the The Wellspring.
 
 ### The Sixteen Metals
 
@@ -210,8 +210,8 @@ A magic system allowing the "burning" of metals to gain supernatural powers. Dis
 **Cognitive Metals (Mental)**
 | Metal | Effect |
 |-------|--------|
-| **Copper** | Hides Allomantic pulses from detection |
-| **Bronze** | Detects Allomantic pulses |
+| **Copper** | Hides Metallurgic pulses from detection |
+| **Bronze** | Detects Metallurgic pulses |
 
 **Temporal Metals**
 | Metal | Effect |
@@ -219,7 +219,7 @@ A magic system allowing the "burning" of metals to gain supernatural powers. Dis
 | **Electrum** | Grants a "shadow" that shows possible futures |
 | **Gold** | Shows possible pasts/potential alternate selves |
 
-** Preservation/Ruin Metals**
+** The Warden/The Unmaker Metals**
 | Metal | Effect |
 |-------|--------|
 | **Aluminum** | Purges all metals being burned |
@@ -228,48 +228,48 @@ A magic system allowing the "burning" of metals to gain supernatural powers. Dis
 **God Metals**
 | Metal | Effect |
 |-------|--------|
-| **Atium** | Creates "shadows" of enemies showing their future |
-| **Malatium** | Shows "shadows" of possible future versions of people |
+| **Oraculum** | Creates "shadows" of enemies showing their future |
+| **Revelum** | Shows "shadows" of possible future versions of people |
 
-### Allomancer Classes
+### Metallurgist Classes
 
-**Mistborn**
+**Ashwalker**
 - Can burn all sixteen metals
 - Extremely rare (perhaps 10-20 exist)
-- Most powerful Allomancers
-- Examples: Kelsier, Vin, Rashek
+- Most powerful Metallurgists
+- Examples: Darius, Ember, Varek
 
-**Misting (Pewter-Arm, etc.)**
+**Sparkblood (Pewter-Arm, etc.)**
 - Can burn only one metal
 - More common among nobility
 - Called by the metal they burn
-- Examples: Clubs (Copper), Dockson (Brass), Ham (Pewter)
+- Examples: Grimshaw (Copper), Harlan (Brass), Tormund (Pewter)
 
-### Key Allomancers (1022-1025 FE)
+### Key Metallurgists (1022-1025 FE)
 
-**Kelsier "The Survivor"**
-- Mistborn
-- Led the skaa rebellion
-- Died at the Well of Ascension (1022 FE)
+**Darius "The Survivor"**
+- Ashwalker
+- Led the lowborn rebellion
+- Died at the The Wellspring (1022 FE)
 - Became legend as "The Survivor"
 
-**Vin**
-- Mistborn (discovered 1022 FE)
-- Led rebellion after Kelsier's death
-- Defeated the Lord Ruler
+**Ember**
+- Ashwalker (discovered 1022 FE)
+- Led rebellion after Darius's death
+- Defeated the Ashen King
 - Became Queen of the new kingdom
 
-**Rashek, the Lord Ruler**
-- Original Mistborn (at the Well)
+**Varek, the Ashen King**
+- Original Ashwalker (at the Well)
 - Used the power at the Well to become immortal
 - Created the mists, ash, and the empire
 - Died 1022 FE
 
 ---
 
-## Feruchemy
+## Storecraft
 
-An ancient magic system developed by the Terris people, allowing storage of attributes in metalminds.
+An ancient magic system developed by the Valdris people, allowing storage of attributes in metalminds.
 
 ### Stored Attributes
 
@@ -278,43 +278,43 @@ An ancient magic system developed by the Terris people, allowing storage of attr
 - **Spiritual:** Identity, breath
 - **Temporal:** Age, luck
 
-### Feruchemists
+### Storecrafters
 
-- Terris people originally developed Feruchemy
-- By Era 1, most Feruchemists were hidden or bred into servitude
-- Feruchemy requires invested metals (metalminds)
+- Valdris people originally developed Storecraft
+- By Era 1, most Storecrafters were hidden or bred into servitude
+- Storecraft requires invested metals (metalminds)
 - Can store and retrieve attributes at will
-- Examples: Sazed (terris Keeper), clubs (in hiding)
+- Examples: Idris (valdris Keeper), clubs (in hiding)
 
-### Key Feruchemists (1022-1025 FE)
+### Key Storecrafters (1022-1025 FE)
 
-**Sazed**
-- Terris Keeper with vast Feruchemic knowledge
+**Idris**
+- Valdris Keeper with vast Feruchemic knowledge
 - Stored memories of cultures and religions
-- Became Hero of Ages after Well's destruction
-- Restored people's faith and crops after Ruin's release
+- Became The Prophesied One after Well's destruction
+- Restored people's faith and crops after The Unmaker's release
 
 ---
 
-## Hemalurgy
+## Bloodforge
 
-A dark art created by Ruin, using metal spikes to steal and bind powers or attributes between living beings.
+A dark art created by The Unmaker, using metal spikes to steal and bind powers or attributes between living beings.
 
-### How Hemalurgy Works
+### How Bloodforge Works
 
 1. Kill a person with a metal spike
 2. Drive the spike into another person
 3. The recipient gains a fraction of the victim's power
 
-### Types of Hemalurgic Spikes
+### Types of Bloodforged Spikes
 
-- **Power Spikes:** Steal Allomancy or Feruchemy
+- **Power Spikes:** Steal Metallurgy or Storecraft
 - **Attribute Spikes:** Steal physical/mental attributes
 - **Memory Spikes:** Store information
 
-### Hemalurgic Creatures
+### Bloodforged Creatures
 
-**Koloss**
+**Bloodbrute**
 - Created by forcing multiple spikes into humans
 - Gain enhanced strength and near-immortality
 - Lose most human intelligence and memory
@@ -322,84 +322,84 @@ A dark art created by Ruin, using metal spikes to steal and bind powers or attri
 - Size varies with number of spikes
 - Serve as mercenary soldiers
 
-**Kandra**
-- Hemalurgic creatures with bodies of mist
+**Fleshkin**
+- Bloodforged creatures with bodies of mist
 - Take human forms by consuming bodies
 - Use " Blessings" (spikes) for movement
 - Bound by contracts to noble houses
 - Have "second bodies" hidden
 - Original creation was peaceful
 
-**Inquisitors**
-- Created by the Lord Ruler
-- Multiple spikes granting Allomantic powers
+**Sentinels**
+- Created by the Ashen King
+- Multiple spikes granting Metallurgic powers
 - Near-immortal, can recover from most wounds
 - Holes in heads where metal spikes are visible
-- Hunt Allomancers and enemies of the empire
+- Hunt Metallurgists and enemies of the empire
 
 ---
 
 ## The Factions
 
-### Kelsier's Crew (The Rebellion)
+### Darius's Crew (The Rebellion)
 
 **Members (1022-1025 FE)**
 
-| Member | Role | Allomancy | Fate |
+| Member | Role | Metallurgy | Fate |
 |--------|------|-----------|------|
-| Kelsier | Leader | Mistborn | Died at Well of Ascension (1022 FE) |
-| Vin | Scout, fighter | Mistborn | Survived, became Queen |
-| Marsh | Lieutenant | Pewter-Arm | Became Inquisitor (1022 FE) |
-| Clubs | Security | Copper | Survived, went underground |
-| Dockson | Second, records | Brass | Survived, managed kingdom |
-| Ham | Fighter | Pewter-Arm | Survived, retired |
+| Darius | Leader | Ashwalker | Died at The Wellspring (1022 FE) |
+| Ember | Scout, fighter | Ashwalker | Survived, became Queen |
+| Marsh | Lieutenant | Pewter-Arm | Became Sentinel (1022 FE) |
+| Grimshaw | Security | Copper | Survived, went underground |
+| Harlan | Second, records | Brass | Survived, managed kingdom |
+| Tormund | Fighter | Pewter-Arm | Survived, retired |
 | Spook | Runner, survivor | Pewter-Arm (later Tin) | Survived, became poet |
-| Breeze | Social manipulation | Soother | Survived, struggled with guilt |
-| Allrianne | Noble contact | Rioter | Survived, married Ham |
-| TenSoon | Kandra ally | Kandra | Survived |
+| Lysander | Social manipulation | Queller | Survived, struggled with guilt |
+| Allrianne | Noble contact | Igniter | Survived, married Tormund |
+| Sevren | Fleshkin ally | Fleshkin | Survived |
 
 ### The Church of the Survivor
 
-Created after Kelsier's death to inspire skaas.
+Created after Darius's death to inspire lowborns.
 
-- Worship Kelsier as a god/symbol of hope
-- Illegal under the Lord Ruler
-- Spreads through skaas and sympathetic nobles
+- Worship Darius as a god/symbol of hope
+- Illegal under the Ashen King
+- Spreads through lowborns and sympathetic nobles
 - Symbol: Double fish
-- After his death, Kelsier's spirit maintains connection to the living
+- After his death, Darius's spirit maintains connection to the living
 
 ### The Set
 
-A secret noble organization operating in Luthadel.
+A secret noble organization operating in Cinderhold.
 
 - Exist to preserve the social order
 - Recruit from noble houses
-- Use Allomancy for manipulation
+- Use Metallurgy for manipulation
 - Have spy networks throughout the city
-- Later revealed to have existed since the Lord Ruler's time
+- Later revealed to have existed since the Ashen King's time
 
-### The Kandra
+### The Fleshkin
 
-A race of Hemalurgic creatures with unique properties.
+A race of Bloodforged creatures with unique properties.
 
 **History (Known by Era 1)**
-- Created by the Lord Ruler using Preservation's power
+- Created by the Ashen King using The Warden's power
 - Given sentience and peaceful origins
-- Later twisted by Ruin's influence
+- Later twisted by The Unmaker's influence
 - Bound by the First Contract
 
 **First Contract**
-- Kandra must serve noble houses
+- Fleshkin must serve noble houses
 - Cannot kill their masters
 - Must return bodies after use
 - Allows impersonation of humans
 
-**Notable Kandra**
-- **TenSoon** - Allied with Vin, served House Venture
-- ** OreSeur** - Served Vin as bodyguard
+**Notable Fleshkin**
+- **Sevren** - Allied with Ember, served House Venture
+- ** Malthen** - Served Ember as bodyguard
 - **Hzviss** - Contracted by House VanReyt
 
-**Blessings (Kandra Spikes)**
+**Blessings (Fleshkin Spikes)**
 - **Blessing of Presence** - Allows human-like movement
 - **Blessing of Communication** - Allows speech
 - Different blessings for different abilities
@@ -408,53 +408,53 @@ A race of Hemalurgic creatures with unique properties.
 
 ## Key Events (1022-1025 FE)
 
-### Mistborn: The Final Empire (1022 FE)
+### Ashwalker: The Ashen Dominion (1022 FE)
 
-1. Vin discovers her Allomancy
-2. Kelsier recruits Vin for rebellion
-3. Crew robs the Canton of Inquisition
-4. Battle against the Inquisitors
-5. Kelsier's "death" and apparent return
-6. Attack on the Lord Ruler's palace
-7. Confrontation at the Well of Ascension
-8. The Lord Ruler's death
-9. Kelsier's true death at the Well
+1. Ember discovers her Metallurgy
+2. Darius recruits Ember for rebellion
+3. Crew robs the Diocese of Inquisition
+4. Battle against the Sentinels
+5. Darius's "death" and apparent return
+6. Attack on the Ashen King's palace
+7. Confrontation at the The Wellspring
+8. The Ashen King's death
+9. Darius's true death at the Well
 
-### The Well of Ascension (1024 FE)
+### The The Wellspring (1024 FE)
 
-1. The empire in chaos after Lord Ruler's death
-2. Vin discovers the mists have stopped
-3. Straff Venture threatens Luthadel
+1. The empire in chaos after Ashen King's death
+2. Ember discovers the mists have stopped
+3. Strafen Ashford threatens Cinderhold
 4. Zane revelation and conflict
-5. Defense of Luthadel against koloss army
-6. Marsh becomes an Inquisitor
+5. Defense of Cinderhold against bloodbrute army
+6. Marsh becomes an Sentinel
 7. The Mist Spirit's influence
-8. Vin retrieves the power at the Well
-9. Preservation's final message
-10. Vin refuses the power
+8. Ember retrieves the power at the Well
+9. The Warden's final message
+10. Ember refuses the power
 
-### The Hero of Ages (1025 FE)
+### The The Prophesied One (1025 FE)
 
 1. The world is dying (ash increases, crops fail)
-2. Spook's leadership in Luthadel
+2. Spook's leadership in Cinderhold
 3. Discovery of the storage caches
-4. Sazed's crisis of faith
-5. The nature of Ruin revealed
-6. Attack on the Kandra homelands
-7. The koloss army turned against the empire
-8. Vin's discovery of hemalurgy
-9. Sazed takes Preservation's power
+4. Idris's crisis of faith
+5. The nature of The Unmaker revealed
+6. Attack on the Fleshkin homelands
+7. The bloodbrute army turned against the empire
+8. Ember's discovery of bloodforge
+9. Idris takes The Warden's power
 10. The final battle at the Well
-11. Sazed's ascension
+11. Idris's ascension
 12. The new world
 
 ---
 
 ## Lifeforms
 
-### Koloss
+### Bloodbrute
 
-- Hemalurgic soldiers created from humans
+- Bloodforged soldiers created from humans
 - Enhanced strength and near-immortality
 - Turn blue when enraged
 - Variable size (6-12 feet)
@@ -463,22 +463,22 @@ A race of Hemalurgic creatures with unique properties.
 - Controlled by commanders with specific spikes
 - By 1025 FE: hundreds of thousands exist
 
-### Kandra
+### Fleshkin
 
 - Mist-like creatures taking human form
 - Sentient and intelligent
 - Bound by the First Contract
 - Can be killed by removing their spikes
 - Have "second bodies" stored away
-- Originally created to preserve Terris culture
+- Originally created to preserve Valdris culture
 
 ### Mist Spirits / Mistwraiths
 
-- Creatures that feed on Allomancers
+- Creatures that feed on Metallurgists
 - Found in caves and dark places
 - Appear as wisps of mist
-- Can consume Allomancers' metals
-- Kandra were created to control them
+- Can consume Metallurgists' metals
+- Fleshkin were created to control them
 
 ### Ash Creatures
 
@@ -488,7 +488,7 @@ A race of Hemalurgic creatures with unique properties.
 
 ---
 
-## The Metals of Scadrial
+## The Metals of Ashara
 
 ### Metal Classifications
 
@@ -499,21 +499,21 @@ A race of Hemalurgic creatures with unique properties.
 - Aluminum, Duralumin
 
 **God Metals**
-- Atium (from Preservation, appears as silver-white beads)
-- Malatium (atium's counterpart from Ruin)
+- Oraculum (from The Warden, appears as silver-white beads)
+- Revelum (oraculum's counterpart from The Unmaker)
 
-### Atium's Nature
+### Oraculum's Nature
 
-- Most valuable substance on Scadrial
+- Most valuable substance on Ashara
 - Grants future-sight when burned
 - Creates "shadows" of enemies showing their next moves
-- Located only in the Pits of Hathsin
-- Mined by obligators for the Lord Ruler
-- The Lord Ruler consumed atium to remain immortal
+- Located only in the Ember Pits
+- Mined by prelates for the Ashen King
+- The Ashen King consumed oraculum to remain immortal
 
 ### Metals in Daily Life
 
-- Pewter used for preservation
+- Pewter used for the warden
 - Tin used for light (tin-glow)
 - Steel/iron used for construction
 - Copper used for records
@@ -521,75 +521,75 @@ A race of Hemalurgic creatures with unique properties.
 
 ---
 
-## Terris
+## Valdris
 
 ### Culture
 
 - Originally a peaceful, scholarly people
-- Developed Feruchemy independently
+- Developed Storecraft independently
 - Lived in the Northern Dominance
 - Known for wisdom and keeper traditions
 
-### Keepers
+### Archivists
 
-- Terris scholars who memorize knowledge
-- Store information using Feruchemy
+- Valdris scholars who memorize knowledge
+- Store information using Storecraft
 - Maintain history, religions, cultures
 - By Era 1: Most were killed or bred into servitude
-- Sazed was the last Keeper of the southern people
+- Idris was the last Archivist of the southern people
 
-### Terris Breeding
+### Valdris Breeding
 
-- The Lord Ruler bred Terris people with skaa
-- Created servants with diluted Feruchemy
+- The Ashen King bred Valdris people with lowborn
+- Created servants with diluted Storecraft
 - Diluted bloodlines spread through the empire
 - Some retained Feruchemic abilities
 
 ---
 
-## The Final Empire's End
+## The Ashen Dominion's End
 
 ### Causes of Collapse
 
-1. Lord Ruler's death (1022 FE)
-2. No replacement for Deepness control
+1. Ashen King's death (1022 FE)
+2. No replacement for The Blight control
 3. Mists stop protecting crops
 4. Ash increases dramatically
 5. Food supplies fail
 6. Nobles fight over power
-7. Koloss mercenary armies go unchecked
-8. Ruin's manipulation through the mists
+7. Bloodbrute mercenary armies go unchecked
+8. The Unmaker's manipulation through the mists
 
 ### Aftermath
 
 - The empire fragments
-- Vin becomes Queen of the new kingdom
-- Sazed becomes the new god
+- Ember becomes Queen of the new kingdom
+- Idris becomes the new god
 - The mists eventually return
-- Preservation and Ruin both die
+- The Warden and The Unmaker both die
 - A new world is created
 
 ---
 
-## Preservation and Ruin
+## The Warden and The Unmaker
 
-### Preservation
+### The Warden
 
 - One of the two Shards holding the world
-- Granted humanity Allomancy
-- Imprisoned Ruin at the Well of Ascension
+- Granted humanity Metallurgy
+- Imprisoned The Unmaker at the The Wellspring
 - Lost most of its power over millennia
-- Died releasing Ruin
+- Died releasing The Unmaker
 
-### Ruin
+### The Unmaker
 
 - One of the two Shards holding the world
-- Influenced Hemalurgy
-- Corrupted the Terris people
+- Influenced Bloodforge
+- Corrupted the Valdris people
 - Manipulated events through the mists
-- Freed when Preservation died
-- Destroyed by Sazed taking both powers
+- Freed when The Warden died
+- Destroyed by Idris taking both powers
 
 ---
 
-*This document covers events, factions, and lore specifically referenced in the original Mistborn trilogy (1022-1025 FE). Later eras and expanded universe elements are not included.*
+*This document covers events, factions, and lore specifically referenced in the original Ashwalker trilogy (1022-1025 FE). Later eras and expanded universe elements are not included.*

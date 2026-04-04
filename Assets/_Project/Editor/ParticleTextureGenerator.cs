@@ -4,7 +4,7 @@
  * These replace the default hard-edged square particle with smooth
  * radial falloff circles that look like actual fog/smoke.
  *
- * Run via: Mistborn → Effects → Generate Particle Textures
+ * Run via: Ashwalker → Effects → Generate Particle Textures
  * Creates textures at Assets/_Project/Textures/Particles/
  */
 
@@ -14,7 +14,7 @@ using UnityEditor;
 
 public class ParticleTextureGenerator
 {
-    [MenuItem("Mistborn/Effects/Generate Particle Textures")]
+    [MenuItem("Ashwalker/Effects/Generate Particle Textures")]
     public static void Generate()
     {
         string folder = "Assets/_Project/Textures/Particles";

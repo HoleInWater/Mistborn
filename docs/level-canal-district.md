@@ -1,12 +1,12 @@
 # Level Design — Canal District
 
-*The underground waterway system of Luthadel. Stealth-focused area.*
+*The underground waterway system of Cinderhold. Stealth-focused area.*
 
 ---
 
 ## Overview
 
-The canals run beneath Luthadel, providing water to the city and secret routes for those who know them. Metal content is lower here (natural rock), making Allomancy less useful — but that's intentional. This area is about stealth, not flying.
+The canals run beneath Cinderhold, providing water to the city and secret routes for those who know them. Metal content is lower here (natural rock), making Metallurgy less useful — but that's intentional. This area is about stealth, not flying.
 
 ---
 
@@ -102,11 +102,11 @@ Guards walk the canal edges. Some carry torches.
 |-----------|---------|-----------|
 | Canal Guard | Sword | Average |
 | Tunnel Keeper | Crossbow | High |
-| Kandra | Spikes ( Hemalurgy) | Unknown |
+| Fleshkin | Spikes ( Bloodforge) | Unknown |
 
-### Kandra (Special Enemy)
+### Fleshkin (Special Enemy)
 
-Kandra are shapeshifters with metal spikes. They can mimic people.
+Fleshkin are shapeshifters with metal spikes. They can mimic people.
 
 - **Detect metal:** See through tin eyes
 - **Detect sound:** Track footsteps
@@ -155,7 +155,7 @@ Kandra are shapeshifters with metal spikes. They can mimic people.
 
 ## Player Approach
 
-### Allomancer Playstyle
+### Metallurgist Playstyle
 - Limited metal = limited abilities
 - Can still push guards' weapons
 - Can pull grate keys
@@ -167,7 +167,7 @@ Kandra are shapeshifters with metal spikes. They can mimic people.
 - Environmental kills (drown guards)
 
 ### Mixed Playstyle
-- Allomancy for key moments
+- Metallurgy for key moments
 - Stealth for traversal
 - Save metal for boss
 
@@ -175,7 +175,7 @@ Kandra are shapeshifters with metal spikes. They can mimic people.
 
 ## Boss: The Keeper
 
-Lives in the deep caves. Ancient Feruchemist.
+Lives in the deep caves. Ancient Storecrafter.
 
 | Ability | Type |
 |---------|------|
@@ -190,5 +190,5 @@ Lives in the deep caves. Ancient Feruchemist.
 ## Questions
 
 1. Silver weapon craftable?
-2. Can player use kandra disguise?
+2. Can player use fleshkin disguise?
 3. Secret exit reward?

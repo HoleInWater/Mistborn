@@ -18,16 +18,16 @@ public class LoadingScreen : MonoBehaviour
 
     [Header("Lore Tips")]
     public string[] loreTips = {
-        "Metals are catalysts, not fuel — they connect the Allomancer to Preservation's power.",
-        "A Mistborn can burn all sixteen metals simultaneously.",
-        "The Lord Ruler's immortality comes from gold Compounding — infinite healing.",
-        "Steel Inquisitors can be killed instantly by removing their linchpin spike.",
-        "Koloss are created through Hemalurgy — they were once human.",
+        "Metals are catalysts, not fuel — they connect the Metallurgist to The Warden's power.",
+        "A Ashwalker can burn all sixteen metals simultaneously.",
+        "The Ashen King's immortality comes from gold Compounding — infinite healing.",
+        "Iron Sentinels can be killed instantly by removing their linchpin spike.",
+        "Bloodbrute are created through Bloodforge — they were once human.",
         "Tin enhances all five senses, but risks sensory overload from loud noises or bright lights.",
         "Flaring a metal burns it faster for a temporary boost, but drains reserves quickly.",
-        "The mists come every night in the Final Empire — only Mistborn move freely through them.",
-        "Pewter allows a Mistborn to push their body beyond human limits, but the crash is brutal.",
-        "Atium lets you see a few seconds into the future — the most valuable substance in the world."
+        "The mists come every night in the Ashen Dominion — only Ashwalker move freely through them.",
+        "Pewter allows a Ashwalker to push their body beyond human limits, but the crash is brutal.",
+        "Oraculum lets you see a few seconds into the future — the most valuable substance in the world."
     };
 
     void Awake()

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Extension methods for MonoBehaviour class

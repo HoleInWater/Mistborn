@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// The central brain of the Skaa Rebellion. Tracks global variables that affect gameplay.
+/// The central brain of the Lowborn Rebellion. Tracks global variables that affect gameplay.
 /// </summary>
 public class RebellionManager : MonoBehaviour
 {
@@ -10,8 +10,8 @@ public class RebellionManager : MonoBehaviour
 
     [Header("Global Rebellion Stats")]
     public float globalMorale = 50f;
-    public float empireHeat = 10f; // Likelihood of Inquisitor spawns
-    public int totalReserves = 1000; // Skaa warriors ready to revolt
+    public float empireHeat = 10f; // Likelihood of Sentinel spawns
+    public int totalReserves = 1000; // Lowborn warriors ready to revolt
     public int coinReserve = 5000;   // Currency for operations
 
     [System.Serializable]
@@ -39,18 +39,18 @@ public class RebellionManager : MonoBehaviour
         // Guard against duplicate initialization on scene reload
         if (dominances.Count > 0) return;
 
-        string[] names = { "Central", "Northern", "Southern", "East", "West", "Venture", "Terris", "Remote" };
+        string[] names = { "Central", "Northern", "Southern", "East", "West", "Venture", "Valdris", "Remote" };
         foreach (var n in names)
             dominances.Add(new DominanceState { name = n });
     }
 
     /// <summary>
-    /// Increases Empire Heat based on player Allomancy usage or visible kills.
+    /// Increases Empire Heat based on player Metallurgy usage or visible kills.
     /// </summary>
     public void IncreaseHeat(float amount)
     {
         empireHeat = Mathf.Clamp(empireHeat + amount, 0f, 100f);
-        // No debug log: this fires on every Allomancy action
+        // No debug log: this fires on every Metallurgy action
     }
 
     /// <summary>

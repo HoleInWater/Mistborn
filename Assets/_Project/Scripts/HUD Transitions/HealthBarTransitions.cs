@@ -98,9 +98,9 @@ public class HealthBarTransitions : MonoBehaviour
         {
             // Surv_HealthRegen + Surv_HealthRegen2 skills stack additively
             float regenMult = 1f;
-            if (AllomanticSkillTree.Instance != null)
-                regenMult += AllomanticSkillTree.Instance.GetSkillValue("Surv_HealthRegen")
-                           + AllomanticSkillTree.Instance.GetSkillValue("Surv_HealthRegen2");
+            if (MetallurgicSkillTree.Instance != null)
+                regenMult += MetallurgicSkillTree.Instance.GetSkillValue("Surv_HealthRegen")
+                           + MetallurgicSkillTree.Instance.GetSkillValue("Surv_HealthRegen2");
             IncreaseHealth(regenPerSecond * regenMult * Time.deltaTime);
         }
     }
@@ -111,7 +111,7 @@ public class HealthBarTransitions : MonoBehaviour
         set { if (_progressBar != null) _progressBar.value = value; }
     }
 
-    // Health API aliases for external scripts (SazedAI, Pewter, etc.)
+    // Health API aliases for external scripts (IdrisAI, Pewter, etc.)
     public float currentHealth => health;
     public float GetCurrentHealth() => health;
     public float GetMaxHealth() => 100f; // UI bar is statically set to 100
@@ -123,8 +123,8 @@ public class HealthBarTransitions : MonoBehaviour
         if (_progressBar != null && _progressBar.value <= 0f) return; // already dead
 
         // Surv_DamageReduction skill: flat % off all incoming damage
-        float skillReduction = AllomanticSkillTree.Instance != null
-            ? AllomanticSkillTree.Instance.GetSkillValue("Surv_DamageReduction")
+        float skillReduction = MetallurgicSkillTree.Instance != null
+            ? MetallurgicSkillTree.Instance.GetSkillValue("Surv_DamageReduction")
             : 0f;
         float finalDamage = damage * incomingDamageMultiplier * (1f - skillReduction);
         DecreaseHealth(finalDamage);

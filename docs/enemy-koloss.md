@@ -1,4 +1,4 @@
-# Enemy Design — Koloss
+# Enemy Design — Bloodbrute
 
 *Big, strong, and stupid. Metal spikes through the body.*
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Koloss are Hemalurgically created soldiers. They're large, incredibly strong, and have metal spikes driven through their bodies. They're mindless — following simple commands but incapable of complex thought.
+Bloodbrute are Bloodforgedally created soldiers. They're large, incredibly strong, and have metal spikes driven through their bodies. They're mindless — following simple commands but incapable of complex thought.
 
 ---
 
@@ -44,7 +44,7 @@ Koloss are Hemalurgically created soldiers. They're large, incredibly strong, an
 
 ## Combat Strategy (For Player)
 
-1. **Noise bait** — Koloss come to sounds
+1. **Noise bait** — Bloodbrute come to sounds
 2. **Push them** — They can be pushed (metal spikes)
 3. **Ranged attacks** — Stay at distance
 4. **Environmental** — Push into pits, off ledges
@@ -76,18 +76,18 @@ Koloss are Hemalurgically created soldiers. They're large, incredibly strong, an
 
 ## Spawning
 
-Koloss don't patrol. They spawn in groups and attack.
+Bloodbrute don't patrol. They spawn in groups and attack.
 
 | Scenario | Number |
 |----------|--------|
 | Random encounter | 2-3 |
 | Boss encounter | 1 + minions |
-| Koloss horde | 5-8 |
+| Bloodbrute horde | 5-8 |
 
 ---
 
 ## Questions
 
-1. Do we allow stealing Koloss spikes (Hemalurgy)?
-2. Can Koloss be pushed far with Allomancy?
-3. Do Koloss drop metal spikes as loot?
+1. Do we allow stealing Bloodbrute spikes (Bloodforge)?
+2. Can Bloodbrute be pushed far with Metallurgy?
+3. Do Bloodbrute drop metal spikes as loot?

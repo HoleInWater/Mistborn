@@ -2,15 +2,15 @@
  *
  * Simulates ash accumulating on surfaces over time.
  *
- * Lore: ash falls constantly from the Ashmounts. Skaa workers sweep streets
- * and rooftops daily. Without sweeping, ash would bury Luthadel in weeks.
+ * Lore: ash falls constantly from the Ashmounts. Lowborn workers sweep streets
+ * and rooftops daily. Without sweeping, ash would bury Cinderhold in weeks.
  * From PHYSICS-MATH-BOOK.md Section 16:
  *   Accumulation rate: ~0.1-1.0 mm/day on flat surfaces
  *
  * This system:
  *   - Tracks ash depth on tagged surfaces
  *   - Visually darkens surfaces as ash accumulates (color shift)
- *   - Skaa NPCs can "sweep" to reset accumulation
+ *   - Lowborn NPCs can "sweep" to reset accumulation
  *   - Affects gameplay: thick ash slows movement, covers metal (harder to detect)
  *   - Integrates with DayNightCycle for time-based accumulation
  */
@@ -31,7 +31,7 @@ public class AshAccumulation : MonoBehaviour
     public float movementPenaltyDepth = 10f;
     [Tooltip("Maximum movement speed reduction from deep ash")]
     public float maxMovementPenalty = 0.3f;
-    [Tooltip("Ash depth that starts hiding metal objects from Allomantic sight")]
+    [Tooltip("Ash depth that starts hiding metal objects from Metallurgic sight")]
     public float metalHidingDepth = 20f;
 
     [Header("Visual")]

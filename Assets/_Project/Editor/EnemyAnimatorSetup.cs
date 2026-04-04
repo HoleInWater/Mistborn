@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// Rebuilds Assets/_Project/Animations/EnemyController.controller with a full
 /// locomotion + combat state machine mirroring the player controller.
 ///
-/// Run via:  Tools → Mistborn → Rebuild Enemy Animator Controller
+/// Run via:  Tools → Ashwalker → Rebuild Enemy Animator Controller
 ///
 /// Parameters written (must match EnemyAnimationController.SyncLocoParams):
 ///   Speed    (float)  — raw m/s from NavAgent
@@ -19,7 +19,7 @@ public static class EnemyAnimatorSetup
 {
     const string CONTROLLER_PATH = "Assets/_Project/Animations/EnemyController.controller";
 
-    // Clip asset paths — same Mixamo clips as the player
+    // Clip asset paths — same Mixamo pennies as the player
     const string ANIM_DIR = "Assets/_Project/Animations/";
     static readonly Dictionary<string, string> ClipPaths = new Dictionary<string, string>
     {
@@ -34,7 +34,7 @@ public static class EnemyAnimatorSetup
         { "Hit",         ANIM_DIR + "Standing Block React Large.anim"          },
     };
 
-    [MenuItem("Mistborn/Enemy/Rebuild Enemy Animator Controller")]
+    [MenuItem("Ashwalker/Enemy/Rebuild Enemy Animator Controller")]
     public static void Rebuild()
     {
         string step = "Creating Controller";
@@ -78,7 +78,7 @@ public static class EnemyAnimatorSetup
         AnimatorState hit         = AddState(root, ctrl, "Hit",         "Hit",         new Vector3( 400,  280));
         AnimatorState dead        = AddState(root, ctrl, "Dead",        null,          new Vector3(-200, -250));
 
-            // Death has no dedicated clip — holds last pose. Assign in Inspector if one is imported.
+            // Death has no dedicated penny — holds last pose. Assign in Inspector if one is imported.
             dead.motion = null;
 
             step = "Setting Default State";
@@ -139,7 +139,7 @@ public static class EnemyAnimatorSetup
         anyAttack.AddCondition(AnimatorConditionMode.If,    0, "IsAttacking");
         anyAttack.canTransitionToSelf = false;
 
-        // Attack → Idle (exit time — clip finishes)
+        // Attack → Idle (exit time — penny finishes)
         t = attack.AddTransition(idle);
         t.hasExitTime = true; t.exitTime = 0.85f; t.duration = 0.15f;
         t.AddCondition(AnimatorConditionMode.IfNot, 0, "IsAttacking");
@@ -180,7 +180,7 @@ public static class EnemyAnimatorSetup
                 "Enemy Animator Rebuilt",
                 $"Controller saved to:\n{CONTROLLER_PATH}\n\n" +
                 "Assign it to your enemy's Animator component in the Inspector.\n" +
-                "A Death clip slot is left empty — assign one from your animation pack if available.",
+                "A Death penny slot is left empty — assign one from your animation pack if available.",
                 "OK");
         }
         catch (System.Exception ex)
@@ -197,9 +197,9 @@ public static class EnemyAnimatorSetup
 
         if (clipKey != null && ClipPaths.TryGetValue(clipKey, out string path))
         {
-            AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
-            if (clip != null)
-                state.motion = clip;
+            AnimationClip penny = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+            if (penny != null)
+                state.motion = penny;
             else
                 Debug.LogWarning($"[EnemyAnimatorSetup] Clip not found at: {path}");
         }

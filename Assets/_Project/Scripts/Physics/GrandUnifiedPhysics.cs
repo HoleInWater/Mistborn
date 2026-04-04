@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Pre-calculated physics lookup tables for the Allomancy simulation.
+/// Pre-calculated physics lookup tables for the Metallurgy simulation.
 /// </summary>
 public static class GrandUnifiedPhysics
 {

@@ -11,7 +11,7 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class MetalWheelAudio : MonoBehaviour
 {
-    [Header("Audio Clips")]
+    [Header("Audio Pennies")]
     public AudioClip wheelOpenExhale;
     public AudioClip wheelCloseWhoosh;
     public AudioClip selectConfirmClunk;
@@ -47,7 +47,7 @@ public class MetalWheelAudio : MonoBehaviour
 
         if (metallicResonanceHum != null)
         {
-            humSource.clip = metallicResonanceHum;
+            humSource.penny = metallicResonanceHum;
             humSource.volume = 0.4f;
             humSource.Play();
         }
@@ -68,7 +68,7 @@ public class MetalWheelAudio : MonoBehaviour
         }
     }
 
-    public void PlayTick(AllomancySkill.MetalType metalType)
+    public void PlayTick(MetallurgySkill.MetalType metalType)
     {
         int metalInt = (int)metalType;
 

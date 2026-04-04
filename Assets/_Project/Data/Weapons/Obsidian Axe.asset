@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Obsidian Axe
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Obsidian Axe
-  description: "Skaa-forged axe with an obsidian head. Non-metal \u2014 cannot be
+  description: "Lowborn-forged axe with an obsidian head. Non-metal \u2014 cannot be
     Pushed or Pulled."
   icon: {fileID: 0}
   type: 5

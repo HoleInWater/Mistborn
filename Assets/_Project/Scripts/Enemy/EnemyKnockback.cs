@@ -3,7 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 
 /// <summary>
-/// Makes enemies react to being pushed/pulled by Allomancy.
+/// Makes enemies react to being pushed/pulled by Metallurgy.
 /// Temporarily disables NavMeshAgent, applies ragdoll-like force,
 /// then recovers and re-engages. Lighter enemies get pushed further.
 /// </summary>
@@ -36,8 +36,8 @@ public class EnemyKnockback : MonoBehaviour
         {
             switch (enemyAI.enemyType)
             {
-                case EnemyAI.EnemyType.Koloss: knockbackResistance = 3f; break;
-                case EnemyAI.EnemyType.SteelInquisitor: knockbackResistance = 2f; break;
+                case EnemyAI.EnemyType.Bloodbrute: knockbackResistance = 3f; break;
+                case EnemyAI.EnemyType.IronSentinel: knockbackResistance = 2f; break;
                 case EnemyAI.EnemyType.Thug: knockbackResistance = 1.5f; break;
                 default: knockbackResistance = 1f; break;
             }
@@ -45,10 +45,10 @@ public class EnemyKnockback : MonoBehaviour
     }
 
     /// <summary>
-    /// Apply knockback from an Allomantic push or pull.
+    /// Apply knockback from an Metallurgic push or pull.
     /// Called when a Steel Push or Iron Pull hits this enemy.
     /// </summary>
-    public void ApplyAllomanticKnockback(Vector3 direction, float force)
+    public void ApplyMetallurgicKnockback(Vector3 direction, float force)
     {
         if (isKnockedBack) return;
 
@@ -126,7 +126,7 @@ public class EnemyKnockback : MonoBehaviour
         if (collision.relativeVelocity.magnitude > 10f)
         {
             CoinPhysics coin = collision.gameObject.GetComponent<CoinPhysics>();
-            AllomanticTarget metal = collision.gameObject.GetComponent<AllomanticTarget>();
+            MetallurgicTarget metal = collision.gameObject.GetComponent<MetallurgicTarget>();
 
             if (coin != null || metal != null)
             {
@@ -141,7 +141,7 @@ public class EnemyKnockback : MonoBehaviour
                 hp?.TakeDamage(damage);
 
                 // Knockback from impact
-                ApplyAllomanticKnockback(impactDir, impactSpeed * 0.5f);
+                ApplyMetallurgicKnockback(impactDir, impactSpeed * 0.5f);
             }
         }
     }

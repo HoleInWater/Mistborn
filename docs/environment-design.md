@@ -1,8 +1,8 @@
-# Environment Design — Luthadel
+# Environment Design — Cinderhold
 
 ## Overview
 
-Luthadel is the capital city of the Final Empire. This document describes the environment design for the game.
+Cinderhold is the capital city of the Ashen Dominion. This document describes the environment design for the game.
 
 ---
 
@@ -35,7 +35,7 @@ Luthadel is the capital city of the Final Empire. This document describes the en
 - **Implications:**
   - Night = misty
   - Visibility reduced
-  - Allomantic sight more important at night
+  - Metallurgic sight more important at night
 
 ---
 
@@ -44,8 +44,8 @@ Luthadel is the capital city of the Final Empire. This document describes the en
 ### Buildings
 - **Thick walls** — stone and metal
 - **High windows** — let in minimal light
-- **Flat roofs** — for Allomancer traversal
-- **Metal gutters and pipes** — Allomancy playground
+- **Flat roofs** — for Metallurgist traversal
+- **Metal gutters and pipes** — Metallurgy playground
 - **Dark interiors** — contrast with ash-covered exteriors
 
 ### Streets
@@ -55,7 +55,7 @@ Luthadel is the capital city of the Final Empire. This document describes the en
 - **Ash drains** — channels for ash runoff
 
 ### Metal Content
-Everything metal should be marked as AllomanticTarget:
+Everything metal should be marked as MetallurgicTarget:
 
 | Object | Mass | Anchored |
 |--------|------|----------|
@@ -71,11 +71,11 @@ Everything metal should be marked as AllomanticTarget:
 
 ## District Design
 
-### The Canton of Finance
+### The Diocese of Finance
 - Noble houses
 - Tall buildings
 - Lots of metal (wealth display)
-- Dangerous for Skaa
+- Dangerous for Lowborn
 
 ### The Pits
 - Industrial area
@@ -84,10 +84,10 @@ Everything metal should be marked as AllomanticTarget:
 - Metal everywhere (great for traversal)
 
 ### The Central Dominance
-- Lord Ruler's palace area
-- Kredik Shaw
+- Ashen King's palace area
+- Thornspire
 - Heavily guarded
-- Lots of Steel Inquisitors
+- Lots of Iron Sentinels
 
 ### The Caves
 - Below the city
@@ -133,8 +133,8 @@ Everything metal should be marked as AllomanticTarget:
 - Open, exposed
 - **Use:** Tutorial area, combat arena
 
-### Kredik Shaw
-- Lord Ruler's palace
+### Thornspire
+- Ashen King's palace
 - Spires and towers
 - Extremely metal-rich
 - Flight heaven
@@ -154,8 +154,8 @@ Everything metal should be marked as AllomanticTarget:
 |--------|--------|---------|
 | Ash Storms | Reduced visibility | Tin enhanced sight |
 | Deep Gorges | Fall damage | Pewter, careful flying |
-| Steel Inquisitors | Detection | Coppercloud |
-| Noble Guards | Combat | Stealth, Allomancy |
+| Iron Sentinels | Detection | Coppercloud |
+| Noble Guards | Combat | Stealth, Metallurgy |
 | Ashborn | Damage over time | Stay indoors/under shelter |
 
 ---
@@ -165,7 +165,7 @@ Everything metal should be marked as AllomanticTarget:
 ### Color Palette
 - **Primary:** Grey (#606060) — ash, stone
 - **Secondary:** Dark Red (#4A2020) — rust, blood
-- **Accent:** Blue (#4080FF) — Allomancy, mist
+- **Accent:** Blue (#4080FF) — Metallurgy, mist
 - **Highlight:** Orange (#FF8040) — fires, warmth
 
 ### Materials

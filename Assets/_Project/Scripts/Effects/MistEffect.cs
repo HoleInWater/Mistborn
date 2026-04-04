@@ -2,8 +2,8 @@ using UnityEngine;
 
 /// <summary>
 /// Atmospheric mist particles that appear at night.
-/// Lore: The mists come every night in the Final Empire. They're thick,
-/// reduce visibility, and most people fear them. Mistborn move freely through them.
+/// Lore: The mists come every night in the Ashen Dominion. They're thick,
+/// reduce visibility, and most people fear them. Ashwalker move freely through them.
 /// Tin burning pierces the mist. Copper burning feels "warm" in the mist.
 /// </summary>
 public class MistEffect : MonoBehaviour

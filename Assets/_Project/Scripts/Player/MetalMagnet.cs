@@ -4,10 +4,10 @@ using System.Collections.Generic;
 /// <summary>
 /// Passive Iron Pull magnet effect — automatically pulls nearby loose metal objects
 /// toward the player when burning Iron. Uses lore-accurate F = A × m1 × m2 / r²
-/// from PHYSICS-MATH-BOOK.md. Light objects (coins, clips) drift toward the player;
+/// from PHYSICS-MATH-BOOK.md. Light objects (coins, pennies) drift toward the player;
 /// heavy objects only move if the force exceeds their friction.
 /// </summary>
-[PlayerComponent("Allomancy Support", order: 30)]
+[PlayerComponent("Metallurgy Support", order: 30)]
 public class MetalMagnet : MonoBehaviour
 {
     [Header("Magnet Settings")]
@@ -22,7 +22,7 @@ public class MetalMagnet : MonoBehaviour
     public LayerMask metalLayer;
 
     [Header("References")]
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Rigidbody playerRb;
 
     private float updateTimer;
@@ -31,7 +31,7 @@ public class MetalMagnet : MonoBehaviour
 
     void Start()
     {
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         inventory = GetComponent<Inventory>();
         metalLayer = LayerMask.GetMask("Metal");
@@ -40,7 +40,7 @@ public class MetalMagnet : MonoBehaviour
     void FixedUpdate()
     {
         // Only active when burning Iron
-        if (allomancer == null || !allomancer.IsMetalBurning(AllomancySkill.MetalType.Iron))
+        if (metallurgist == null || !metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Iron))
             return;
 
         // Periodic scan for nearby metals
@@ -71,10 +71,10 @@ public class MetalMagnet : MonoBehaviour
             }
 
             // Lore-accurate pull: F = A × m1 × m2 / r²
-            float force = AllomancyPhysicsFormulas.CalculateAllomanticForce(
+            float force = MetallurgyPhysicsFormulas.CalculateMetallurgicForce(
                 magnetStrength * flare, playerMass, metalRb.mass, dist);
 
-            // Only pull light objects (coins, clips, small metal items)
+            // Only pull light objects (coins, pennies, small metal items)
             if (metalRb.mass > maxObjectMass) continue;
 
             Vector3 pullDir = (transform.position - metalRb.position).normalized;
@@ -114,9 +114,9 @@ public class MetalMagnet : MonoBehaviour
 
         // Metal pickup — refill reserves directly
         MetalPickup pickup = metalObj.GetComponent<MetalPickup>();
-        if (pickup != null && allomancer != null)
+        if (pickup != null && metallurgist != null)
         {
-            allomancer.RefillMetal(pickup.metalType, pickup.metalAmount);
+            metallurgist.RefillMetal(pickup.metalType, pickup.metalAmount);
             Destroy(metalObj);
             return;
         }

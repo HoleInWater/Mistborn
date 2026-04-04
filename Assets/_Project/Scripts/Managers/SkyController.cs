@@ -22,9 +22,9 @@ public class SkyController : MonoBehaviour
     public Light sunLight;
 
     [Header("HDRP Physical Intensity (lux)")]
-    [Tooltip("Raw solar flux before ash attenuation. Scadrial is closer to its star than Earth " +
-             "(lore: the Lord Ruler moved the planet closer). Real sun ≈ 100,000 lux; " +
-             "Scadrial raw ≈ 120,000–130,000 lux before ash scatter cuts it in half.")]
+    [Tooltip("Raw solar flux before ash attenuation. Ashara is closer to its star than Earth " +
+             "(lore: the Ashen King moved the planet closer). Real sun ≈ 100,000 lux; " +
+             "Ashara raw ≈ 120,000–130,000 lux before ash scatter cuts it in half.")]
     public float sunLuxIntensity  = 120000f;
     [Tooltip("Brightness at night (moon/mist ambient approximation).")]
     public float moonLuxIntensity = 0.5f;

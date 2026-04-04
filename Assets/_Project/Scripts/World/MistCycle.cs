@@ -10,9 +10,9 @@
  *   - They begin retreating at dawn (~6:00-8:00)
  *   - They are completely gone by mid-morning
  *   - Mists are thicker in certain seasons (Fallingmonth through Lastmonth)
- *   - Mistborn can see through the mists better than normal people
+ *   - Ashwalker can see through the mists better than normal people
  *   - The mists avoid fires and bright lights (slightly)
- *   - In later books, the mists sometimes come during the day (Ruin's influence)
+ *   - In later books, the mists sometimes come during the day (The Unmaker's influence)
  *
  * This script manages MistSystem instances across the game world,
  * fading them in/out based on time of day.
@@ -35,9 +35,9 @@ public class MistCycle : MonoBehaviour
     [Range(0f, 1f)]
     public float currentMistDensity;
     public float maxDensity = 1f;
-    public float seasonalBonus = 0f;    // Set by ScadrialCalendar during mist season
+    public float seasonalBonus = 0f;    // Set by AsharanCalendar during mist season
 
-    [Header("Ruin's Influence (story progression)")]
+    [Header("The Unmaker's Influence (story progression)")]
     [Tooltip("0 = normal mists (night only). 1 = mists come during the day too.")]
     [Range(0f, 1f)]
     public float ruinInfluence = 0f;
@@ -48,8 +48,8 @@ public class MistCycle : MonoBehaviour
     [Header("Visibility")]
     [Tooltip("Normal visibility range in the mists (meters)")]
     public float normalVisibilityRange = 10f;
-    [Tooltip("Mistborn visibility range (Tin burning extends this)")]
-    public float mistbornVisibilityRange = 30f;
+    [Tooltip("Ashwalker visibility range (Tin burning extends this)")]
+    public float ashwalkerVisibilityRange = 30f;
 
     [Header("Fog Integration")]
     public bool controlSceneFog = true;
@@ -70,7 +70,7 @@ public class MistCycle : MonoBehaviour
         currentMistDensity = CalculateMistDensity(hour);
 
         // Apply seasonal bonus
-        if (ScadrialCalendar.Instance != null && ScadrialCalendar.Instance.IsMistSeason())
+        if (AsharanCalendar.Instance != null && AsharanCalendar.Instance.IsMistSeason())
             seasonalBonus = 0.2f;
         else
             seasonalBonus = 0f;
@@ -93,7 +93,7 @@ public class MistCycle : MonoBehaviour
 
     float CalculateMistDensity(float hour)
     {
-        // Ruin's influence: mists linger during the day
+        // The Unmaker's influence: mists linger during the day
         float baseDayDensity = ruinInfluence * 0.3f;
 
         // Night: full mists
@@ -114,7 +114,7 @@ public class MistCycle : MonoBehaviour
             return Mathf.Lerp(maxDensity, baseDayDensity, t); // linear fade
         }
 
-        // Day: no mists (unless Ruin's influence)
+        // Day: no mists (unless The Unmaker's influence)
         return baseDayDensity;
     }
 
@@ -125,16 +125,16 @@ public class MistCycle : MonoBehaviour
 
     /// <summary>
     /// Get the visibility range for a given position.
-    /// Mistborn with Tin have much better mist visibility.
+    /// Ashwalker with Tin have much better mist visibility.
     /// </summary>
     public float GetVisibilityRange(bool isBurningTin = false)
     {
         if (currentMistDensity < 0.1f) return 200f; // clear day
-        float baseRange = isBurningTin ? mistbornVisibilityRange : normalVisibilityRange;
+        float baseRange = isBurningTin ? ashwalkerVisibilityRange : normalVisibilityRange;
         return baseRange / Mathf.Max(0.1f, currentMistDensity);
     }
 
-    /// <summary>Set Ruin's influence for story progression.</summary>
+    /// <summary>Set The Unmaker's influence for story progression.</summary>
     public void SetRuinInfluence(float influence)
     {
         ruinInfluence = Mathf.Clamp01(influence);

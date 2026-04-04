@@ -8,7 +8,7 @@ How the player grows and unlocks abilities over the course of the game.
 
 ## Progression Systems
 
-### 1. Allomancy Mastery
+### 1. Metallurgy Mastery
 Learn to burn more metals, burn them better.
 
 **Unlocks:**
@@ -99,7 +99,7 @@ Carry more, burn longer.
 | 7 | 2200 | Gold |
 | 8 | 3000 | Electrum |
 | 9 | 4000 | Duralumin |
-| 10 | 5500 | Full Mistborn |
+| 10 | 5500 | Full Ashwalker |
 
 ---
 
@@ -121,7 +121,7 @@ Carry more, burn longer.
 [Precision Landing] → [Silent Flight] → [Shadow Movement]
 ```
 
-### Allomancer Tree
+### Metallurgist Tree
 ```
 [Reserve Boost] → [Efficient Burning] → [Metal Sense]
       ↓
@@ -132,13 +132,13 @@ Carry more, burn longer.
 
 ## Character Builds
 
-### The Coinshot
+### The Launcher
 Focus: Steel mastery, ranged damage
 - Max Steel efficiency
 - Coin Spray technique
 - Precision Push
 
-### The Lurcher
+### The Hauler
 Focus: Iron mastery, crowd control
 - Max Iron range
 - Chain Pull
@@ -156,7 +156,7 @@ Focus: Traversal, stealth
 - Tin resistance
 - Silent movement
 
-### Full Mistborn (End Game)
+### Full Ashwalker (End Game)
 All metals, all techniques, maximum versatility.
 
 ---

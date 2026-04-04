@@ -1,4 +1,4 @@
-# Mistborn Controls Reference
+# Ashwalker Controls Reference
 
 *Last updated: March 21, 2026*
 
@@ -17,7 +17,7 @@
 
 ---
 
-## Allomancy - Pushing
+## Metallurgy - Pushing
 
 | Action | Key | Metal |
 |--------|-----|-------|
@@ -25,7 +25,7 @@
 
 ---
 
-## Allomancy - Pulling
+## Metallurgy - Pulling
 
 | Action | Key | Metal |
 |--------|-----|-------|
@@ -33,7 +33,7 @@
 
 ---
 
-## Allomancy - Physical Enhancement
+## Metallurgy - Physical Enhancement
 
 | Action | Key | Metal | Effect |
 |--------|-----|-------|--------|
@@ -42,30 +42,30 @@
 
 ---
 
-## Allomancy - Mental
+## Metallurgy - Mental
 
 | Action | Key | Metal | Effect |
 |--------|-----|-------|--------|
 | Zinc Riot | Z | Zinc | Enrage enemies |
 | Brass Soothe | X | Brass | Calm enemies |
-| Copper Cloud | C | Copper | Hide Allomantic pulses |
-| Bronze Detect | V | Bronze | Detect other Allomancers |
+| Copper Cloud | C | Copper | Hide Metallurgic pulses |
+| Bronze Detect | V | Bronze | Detect other Metallurgists |
 
 ---
 
-## Allomancy - God Metals
+## Metallurgy - God Metals
 
 | Action | Key | Metal | Effect |
 |--------|-----|-------|--------|
-| Atium | T | Atium | See enemy futures (ghosts) |
+| Oraculum | T | Oraculum | See enemy futures (ghosts) |
 | Gold | G | Gold | See past self |
 | Electrum | 5 | Electrum | See own future |
 | Aluminum | O | Aluminum | Purge all metal reserves |
-| Duralumin | R | Duralumin | Mega Allomantic burst |
+| Duralumin | R | Duralumin | Mega Metallurgic burst |
 
 ---
 
-## Allomancy - Time
+## Metallurgy - Time
 
 | Action | Key | Metal | Effect |
 |--------|-----|-------|--------|
@@ -101,5 +101,5 @@
 - **Pewter** makes you stronger - great for combat
 - **Tin** enhances all senses - useful for exploration
 - **Copper Cloud** hides you from Bronze detectors
-- **Atium** lets you see enemy attack patterns
+- **Oraculum** lets you see enemy attack patterns
 - **Time Bubbles** affect everyone inside including enemies

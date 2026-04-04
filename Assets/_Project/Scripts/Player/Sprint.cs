@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// Sprint controller with Pewter and Steel Feruchemy integration.
+/// Sprint controller with Pewter and Steel Storecraft integration.
 /// Pewter burning reduces stamina drain and increases sprint speed.
-/// Steel Feruchemy tapping further boosts speed.
+/// Steel Storecraft tapping further boosts speed.
 /// </summary>
 [PlayerComponent("Movement", order: 20)]
 public class Sprint : MonoBehaviour
@@ -25,15 +25,15 @@ public class Sprint : MonoBehaviour
     public float currentSpeed;
 
     private PlayerStamina staminaSystem;
-    private Allomancer allomancer;
-    private Feruchemist feruchemist;
+    private Metallurgist metallurgist;
+    private Storecrafter storecrafter;
     private bool isSprinting = false;
 
     void Start()
     {
         staminaSystem = GetComponent<PlayerStamina>();
-        allomancer = GetComponent<Allomancer>();
-        feruchemist = GetComponent<Feruchemist>();
+        metallurgist = GetComponent<Metallurgist>();
+        storecrafter = GetComponent<Storecrafter>();
         currentSpeed = walkSpeed;
     }
 
@@ -49,7 +49,7 @@ public class Sprint : MonoBehaviour
             float drain = drainRate;
 
             // Pewter burning: faster sprint, less stamina drain
-            if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+            if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter))
             {
                 float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
                 float P = Mathf.Clamp01(flare / 2.5f);
@@ -57,19 +57,19 @@ public class Sprint : MonoBehaviour
                 drain *= (1f - pewterDrainReduction * P);
             }
 
-            // Steel Feruchemy tapping: speed boost from stored speed
-            if (feruchemist != null)
+            // Steel Storecraft tapping: speed boost from stored speed
+            if (storecrafter != null)
             {
-                float speedMod = feruchemist.GetAttributeModifier(FeruchemicalAttribute.Speed);
+                float speedMod = storecrafter.GetAttributeModifier(StorecraftedAttribute.Speed);
                 if (speedMod > 1f)
                     speed *= speedMod;
             }
 
             // Skill tree bonus
-            if (AllomanticSkillTree.Instance != null)
+            if (MetallurgicSkillTree.Instance != null)
             {
-                float moveBonus = AllomanticSkillTree.Instance.GetSkillValue("Move_Speed1")
-                                + AllomanticSkillTree.Instance.GetSkillValue("Move_Speed2");
+                float moveBonus = MetallurgicSkillTree.Instance.GetSkillValue("Move_Speed1")
+                                + MetallurgicSkillTree.Instance.GetSkillValue("Move_Speed2");
                 speed *= (1f + moveBonus);
             }
 

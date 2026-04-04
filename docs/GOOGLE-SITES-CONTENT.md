@@ -1,4 +1,4 @@
-# Google Sites Content — Mistborn: The Final Empire
+# Google Sites Content — Ashwalker: The Ashen Dominion
 
 Copy-paste each section into Google Sites pages. Use "Embed from the web → Embed code" for the HTML embed version below.
 
@@ -20,7 +20,7 @@ Replace `YOUR_HOSTED_URL_HERE` with wherever you host the `website/index.html` f
 
 ### Page 1: Home
 
-**Title:** MISTBORN: The Final Empire
+**Title:** MISTBORN: The Ashen Dominion
 
 **Header Text (large):** MISTBORN
 
@@ -36,11 +36,11 @@ Replace `YOUR_HOSTED_URL_HERE` with wherever you host the `website/index.html` f
 
 **Title:** About the Game
 
-In a world where ash falls from the sky and mists dominate the night, the immortal Lord Ruler has reigned for a thousand years.
+In a world where ash falls from the sky and mists dominate the night, the immortal Ashen King has reigned for a thousand years.
 
-Based on Brandon Sanderson's bestselling Mistborn novels, this action RPG puts you in the role of a street thief who discovers they possess Allomancy — the power to ingest and "burn" metals for extraordinary abilities.
+Based on the original author's bestselling Ashwalker novels, this action RPG puts you in the role of a street thief who discovers they possess Metallurgy — the power to ingest and "burn" metals for extraordinary abilities.
 
-Push and Pull on metals to fly through the mists. Enhance your body with pewter. See the future with atium. Soothe or enrage the emotions of your enemies. Master all sixteen Allomantic metals and join a crew of rebels plotting the ultimate heist: the overthrow of the Lord Ruler himself.
+Push and Pull on metals to fly through the mists. Enhance your body with pewter. See the future with oraculum. Soothe or enrage the emotions of your enemies. Master all sixteen Metallurgic metals and join a crew of rebels plotting the ultimate heist: the overthrow of the Ashen King himself.
 
 Every ability follows real physics. Every metal has a cost. Every choice matters.
 
@@ -50,23 +50,23 @@ Every ability follows real physics. Every metal has a cost. Every choice matters
 
 **Title:** Features
 
-**Allomantic Combat**
-Burn metals for superhuman abilities. Push coins at bullet speed, Pull weapons from enemies' hands, and enhance your strength with pewter. All 16 Allomantic metals are fully implemented with lore-accurate physics.
+**Metallurgic Combat**
+Burn metals for superhuman abilities. Push coins at bullet speed, Pull weapons from enemies' hands, and enhance your strength with pewter. All 16 Metallurgic metals are fully implemented with lore-accurate physics.
 
 **Physics-Driven Movement**
 Steel Pushing and Iron Pulling follow real force calculations. Launch yourself off metal anchors, arc through the mists, and hover at equilibrium points. Newton's Third Law is your best friend.
 
-**Open World Luthadel**
-Explore the capital of the Final Empire. Dark streets lit by metal lanterns, noble keeps rising above the ash, canals threading through districts, and Kredik Shaw — the Hill of a Thousand Spires — looming over everything.
+**Open World Cinderhold**
+Explore the capital of the Ashen Dominion. Dark streets lit by metal lanterns, noble keeps rising above the ash, canals threading through districts, and Thornspire — the Hill of a Thousand Spires — looming over everything.
 
 **Dynamic NPC Behavior**
 NPCs don't just fight or flee. They freeze in shock, surrender in despair, or rise up in rebellion. A society reacting to power, driven by beliefs, memories, and perceived agency.
 
 **Day/Night Cycle & Weather**
-The mists come every night. Ash falls from the Ashmounts. A red sun filters through perpetual haze. The world of Scadrial is alive with atmospheric detail driven by real astronomical formulas.
+The mists come every night. Ash falls from the Ashmounts. A red sun filters through perpetual haze. The world of Ashara is alive with atmospheric detail driven by real astronomical formulas.
 
 **Crew & Story**
-Join Kelsier's crew and plan the most ambitious heist in history. Build relationships, unlock skills, and choose your path through a story faithful to Brandon Sanderson's vision.
+Join Darius's crew and plan the most ambitious heist in history. Build relationships, unlock skills, and choose your path through a story faithful to the original author's vision.
 
 ---
 
@@ -74,7 +74,7 @@ Join Kelsier's crew and plan the most ambitious heist in history. Build relation
 
 **Title:** The Sixteen Metals
 
-Allomancy is the magic of metals. Ingest a metal, burn it within your body, and gain its power.
+Metallurgy is the magic of metals. Ingest a metal, burn it within your body, and gain its power.
 
 **Physical Metals**
 - Steel — Push metals away from you. Launch coins, deflect weapons, fly.
@@ -85,8 +85,8 @@ Allomancy is the magic of metals. Ingest a metal, burn it within your body, and 
 **Mental Metals**
 - Zinc — Riot emotions. Enrage enemies, incite crowds, break morale.
 - Brass — Soothe emotions. Calm guards, pacify threats, manipulate.
-- Copper — Hide your Allomancy from detection.
-- Bronze — Detect other Allomancers burning metals nearby.
+- Copper — Hide your Metallurgy from detection.
+- Bronze — Detect other Metallurgists burning metals nearby.
 
 **Temporal Metals**
 - Gold — See your past self — who you might have been.
@@ -97,26 +97,26 @@ Allomancy is the magic of metals. Ingest a metal, burn it within your body, and 
 **Enhancement Metals**
 - Aluminum — Purge all your metal reserves instantly.
 - Duralumin — Burn all reserves in one massive burst of power.
-- Chromium — Strip another Allomancer's reserves on contact.
-- Nicrosil — Supercharge another Allomancer's current burn.
+- Chromium — Strip another Metallurgist's reserves on contact.
+- Nicrosil — Supercharge another Metallurgist's current burn.
 
 ---
 
 ### Page 5: The World
 
-**Title:** The World of Scadrial
+**Title:** The World of Ashara
 
-**Luthadel**
-The capital of the Final Empire. A sprawling city of dark stone, metal lanterns, and oppressed skaa workers. Noble keeps rise above the ash-covered streets, and canals cut through the districts. At its heart stands Kredik Shaw — the Lord Ruler's palace of a thousand metal spires.
+**Cinderhold**
+The capital of the Ashen Dominion. A sprawling city of dark stone, metal lanterns, and oppressed lowborn workers. Noble keeps rise above the ash-covered streets, and canals cut through the districts. At its heart stands Thornspire — the Ashen King's palace of a thousand metal spires.
 
 **The Mists**
-Every night, thick supernatural mists blanket the land. Common people fear them. Mistborn thrive in them. The mists are Preservation's power made manifest — rolling, swirling, alive with a faint inner light that only Allomancers can feel.
+Every night, thick supernatural mists blanket the land. Common people fear them. Ashwalker thrive in them. The mists are The Warden's power made manifest — rolling, swirling, alive with a faint inner light that only Metallurgists can feel.
 
 **The Ashmounts**
-Massive volcanoes that spew ash across the entire world. The sky is never blue. The sun is always red. Ash falls constantly, and skaa workers spend their lives sweeping it from the streets and fields of the nobility.
+Massive volcanoes that spew ash across the entire world. The sky is never blue. The sun is always red. Ash falls constantly, and lowborn workers spend their lives sweeping it from the streets and fields of the nobility.
 
-**The Final Empire**
-A thousand years of absolute rule. The Lord Ruler is immortal, his Steel Inquisitors are terrifying, and his Obligators control every aspect of life. The skaa are slaves. The nobles scheme. And somewhere in the mists, a revolution is brewing.
+**The Ashen Dominion**
+A thousand years of absolute rule. The Ashen King is immortal, his Iron Sentinels are terrifying, and his Prelates control every aspect of life. The lowborn are slaves. The nobles scheme. And somewhere in the mists, a revolution is brewing.
 
 ---
 
@@ -134,7 +134,7 @@ Sections: Screenshots | Videos | Concept Art
 
 **Title:** The Team
 
-**Crimson Blade Interactive** is an independent game studio dedicated to bringing Brandon Sanderson's Cosmere to life as interactive experiences.
+**Crimson Blade Interactive** is an independent game studio dedicated to bringing the original author's the greater universe to life as interactive experiences.
 
 LEADERSHIP
 
@@ -158,10 +158,10 @@ Contributes to the codebase and runs testing across all game systems. Helps catc
 CORE TEAM
 
 **Landon Adams** — Creative Director & Lead Developer
-The driving force behind the Mistborn game. Handles game design, core programming, Allomancy physics systems, and world building.
+The driving force behind the Ashwalker game. Handles game design, core programming, Metallurgy physics systems, and world building.
 
 **Malakai Probert** — Composer
-Creator of the original Mistborn game soundtrack. His music captures the dark atmosphere and epic scale of the Final Empire.
+Creator of the original Ashwalker game soundtrack. His music captures the dark atmosphere and epic scale of the Ashen Dominion.
 
 **David** — Team Member
 Works within Deegan's section contributing to the project's development efforts.
@@ -170,17 +170,17 @@ Works within Deegan's section contributing to the project's development efforts.
 Contributes to the project under the leadership team, supporting ongoing development.
 
 **Join the Crew**
-We're looking for passionate artists, animators, and developers who love the Cosmere. If you want to help build the Final Empire, get in touch.
+We're looking for passionate artists, animators, and developers who love the the greater universe. If you want to help build the Ashen Dominion, get in touch.
 
 ---
 
 ### Page 8: FAQ
 
 **What is this game?**
-An action RPG based on Brandon Sanderson's Mistborn: The Final Empire. You play as a Mistborn — someone who can burn all sixteen Allomantic metals — in an open world set in the dark, ash-covered city of Luthadel.
+An action RPG based on the original author's Ashwalker: The Ashen Dominion. You play as a Ashwalker — someone who can burn all sixteen Metallurgic metals — in an open world set in the dark, ash-covered city of Cinderhold.
 
 **Is this officially licensed?**
-We are currently in development and seeking official partnership with Dragonsteel Entertainment. The game is being built with deep respect for Brandon Sanderson's world and lore accuracy is our top priority.
+We are currently in development and seeking official partnership with the original IP holder. The game is being built with deep respect for the original author's world and lore accuracy is our top priority.
 
 **What platforms will it be on?**
 We're developing for PC first, with console ports planned for later. The game is built in Unity with HDRP for high-quality visuals.
@@ -188,14 +188,14 @@ We're developing for PC first, with console ports planned for later. The game is
 **When will it release?**
 We're in active development with no announced release date yet. Follow us for updates as we progress through development milestones.
 
-**How accurate is the Allomancy system?**
-Extremely. Every Push and Pull follows real physics calculations. Metal burn rates match the Mistborn Adventure Game's canonical values. Force scales linearly with distance (matching community analysis of the books). Coin velocities, hover equilibrium, Newton's Third Law mass ratios — it's all mathematically accurate to the source material.
+**How accurate is the Metallurgy system?**
+Extremely. Every Push and Pull follows real physics calculations. Metal burn rates match the Ashwalker Adventure Game's canonical values. Force scales linearly with distance (matching community analysis of the books). Coin velocities, hover equilibrium, Newton's Third Law mass ratios — it's all mathematically accurate to the source material.
 
 **Can I help?**
-Yes! We're looking for 3D artists, character animators, concept artists, and sound designers. If you're passionate about the Cosmere and want to contribute, reach out through our contact page.
+Yes! We're looking for 3D artists, character animators, concept artists, and sound designers. If you're passionate about the the greater universe and want to contribute, reach out through our contact page.
 
 **Will it follow the books' story?**
-The game is set in the world of the Final Empire and follows themes from the novels. The player's journey will intersect with the events and characters of the books while offering unique gameplay experiences.
+The game is set in the world of the Ashen Dominion and follows themes from the novels. The player's journey will intersect with the events and characters of the books while offering unique gameplay experiences.
 
 ---
 
@@ -213,9 +213,9 @@ Discord: [YOUR DISCORD HERE]
 
 ### Footer (on every page)
 
-Mistborn: The Final Empire
+Ashwalker: The Ashen Dominion
 A Crimson Blade Interactive Production
 
-Mistborn and the Cosmere are the intellectual property of Brandon Sanderson and Dragonsteel Entertainment. This game is a fan project currently seeking official licensing.
+Ashwalker and the the greater universe are the intellectual property of the original author and the original IP holder. This game is a fan project currently seeking official licensing.
 
 © 2026 Crimson Blade Interactive. All rights reserved.

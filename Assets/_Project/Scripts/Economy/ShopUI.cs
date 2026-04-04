@@ -191,7 +191,7 @@ public class ShopUI : MonoBehaviour
         if (selectedItemNameText != null) selectedItemNameText.text = item.itemName;
         if (selectedItemDescText != null) selectedItemDescText.text = item.description ?? "";
         if (selectedItemPriceText != null)
-            selectedItemPriceText.text = $"Price: {currentShop.GetBuyPrice(item)} boxings";
+            selectedItemPriceText.text = $"Price: {currentShop.GetBuyPrice(item)} crowns";
         if (selectedItemIcon != null && item.icon != null)
             selectedItemIcon.sprite = item.icon;
 
@@ -241,7 +241,7 @@ public class ShopUI : MonoBehaviour
     void UpdateBoxingsDisplay()
     {
         if (playerBoxingsText != null)
-            playerBoxingsText.text = $"Boxings: {playerBoxings}";
+            playerBoxingsText.text = $"Crowns: {playerBoxings}";
     }
 
     void ShowFeedback(string message, bool success)

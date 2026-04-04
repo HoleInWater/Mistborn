@@ -4,7 +4,7 @@ using System.Collections;
 public class MetalPickup : MonoBehaviour
 {
     [Header("Metal Type")]
-    public AllomancySkill.MetalType metalType;
+    public MetallurgySkill.MetalType metalType;
     
     [Header("Pickup Settings")]
     public float metalAmount = 25f;
@@ -31,11 +31,11 @@ public class MetalPickup : MonoBehaviour
     
     void CollectMetal(GameObject player)
     {
-        Allomancer allomancer = player.GetComponent<Allomancer>();
+        Metallurgist metallurgist = player.GetComponent<Metallurgist>();
         
-        if (allomancer != null)
+        if (metallurgist != null)
         {
-            allomancer.RefillMetal(metalType, metalAmount);
+            metallurgist.RefillMetal(metalType, metalAmount);
         }
         else
         {

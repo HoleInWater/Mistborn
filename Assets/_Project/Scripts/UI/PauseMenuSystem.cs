@@ -28,8 +28,8 @@ public class PauseMenuSystem : MonoBehaviour
     {
         isPaused = true;
         if (pausePanel != null) pausePanel.SetActive(true);
-        if (MistbornTimeManager.Instance != null)
-            MistbornTimeManager.Instance.SetPaused(true);
+        if (AshwalkerTimeManager.Instance != null)
+            AshwalkerTimeManager.Instance.SetPaused(true);
         else
             Time.timeScale = 0f;
         if (CursorManager.Instance != null)
@@ -42,8 +42,8 @@ public class PauseMenuSystem : MonoBehaviour
     {
         isPaused = false;
         CloseAllPanels();
-        if (MistbornTimeManager.Instance != null)
-            MistbornTimeManager.Instance.SetPaused(false);
+        if (AshwalkerTimeManager.Instance != null)
+            AshwalkerTimeManager.Instance.SetPaused(false);
         else
             Time.timeScale = 1f;
         if (CursorManager.Instance != null)
@@ -78,7 +78,7 @@ public class PauseMenuSystem : MonoBehaviour
 
     public void QuitToMenu()
     {
-        if (MistbornTimeManager.Instance != null) MistbornTimeManager.Instance.SetPaused(false);
+        if (AshwalkerTimeManager.Instance != null) AshwalkerTimeManager.Instance.SetPaused(false);
         else Time.timeScale = 1f;
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }

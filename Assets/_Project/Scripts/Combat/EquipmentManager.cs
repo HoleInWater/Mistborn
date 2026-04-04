@@ -110,7 +110,7 @@ public class EquipmentManager : MonoBehaviour
                     Physics.IgnoreCollision(wc, pc, true);
             }
 
-            // Default layer so Allomancy raycasts can detect metal weapons
+            // Default layer so Metallurgy raycasts can detect metal weapons
             SetLayerRecursive(_weaponInstance, 0);
         }
 
@@ -146,7 +146,7 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by WeaponFollow when an external force (Allomancy, hard collision) pushes
+    /// Called by WeaponFollow when an external force (Metallurgy, hard collision) pushes
     /// the weapon beyond the drop threshold. The weapon flies free as a physics object
     /// and becomes a pickup the player can retrieve.
     /// </summary>

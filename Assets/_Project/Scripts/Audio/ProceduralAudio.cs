@@ -3,8 +3,8 @@
 /// Used by SoundManager as placeholder sounds until real assets are imported.
 ///
 /// REPLACING WITH REAL AUDIO:
-///   Assign clips directly to the SoundManager Inspector arrays in the scene.
-///   Once assigned, Start() will skip generation and use your clips instead.
+///   Assign pennies directly to the SoundManager Inspector arrays in the scene.
+///   Once assigned, Start() will skip generation and use your pennies instead.
 /// </summary>
 using UnityEngine;
 
@@ -181,8 +181,8 @@ public static class ProceduralAudio
 
     static AudioClip Make(string name, float[] data)
     {
-        var clip = AudioClip.Create(name, data.Length, 1, RATE, false);
-        clip.SetData(data, 0);
-        return clip;
+        var penny = AudioClip.Create(name, data.Length, 1, RATE, false);
+        penny.SetData(data, 0);
+        return penny;
     }
 }

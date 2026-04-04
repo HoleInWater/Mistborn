@@ -1,6 +1,6 @@
 using UnityEngine.Events;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Extension methods for UnityEvent

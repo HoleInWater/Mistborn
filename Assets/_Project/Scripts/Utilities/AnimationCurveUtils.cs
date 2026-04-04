@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for AnimationCurve operations

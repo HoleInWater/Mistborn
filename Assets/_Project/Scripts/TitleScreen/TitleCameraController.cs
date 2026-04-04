@@ -8,7 +8,7 @@
  *
  *   Phase 1 (Field): Static wide shot of the misty field. Tiny drift.
  *   Phase 3 (Streets): Static shot down the street. Tiny drift.
- *   Phase 4 (Kredik Shaw): Slow orbit around Kredik Shaw. This is the only
+ *   Phase 4 (Thornspire): Slow orbit around Thornspire. This is the only
  *     phase with real movement — aerial establishing shot.
  *   Phase 5 (Title): Continues the slow orbit with FOV zoom.
  */
@@ -17,17 +17,17 @@ using UnityEngine;
 
 public class TitleCameraController : MonoBehaviour
 {
-    public enum Phase { MistyField, LuthadelStreets, KredikShawAerial, TitleHold }
+    public enum Phase { MistyField, CinderholdStreets, ThornspireAerial, TitleHold }
 
     [Header("Phase 1 -- Misty Field (static shot)")]
     public Vector3 fieldPosition = new Vector3(0f, 2.5f, -8f);
     public Vector3 fieldLookAt   = new Vector3(0f, 1.5f, 30f);
 
-    [Header("Phase 3 -- Luthadel Streets (static shot)")]
+    [Header("Phase 3 -- Cinderhold Streets (static shot)")]
     public Vector3 streetPosition = new Vector3(0f, 3f, -5f);
     public Vector3 streetLookAt   = new Vector3(0f, 2.5f, 20f);
 
-    [Header("Phase 4 -- Kredik Shaw (slow orbit)")]
+    [Header("Phase 4 -- Thornspire (slow orbit)")]
     public Vector3 aerialCenter     = new Vector3(0f, 0f, 0f);
     public float   aerialHeight     = 55f;
     public float   aerialRadius     = 35f;
@@ -68,12 +68,12 @@ public class TitleCameraController : MonoBehaviour
                 transform.LookAt(fieldLookAt);
                 break;
 
-            case Phase.LuthadelStreets:
+            case Phase.CinderholdStreets:
                 transform.position = streetPosition;
                 transform.LookAt(streetLookAt);
                 break;
 
-            case Phase.KredikShawAerial:
+            case Phase.ThornspireAerial:
                 orbitAngle = 0f;
                 UpdateAerialPosition();
                 break;
@@ -97,12 +97,12 @@ public class TitleCameraController : MonoBehaviour
                 ApplyDrift(fieldPosition, fieldLookAt);
                 break;
 
-            case Phase.LuthadelStreets:
+            case Phase.CinderholdStreets:
                 // Static shot with tiny drift
                 ApplyDrift(streetPosition, streetLookAt);
                 break;
 
-            case Phase.KredikShawAerial:
+            case Phase.ThornspireAerial:
                 // Slow orbit — the only phase with real movement
                 orbitAngle += aerialOrbitSpeed * Time.deltaTime;
                 UpdateAerialPosition();

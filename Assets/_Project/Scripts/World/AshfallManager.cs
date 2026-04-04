@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Manages the visual intensity of falling ash on Scadrial.
+/// Manages the visual intensity of falling ash on Ashara.
 /// </summary>
 public class AshfallManager : MonoBehaviour
 {

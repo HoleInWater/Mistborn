@@ -1,30 +1,30 @@
-# Allomancy Design Document
+# Metallurgy Design Document
 
-## What is Allomancy?
+## What is Metallurgy?
 
-Allomancy is the magic system from Brandon Sanderson's Mistborn series. Here's the gist:
+Metallurgy is the magic system from the original author's Ashwalker series. Here's the gist:
 
 1. You swallow metal (flakes, dust, filings)
 2. You "burn" it — the metal starts giving you power
 3. You get an effect based on which metal you're burning
 4. When the metal runs out, the power stops
 
-The power comes from Preservation, one of the two Shards that created Scadrial. Allomancy is end-positive — you gain more power than you put in.
+The power comes from The Warden, one of the two Shards that created Ashara. Metallurgy is end-positive — you gain more power than you put in.
 
 ## The 16 Metals
 
-| Metal | Push/Pull | Effect | Misting Name | Status |
+| Metal | Push/Pull | Effect | Sparkblood Name | Status |
 |-------|-----------|--------|--------------|--------|
-| **Steel** | Push | Propels metal objects away | Coinshot | ACTIVE |
-| **Iron** | Pull | Attracts metal objects toward | Lurcher | ACTIVE |
+| **Steel** | Push | Propels metal objects away | Launcher | ACTIVE |
+| **Iron** | Pull | Attracts metal objects toward | Hauler | ACTIVE |
 | **Pewter** | — | Enhanced strength/durability | Thug | ACTIVE |
-| **Tin** | — | Enhanced senses | Tineye | ACTIVE |
-| Brass | Soothe | Calms emotions | Soother | ACTIVE |
-| Zinc | Riot | Provokes emotions | Rioter | ACTIVE |
-| Copper | — | Masks Allomancy detection | Smoker | ACTIVE |
-| Bronze | — | Detects burning Allomancers | Seaker | ACTIVE |
-| Atium | — | See others' futures | — | ACTIVE |
-| Malatium | — | See true nature | — | Planned |
+| **Tin** | — | Enhanced senses | Keensense | ACTIVE |
+| Brass | Soothe | Calms emotions | Queller | ACTIVE |
+| Zinc | Riot | Provokes emotions | Igniter | ACTIVE |
+| Copper | — | Masks Metallurgy detection | Smoker | ACTIVE |
+| Bronze | — | Detects burning Metallurgists | Seaker | ACTIVE |
+| Oraculum | — | See others' futures | — | ACTIVE |
+| Revelum | — | See true nature | — | Planned |
 | Gold | — | See possible pasts | Augur | Planned |
 | Electrum | — | See possible futures | Oracle | Planned |
 | Aluminum | — | Drains own metals | Aluminum Gnat | Planned |
@@ -34,13 +34,13 @@ The power comes from Preservation, one of the two Shards that created Scadrial. 
 
 ## Steel & Iron: The Physical Pair
 
-These are our focus for Sprint 1. They work on external metal objects and follow Newton's Third Law (plus some mistborn-specific rules).
+These are our focus for Sprint 1. They work on external metal objects and follow Newton's Third Law (plus some ashwalker-specific rules).
 
 ### The Core Rules (from the books)
 
 **1. Push strength is proportional to your physical weight**
-- Bigger Allomancer = stronger push
-- A 200lb Mistborn pushes harder than a 120lb one
+- Bigger Metallurgist = stronger push
+- A 200lb Ashwalker pushes harder than a 120lb one
 
 **2. Push strength is inversely proportional to distance**
 - Closer = stronger push
@@ -77,12 +77,12 @@ Key uses:
 - Pull coins back to you
 - Pull yourself toward metal anchors
 
-## Allomantic Sight
+## Metallurgic Sight
 
 When burning Steel or Iron, you see faint blue lines extending from your center of self to every metal object in range.
 
 From the Coppermind:
-> "When burning steel, blue lines emerge from the Coinshot and connect themselves to pieces of nearby metal, with the size of the steel line indicating how big the metal is."
+> "When burning steel, blue lines emerge from the Launcher and connect themselves to pieces of nearby metal, with the size of the steel line indicating how big the metal is."
 
 **Key facts:**
 - Line brightness = object mass (brighter = heavier)
@@ -126,7 +126,7 @@ Vote here
 
 ## Reference: Invested Project
 
-The game "Invested" (github.com/austin-j-taylor/Invested) has working Allomancy physics we can reference.
+The game "Invested" (github.com/austin-j-taylor/Invested) has working Metallurgy physics we can reference.
 
 What they've solved:
 - Force calculation based on distance and mass

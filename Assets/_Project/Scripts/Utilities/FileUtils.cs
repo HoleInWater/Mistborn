@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for file operations

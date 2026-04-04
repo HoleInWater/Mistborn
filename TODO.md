@@ -1,4 +1,4 @@
-# Mistborn Era One — Master TODO
+# Ashwalker Era One — Master TODO
 
 > Last updated: 2026-03-28
 
@@ -6,11 +6,11 @@
 
 ## Current Script Priorities
 
-1. **Metals** — allomancy metals and works
+1. **Metals** — metallurgy metals and works
 2. **Particle Effects** — metal burn/flare VFX prefabs for all active metals
-3. **Finsih Animation Controllers** — character animation state machines (movement, combat, allomancy)
-4. **Enemy Polish** — Koloss, SteelInquisitor, Hazekiller need testing and tuning
-5. **Level Design** — first playable Luthadel city block (vertical traversal focus)
+3. **Finsih Animation Controllers** — character animation state machines (movement, combat, metallurgy)
+4. **Enemy Polish** — Bloodbrute, IronSentinel, Metalhunter need testing and tuning
+5. **Level Design** — first playable Cinderhold city block (vertical traversal focus)
 
 ---
 
@@ -18,7 +18,7 @@
 
 ### Foundation
 - [x] Project structure, GitHub repo, Unity 6000.4 LTS setup
-- [x] `Mistborn > Auto Setup Player` editor tool — reflection-based, zero merge conflicts
+- [x] `Ashwalker > Auto Setup Player` editor tool — reflection-based, zero merge conflicts
 - [x] `[PlayerComponent]` attribute system — components declare themselves, no shared file to edit
 
 ### Player
@@ -31,13 +31,13 @@
 - [ ] Wall run (script exists)
 - [ ] Fall damage
 
-### Allomancy Core
-- [x] `Allomancer.cs` — metal reserve management, burn toggle (left ctrl key), metal draining
-- [x] `AllomanticTarget.cs` — marks objects as pushable/pullable
+### Metallurgy Core
+- [x] `Metallurgist.cs` — metal reserve management, burn toggle (left ctrl key), metal draining
+- [x] `MetallurgicTarget.cs` — marks objects as pushable/pullable
 - [x] `MetalSelector.cs` — 2-metal primary/secondary system, swap key (Left Alt), instant HUD sync
 - [x] `MetalReserve.cs` / `MetalRingVisual.cs` — 2-bar HUD + proportional arc ring (bottom-right)
 - [x] `FlareManager.cs` — Scroll while burning
-- [x] `AllomanticSight.cs` — Tab toggles blue lines to all metal in range
+- [x] `MetallurgicSight.cs` — Tab toggles blue lines to all metal in range
 - [x] `RadialMetalMenu.cs` — scroll wheel opens metal selection wheel
 - [x] `MetalLineRenderer.cs` — blue line visuals to metals
 
@@ -52,7 +52,7 @@
 - [x] `Tin.cs` — script exists, full 5-sense implementation incomplete ← **PRIORITY**
 - [ ] `Zinc.cs` — riot emotions
 - [ ] `Brass.cs` — soothe emotions
-- [ ] `Copper.cs` — hide allomantic pulses
+- [ ] `Copper.cs` — hide metallurgic pulses
 - [ ] `Bronze.cs` — detect burning
 - [ ] `Aluminum.cs` — purge own metals
 - [ ] `Duralumin.cs` — mega burst
@@ -60,8 +60,8 @@
 - [ ] `Nicrosil.cs` — amplify others
 - [ ] `Bendalloy.cs` + `TimeBubble.cs` — speed time bubble
 - [ ] `Cadmium.cs` — slow time bubble
-- [ ] `Atium.cs` — see enemy futures (stub, unimplemented)
-- [ ] `Malatium.cs` — see future selves (stub, unimplemented)
+- [ ] `Oraculum.cs` — see enemy futures (stub, unimplemented)
+- [ ] `Revelum.cs` — see future selves (stub, unimplemented)
 - [ ] `Gold.cs` — see past self (stub, unimplemented)
 - [ ] `Electrum.cs` — see your own future (stub, unimplemented)
 
@@ -74,11 +74,11 @@
 
 ### Enemies
 - [ ] `EnemyAI.cs` — patrol, chase, flee, NavMesh (crash fix applied)
-- [ ] `KolossAI.cs` — charge attack, ground slam
-- [ ] `SteelInquisitorAI.cs` — multi-phase boss
-- [ ] `LordRulerBoss.cs` — final boss
-- [ ] `HazekillerAI.cs` — elite enemy
-- [ ] `EnemySeeker.cs` — detects allomancy
+- [ ] `BloodbruteAI.cs` — charge attack, ground slam
+- [ ] `IronSentinelAI.cs` — multi-phase boss
+- [ ] `AshenKingBoss.cs` — final boss
+- [ ] `MetalhunterAI.cs` — elite enemy
+- [ ] `EnemySeeker.cs` — detects metallurgy
 - [ ] All enemies need playtesting and tuning against the actual player
 
 ### HUD / UI
@@ -122,7 +122,7 @@
 
 ## Notes
 
-- **Lore accuracy is non-negotiable.** Physics formulas are in `docs/PHYSICS-MATH-BOOK.md`. Mental/temporal metals cannot flare. Check `docs/allomancy-design.md` before implementing any metal.
+- **Lore accuracy is non-negotiable.** Physics formulas are in `docs/PHYSICS-MATH-BOOK.md`. Mental/temporal metals cannot flare. Check `docs/metallurgy-design.md` before implementing any metal.
 - **Scene coordination:** Don't edit `Scene 1.unity` without checking with the team first. Binary files don't merge.
 - **Branching:** Every feature gets its own branch. PR → review → merge to master.
-- **Auto Setup Player:** `Mistborn > Auto Setup Player` in Unity Editor. Use it instead of manually adding components.
+- **Auto Setup Player:** `Ashwalker > Auto Setup Player` in Unity Editor. Use it instead of manually adding components.

@@ -3,7 +3,7 @@ using UnityEditor;
 using System.IO;
 
 /// <summary>
-/// Mistborn → Create Weapon Placeholders
+/// Ashwalker → Create Weapon Placeholders
 /// Generates simple primitive-based weapon prefabs so weapons appear in-hand
 /// immediately. Replace the prefab's mesh with a real model later — the
 /// WeaponData hand offsets stay the same.
@@ -20,7 +20,7 @@ public static class CreateWeaponPlaceholders
 
     static Material _woodMat;   // cached for the current Create() run
 
-    [MenuItem("Mistborn/Weapons/Create Weapon Placeholders")]
+    [MenuItem("Ashwalker/Weapons/Create Weapon Placeholders")]
     public static void Create()
     {
         EnsureFolder("Assets/_Project/Prefabs");
@@ -34,7 +34,7 @@ public static class CreateWeaponPlaceholders
         MakeAxe();
         MakeSpear();
         MakeMace();
-        MakeKolossBlade();
+        MakeBloodbruteBlade();
 
         _woodMat = null;
 
@@ -133,9 +133,9 @@ public static class CreateWeaponPlaceholders
         GameObject.DestroyImmediate(root);
     }
 
-    static void MakeKolossBlade()
+    static void MakeBloodbruteBlade()
     {
-        var root = new GameObject("KolossBlade");
+        var root = new GameObject("BloodbruteBlade");
 
         MakePart(root, "Blade",  PrimitiveType.Cube,
             new Vector3(0.18f, 1.1f, 0.07f), new Vector3(0, 0.7f, 0), new Color(0.45f, 0.45f, 0.5f));
@@ -144,7 +144,7 @@ public static class CreateWeaponPlaceholders
         MakeWoodPart(root, "Handle", PrimitiveType.Cylinder,
             new Vector3(0.07f, 0.2f, 0.07f), new Vector3(0, -0.12f, 0));
 
-        SavePrefab(root, "KolossBlade");
+        SavePrefab(root, "BloodbruteBlade");
         GameObject.DestroyImmediate(root);
     }
 
@@ -268,7 +268,7 @@ public static class CreateWeaponPlaceholders
             ("Obsidian Axe","ObsidianAxe"),
             ("Spear",       "Spear"),
             ("Pewter Mace", "PewterMace"),
-            ("Koloss Blade","KolossBlade"),
+            ("Bloodbrute Blade","BloodbruteBlade"),
         };
 
         foreach (var (assetName, prefabName) in pairs)

@@ -1,15 +1,15 @@
 /* TitleSequenceSceneBuilder.cs
  *
- * Mistborn → Scenes → Build Title Sequence Scene
+ * Ashwalker → Scenes → Build Title Sequence Scene
  *
  * Builds EVERYTHING for the title intro:
  *   Phase 1: Misty ash field with rolling terrain, particles, fog, dim sun
  *   Phase 2: Company logo overlays (text placeholders)
- *   Phase 3: Procedural Luthadel street with buildings, lanterns, ash
- *   Phase 4: Procedural Kredik Shaw spires + aerial city block-out
- *   Phase 5: MISTBORN title in Allomantic blue lines
+ *   Phase 3: Procedural Cinderhold street with buildings, lanterns, ash
+ *   Phase 4: Procedural Thornspire spires + aerial city block-out
+ *   Phase 5: MISTBORN title in Metallurgic blue lines
  *   Camera controller with animated dolly/orbit for each phase
- *   Audio wired to MistbornTitleTheme
+ *   Audio wired to AshwalkerTitleTheme
  */
 
 #if UNITY_EDITOR
@@ -55,7 +55,7 @@ public class TitleSequenceSceneBuilder
     static readonly Color COL_ROCK_DARK   = new Color(0.25f, 0.22f, 0.18f);  // darker rocks
     static readonly Color COL_ASH_GROUND  = new Color(0.28f, 0.26f, 0.24f);  // ash deposits
 
-    [MenuItem("Mistborn/Scenes/Build Title Sequence Scene")]
+    [MenuItem("Ashwalker/Scenes/Build Title Sequence Scene")]
     public static void Build()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
@@ -172,7 +172,7 @@ public class TitleSequenceSceneBuilder
         fieldMistSys.maxParticlesPerLayer = 40;
         var mistPS = fieldMist.GetComponentInChildren<ParticleSystem>();
 
-        // MistSystem handles pulsing internally (Preservation's heartbeat)
+        // MistSystem handles pulsing internally (The Warden's heartbeat)
 
         // Scattered rocks — varied colors and sizes for visual interest
         CreateRock(mistyField.transform, new Vector3(-5f, 0.2f, 8f), 0.6f, COL_ROCK);
@@ -206,7 +206,7 @@ public class TitleSequenceSceneBuilder
         // Ember particles near ashmount (glowing orange specks in distance)
         CreateEmberParticles(mistyField.transform, new Vector3(0f, 8f, 100f));
 
-        // Distant Luthadel silhouette on the horizon (city you're heading toward)
+        // Distant Cinderhold silhouette on the horizon (city you're heading toward)
         CreateDistantCitySilhouette(mistyField.transform, new Vector3(0f, 0f, 70f));
 
         // Ruined cart on the roadside
@@ -223,23 +223,23 @@ public class TitleSequenceSceneBuilder
         CreateDeadShrub(mistyField.transform, new Vector3(-1f, 0f, 22f));
         CreateDeadShrub(mistyField.transform, new Vector3(3f, 0f, 4f));
 
-        // Collapsed stone ruin (old structure from before the Lord Ruler)
+        // Collapsed stone ruin (old structure from before the Ashen King)
         CreateRuin(mistyField.transform, new Vector3(-10f, 0f, 20f));
 
-        // Skaa shanty — lean-to shelters outside the city walls
-        CreateSkaaShanty(mistyField.transform, new Vector3(8f, 0f, 28f));
-        CreateSkaaShanty(mistyField.transform, new Vector3(12f, 0f, 30f));
+        // Lowborn shanty — lean-to shelters outside the city walls
+        CreateLowbornShanty(mistyField.transform, new Vector3(8f, 0f, 28f));
+        CreateLowbornShanty(mistyField.transform, new Vector3(12f, 0f, 30f));
 
         // Stray dog silhouette near the path
         CreateStrayAnimal(mistyField.transform, new Vector3(3f, 0f, 8f));
 
-        // Scattered coins on the dirt path (a Mistborn passed through here)
+        // Scattered coins on the dirt path (a Ashwalker passed through here)
         CreateScatteredCoins(mistyField.transform, new Vector3(1f, 0.02f, 11f));
 
         // Watchtower near the city wall (visible from the field — guards keep watch)
         CreateWatchtower(mistyField.transform, new Vector3(15f, 0f, 55f));
 
-        // Skeleton / remains near the road (grim reminder — the Final Empire is cruel)
+        // Skeleton / remains near the road (grim reminder — the Ashen Dominion is cruel)
         CreateSkeleton(mistyField.transform, new Vector3(-2f, 0f, 18f));
 
         // Gibbet post (iron cage on a pole — executed criminal left as warning)
@@ -248,7 +248,7 @@ public class TitleSequenceSceneBuilder
         // Wagon wheel half-buried in ash (trade route long abandoned)
         CreateBuriedWheel(mistyField.transform, new Vector3(-6f, 0f, 12f));
 
-        // Iron mile-marker post (metal — dangerous in a world of Allomancers)
+        // Iron mile-marker post (metal — dangerous in a world of Metallurgists)
         CreateMileMarker(mistyField.transform, new Vector3(2f, 0f, 9f));
 
         // Crow/raven perched on the gibbet (life finds a way)
@@ -267,206 +267,206 @@ public class TitleSequenceSceneBuilder
         // ══════════════════════════════════════════════════════════════════
         // PHASE 3: LUTHADEL STREETS
         // ══════════════════════════════════════════════════════════════════
-        var luthadelGroup = new GameObject("LuthadelStreetsGroup");
-        luthadelGroup.SetActive(false);
+        var cinderholdGroup = new GameObject("CinderholdStreetsGroup");
+        cinderholdGroup.SetActive(false);
 
         // Street ground — cobblestone center, dirt edges
         // Street ground well below building bases to avoid Z-fighting
-        CreateStreetGround(luthadelGroup.transform, new Vector3(0f, -0.3f, 0f), new Vector3(2f, 1f, 10f), COL_COBBLE);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(-2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
-        CreateStreetGround(luthadelGroup.transform, new Vector3(2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(cinderholdGroup.transform, new Vector3(0f, -0.3f, 0f), new Vector3(2f, 1f, 10f), COL_COBBLE);
+        CreateStreetGround(cinderholdGroup.transform, new Vector3(-2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
+        CreateStreetGround(cinderholdGroup.transform, new Vector3(2.5f, -0.4f, 0f), new Vector3(1f, 1f, 10f), COL_GROUND);
         // Ash deposits on street
-        CreateAshPile(luthadelGroup.transform, new Vector3(-1f, 0.10f, 5f), 0.8f);
-        CreateAshPile(luthadelGroup.transform, new Vector3(1.5f, 0.10f, -3f), 0.6f);
+        CreateAshPile(cinderholdGroup.transform, new Vector3(-1f, 0.10f, 5f), 0.8f);
+        CreateAshPile(cinderholdGroup.transform, new Vector3(1.5f, 0.10f, -3f), 0.6f);
 
         // Buildings — left side (each unique color and shape)
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, -12f), new Vector3(5f, 8f, 6f), COL_STONE_DARK, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6.5f, 0f, -4f), new Vector3(6f, 10f, 7f), COL_STONE_RED, COL_ROOF_TILE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-5.5f, 0f, 4f), new Vector3(4.5f, 7f, 6f), COL_STONE_MED, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-6f, 0f, 11f), new Vector3(5.5f, 12f, 5f), COL_STONE_LIGHT, COL_ROOF_TILE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-7f, 0f, 18f), new Vector3(6f, 9f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-6f, 0f, -12f), new Vector3(5f, 8f, 6f), COL_STONE_DARK, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-6.5f, 0f, -4f), new Vector3(6f, 10f, 7f), COL_STONE_RED, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-5.5f, 0f, 4f), new Vector3(4.5f, 7f, 6f), COL_STONE_MED, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-6f, 0f, 11f), new Vector3(5.5f, 12f, 5f), COL_STONE_LIGHT, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-7f, 0f, 18f), new Vector3(6f, 9f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
 
         // Buildings — right side (different colors from left)
-        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, -10f), new Vector3(5f, 9f, 8f), COL_STONE_MED, COL_ROOF_TILE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(5.5f, 0f, -1f), new Vector3(4f, 6f, 5f), COL_STONE_LIGHT, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(6.5f, 0f, 6f), new Vector3(6f, 11f, 6f), COL_STONE_RED, COL_ROOF_TILE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(5f, 0f, 14f), new Vector3(5f, 8f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(6f, 0f, 22f), new Vector3(5.5f, 10f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(6f, 0f, -10f), new Vector3(5f, 9f, 8f), COL_STONE_MED, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(5.5f, 0f, -1f), new Vector3(4f, 6f, 5f), COL_STONE_LIGHT, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(6.5f, 0f, 6f), new Vector3(6f, 11f, 6f), COL_STONE_RED, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(5f, 0f, 14f), new Vector3(5f, 8f, 7f), COL_STONE_GREY, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(6f, 0f, 22f), new Vector3(5.5f, 10f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
 
         // Back-row buildings (visible above front buildings, different heights)
-        CreateBuilding(luthadelGroup.transform, new Vector3(-12f, 0f, -8f), new Vector3(5f, 14f, 6f), COL_STONE_GREY, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(-11f, 0f, 7f), new Vector3(4f, 16f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(11f, 0f, -5f), new Vector3(5f, 13f, 7f), COL_STONE_RED, COL_ROOF_SLATE);
-        CreateBuilding(luthadelGroup.transform, new Vector3(12f, 0f, 10f), new Vector3(4.5f, 15f, 5f), COL_STONE_MED, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-12f, 0f, -8f), new Vector3(5f, 14f, 6f), COL_STONE_GREY, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(-11f, 0f, 7f), new Vector3(4f, 16f, 5f), COL_STONE_DARK, COL_ROOF_TILE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(11f, 0f, -5f), new Vector3(5f, 13f, 7f), COL_STONE_RED, COL_ROOF_SLATE);
+        CreateBuilding(cinderholdGroup.transform, new Vector3(12f, 0f, 10f), new Vector3(4.5f, 15f, 5f), COL_STONE_MED, COL_ROOF_TILE);
 
         // Lanterns — more of them, staggered
-        CreateLantern(luthadelGroup.transform, new Vector3(-3.2f, 4f, -8f));
-        CreateLantern(luthadelGroup.transform, new Vector3(3.2f, 3.5f, -2f));
-        CreateLantern(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f));
-        CreateLantern(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f));
-        CreateLantern(luthadelGroup.transform, new Vector3(-3.3f, 3.8f, 16f));
-        CreateLantern(luthadelGroup.transform, new Vector3(3.0f, 4.2f, 20f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(-3.2f, 4f, -8f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(3.2f, 3.5f, -2f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(-3f, 4.5f, 4f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(3.5f, 4f, 10f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(-3.3f, 3.8f, 16f));
+        CreateLantern(cinderholdGroup.transform, new Vector3(3.0f, 4.2f, 20f));
 
         // Street clutter — barrels, crates
-        CreateBarrel(luthadelGroup.transform, new Vector3(-2.8f, 0f, -6f));
-        CreateBarrel(luthadelGroup.transform, new Vector3(-2.5f, 0f, -5.5f));
-        CreateCrate(luthadelGroup.transform, new Vector3(2.6f, 0f, 3f));
-        CreateCrate(luthadelGroup.transform, new Vector3(2.9f, 0f, 3.5f));
-        CreateCrate(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.2f)); // stacked
+        CreateBarrel(cinderholdGroup.transform, new Vector3(-2.8f, 0f, -6f));
+        CreateBarrel(cinderholdGroup.transform, new Vector3(-2.5f, 0f, -5.5f));
+        CreateCrate(cinderholdGroup.transform, new Vector3(2.6f, 0f, 3f));
+        CreateCrate(cinderholdGroup.transform, new Vector3(2.9f, 0f, 3.5f));
+        CreateCrate(cinderholdGroup.transform, new Vector3(2.7f, 0.6f, 3.2f)); // stacked
 
         // Awnings (flat tilted planes over some doors)
-        CreateAwning(luthadelGroup.transform, new Vector3(-3.3f, 3.2f, -4f), true);
-        CreateAwning(luthadelGroup.transform, new Vector3(3.3f, 2.8f, 6f), false);
-        CreateAwning(luthadelGroup.transform, new Vector3(-3.2f, 3.0f, 11f), true);
+        CreateAwning(cinderholdGroup.transform, new Vector3(-3.3f, 3.2f, -4f), true);
+        CreateAwning(cinderholdGroup.transform, new Vector3(3.3f, 2.8f, 6f), false);
+        CreateAwning(cinderholdGroup.transform, new Vector3(-3.2f, 3.0f, 11f), true);
 
         // Gutter / drain running down the center of the street
-        CreateGutter(luthadelGroup.transform);
+        CreateGutter(cinderholdGroup.transform);
 
-        // Skaa silhouettes — dark humanoid shapes huddled or walking
-        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(-2.2f, 0f, -3f), true);
-        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(1.8f, 0f, 8f), false);
-        CreateSkaaSilhouette(luthadelGroup.transform, new Vector3(-1.5f, 0f, 15f), true);
+        // Lowborn silhouettes — dark humanoid shapes huddled or walking
+        CreateLowbornSilhouette(cinderholdGroup.transform, new Vector3(-2.2f, 0f, -3f), true);
+        CreateLowbornSilhouette(cinderholdGroup.transform, new Vector3(1.8f, 0f, 8f), false);
+        CreateLowbornSilhouette(cinderholdGroup.transform, new Vector3(-1.5f, 0f, 15f), true);
 
         // Hanging sign (metal bracket + sign board)
-        CreateHangingSign(luthadelGroup.transform, new Vector3(-3.2f, 5.5f, 0f), true);
-        CreateHangingSign(luthadelGroup.transform, new Vector3(3.0f, 4.8f, 12f), false);
+        CreateHangingSign(cinderholdGroup.transform, new Vector3(-3.2f, 5.5f, 0f), true);
+        CreateHangingSign(cinderholdGroup.transform, new Vector3(3.0f, 4.8f, 12f), false);
 
         // Archway between buildings (connects two buildings overhead)
-        CreateArchway(luthadelGroup.transform, new Vector3(0f, 7f, -7f), 7f);
-        CreateArchway(luthadelGroup.transform, new Vector3(0f, 8f, 13f), 6f);
+        CreateArchway(cinderholdGroup.transform, new Vector3(0f, 7f, -7f), 7f);
+        CreateArchway(cinderholdGroup.transform, new Vector3(0f, 8f, 13f), 6f);
 
         // Steps / stoops in front of some buildings
-        CreateSteps(luthadelGroup.transform, new Vector3(-3.3f, 0f, -4f), true);
-        CreateSteps(luthadelGroup.transform, new Vector3(3.0f, 0f, 14f), false);
+        CreateSteps(cinderholdGroup.transform, new Vector3(-3.3f, 0f, -4f), true);
+        CreateSteps(cinderholdGroup.transform, new Vector3(3.0f, 0f, 14f), false);
 
         // Chimney smoke on taller buildings
-        CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, -4f));
-        CreateSmokeParticles(luthadelGroup.transform, new Vector3(6.5f, 11f, 6f));
-        CreateSmokeParticles(luthadelGroup.transform, new Vector3(-6f, 12f, 11f));
+        CreateSmokeParticles(cinderholdGroup.transform, new Vector3(-6f, 12f, -4f));
+        CreateSmokeParticles(cinderholdGroup.transform, new Vector3(6.5f, 11f, 6f));
+        CreateSmokeParticles(cinderholdGroup.transform, new Vector3(-6f, 12f, 11f));
 
         // Wall-mounted torches (different from lanterns — more rustic, brighter)
-        CreateWallTorch(luthadelGroup.transform, new Vector3(-3.3f, 2.5f, 2f), true);
-        CreateWallTorch(luthadelGroup.transform, new Vector3(3.1f, 2.8f, 18f), false);
+        CreateWallTorch(cinderholdGroup.transform, new Vector3(-3.3f, 2.5f, 2f), true);
+        CreateWallTorch(cinderholdGroup.transform, new Vector3(3.1f, 2.8f, 18f), false);
 
         // Guard patrol silhouette (standing, armored, with weapon shape)
-        CreateGuardSilhouette(luthadelGroup.transform, new Vector3(1.2f, 0f, -5f));
+        CreateGuardSilhouette(cinderholdGroup.transform, new Vector3(1.2f, 0f, -5f));
 
         // More barrels and clutter near building edges
-        CreateBarrel(luthadelGroup.transform, new Vector3(2.4f, 0f, -8f));
-        CreateCrate(luthadelGroup.transform, new Vector3(-2.7f, 0f, 12f));
-        CreateCrate(luthadelGroup.transform, new Vector3(-2.4f, 0f, 12.5f));
+        CreateBarrel(cinderholdGroup.transform, new Vector3(2.4f, 0f, -8f));
+        CreateCrate(cinderholdGroup.transform, new Vector3(-2.7f, 0f, 12f));
+        CreateCrate(cinderholdGroup.transform, new Vector3(-2.4f, 0f, 12.5f));
 
         // Puddle near a drain
-        CreatePuddle(luthadelGroup.transform, new Vector3(-0.5f, 0.003f, 9f), 0.5f);
-        CreatePuddle(luthadelGroup.transform, new Vector3(0.3f, 0.003f, -2f), 0.3f);
+        CreatePuddle(cinderholdGroup.transform, new Vector3(-0.5f, 0.003f, 9f), 0.5f);
+        CreatePuddle(cinderholdGroup.transform, new Vector3(0.3f, 0.003f, -2f), 0.3f);
 
         // Clothesline between buildings (stretched cylinder)
-        CreateClothesline(luthadelGroup.transform, new Vector3(0f, 5f, 4f), 7f);
+        CreateClothesline(cinderholdGroup.transform, new Vector3(0f, 5f, 4f), 7f);
 
-        // Sewer grate (metal — important for Allomancy world-building)
-        CreateSewerGrate(luthadelGroup.transform, new Vector3(0.5f, 0.01f, -1f));
-        CreateSewerGrate(luthadelGroup.transform, new Vector3(-0.3f, 0.01f, 17f));
+        // Sewer grate (metal — important for Metallurgy world-building)
+        CreateSewerGrate(cinderholdGroup.transform, new Vector3(0.5f, 0.01f, -1f));
+        CreateSewerGrate(cinderholdGroup.transform, new Vector3(-0.3f, 0.01f, 17f));
 
         // Market stall (collapsed for the night — tarps over tables)
-        CreateMarketStall(luthadelGroup.transform, new Vector3(-2.5f, 0f, 7f), true);
-        CreateMarketStall(luthadelGroup.transform, new Vector3(2.3f, 0f, -9f), false);
+        CreateMarketStall(cinderholdGroup.transform, new Vector3(-2.5f, 0f, 7f), true);
+        CreateMarketStall(cinderholdGroup.transform, new Vector3(2.3f, 0f, -9f), false);
 
         // Noble carriage parked on the street (one of the keeps must be nearby)
-        CreateNobleCarriage(luthadelGroup.transform, new Vector3(1.5f, 0f, 20f));
+        CreateNobleCarriage(cinderholdGroup.transform, new Vector3(1.5f, 0f, 20f));
 
         // Scattered metal debris (nails, scrap — glints in the lantern light)
-        CreateMetalDebris(luthadelGroup.transform, new Vector3(-1f, 0.01f, 1f));
-        CreateMetalDebris(luthadelGroup.transform, new Vector3(0.8f, 0.01f, 11f));
+        CreateMetalDebris(cinderholdGroup.transform, new Vector3(-1f, 0.01f, 1f));
+        CreateMetalDebris(cinderholdGroup.transform, new Vector3(0.8f, 0.01f, 11f));
 
-        // Obligator silhouette (robed figure — distinct from guards and skaa)
-        CreateObligatorSilhouette(luthadelGroup.transform, new Vector3(-1f, 0f, 19f));
+        // Prelate silhouette (robed figure — distinct from guards and lowborn)
+        CreatePrelateSilhouette(cinderholdGroup.transform, new Vector3(-1f, 0f, 19f));
 
-        // Lord Ruler's banner on tall building (dark red with gold trim)
-        CreateBanner(luthadelGroup.transform, new Vector3(-5.5f, 9f, 4f));
-        CreateBanner(luthadelGroup.transform, new Vector3(6.5f, 12f, 6f));
+        // Ashen King's banner on tall building (dark red with gold trim)
+        CreateBanner(cinderholdGroup.transform, new Vector3(-5.5f, 9f, 4f));
+        CreateBanner(cinderholdGroup.transform, new Vector3(6.5f, 12f, 6f));
 
         // Metal chains between buildings (world-building — metal is controlled)
-        CreateChain(luthadelGroup.transform, new Vector3(-3.3f, 6f, -1f), new Vector3(3.3f, 5.5f, -1f));
+        CreateChain(cinderholdGroup.transform, new Vector3(-3.3f, 6f, -1f), new Vector3(3.3f, 5.5f, -1f));
 
         // Balcony on a noble building
-        CreateBalcony(luthadelGroup.transform, new Vector3(3.2f, 5f, 6f), false);
-        CreateBalcony(luthadelGroup.transform, new Vector3(-3.4f, 6f, 11f), true);
+        CreateBalcony(cinderholdGroup.transform, new Vector3(3.2f, 5f, 6f), false);
+        CreateBalcony(cinderholdGroup.transform, new Vector3(-3.4f, 6f, 11f), true);
 
         // Stone well in a widened area
-        CreateWell(luthadelGroup.transform, new Vector3(0f, 0f, -10f));
+        CreateWell(cinderholdGroup.transform, new Vector3(0f, 0f, -10f));
 
         // Gallows / stocks in a small square (oppressive regime)
-        CreateGallows(luthadelGroup.transform, new Vector3(0f, 0f, 24f));
+        CreateGallows(cinderholdGroup.transform, new Vector3(0f, 0f, 24f));
 
-        // Sleeping skaa in a doorway
-        CreateSleepingSkaa(luthadelGroup.transform, new Vector3(-3.2f, 0f, 9f));
-        CreateSleepingSkaa(luthadelGroup.transform, new Vector3(2.8f, 0f, -7f));
+        // Sleeping lowborn in a doorway
+        CreateSleepingLowborn(cinderholdGroup.transform, new Vector3(-3.2f, 0f, 9f));
+        CreateSleepingLowborn(cinderholdGroup.transform, new Vector3(2.8f, 0f, -7f));
 
-        // Notice board on a wall (Lord Ruler's decree)
-        CreateNoticeBoard(luthadelGroup.transform, new Vector3(-3.3f, 3f, 6f), true);
+        // Notice board on a wall (Ashen King's decree)
+        CreateNoticeBoard(cinderholdGroup.transform, new Vector3(-3.3f, 3f, 6f), true);
 
         // Drainage pipe on building facade
-        CreateDrainPipe(luthadelGroup.transform, new Vector3(-3.4f, 0f, -4f), 10f);
-        CreateDrainPipe(luthadelGroup.transform, new Vector3(3.2f, 0f, 14f), 8f);
+        CreateDrainPipe(cinderholdGroup.transform, new Vector3(-3.4f, 0f, -4f), 10f);
+        CreateDrainPipe(cinderholdGroup.transform, new Vector3(3.2f, 0f, 14f), 8f);
 
         // Second guard patrol (pair walking together — more presence)
-        CreateGuardSilhouette(luthadelGroup.transform, new Vector3(-0.8f, 0f, 22f));
+        CreateGuardSilhouette(cinderholdGroup.transform, new Vector3(-0.8f, 0f, 22f));
 
-        // Skaa worker carrying a sack
-        CreateSkaaWorker(luthadelGroup.transform, new Vector3(0.5f, 0f, 13f));
+        // Lowborn worker carrying a sack
+        CreateLowbornWorker(cinderholdGroup.transform, new Vector3(0.5f, 0f, 13f));
 
         // Stray cat on a crate
-        CreateStrayAnimal(luthadelGroup.transform, new Vector3(2.7f, 0.6f, 3.3f));
+        CreateStrayAnimal(cinderholdGroup.transform, new Vector3(2.7f, 0.6f, 3.3f));
 
         // Alley entrance between buildings (dark recessed gap)
-        CreateAlleyEntrance(luthadelGroup.transform, new Vector3(-3.3f, 0f, -8f), true);
-        CreateAlleyEntrance(luthadelGroup.transform, new Vector3(3.1f, 0f, 9f), false);
+        CreateAlleyEntrance(cinderholdGroup.transform, new Vector3(-3.3f, 0f, -8f), true);
+        CreateAlleyEntrance(cinderholdGroup.transform, new Vector3(3.1f, 0f, 9f), false);
 
         // Light drizzle particles (very subtle rain)
-        CreateDrizzleParticles(luthadelGroup.transform, new Vector3(0f, 10f, 5f));
+        CreateDrizzleParticles(cinderholdGroup.transform, new Vector3(0f, 10f, 5f));
 
-        // Ash sweep pile (skaa pushed ash to the side of the street)
-        CreateAshPile(luthadelGroup.transform, new Vector3(-2.8f, 0.03f, 0f), 1.2f);
-        CreateAshPile(luthadelGroup.transform, new Vector3(2.6f, 0.03f, 8f), 0.9f);
+        // Ash sweep pile (lowborn pushed ash to the side of the street)
+        CreateAshPile(cinderholdGroup.transform, new Vector3(-2.8f, 0.03f, 0f), 1.2f);
+        CreateAshPile(cinderholdGroup.transform, new Vector3(2.6f, 0.03f, 8f), 0.9f);
 
-        // Iron gate between districts (metal bars — Allomancy hazard)
+        // Iron gate between districts (metal bars — Metallurgy hazard)
         // Iron gate removed — camera was clipping through the bars
-        // CreateIronGate(luthadelGroup.transform, new Vector3(0f, 0f, -14f));
+        // CreateIronGate(cinderholdGroup.transform, new Vector3(0f, 0f, -14f));
 
         // Wagon parked by the market stalls
-        CreateParkedWagon(luthadelGroup.transform, new Vector3(-2f, 0f, -11f));
+        CreateParkedWagon(cinderholdGroup.transform, new Vector3(-2f, 0f, -11f));
 
-        // Kelsier's crew safehouse hint — building with a slightly ajar cellar door
+        // Darius's crew safehouse hint — building with a slightly ajar cellar door
         // and a faint blue glow from within (someone is burning tin inside)
-        CreateSafehouseHint(luthadelGroup.transform, new Vector3(5.5f, 0f, -1f));
+        CreateSafehouseHint(cinderholdGroup.transform, new Vector3(5.5f, 0f, -1f));
 
-        // Skaa huddled around a small fire in an alley entrance
-        CreateAlleyFire(luthadelGroup.transform, new Vector3(-3.8f, 0f, -8f));
+        // Lowborn huddled around a small fire in an alley entrance
+        CreateAlleyFire(cinderholdGroup.transform, new Vector3(-3.8f, 0f, -8f));
 
         // Loose cobblestones / broken street section
-        CreateBrokenStreet(luthadelGroup.transform, new Vector3(0.5f, 0f, 6f));
+        CreateBrokenStreet(cinderholdGroup.transform, new Vector3(0.5f, 0f, 6f));
 
         // Rat running along the gutter (tiny silhouette)
-        CreateRat(luthadelGroup.transform, new Vector3(0.2f, 0.02f, 4f));
+        CreateRat(cinderholdGroup.transform, new Vector3(0.2f, 0.02f, 4f));
 
         // Wind-blown debris particles (leaves, paper, ash clumps)
-        CreateWindDebris(luthadelGroup.transform, new Vector3(0f, 1.5f, 5f));
+        CreateWindDebris(cinderholdGroup.transform, new Vector3(0f, 1.5f, 5f));
 
-        // Terrisman steward (tall, robed — distinctive from other silhouettes)
-        CreateTerrismanSilhouette(luthadelGroup.transform, new Vector3(-1.5f, 0f, 17f));
+        // Valdrian steward (tall, robed — distinctive from other silhouettes)
+        CreateValdrianSilhouette(cinderholdGroup.transform, new Vector3(-1.5f, 0f, 17f));
 
         // Rain splash particles at puddle locations
-        CreateRainSplash(luthadelGroup.transform, new Vector3(-0.5f, 0.01f, 9f));
-        CreateRainSplash(luthadelGroup.transform, new Vector3(0.3f, 0.01f, -2f));
+        CreateRainSplash(cinderholdGroup.transform, new Vector3(-0.5f, 0.01f, 9f));
+        CreateRainSplash(cinderholdGroup.transform, new Vector3(0.3f, 0.01f, -2f));
 
         // Light shaft from a lantern (volumetric cone of light hitting the street)
-        CreateLightShaft(luthadelGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
-        CreateLightShaft(luthadelGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
+        CreateLightShaft(cinderholdGroup.transform, new Vector3(-3f, 4.5f, 4f), -1f);
+        CreateLightShaft(cinderholdGroup.transform, new Vector3(3.5f, 4f, 10f), 1f);
 
         // Street particles — ash + lore-accurate ground mist
-        CreateAshParticles(luthadelGroup.transform, new Vector3(0f, 8f, 5f), 25f);
+        CreateAshParticles(cinderholdGroup.transform, new Vector3(0f, 8f, 5f), 25f);
         var streetMist = new GameObject("StreetMist");
-        streetMist.transform.SetParent(luthadelGroup.transform);
+        streetMist.transform.SetParent(cinderholdGroup.transform);
         streetMist.transform.localPosition = new Vector3(0f, 0f, 5f);
         var streetMistSys = streetMist.AddComponent<MistSystem>();
         streetMistSys.coverageRadius = 15f;
@@ -480,7 +480,7 @@ public class TitleSequenceSceneBuilder
 
         // Dim street light — slightly brighter so buildings are visible
         var streetSun = new GameObject("StreetAmbient");
-        streetSun.transform.SetParent(luthadelGroup.transform);
+        streetSun.transform.SetParent(cinderholdGroup.transform);
         var sl = streetSun.AddComponent<Light>();
         sl.type = LightType.Directional;
         sl.color = new Color(0.6f, 0.25f, 0.12f); // reddish street light — ash-filtered
@@ -491,11 +491,11 @@ public class TitleSequenceSceneBuilder
         // ══════════════════════════════════════════════════════════════════
         // PHASE 4: KREDIK SHAW + CITY FROM ABOVE
         // ══════════════════════════════════════════════════════════════════
-        var kredikGroup = new GameObject("KredikShawGroup");
+        var kredikGroup = new GameObject("ThornspireGroup");
         kredikGroup.SetActive(false);
 
-        // Kredik Shaw — "Hill of a Thousand Spires"
-        CreateKredikShaw(kredikGroup.transform, Vector3.zero);
+        // Thornspire — "Hill of a Thousand Spires"
+        CreateThornspire(kredikGroup.transform, Vector3.zero);
 
         // Perimeter walls connecting the outer spires
         CreatePerimeterWall(kredikGroup.transform, Vector3.zero, 14f, 8);
@@ -517,7 +517,7 @@ public class TitleSequenceSceneBuilder
         // City wall — ring around the outer edge of the city
         CreateCityWall(kredikGroup.transform, Vector3.zero, 65f, 16);
 
-        // Roads radiating from Kredik Shaw (darker strips on the ground)
+        // Roads radiating from Thornspire (darker strips on the ground)
         for (int r = 0; r < 4; r++)
         {
             float angle = r * 90f + 45f;
@@ -536,7 +536,7 @@ public class TitleSequenceSceneBuilder
         {
             for (int bz = -3; bz <= 3; bz++)
             {
-                // Skip the center where Kredik Shaw sits
+                // Skip the center where Thornspire sits
                 if (Mathf.Abs(bx) <= 1 && Mathf.Abs(bz) <= 1) continue;
 
                 Vector3 blockCenter = new Vector3(bx * blockSpacing, 0f, bz * blockSpacing);
@@ -586,7 +586,7 @@ public class TitleSequenceSceneBuilder
             wf.style = TitleLightFlicker.FlickerStyle.WindowGlow;
         }
 
-        // Canals running through the city (Luthadel has canals)
+        // Canals running through the city (Cinderhold has canals)
         CreateCanal(kredikGroup.transform, new Vector3(0f, 0.1f, 0f), 0f, 130f);    // north-south
         CreateCanal(kredikGroup.transform, new Vector3(0f, 0.1f, 0f), 90f, 100f);   // east-west
         CreateCanal(kredikGroup.transform, new Vector3(20f, 0.1f, 20f), 45f, 60f);   // diagonal
@@ -597,11 +597,11 @@ public class TitleSequenceSceneBuilder
         CreateNobleKeep(kredikGroup.transform, new Vector3(-20f, 0f, -40f));
         CreateNobleKeep(kredikGroup.transform, new Vector3(25f, 0f, 35f));
 
-        // Steel Inquisitor standing atop the central spire — ICONIC
-        CreateInquisitorSilhouette(kredikGroup.transform, new Vector3(0f, 36f, 0f));
+        // Iron Sentinel standing atop the central spire — ICONIC
+        CreateSentinelSilhouette(kredikGroup.transform, new Vector3(0f, 36f, 0f));
 
-        // Mistborn silhouette crouching on a rooftop (visible from aerial)
-        CreateRooftopMistborn(kredikGroup.transform, new Vector3(22f, 10f, -18f));
+        // Ashwalker silhouette crouching on a rooftop (visible from aerial)
+        CreateRooftopAshwalker(kredikGroup.transform, new Vector3(22f, 10f, -18f));
 
         // Bridges over the canals
         CreateCanalBridge(kredikGroup.transform, new Vector3(18f, 0.5f, 0f), 0f);
@@ -612,10 +612,10 @@ public class TitleSequenceSceneBuilder
         // Dock/pier along one canal (cargo loading area)
         CreateDock(kredikGroup.transform, new Vector3(25f, 0f, 2f));
 
-        // Steel Ministry building (distinctive, separate from noble keeps)
-        CreateSteelMinistry(kredikGroup.transform, new Vector3(-15f, 0f, 30f));
+        // Iron Clergy building (distinctive, separate from noble keeps)
+        CreateIronClergy(kredikGroup.transform, new Vector3(-15f, 0f, 30f));
 
-        // Guards at the Kredik Shaw gate
+        // Guards at the Thornspire gate
         CreateGuardSilhouette(kredikGroup.transform, new Vector3(-2f, 0f, 15.5f));
         CreateGuardSilhouette(kredikGroup.transform, new Vector3(2f, 0f, 15.5f));
 
@@ -639,28 +639,28 @@ public class TitleSequenceSceneBuilder
         // Market square (open area with scattered stalls)
         CreateMarketSquare(kredikGroup.transform, new Vector3(-30f, 0f, 15f));
 
-        // Skaa quarter — denser, shorter buildings, no lights
-        CreateSkaaQuarter(kredikGroup.transform, new Vector3(35f, 0f, 30f));
+        // Lowborn quarter — denser, shorter buildings, no lights
+        CreateLowbornQuarter(kredikGroup.transform, new Vector3(35f, 0f, 30f));
 
-        // Steeljumping Mistborn arc — a figure mid-flight between rooftops
+        // Steeljumping Ashwalker arc — a figure mid-flight between rooftops
         CreateSteeljumpArc(kredikGroup.transform, new Vector3(-15f, 12f, 15f), new Vector3(-8f, 18f, 10f), new Vector3(-2f, 8f, 6f));
 
         // Smoke from forges / foundries in the industrial district
         CreateSmokeParticles(kredikGroup.transform, new Vector3(-30f, 8f, -30f));
         CreateSmokeParticles(kredikGroup.transform, new Vector3(-25f, 6f, -35f));
 
-        // A few bright Allomantic blue line flashes (foreshadowing)
-        CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(15f, 12f, 10f), new Vector3(20f, 5f, 15f));
-        CreateAllomanticLineFlash(kredikGroup.transform, new Vector3(-10f, 15f, -8f), new Vector3(-12f, 3f, -5f));
+        // A few bright Metallurgic blue line flashes (foreshadowing)
+        CreateMetallurgicLineFlash(kredikGroup.transform, new Vector3(15f, 12f, 10f), new Vector3(20f, 5f, 15f));
+        CreateMetallurgicLineFlash(kredikGroup.transform, new Vector3(-10f, 15f, -8f), new Vector3(-12f, 3f, -5f));
 
-        // Scadrial has NO MOON — light comes from ashmount glow and city fires
+        // Ashara has NO MOON — light comes from ashmount glow and city fires
         var cityLight = new GameObject("AshmountGlow_City");
         cityLight.transform.SetParent(kredikGroup.transform);
         var cl = cityLight.AddComponent<Light>();
         cl.type = LightType.Directional;
         cl.color = new Color(0.7f, 0.2f, 0.08f); // deep red from volcanic glow
         cl.intensity = 10000f; // EV10 compensation
-        SetupHDRPLight(cl, 10000f); // ashmount glow (no moon on Scadrial)
+        SetupHDRPLight(cl, 10000f); // ashmount glow (no moon on Ashara)
         cityLight.transform.rotation = Quaternion.Euler(30f, -20f, 0f); // low angle — horizon glow
 
         // ══════════════════════════════════════════════════════════════════
@@ -690,8 +690,8 @@ public class TitleSequenceSceneBuilder
         var cbLogoCG = CreateLogoGroup(canvasObj.transform, "CrimsonBladeLogoGroup",
             "CRIMSON BLADE\nINTERACTIVE", 48);
 
-        // Sanderson logo
-        var sLogoCG = CreateLogoGroup(canvasObj.transform, "SandersonLogoGroup",
+        // the original author logo
+        var sLogoCG = CreateLogoGroup(canvasObj.transform, "OriginalAuthorLogoGroup",
             "DRAGONSTEEL\nENTERTAINMENT", 42);
 
         // Credit text
@@ -720,7 +720,7 @@ public class TitleSequenceSceneBuilder
         trt.sizeDelta = new Vector2(1200f, 200f);
         trt.anchoredPosition = new Vector2(0f, 50f);
 
-        var titleRenderer = titleGroup.AddComponent<AllomanticTitleRenderer>();
+        var titleRenderer = titleGroup.AddComponent<MetallurgicTitleRenderer>();
         titleRenderer.titleText = titleTMP;
         titleRenderer.titleString = "MISTBORN";
 
@@ -744,20 +744,20 @@ public class TitleSequenceSceneBuilder
         skrt.anchoredPosition = new Vector2(0f, 15f);
         skrt.sizeDelta = new Vector2(400f, 30f);
 
-        // Mistborn running silhouette — dark figure that sprints across before the wipe
-        var mistbornObj = new GameObject("MistbornSilhouette");
-        mistbornObj.transform.SetParent(canvasObj.transform, false);
-        var mbRT = mistbornObj.AddComponent<RectTransform>();
+        // Ashwalker running silhouette — dark figure that sprints across before the wipe
+        var ashwalkerObj = new GameObject("AshwalkerSilhouette");
+        ashwalkerObj.transform.SetParent(canvasObj.transform, false);
+        var mbRT = ashwalkerObj.AddComponent<RectTransform>();
         mbRT.anchorMin = new Vector2(0.5f, 0.15f);
         mbRT.anchorMax = new Vector2(0.5f, 0.15f);
         mbRT.pivot = new Vector2(0.5f, 0f);
         mbRT.sizeDelta = new Vector2(120f, 280f);
         mbRT.anchoredPosition = new Vector2(-1920f, 0f); // starts off-screen
-        mistbornObj.SetActive(false);
+        ashwalkerObj.SetActive(false);
 
         // Body of the silhouette (dark capsule shape)
         var mbBody = new GameObject("Body");
-        mbBody.transform.SetParent(mistbornObj.transform, false);
+        mbBody.transform.SetParent(ashwalkerObj.transform, false);
         var mbBodyImg = mbBody.AddComponent<Image>();
         mbBodyImg.color = new Color(0.02f, 0.02f, 0.03f, 0.95f);
         mbBodyImg.raycastTarget = false;
@@ -767,11 +767,11 @@ public class TitleSequenceSceneBuilder
         mbBodyRT.offsetMin = new Vector2(-20f, 0f);
         mbBodyRT.offsetMax = new Vector2(20f, 0f);
 
-        // Mistcloak tassels trailing behind the figure
+        // Ashcloak tassels trailing behind the figure
         for (int t = 0; t < 8; t++)
         {
             var trail = new GameObject($"CloakTrail_{t}");
-            trail.transform.SetParent(mistbornObj.transform, false);
+            trail.transform.SetParent(ashwalkerObj.transform, false);
             var trailImg = trail.AddComponent<Image>();
             trailImg.color = new Color(0.03f, 0.03f, 0.04f, Random.Range(0.5f, 0.9f));
             trailImg.raycastTarget = false;
@@ -787,8 +787,8 @@ public class TitleSequenceSceneBuilder
             trailRT.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-20f, 10f));
         }
 
-        // Mistcloak wipe panel — wide dark panel with ragged edge, starts off-screen
-        var wipeObj = new GameObject("MistcloakWipePanel");
+        // Ashcloak wipe panel — wide dark panel with ragged edge, starts off-screen
+        var wipeObj = new GameObject("AshcloakWipePanel");
         wipeObj.transform.SetParent(canvasObj.transform, false);
         var wipeRT = wipeObj.AddComponent<RectTransform>();
         wipeRT.anchorMin = new Vector2(0.5f, 0f);
@@ -797,7 +797,7 @@ public class TitleSequenceSceneBuilder
         wipeRT.sizeDelta = new Vector2(3840f, 0f); // 2x screen width to cover fully
         wipeRT.anchoredPosition = new Vector2(-3840f, 0f); // starts way off-screen left
         var wipeImg = wipeObj.AddComponent<Image>();
-        wipeImg.color = new Color(0.02f, 0.02f, 0.03f, 1f); // near-black mistcloak
+        wipeImg.color = new Color(0.02f, 0.02f, 0.03f, 1f); // near-black ashcloak
         wipeImg.raycastTarget = false;
         wipeObj.SetActive(false);
 
@@ -847,8 +847,8 @@ public class TitleSequenceSceneBuilder
         tsc.musicVolume = 1f;
 
         // Find audio
-        tsc.mainThemeClip = FindAudioClip("MistbornTitleTheme")
-                         ?? FindAudioClip("Mistborn Title theme");
+        tsc.mainThemeClip = FindAudioClip("AshwalkerTitleTheme")
+                         ?? FindAudioClip("Ashwalker Title theme");
 
         // Timing
         tsc.fadeInDuration      = 9f;
@@ -856,10 +856,10 @@ public class TitleSequenceSceneBuilder
         tsc.logoDuration        = 6f;
         tsc.logoFadeSpeed       = 1.2f;
         tsc.streetsStartTime    = 28f;
-        tsc.kredikShawStartTime = 48f;
+        tsc.thornspireStartTime = 48f;
         tsc.titleDropTime       = 63f;
         tsc.titleDrawDuration   = 3f;
-        tsc.postTitleHold       = 8f; // Let title sit before mistcloak transition
+        tsc.postTitleHold       = 8f; // Let title sit before ashcloak transition
 
         // References
         tsc.blackOverlay          = blackCG.GetComponent<CanvasGroup>();
@@ -868,24 +868,24 @@ public class TitleSequenceSceneBuilder
         tsc.mistParticles         = mistPS;
         tsc.crimsonBladeLogoGroup = cbLogoCG.GetComponent<CanvasGroup>();
         tsc.sandersonLogoGroup    = sLogoCG.GetComponent<CanvasGroup>();
-        tsc.luthadelStreetsGroup   = luthadelGroup;
-        tsc.kredikShawGroup       = kredikGroup;
+        tsc.cinderholdStreetsGroup   = cinderholdGroup;
+        tsc.thornspireGroup       = kredikGroup;
         tsc.titleGroup            = titleCG;
         tsc.creditText            = creditTMP;
         tsc.creditTextGroup       = creditCG;
         tsc.cameraController      = camCtrl;
 
-        // Ambient audio (assign clips in Inspector — wind, dripping, bells, etc.)
+        // Ambient audio (assign pennies in Inspector — wind, dripping, bells, etc.)
         var ambAudio = manager.AddComponent<TitleAmbientAudio>();
         tsc.ambientAudio          = ambAudio;
-        tsc.mistbornSilhouette    = mbRT;
-        tsc.mistcloakWipePanel    = wipeRT;
+        tsc.ashwalkerSilhouette    = mbRT;
+        tsc.ashcloakWipePanel    = wipeRT;
         tsc.nextSceneName         = "MainMenu";
 
         tsc.creditLines = new List<TitleSequenceController.CreditLine>
         {
             new TitleSequenceController.CreditLine { time = 31f, text = "Music by Malakai Probert" },
-            new TitleSequenceController.CreditLine { time = 37f, text = "Based on the novels by\nBrandon Sanderson" },
+            new TitleSequenceController.CreditLine { time = 37f, text = "Based on the novels by\nthe original author" },
             new TitleSequenceController.CreditLine { time = 43f, text = "Produced by\nCrimson Blade Interactive" },
             new TitleSequenceController.CreditLine { time = 50f, text = "Creative Director\nLandon Adams" },
             new TitleSequenceController.CreditLine { time = 56f, text = "Crimson Blade Interactive\nproudly presents" },
@@ -1005,7 +1005,7 @@ public class TitleSequenceSceneBuilder
             }
             else
             {
-                Debug.LogWarning("[TitleSequenceBuilder] SoftCircle_128 texture not found. Run Mistborn → Effects → Generate Particle Textures first.");
+                Debug.LogWarning("[TitleSequenceBuilder] SoftCircle_128 texture not found. Run Ashwalker → Effects → Generate Particle Textures first.");
             }
         }
 
@@ -1086,16 +1086,16 @@ public class TitleSequenceSceneBuilder
             $"Saved to: {scenePath}\n{audioMsg}\n\n" +
             "BUILT:\n" +
             "• Misty ash field with terrain, hills, rocks, ash + mist particles\n" +
-            "• Luthadel street with 10 buildings, 4 lanterns, ash, fog\n" +
-            "• Kredik Shaw with 20+ spires + surrounding city blocks\n" +
+            "• Cinderhold street with 10 buildings, 4 lanterns, ash, fog\n" +
+            "• Thornspire with 20+ spires + surrounding city blocks\n" +
             "• Camera controller (field dolly → street dolly → aerial orbit)\n" +
             "• All UI: logos, credits, MISTBORN title, subtitle, skip hint\n" +
             "• TitleSequenceController fully wired\n\n" +
             "NEEDS ARTIST:\n" +
             "• Replace grey-box buildings with textured models\n" +
-            "• Replace Kredik Shaw primitives with proper spire model\n" +
-            "• Add logo images (Crimson Blade, Sanderson/Dragonsteel)\n" +
-            "• Custom Mistborn font for the title\n" +
+            "• Replace Thornspire primitives with proper spire model\n" +
+            "• Add logo images (Crimson Blade, the original author/the original IP holder)\n" +
+            "• Custom Ashwalker font for the title\n" +
             "• Ground/wall textures, skybox\n" +
             "• Post-processing (bloom for title glow)",
             "OK");
@@ -1290,7 +1290,7 @@ public class TitleSequenceSceneBuilder
         flicker.style = TitleLightFlicker.FlickerStyle.Lantern;
     }
 
-    static void CreateKredikShaw(Transform parent, Vector3 center)
+    static void CreateThornspire(Transform parent, Vector3 center)
     {
         // Central tower — tallest spire
         CreateSpire(parent, center + new Vector3(0f, 0f, 0f), 2f, 35f);
@@ -1319,7 +1319,7 @@ public class TitleSequenceSceneBuilder
 
         // Base platform
         var basePlat = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        basePlat.name = "KredikShawBase";
+        basePlat.name = "ThornspireBase";
         basePlat.transform.SetParent(parent);
         basePlat.transform.position = center + new Vector3(0f, 1.5f, 0f);
         basePlat.transform.localScale = new Vector3(16f, 1.5f, 16f);
@@ -1491,40 +1491,40 @@ public class TitleSequenceSceneBuilder
         ApplyColor(puddle, new Color(0.08f, 0.10f, 0.14f)); // dark blue-ish reflection
     }
 
-    static void CreateSkaaSilhouette(Transform parent, Vector3 pos, bool crouching)
+    static void CreateLowbornSilhouette(Transform parent, Vector3 pos, bool crouching)
     {
-        var skaa = new GameObject("SkaaSilhouette");
-        skaa.transform.SetParent(parent);
-        skaa.transform.position = pos;
+        var lowborn = new GameObject("LowbornSilhouette");
+        lowborn.transform.SetParent(parent);
+        lowborn.transform.position = pos;
 
-        Color skaaColor = new Color(0.06f, 0.05f, 0.05f); // near-black silhouette
+        Color lowbornColor = new Color(0.06f, 0.05f, 0.05f); // near-black silhouette
 
         // Body
         float bodyHeight = crouching ? 0.6f : 1.2f;
         float bodyY = crouching ? 0.3f : 0.6f;
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.name = "Body";
-        body.transform.SetParent(skaa.transform);
+        body.transform.SetParent(lowborn.transform);
         body.transform.localPosition = new Vector3(0f, bodyY, 0f);
         body.transform.localScale = new Vector3(0.3f, bodyHeight * 0.5f, 0.2f);
         if (crouching) body.transform.rotation = Quaternion.Euler(30f, Random.Range(-20f, 20f), 0f);
-        ApplyColor(body, skaaColor);
+        ApplyColor(body, lowbornColor);
 
         // Head
         var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         head.name = "Head";
-        head.transform.SetParent(skaa.transform);
+        head.transform.SetParent(lowborn.transform);
         float headY = crouching ? 0.7f : 1.35f;
         head.transform.localPosition = new Vector3(0f, headY, crouching ? 0.15f : 0f);
         head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
-        ApplyColor(head, skaaColor);
+        ApplyColor(head, lowbornColor);
 
         // Cloak/shawl (flattened cube draped)
         if (!crouching)
         {
             var cloak = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cloak.name = "Cloak";
-            cloak.transform.SetParent(skaa.transform);
+            cloak.transform.SetParent(lowborn.transform);
             cloak.transform.localPosition = new Vector3(0f, 0.7f, -0.05f);
             cloak.transform.localScale = new Vector3(0.45f, 0.8f, 0.08f);
             ApplyColor(cloak, new Color(0.10f, 0.08f, 0.07f)); // slightly lighter than body
@@ -1554,18 +1554,18 @@ public class TitleSequenceSceneBuilder
         sign.AddComponent<TitleObjectSway>().swayType = TitleObjectSway.SwayType.HangingSign;
     }
 
-    static void CreateTerrismanSilhouette(Transform parent, Vector3 pos)
+    static void CreateValdrianSilhouette(Transform parent, Vector3 pos)
     {
-        var terris = new GameObject("TerrismanSilhouette");
-        terris.transform.SetParent(parent);
-        terris.transform.position = pos;
+        var valdris = new GameObject("ValdrianSilhouette");
+        valdris.transform.SetParent(parent);
+        valdris.transform.position = pos;
 
         Color col = new Color(0.06f, 0.05f, 0.05f);
 
-        // Tall body (Terrisman are described as tall)
+        // Tall body (Valdrian are described as tall)
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.name = "Body";
-        body.transform.SetParent(terris.transform);
+        body.transform.SetParent(valdris.transform);
         body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
         body.transform.localScale = new Vector3(0.3f, 0.9f, 0.22f);
         ApplyColor(body, col);
@@ -1573,33 +1573,33 @@ public class TitleSequenceSceneBuilder
         // Head
         var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         head.name = "Head";
-        head.transform.SetParent(terris.transform);
+        head.transform.SetParent(valdris.transform);
         head.transform.localPosition = new Vector3(0f, 1.85f, 0f);
         head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
         ApplyColor(head, col);
 
-        // Distinctive V-shaped robes (wider at the bottom — Terris style)
+        // Distinctive V-shaped robes (wider at the bottom — Valdris style)
         var robeBottom = GameObject.CreatePrimitive(PrimitiveType.Cube);
         robeBottom.name = "RobeSkirt";
-        robeBottom.transform.SetParent(terris.transform);
+        robeBottom.transform.SetParent(valdris.transform);
         robeBottom.transform.localPosition = new Vector3(0f, 0.25f, 0f);
         robeBottom.transform.localScale = new Vector3(0.55f, 0.5f, 0.35f);
         ApplyColor(robeBottom, new Color(0.10f, 0.08f, 0.07f));
 
-        // Terris earring (small metallic sphere — stores Feruchemical charge)
+        // Valdris earring (small metallic sphere — stores Storecrafted charge)
         var earring = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         earring.name = "Earring";
-        earring.transform.SetParent(terris.transform);
+        earring.transform.SetParent(valdris.transform);
         earring.transform.localPosition = new Vector3(0.1f, 1.82f, 0f);
         earring.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
         ApplyColor(earring, COL_METAL);
 
-        // Arm bracelets (metalminds — Feruchemical storage)
+        // Arm bracelets (metalminds — Storecrafted storage)
         for (int arm = -1; arm <= 1; arm += 2)
         {
             var bracelet = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             bracelet.name = "Metalmind";
-            bracelet.transform.SetParent(terris.transform);
+            bracelet.transform.SetParent(valdris.transform);
             bracelet.transform.localPosition = new Vector3(arm * 0.2f, 1.1f, 0f);
             bracelet.transform.localScale = new Vector3(0.08f, 0.015f, 0.08f);
             ApplyColor(bracelet, COL_METAL);
@@ -1690,7 +1690,7 @@ public class TitleSequenceSceneBuilder
         glow.transform.position = pos + new Vector3(0f, -0.1f, -0.3f);
         var gl = glow.AddComponent<Light>();
         gl.type = LightType.Point;
-        gl.color = new Color(0.3f, 0.5f, 1f); // Allomantic blue
+        gl.color = new Color(0.3f, 0.5f, 1f); // Metallurgic blue
         gl.intensity = 0.4f;
         gl.range = 2f;
         glow.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.WindowGlow;
@@ -1716,9 +1716,9 @@ public class TitleSequenceSceneBuilder
         fl.range = 4f;
         fireLight.AddComponent<TitleLightFlicker>().style = TitleLightFlicker.FlickerStyle.Torch;
 
-        // 2 huddled skaa around it
-        CreateSkaaSilhouette(parent, pos + new Vector3(-0.3f, 0f, 0.2f), true);
-        CreateSkaaSilhouette(parent, pos + new Vector3(0.3f, 0f, 0.15f), true);
+        // 2 huddled lowborn around it
+        CreateLowbornSilhouette(parent, pos + new Vector3(-0.3f, 0f, 0.2f), true);
+        CreateLowbornSilhouette(parent, pos + new Vector3(0.3f, 0f, 0.15f), true);
     }
 
     static void CreateBrokenStreet(Transform parent, Vector3 pos)
@@ -1877,7 +1877,7 @@ public class TitleSequenceSceneBuilder
         }
     }
 
-    static void CreateSkaaQuarter(Transform parent, Vector3 pos)
+    static void CreateLowbornQuarter(Transform parent, Vector3 pos)
     {
         // Dense cluster of small, short buildings — no lights, oppressive
         for (int i = 0; i < 15; i++)
@@ -1889,7 +1889,7 @@ public class TitleSequenceSceneBuilder
             float d = Random.Range(2f, 4f);
 
             var hovel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            hovel.name = "SkaaHovel";
+            hovel.name = "LowbornHovel";
             hovel.transform.SetParent(parent);
             hovel.transform.position = new Vector3(x, h * 0.5f, z);
             hovel.transform.localScale = new Vector3(w, h, d);
@@ -1915,7 +1915,7 @@ public class TitleSequenceSceneBuilder
 
     static void CreateMileMarker(Transform parent, Vector3 pos)
     {
-        // Iron post marking distance to Luthadel
+        // Iron post marking distance to Cinderhold
         var post = GameObject.CreatePrimitive(PrimitiveType.Cube);
         post.name = "MileMarker";
         post.transform.SetParent(parent);
@@ -2044,7 +2044,7 @@ public class TitleSequenceSceneBuilder
         CreateBarrel(parent, pos + new Vector3(-0.2f, 0.55f, -0.5f));
     }
 
-    static void CreateSkaaShanty(Transform parent, Vector3 pos)
+    static void CreateLowbornShanty(Transform parent, Vector3 pos)
     {
         // Lean-to shelter — pole + slanted board + tarp
         var pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -2111,26 +2111,26 @@ public class TitleSequenceSceneBuilder
         ApplyColor(head, col);
     }
 
-    static void CreateObligatorSilhouette(Transform parent, Vector3 pos)
+    static void CreatePrelateSilhouette(Transform parent, Vector3 pos)
     {
-        var obligator = new GameObject("ObligatorSilhouette");
-        obligator.transform.SetParent(parent);
-        obligator.transform.position = pos;
+        var prelate = new GameObject("PrelateSilhouette");
+        prelate.transform.SetParent(parent);
+        prelate.transform.position = pos;
 
         Color col = new Color(0.05f, 0.04f, 0.04f);
 
         // Tall robed body (wider at bottom — robes)
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.name = "Body";
-        body.transform.SetParent(obligator.transform);
+        body.transform.SetParent(prelate.transform);
         body.transform.localPosition = new Vector3(0f, 0.8f, 0f);
         body.transform.localScale = new Vector3(0.35f, 0.8f, 0.25f);
         ApplyColor(body, col);
 
-        // Head (bald — obligators shave their heads)
+        // Head (bald — prelates shave their heads)
         var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         head.name = "Head";
-        head.transform.SetParent(obligator.transform);
+        head.transform.SetParent(prelate.transform);
         head.transform.localPosition = new Vector3(0f, 1.65f, 0f);
         head.transform.localScale = new Vector3(0.18f, 0.2f, 0.18f);
         ApplyColor(head, new Color(0.08f, 0.07f, 0.06f)); // slightly lighter (skin visible)
@@ -2138,17 +2138,17 @@ public class TitleSequenceSceneBuilder
         // Robe hem (wider cube at feet)
         var hem = GameObject.CreatePrimitive(PrimitiveType.Cube);
         hem.name = "RobeHem";
-        hem.transform.SetParent(obligator.transform);
+        hem.transform.SetParent(prelate.transform);
         hem.transform.localPosition = new Vector3(0f, 0.15f, 0f);
         hem.transform.localScale = new Vector3(0.5f, 0.3f, 0.35f);
         ApplyColor(hem, col);
 
-        // Tattoo lines (thin bright strips on the face — the obligator markings)
+        // Tattoo lines (thin bright strips on the face — the prelate markings)
         for (int t = 0; t < 3; t++)
         {
             var line = GameObject.CreatePrimitive(PrimitiveType.Cube);
             line.name = "TattooLine";
-            line.transform.SetParent(obligator.transform);
+            line.transform.SetParent(prelate.transform);
             line.transform.localPosition = new Vector3(0.09f, 1.63f + t * 0.04f, -0.02f + t * 0.02f);
             line.transform.localScale = new Vector3(0.005f, 0.008f, 0.05f);
             ApplyColor(line, new Color(0.15f, 0.08f, 0.08f)); // red-brown ink
@@ -2175,10 +2175,10 @@ public class TitleSequenceSceneBuilder
         ApplyColor(shadow, new Color(0.03f, 0.03f, 0.03f));
     }
 
-    static void CreateInquisitorSilhouette(Transform parent, Vector3 pos)
+    static void CreateSentinelSilhouette(Transform parent, Vector3 pos)
     {
-        // The most terrifying figure in the Final Empire — standing atop Kredik Shaw
-        var inq = new GameObject("InquisitorSilhouette");
+        // The most terrifying figure in the Ashen Dominion — standing atop Thornspire
+        var inq = new GameObject("SentinelSilhouette");
         inq.transform.SetParent(parent);
         inq.transform.position = pos;
 
@@ -2324,7 +2324,7 @@ public class TitleSequenceSceneBuilder
 
     static void CreateScatteredCoins(Transform parent, Vector3 pos)
     {
-        // Small metal discs — hints that a Mistborn was here
+        // Small metal discs — hints that a Ashwalker was here
         for (int i = 0; i < 5; i++)
         {
             var coin = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -2332,7 +2332,7 @@ public class TitleSequenceSceneBuilder
             coin.transform.SetParent(parent);
             coin.transform.position = pos + new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
             coin.transform.localScale = new Vector3(0.04f, 0.003f, 0.04f);
-            // Copper clips — slightly shiny
+            // Copper pennies — slightly shiny
             ApplyColor(coin, new Color(0.45f, 0.30f, 0.15f)); // copper color
         }
     }
@@ -2552,7 +2552,7 @@ public class TitleSequenceSceneBuilder
 
         Color guardColor = new Color(0.08f, 0.07f, 0.06f);
 
-        // Body (wider than skaa — armored)
+        // Body (wider than lowborn — armored)
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.name = "Body";
         body.transform.SetParent(guard.transform);
@@ -2635,9 +2635,9 @@ public class TitleSequenceSceneBuilder
         }
     }
 
-    static void CreateRooftopMistborn(Transform parent, Vector3 pos)
+    static void CreateRooftopAshwalker(Transform parent, Vector3 pos)
     {
-        var mb = new GameObject("RooftopMistborn");
+        var mb = new GameObject("RooftopAshwalker");
         mb.transform.SetParent(parent);
         mb.transform.position = pos;
 
@@ -2660,7 +2660,7 @@ public class TitleSequenceSceneBuilder
         head.transform.localScale = new Vector3(0.2f, 0.18f, 0.2f);
         ApplyColor(head, mbColor);
 
-        // Mistcloak draping behind (multiple flat pieces)
+        // Ashcloak draping behind (multiple flat pieces)
         for (int t = 0; t < 5; t++)
         {
             var tassel = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -2674,10 +2674,10 @@ public class TitleSequenceSceneBuilder
         }
     }
 
-    static void CreateAllomanticLineFlash(Transform parent, Vector3 from, Vector3 to)
+    static void CreateMetallurgicLineFlash(Transform parent, Vector3 from, Vector3 to)
     {
-        // A thin blue line between two points — hints at Allomancy in the city
-        var lineObj = new GameObject("AllomanticLine");
+        // A thin blue line between two points — hints at Metallurgy in the city
+        var lineObj = new GameObject("MetallurgicLine");
         lineObj.transform.SetParent(parent);
         lineObj.transform.position = from;
         var lr = lineObj.AddComponent<LineRenderer>();
@@ -2901,15 +2901,15 @@ public class TitleSequenceSceneBuilder
     }
 
     /// <summary>
-    /// Creates Scadrial's mist particle system.
+    /// Creates Ashara's mist particle system.
     ///
-    /// Lore: the mists are Preservation's power made manifest. They come every night,
+    /// Lore: the mists are The Warden's power made manifest. They come every night,
     /// rolling in at dusk and retreating at dawn. They cling to the ground, swirl
     /// around objects, and are thick enough to limit visibility to a few dozen meters.
-    /// Allomancers can "feel" the mists — they're not normal fog.
+    /// Metallurgists can "feel" the mists — they're not normal fog.
     ///
     /// Visually: thick, slow-moving tendrils that coalesce and dissipate.
-    /// Slightly luminous — they have a faint inner light (Preservation's investiture).
+    /// Slightly luminous — they have a faint inner light (The Warden's investiture).
     /// </summary>
     /// <summary>
     /// Spawns the GPU Fog Particles "Ground Fog" prefab if available.
@@ -3143,7 +3143,7 @@ public class TitleSequenceSceneBuilder
         {
             float x = center.x + i * 4f + Random.Range(-1f, 1f);
             float h = Random.Range(2f, 7f);
-            if (Mathf.Abs(i) <= 1) h = Random.Range(6f, 10f); // taller center (Kredik Shaw hint)
+            if (Mathf.Abs(i) <= 1) h = Random.Range(6f, 10f); // taller center (Thornspire hint)
 
             var bldg = GameObject.CreatePrimitive(PrimitiveType.Cube);
             bldg.name = "DistantBuilding";
@@ -3154,9 +3154,9 @@ public class TitleSequenceSceneBuilder
             ApplyColor(bldg, new Color(0.06f, 0.05f, 0.06f));
         }
 
-        // Central spire hint (Kredik Shaw from a distance)
+        // Central spire hint (Thornspire from a distance)
         var spireHint = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        spireHint.name = "DistantKredikHint";
+        spireHint.name = "DistantThornspireHint";
         spireHint.transform.SetParent(parent);
         spireHint.transform.position = new Vector3(center.x, 7f, center.z);
         spireHint.transform.localScale = new Vector3(0.3f, 7f, 0.3f);
@@ -3382,18 +3382,18 @@ public class TitleSequenceSceneBuilder
         }
     }
 
-    static void CreateSleepingSkaa(Transform parent, Vector3 pos)
+    static void CreateSleepingLowborn(Transform parent, Vector3 pos)
     {
-        var skaa = new GameObject("SleepingSkaa");
-        skaa.transform.SetParent(parent);
-        skaa.transform.position = pos;
+        var lowborn = new GameObject("SleepingLowborn");
+        lowborn.transform.SetParent(parent);
+        lowborn.transform.position = pos;
 
         Color col = new Color(0.08f, 0.07f, 0.06f);
 
         // Body curled on the ground
         var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         body.name = "Body";
-        body.transform.SetParent(skaa.transform);
+        body.transform.SetParent(lowborn.transform);
         body.transform.localPosition = new Vector3(0f, 0.12f, 0f);
         body.transform.localScale = new Vector3(0.25f, 0.12f, 0.35f);
         body.transform.rotation = Quaternion.Euler(0f, Random.Range(-20f, 20f), 90f);
@@ -3402,7 +3402,7 @@ public class TitleSequenceSceneBuilder
         // Blanket / rag over them
         var blanket = GameObject.CreatePrimitive(PrimitiveType.Cube);
         blanket.name = "Blanket";
-        blanket.transform.SetParent(skaa.transform);
+        blanket.transform.SetParent(lowborn.transform);
         blanket.transform.localPosition = new Vector3(0f, 0.15f, 0f);
         blanket.transform.localScale = new Vector3(0.6f, 0.03f, 0.4f);
         ApplyColor(blanket, new Color(0.15f, 0.12f, 0.10f));
@@ -3452,9 +3452,9 @@ public class TitleSequenceSceneBuilder
         ApplyColor(elbow, COL_METAL);
     }
 
-    static void CreateSkaaWorker(Transform parent, Vector3 pos)
+    static void CreateLowbornWorker(Transform parent, Vector3 pos)
     {
-        var worker = new GameObject("SkaaWorker");
+        var worker = new GameObject("LowbornWorker");
         worker.transform.SetParent(parent);
         worker.transform.position = pos;
 
@@ -3486,11 +3486,11 @@ public class TitleSequenceSceneBuilder
         ApplyColor(sack, new Color(0.20f, 0.17f, 0.12f));
     }
 
-    static void CreateSteelMinistry(Transform parent, Vector3 pos)
+    static void CreateIronClergy(Transform parent, Vector3 pos)
     {
-        // Distinctive tall building — the Canton of Inquisition headquarters
+        // Distinctive tall building — the Diocese of Inquisition headquarters
         var main = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        main.name = "SteelMinistry";
+        main.name = "IronClergy";
         main.transform.SetParent(parent);
         float h = 22f;
         main.transform.position = pos + new Vector3(0f, h * 0.5f, 0f);
@@ -3513,7 +3513,7 @@ public class TitleSequenceSceneBuilder
         tip.transform.localScale = new Vector3(0.5f, 1.5f, 0.5f);
         ApplyColor(tip, COL_SPIRE_TIP);
 
-        // Iron symbol on front (cube representing the Steel Ministry emblem)
+        // Iron symbol on front (cube representing the Iron Clergy emblem)
         var emblem = GameObject.CreatePrimitive(PrimitiveType.Cube);
         emblem.name = "MinistryEmblem";
         emblem.transform.SetParent(parent);
@@ -3532,7 +3532,7 @@ public class TitleSequenceSceneBuilder
             ApplyColor(step, COL_STONE_MED);
         }
 
-        // Bright window glow (Inquisitors never sleep)
+        // Bright window glow (Sentinels never sleep)
         var glow = new GameObject("MinistryGlow");
         glow.transform.SetParent(parent);
         glow.transform.position = pos + new Vector3(0f, h * 0.6f, 0f);
@@ -3546,7 +3546,7 @@ public class TitleSequenceSceneBuilder
 
     static void CreateBanner(Transform parent, Vector3 pos)
     {
-        // Pole (metal — this is controlled by the Lord Ruler)
+        // Pole (metal — this is controlled by the Ashen King)
         var pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         pole.name = "BannerPole";
         pole.transform.SetParent(parent);
@@ -3554,7 +3554,7 @@ public class TitleSequenceSceneBuilder
         pole.transform.localScale = new Vector3(0.04f, 1f, 0.04f);
         ApplyColor(pole, COL_METAL);
 
-        // Banner cloth (dark red — the Lord Ruler's colors)
+        // Banner cloth (dark red — the Ashen King's colors)
         var cloth = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cloth.name = "BannerCloth";
         cloth.transform.SetParent(parent);
@@ -3677,10 +3677,10 @@ public class TitleSequenceSceneBuilder
 
     static void CreateSteeljumpArc(Transform parent, Vector3 start, Vector3 apex, Vector3 end)
     {
-        // A Mistborn mid-steeljump — visualized as a figure + blue line trail
+        // A Ashwalker mid-steeljump — visualized as a figure + blue line trail
         // positioned at the apex of the arc
 
-        var mb = new GameObject("SteeljumpingMistborn");
+        var mb = new GameObject("SteeljumpingAshwalker");
         mb.transform.SetParent(parent);
         mb.transform.position = apex;
 
@@ -3703,7 +3703,7 @@ public class TitleSequenceSceneBuilder
         head.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
         ApplyColor(head, col);
 
-        // Mistcloak streaming behind
+        // Ashcloak streaming behind
         for (int t = 0; t < 6; t++)
         {
             var tassel = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -3722,7 +3722,7 @@ public class TitleSequenceSceneBuilder
             ApplyColor(tassel, new Color(col.r + 0.02f, col.g + 0.02f, col.b + 0.02f));
         }
 
-        // Blue Allomantic line from the figure down to the push point (start = coin/anchor)
+        // Blue Metallurgic line from the figure down to the push point (start = coin/anchor)
         var lineObj = new GameObject("SteeljumpLine");
         lineObj.transform.SetParent(parent);
         var lr = lineObj.AddComponent<LineRenderer>();

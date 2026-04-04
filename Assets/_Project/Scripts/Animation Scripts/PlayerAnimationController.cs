@@ -4,7 +4,7 @@ using UnityEngine.Playables;
 
 /// <summary>
 /// Playables-based animation controller for the player.
-/// Inspired by uPlayableAnimation (EricHu33, MIT licence) — rebuilt for Mistborn.
+/// Inspired by uPlayableAnimation (EricHu33, MIT licence) — rebuilt for Ashwalker.
 ///
 /// Architecture:
 ///   PlayableGraph

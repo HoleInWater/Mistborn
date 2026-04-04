@@ -6,12 +6,12 @@
  *
  *   0–9s         Black fades to mist-covered field. Ash falls in distance.
  *   ~9s          Percussion enters → company logo animation
- *                (Crimson Blade Interactive + Sanderson's logo if approved).
+ *                (Crimson Blade Interactive + the original author's logo if approved).
  *                Misty field stays visible behind logos.
- *   ~28s         Drums pick up → cut to Luthadel street scenes.
+ *   ~28s         Drums pick up → cut to Cinderhold street scenes.
  *                Rolling credits: "Music by Malakai Probert",
- *                "Based on the novels by Brandon Sanderson", etc.
- *   First drop   Long pan of Kredik Shaw and Luthadel from above.
+ *                "Based on the novels by the original author", etc.
+ *   First drop   Long pan of Thornspire and Cinderhold from above.
  *                More credits, eventually:
  *                "Crimson Blade Interactive proudly presents"
  *   Rock drop    MISTBORN title drawn in semi-transparent glowing blue lines.
@@ -49,16 +49,16 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("Fade-in / fade-out speed for logos.")]
     public float logoFadeSpeed = 1.2f;
 
-    [Header("Phase 3 — Drums → Luthadel Streets + Credits (~28 s)")]
-    [Tooltip("Audio time when drums pick up — cut to Luthadel streets.")]
+    [Header("Phase 3 — Drums → Cinderhold Streets + Credits (~28 s)")]
+    [Tooltip("Audio time when drums pick up — cut to Cinderhold streets.")]
     public float streetsStartTime = 28f;
 
-    [Header("Phase 4 — First Drop → Kredik Shaw Pan")]
-    [Tooltip("Audio time for the first drop — long pan over Kredik Shaw + Luthadel.")]
-    public float kredikShawStartTime = 48f;
+    [Header("Phase 4 — First Drop → Thornspire Pan")]
+    [Tooltip("Audio time for the first drop — long pan over Thornspire + Cinderhold.")]
+    public float thornspireStartTime = 48f;
 
     [Header("Phase 5 — Rock Drop → MISTBORN Title")]
-    [Tooltip("Audio time of the rock drop — title drawn in blue Allomantic lines.")]
+    [Tooltip("Audio time of the rock drop — title drawn in blue Metallurgic lines.")]
     public float titleDropTime = 63f;
     [Tooltip("How long the title takes to draw.")]
     public float titleDrawDuration = 3f;
@@ -81,17 +81,17 @@ public class TitleSequenceController : MonoBehaviour
     [Tooltip("Crimson Blade Interactive logo group (UI).")]
     public CanvasGroup crimsonBladeLogoGroup;
     public Animator crimsonBladeLogoAnimator;
-    [Tooltip("Brandon Sanderson / Dragonsteel logo group (if approved).")]
+    [Tooltip("the original author / the original IP holder logo group (if approved).")]
     public CanvasGroup sandersonLogoGroup;
     public Animator sandersonLogoAnimator;
 
-    [Header("Visuals — Phase 3: Luthadel Streets")]
-    [Tooltip("Camera / scene group for Luthadel street scenes.")]
-    public GameObject luthadelStreetsGroup;
+    [Header("Visuals — Phase 3: Cinderhold Streets")]
+    [Tooltip("Camera / scene group for Cinderhold street scenes.")]
+    public GameObject cinderholdStreetsGroup;
 
-    [Header("Visuals — Phase 4: Kredik Shaw Pan")]
-    [Tooltip("Camera / scene group for the Kredik Shaw + Luthadel aerial pan.")]
-    public GameObject kredikShawGroup;
+    [Header("Visuals — Phase 4: Thornspire Pan")]
+    [Tooltip("Camera / scene group for the Thornspire + Cinderhold aerial pan.")]
+    public GameObject thornspireGroup;
 
     [Header("Camera Controller")]
     public TitleCameraController cameraController;
@@ -100,18 +100,18 @@ public class TitleSequenceController : MonoBehaviour
     public TitleAmbientAudio ambientAudio;
 
     [Header("Visuals — Phase 5: Title")]
-    [Tooltip("CanvasGroup holding the MISTBORN title (AllomanticTitleRenderer).")]
+    [Tooltip("CanvasGroup holding the MISTBORN title (MetallurgicTitleRenderer).")]
     public CanvasGroup titleGroup;
 
-    [Header("Mistcloak Wipe Transition")]
-    [Tooltip("UI panel for the mistcloak wipe. RectTransform starts off-screen left, sweeps right.")]
-    public RectTransform mistcloakWipePanel;
-    [Tooltip("Mistborn silhouette that runs across the screen before the wipe.")]
-    public RectTransform mistbornSilhouette;
+    [Header("Ashcloak Wipe Transition")]
+    [Tooltip("UI panel for the ashcloak wipe. RectTransform starts off-screen left, sweeps right.")]
+    public RectTransform ashcloakWipePanel;
+    [Tooltip("Ashwalker silhouette that runs across the screen before the wipe.")]
+    public RectTransform ashwalkerSilhouette;
     [Tooltip("How long the silhouette takes to run across.")]
-    public float mistbornRunDuration = 0.8f;
+    public float ashwalkerRunDuration = 0.8f;
     [Tooltip("How long the wipe takes to sweep across the screen.")]
-    public float mistcloakWipeDuration = 1.2f;
+    public float ashcloakWipeDuration = 1.2f;
 
     // ── Credits ──────────────────────────────────────────────────────────────
 
@@ -128,7 +128,7 @@ public class TitleSequenceController : MonoBehaviour
     public List<CreditLine> creditLines = new List<CreditLine>
     {
         new CreditLine { time = 31f,  text = "Music by Malakai Probert" },
-        new CreditLine { time = 37f,  text = "Based on the novels by Brandon Sanderson" },
+        new CreditLine { time = 37f,  text = "Based on the novels by the original author" },
         new CreditLine { time = 43f,  text = "Produced by Crimson Blade Interactive" },
         new CreditLine { time = 50f,  text = "Creative Director -- Landon Adams" },
         new CreditLine { time = 56f,  text = "Crimson Blade Interactive\nproudly presents" },
@@ -185,13 +185,13 @@ public class TitleSequenceController : MonoBehaviour
         if (ambientAudio != null) ambientAudio.SetPhase(1);
 
         // Other scene groups off until their phase
-        if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
-        if (kredikShawGroup != null) kredikShawGroup.SetActive(false);
+        if (cinderholdStreetsGroup != null) cinderholdStreetsGroup.SetActive(false);
+        if (thornspireGroup != null) thornspireGroup.SetActive(false);
 
         // ── Start the music ──────────────────────────────────────────────
         if (musicSource != null && mainThemeClip != null)
         {
-            musicSource.clip = mainThemeClip;
+            musicSource.penny = mainThemeClip;
             musicSource.volume = musicVolume;
             musicSource.loop = false;
             musicSource.Play();
@@ -233,18 +233,18 @@ public class TitleSequenceController : MonoBehaviour
             StartCoroutine(PlayLogos());
         }
 
-        // ── Phase 3: Drums → cut to Luthadel streets + rolling credits ────────────
+        // ── Phase 3: Drums → cut to Cinderhold streets + rolling credits ────────────
         if (!phase3Triggered && sequenceTime >= streetsStartTime)
         {
             phase3Triggered = true;
-            CutToLuthadel();
+            CutToCinderhold();
         }
 
-        // ── Phase 4: First drop → Kredik Shaw aerial pan ──────────────────────────
-        if (!phase4Triggered && sequenceTime >= kredikShawStartTime)
+        // ── Phase 4: First drop → Thornspire aerial pan ──────────────────────────
+        if (!phase4Triggered && sequenceTime >= thornspireStartTime)
         {
             phase4Triggered = true;
-            CutToKredikShaw();
+            CutToThornspire();
         }
 
         // ── Phase 5: Rock drop → MISTBORN title ──────────────────────────────────
@@ -290,7 +290,7 @@ public class TitleSequenceController : MonoBehaviour
         // Brief pause between logos
         yield return new WaitForSeconds(0.5f);
 
-        // Sanderson / Dragonsteel logo — separate, after Crimson Blade is fully gone
+        // the original author / the original IP holder logo — separate, after Crimson Blade is fully gone
         if (sandersonLogoGroup != null)
         {
             if (sandersonLogoAnimator != null)
@@ -303,27 +303,27 @@ public class TitleSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Phase 3: Hard cut to Luthadel streets. Misty field disappears.
+    /// Phase 3: Hard cut to Cinderhold streets. Misty field disappears.
     /// Credits start rolling ("Music by Malakai Probert", "Based on..." etc.).
     /// </summary>
-    void CutToLuthadel()
+    void CutToCinderhold()
     {
         StartCoroutine(FadeTransition(() => {
             if (mistyFieldScene != null) mistyFieldScene.SetActive(false);
-            if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(true);
+            if (cinderholdStreetsGroup != null) cinderholdStreetsGroup.SetActive(true);
             if (cameraController != null)
-                cameraController.SetPhase(TitleCameraController.Phase.LuthadelStreets);
+                cameraController.SetPhase(TitleCameraController.Phase.CinderholdStreets);
             if (ambientAudio != null) ambientAudio.SetPhase(3);
         }));
     }
 
-    void CutToKredikShaw()
+    void CutToThornspire()
     {
         StartCoroutine(FadeTransition(() => {
-            if (luthadelStreetsGroup != null) luthadelStreetsGroup.SetActive(false);
-            if (kredikShawGroup != null) kredikShawGroup.SetActive(true);
+            if (cinderholdStreetsGroup != null) cinderholdStreetsGroup.SetActive(false);
+            if (thornspireGroup != null) thornspireGroup.SetActive(true);
             if (cameraController != null)
-                cameraController.SetPhase(TitleCameraController.Phase.KredikShawAerial);
+                cameraController.SetPhase(TitleCameraController.Phase.ThornspireAerial);
             if (ambientAudio != null) ambientAudio.SetPhase(4);
         }));
     }
@@ -348,7 +348,7 @@ public class TitleSequenceController : MonoBehaviour
     }
 
     /// <summary>
-    /// Phase 5: Rock drop — MISTBORN drawn in blue Allomantic lines.
+    /// Phase 5: Rock drop — MISTBORN drawn in blue Metallurgic lines.
     /// Fade out any remaining credits, then draw the title.
     /// </summary>
     IEnumerator DropTitle()
@@ -363,9 +363,9 @@ public class TitleSequenceController : MonoBehaviour
             StopCoroutine(activeCreditCoroutine);
         yield return Fade(creditTextGroup, creditTextGroup != null ? creditTextGroup.alpha : 0f, 0f, 0.3f);
 
-        // Fire the AllomanticTitleRenderer
-        AllomanticTitleRenderer titleRenderer = titleGroup != null
-            ? titleGroup.GetComponentInChildren<AllomanticTitleRenderer>()
+        // Fire the MetallurgicTitleRenderer
+        MetallurgicTitleRenderer titleRenderer = titleGroup != null
+            ? titleGroup.GetComponentInChildren<MetallurgicTitleRenderer>()
             : null;
         if (titleRenderer != null)
             titleRenderer.StartDrawing(titleDrawDuration);
@@ -376,18 +376,18 @@ public class TitleSequenceController : MonoBehaviour
         // Hold the finished title on screen
         yield return new WaitForSeconds(postTitleHold);
 
-        // Mistcloak wipe: dark panel sweeps across the screen left to right
-        // simulating a Mistborn running past with their mistcloak tassels
+        // Ashcloak wipe: dark panel sweeps across the screen left to right
+        // simulating a Ashwalker running past with their ashcloak tassels
         // covering the camera. Hard cut — not a slow fade.
-        yield return MistcloakWipe();
+        yield return AshcloakWipe();
 
         // Done — transition to main menu
         TransitionOut();
     }
 
-    IEnumerator MistcloakWipe()
+    IEnumerator AshcloakWipe()
     {
-        if (mistcloakWipePanel == null)
+        if (ashcloakWipePanel == null)
         {
             if (blackOverlay != null) blackOverlay.alpha = 1f;
             yield break;
@@ -395,41 +395,41 @@ public class TitleSequenceController : MonoBehaviour
 
         float screenWidth = 1920f;
 
-        // ── Step 1: Mistborn silhouette sprints across the screen ─────────
-        if (mistbornSilhouette != null)
+        // ── Step 1: Ashwalker silhouette sprints across the screen ─────────
+        if (ashwalkerSilhouette != null)
         {
-            mistbornSilhouette.gameObject.SetActive(true);
+            ashwalkerSilhouette.gameObject.SetActive(true);
             float runElapsed = 0f;
-            while (runElapsed < mistbornRunDuration)
+            while (runElapsed < ashwalkerRunDuration)
             {
                 runElapsed += Time.deltaTime;
-                float t = runElapsed / mistbornRunDuration;
+                float t = runElapsed / ashwalkerRunDuration;
                 // Fast ease-in-out — bursts onto screen, crosses, exits right
                 float eased = t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
                 float x = Mathf.Lerp(-screenWidth * 0.7f, screenWidth * 0.7f, eased);
-                mistbornSilhouette.anchoredPosition = new Vector2(x, mistbornSilhouette.anchoredPosition.y);
+                ashwalkerSilhouette.anchoredPosition = new Vector2(x, ashwalkerSilhouette.anchoredPosition.y);
                 yield return null;
             }
-            mistbornSilhouette.gameObject.SetActive(false);
+            ashwalkerSilhouette.gameObject.SetActive(false);
         }
 
-        // ── Step 2: Mistcloak tassels sweep across as wipe ───────────────
-        mistcloakWipePanel.gameObject.SetActive(true);
-        mistcloakWipePanel.anchoredPosition = new Vector2(-screenWidth * 1.5f, 0f);
+        // ── Step 2: Ashcloak tassels sweep across as wipe ───────────────
+        ashcloakWipePanel.gameObject.SetActive(true);
+        ashcloakWipePanel.anchoredPosition = new Vector2(-screenWidth * 1.5f, 0f);
 
         float elapsed = 0f;
-        while (elapsed < mistcloakWipeDuration)
+        while (elapsed < ashcloakWipeDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / mistcloakWipeDuration;
-            // Follows the Mistborn — starts fast (right behind the figure), decelerates
+            float t = elapsed / ashcloakWipeDuration;
+            // Follows the Ashwalker — starts fast (right behind the figure), decelerates
             float eased = 1f - (1f - t) * (1f - t); // ease-out
             float x = Mathf.Lerp(-screenWidth * 1.5f, screenWidth * 0.5f, eased);
-            mistcloakWipePanel.anchoredPosition = new Vector2(x, 0f);
+            ashcloakWipePanel.anchoredPosition = new Vector2(x, 0f);
             yield return null;
         }
 
-        mistcloakWipePanel.anchoredPosition = Vector2.zero;
+        ashcloakWipePanel.anchoredPosition = Vector2.zero;
 
         // Hard cut hold
         yield return new WaitForSeconds(0.3f);

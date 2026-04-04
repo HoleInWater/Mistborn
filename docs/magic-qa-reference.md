@@ -1,7 +1,7 @@
 # MISTBORN ERA 1 — METALLIC ARTS Q&A REFERENCE
 ## For: Digital Video Game Implementation
 
-*Reference document for all three Metallic Arts: Allomancy, Feruchemy, Hemalurgy*
+*Reference document for all three Metallic Arts: Metallurgy, Storecraft, Bloodforge*
 
 ---
 
@@ -9,11 +9,11 @@
 
 ---
 
-### IRON | Allomancy: Ironpulling | Feruchemy: Weight | Hemalurgy: Steal Physical Powers
+### IRON | Metallurgy: Ironpulling | Storecraft: Weight | Bloodforge: Steal Physical Powers
 
-**Q: What can a Lurcher Pull, and what can they NOT Pull?**
+**Q: What can a Hauler Pull, and what can they NOT Pull?**
 
-A: Burning iron lets a Lurcher Pull on metal objects — coins, weapons, armor, anything made of or containing metal. They cannot Pull on living flesh or organic matter.
+A: Burning iron lets a Hauler Pull on metal objects — coins, weapons, armor, anything made of or containing metal. They cannot Pull on living flesh or organic matter.
 
 **GAME:** Tagging system for metal vs non-metal objects. What happens with mixed objects (wooden sword, metal pommel)?
 
@@ -21,7 +21,7 @@ A: Burning iron lets a Lurcher Pull on metal objects — coins, weapons, armor, 
 
 **Q: Is there a range on Ironpulling?**
 
-A: Yes, range exists. Scales with Allomancer power level and how much metal being burned. Flaring extends reach. Average Lurcher: few dozen meters.
+A: Yes, range exists. Scales with Metallurgist power level and how much metal being burned. Flaring extends reach. Average Hauler: few dozen meters.
 
 **GAME:** Fixed stat, scaling resource, or upgradeable? Range indicator or keep vague?
 
@@ -45,13 +45,13 @@ A: Weight. Filling makes you literally lighter. Tapping makes you dramatically h
 
 **Q: What does an iron spike steal?**
 
-A: Allomantic strength in Physical metals — Ironpulling and Steelpushing. Must be driven through bicep.
+A: Metallurgic strength in Physical metals — Ironpulling and Steelpushing. Must be driven through bicep.
 
 ---
 
-### STEEL | Allomancy: Steelpushing | Feruchemy: Speed | Hemalurgy: Steal Physical Powers
+### STEEL | Metallurgy: Steelpushing | Storecraft: Speed | Bloodforge: Steal Physical Powers
 
-**Q: How does a Coinshot "fly"?**
+**Q: How does a Launcher "fly"?**
 
 A: Push downward against coins on ground — equal-and-opposite reaction launches upward. Controlled ballistic movement, not true flight.
 
@@ -69,7 +69,7 @@ A: Range exists, scales with power. Can sense metals through walls via blue line
 
 **Q: Why blue lines? What do they show?**
 
-A: Allomancer's perceptual sense. Lines vary in thickness based on metal mass. Maps rooms through walls.
+A: Metallurgist's perceptual sense. Lines vary in thickness based on metal mass. Maps rooms through walls.
 
 **GAME:** Built-in radar system. Design puzzles using blue lines only.
 
@@ -83,7 +83,7 @@ A: Physical speed. Filling = sluggish. Tapping = superhuman velocity.
 
 ---
 
-### TIN | Allomancy: Enhanced Senses | Feruchemy: Sensory Acuity | Hemalurgy: Steal Senses
+### TIN | Metallurgy: Enhanced Senses | Storecraft: Sensory Acuity | Bloodforge: Steal Senses
 
 **Q: Downsides of enhanced senses?**
 
@@ -95,7 +95,7 @@ A: Enhanced senses can be weaponized. Loud noises agonizing, bright flashes blin
 
 **Q: Selective sense enhancement?**
 
-A: All five enhanced simultaneously by default. Skilled Tineyes can focus specific senses through practice.
+A: All five enhanced simultaneously by default. Skilled Keensenses can focus specific senses through practice.
 
 **GAME:** Skill tree unlock for selective control.
 
@@ -103,13 +103,13 @@ A: All five enhanced simultaneously by default. Skilled Tineyes can focus specif
 
 **Q: What does a tinmind store?**
 
-A: Sensory acuity — can choose which specific sense per tinmind. More precise than Allomantic tin.
+A: Sensory acuity — can choose which specific sense per tinmind. More precise than Metallurgic tin.
 
 **GAME:** Environmental puzzles requiring specific sensory combinations.
 
 ---
 
-**Q: Tineye savant?**
+**Q: Keensense savant?**
 
 A: Permanently heightened senses even without burning. Cannot turn off. Cautionary tale about overuse.
 
@@ -117,7 +117,7 @@ A: Permanently heightened senses even without burning. Cannot turn off. Cautiona
 
 ---
 
-### PEWTER | Allomancy: Physical Enhancement | Feruchemy: Strength | Hemalurgy: Steal Physical Powers
+### PEWTER | Metallurgy: Physical Enhancement | Storecraft: Strength | Bloodforge: Steal Physical Powers
 
 **Q: What does pewter enhance beyond strength?**
 
@@ -127,7 +127,7 @@ A: Strength, speed, endurance, balance, AND pain tolerance simultaneously. Speed
 
 ---
 
-**Q: What happens when Pewterarm runs out mid-fight?**
+**Q: What happens when Ironhide runs out mid-fight?**
 
 A: "Pewter drag" hits. All accumulated damage and exertion crashes back at once. Strategy: outlast and deplete.
 
@@ -147,7 +147,7 @@ A: Physical strength. Filling = visible weakening. Tapping = muscles bulge to in
 
 ---
 
-### ZINC | Allomancy: Riot Emotions | Feruchemy: Mental Speed | Hemalurgy: Steal Mental Powers
+### ZINC | Metallurgy: Riot Emotions | Storecraft: Mental Speed | Bloodforge: Steal Mental Powers
 
 **Q: What does Rioting do?**
 
@@ -159,7 +159,7 @@ A: Amplifies and inflames an emotion that ALREADY EXISTS. Cannot create emotions
 
 **Q: Targeted or area effect?**
 
-A: Both. Unfocused = everyone in range. Focused = single person's specific emotion. Breeze-level precision possible.
+A: Both. Unfocused = everyone in range. Focused = single person's specific emotion. Lysander-level precision possible.
 
 **GAME:** Quick area effect vs slower precision interaction. Stealth implications.
 
@@ -173,19 +173,19 @@ A: Mental speed. Filling = mentally slower, foggy. Tapping = extraordinarily fas
 
 ---
 
-### BRASS | Allomancy: Soothe Emotions | Feruchemy: Body Heat | Hemalurgy: Steal Mental Powers
+### BRASS | Metallurgy: Soothe Emotions | Storecraft: Body Heat | Bloodforge: Steal Mental Powers
 
 **Q: What does Soothing do?**
 
-A: Dampens and suppresses emotions. Skilled Soother can suppress ALL emotions except one.
+A: Dampens and suppresses emotions. Skilled Queller can suppress ALL emotions except one.
 
 **GAME:** Pacify enemies without combat. Precision isolation of loyalty.
 
 ---
 
-**Q: Protection against emotional Allomancy?**
+**Q: Protection against emotional Metallurgy?**
 
-A: Aluminum blocks it. Coppercloud hides all Allomantic activity within. Another Allomancer burning brass/zinc can counteract.
+A: Aluminum blocks it. Coppercloud hides all Metallurgic activity within. Another Metallurgist burning brass/zinc can counteract.
 
 **GAME:** Protection mechanics create counterplay depth.
 
@@ -199,11 +199,11 @@ A: Body heat. Filling = physically cold. Tapping = unusual internal warmth.
 
 ---
 
-### COPPER | Allomancy: Coppercloud | Feruchemy: Memory | Hemalurgy: Steal Mental Powers
+### COPPER | Metallurgy: Coppercloud | Storecraft: Memory | Bloodforge: Steal Mental Powers
 
 **Q: What does a coppercloud do?**
 
-A: Sphere around Smoker that hides ALL Allomantic activity from Seekers. Does NOT hide the people themselves.
+A: Sphere around Smoker that hides ALL Metallurgic activity from Seekers. Does NOT hide the people themselves.
 
 **GAME:** Placeable stealth field. Safe houses and preparation zones.
 
@@ -211,9 +211,9 @@ A: Sphere around Smoker that hides ALL Allomantic activity from Seekers. Does NO
 
 **Q: Strategic importance of a Smoker?**
 
-A: Without one, every Allomancer in crew is detectable. Copper = difference between safe ops and capture.
+A: Without one, every Metallurgist in crew is detectable. Copper = difference between safe ops and capture.
 
-**GAME:** Support role that enables aggressive Allomantic use.
+**GAME:** Support role that enables aggressive Metallurgic use.
 
 ---
 
@@ -225,21 +225,21 @@ A: Memories. Perfectly and completely. Stored memories removed from active recal
 
 ---
 
-**Q: Can one Feruchemist access another's coppermind?**
+**Q: Can one Storecrafter access another's coppermind?**
 
 A: No. Fundamentally. A metalmind can only be accessed by who charged it.
 
-**GAME:** Dead Feruchemist's metalminds = locked vaults.
+**GAME:** Dead Storecrafter's metalminds = locked vaults.
 
 ---
 
-### BRONZE | Allomancy: Detect Allomancy | Feruchemy: Wakefulness | Hemalurgy: Steal Mental Powers
+### BRONZE | Metallurgy: Detect Metallurgy | Storecraft: Wakefulness | Bloodforge: Steal Mental Powers
 
 **Q: What can a skilled Seeker detect?**
 
-A: Unskilled = someone burning something. Skilled = which specific metal. Very skilled = multiple Allomancers simultaneously.
+A: Unskilled = someone burning something. Skilled = which specific metal. Very skilled = multiple Metallurgists simultaneously.
 
-**GAME:** Enemy faction that punishes Allomantic use. Call in specific counters.
+**GAME:** Enemy faction that punishes Metallurgic use. Call in specific counters.
 
 ---
 
@@ -263,7 +263,7 @@ A: Wakefulness. Filling = drowsy. Tapping = stay alert far beyond human limits.
 
 ---
 
-### GOLD | Allomancy: Past Self Vision | Feruchemy: Health | Hemalurgy: Steal Feruchemical Powers
+### GOLD | Metallurgy: Past Self Vision | Storecraft: Health | Bloodforge: Steal Storecrafted Powers
 
 **Q: What does burning gold show?**
 
@@ -281,19 +281,19 @@ A: Health and healing. Filling = sickly. Tapping = dramatically accelerated heal
 
 ---
 
-### ELECTRUM | Allomancy: Own Future Shadow
+### ELECTRUM | Metallurgy: Own Future Shadow
 
-**Q: What does electrum show vs atium?**
+**Q: What does electrum show vs oraculum?**
 
-A: Electrum = your own future actions. Atium = others' future actions. Electrum counters atium.
+A: Electrum = your own future actions. Oraculum = others' future actions. Electrum counters oraculum.
 
 **GAME:** Nullification mechanic. Brief "phantom self" preview.
 
 ---
 
-### ATIUM | Allomancy: See Others' Futures | Hemalurgy: Steal Feruchemical Powers
+### ATIUM | Metallurgy: See Others' Futures | Bloodforge: Steal Storecrafted Powers
 
-**Q: What does atium show?**
+**Q: What does oraculum show?**
 
 A: Ghostly images of what every nearby person/object is about to do. Cognitively overwhelming with multiple opponents. Burns extremely fast.
 
@@ -301,25 +301,25 @@ A: Ghostly images of what every nearby person/object is about to do. Cognitively
 
 ---
 
-**Q: Counters to atium?**
+**Q: Counters to oraculum?**
 
 A: Burning electrum, multiple simultaneous attacks, waiting them out, pure randomness/instinct.
 
-**GAME:** Swarm enemies counter atium. Discovery mechanic before atium boss.
+**GAME:** Swarm enemies counter oraculum. Discovery mechanic before oraculum boss.
 
 ---
 
-### ALUMINUM | Allomancy: Wipe Own Metals | Feruchemy: Identity | Hemalurgy: Steal Identity
+### ALUMINUM | Metallurgy: Wipe Own Metals | Storecraft: Identity | Bloodforge: Steal Identity
 
 **Q: What does burning aluminum do?**
 
-A: Instantly destroys all other metals in stomach. No power gained. Protects against Nicroburst. Aluminum nulls external emotional Allomancy.
+A: Instantly destroys all other metals in stomach. No power gained. Protects against Nicroburst. Aluminum nulls external emotional Metallurgy.
 
 **GAME:** Emergency panic button. Aluminum-lined equipment reduces emotional damage.
 
 ---
 
-### DURALUMIN | Allomancy: Burst Current Metal | Hemalurgy: Steal Identity
+### DURALUMIN | Metallurgy: Burst Current Metal | Bloodforge: Steal Identity
 
 **Q: What does duralumin do?**
 
@@ -329,21 +329,21 @@ A: Massive instantaneous burst of current metal's power — consumes all at once
 
 ---
 
-### CHROMIUM/NICROSIL | Allomancy: Drain/Burst Others' Metals | Hemalurgy: Steal Enhancement Powers
+### CHROMIUM/NICROSIL | Metallurgy: Drain/Burst Others' Metals | Bloodforge: Steal Enhancement Powers
 
 **Q: What do chromium and nicrosil do?**
 
-A: Chromium = drain someone's metal reserves on touch. Nicrosil = burst someone's metals immediately. Anti-Allomancer weapons requiring contact.
+A: Chromium = drain someone's metal reserves on touch. Nicrosil = burst someone's metals immediately. Anti-Metallurgist weapons requiring contact.
 
 **GAME:** Grappler enemy archetype. High-risk high-reward close-range.
 
 ---
 
-### CADMIUM/BENDALLOY | Allomancy: Slow/Speed Time Bubbles | Feruchemy: Breath/Nutrition
+### CADMIUM/BENDALLOY | Metallurgy: Slow/Speed Time Bubbles | Storecraft: Breath/Nutrition
 
 **Q: What do cadmium and bendalloy do?**
 
-A: Cadmium = slow time bubble. Bendalloy = speed time bubble. KEY: Allomancer always inside their own bubble. Cannot affect enemies without being in it.
+A: Cadmium = slow time bubble. Bendalloy = speed time bubble. KEY: Metallurgist always inside their own bubble. Cannot affect enemies without being in it.
 
 **GAME:** Position-commitment abilities. Deflection at bubble boundary.
 
@@ -361,27 +361,27 @@ A: BOTH metal type AND placement on body. Wrong location = different/diminished 
 
 ---
 
-**Q: What is always lost in Hemalurgy transfer?**
+**Q: What is always lost in Bloodforge transfer?**
 
 A: Power is always diminished. End-negative. Recipient gets less than donor had.
 
-**GAME:** Hemalurgy always yields diminishing returns.
+**GAME:** Bloodforge always yields diminishing returns.
 
 ---
 
-**Q: What does Ruin exploit?**
+**Q: What does The Unmaker exploit?**
 
-A: Spikes tear Spiritweb, creating gap. Gives Ruin access to influence and control.
+A: Spikes tear Spiritweb, creating gap. Gives The Unmaker access to influence and control.
 
 **GAME:** Corruption/Influence system. Accumulated usage affects control.
 
 ---
 
-**Q: Steel Inquisitor spikes?**
+**Q: Iron Sentinel spikes?**
 
 A: ~10 spikes. Eye-spikes typically grant steel/iron. Metal-detection sight, not normal vision.
 
-**GAME:** Multiple spiked powers = feels like multiple Allomancers in one enemy.
+**GAME:** Multiple spiked powers = feels like multiple Metallurgists in one enemy.
 
 ---
 
@@ -391,15 +391,15 @@ A: ~10 spikes. Eye-spikes typically grant steel/iron. Metal-detection sight, not
 
 **Q: Which system connects to which Shard?**
 
-A: Allomancy = Preservation (end-positive). Hemalurgy = Ruin (end-negative). Feruchemy = Balance (end-neutral).
+A: Metallurgy = The Warden (end-positive). Bloodforge = The Unmaker (end-negative). Storecraft = Balance (end-neutral).
 
-**GAME:** Thematic backbone. Allomancy = explosive, Hemalurgy = costly, Feruchemy = balanced.
+**GAME:** Thematic backbone. Metallurgy = explosive, Bloodforge = costly, Storecraft = balanced.
 
 ---
 
 **Q: What is Compounding?**
 
-A: Twinborn uses same metal for both Allomantic and Feruchemy. Store attribute, burn charged metalmind, supercharged output.
+A: Twinborn uses same metal for both Metallurgic and Storecraft. Store attribute, burn charged metalmind, supercharged output.
 
 **GAME:** Late-game power fantasy. Gate behind progression. Consider whether available to players at all.
 
@@ -407,7 +407,7 @@ A: Twinborn uses same metal for both Allomantic and Feruchemy. Store attribute, 
 
 ## REFERENCE: Community Q&A Summary
 
-**Range:** ~100 paces (~75m) max from Mistborn Adventure Game
+**Range:** ~100 paces (~75m) max from Ashwalker Adventure Game
 **Aluminum planes:** Immune to push/pull (they're specifically aluminum)
 **Zenith point:** Max height per push, drops more metal to go higher
 **Line of sight:** Not needed — blue lines pass through walls

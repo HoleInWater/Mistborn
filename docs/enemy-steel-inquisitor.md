@@ -1,4 +1,4 @@
-# Steel Inquisitor — Boss Enemy
+# Iron Sentinel — Boss Enemy
 
 *One of the most dangerous enemies in the game.*
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Steel Inquisitors are the Lord Ruler's elite soldiers. They've been pierced with Hemalurgic spikes that give them Allomantic powers. Their eyes have been replaced with metal spikes — they see through Allomancy.
+Iron Sentinels are the Ashen King's elite soldiers. They've been pierced with Bloodforged spikes that give them Metallurgic powers. Their eyes have been replaced with metal spikes — they see through Metallurgy.
 
 ---
 
@@ -14,8 +14,8 @@ Steel Inquisitors are the Lord Ruler's elite soldiers. They've been pierced with
 
 | Ability | Type | Description |
 |---------|------|-------------|
-| Steel Push | Allomancy | Pushes metal objects and the player |
-| Iron Pull | Allomancy | Pulls metal objects and the player |
+| Steel Push | Metallurgy | Pushes metal objects and the player |
+| Iron Pull | Metallurgy | Pulls metal objects and the player |
 | Pewter Rage | Mode | HP below 50% triggers enhanced state |
 | Metal Sight | Passive | Sees through walls, darkness doesn't work |
 
@@ -30,7 +30,7 @@ Steel Inquisitors are the Lord Ruler's elite soldiers. They've been pierced with
 | Damage (Melee) | 35 |
 | Speed | Normal → Fast (pewter rage) |
 | Detection Range | 30m |
-| Attack Range | Melee + 20m (Allomancy) |
+| Attack Range | Melee + 20m (Metallurgy) |
 
 ---
 
@@ -61,7 +61,7 @@ Steel Inquisitors are the Lord Ruler's elite soldiers. They've been pierced with
 
 ## Combat Strategy (For Player)
 
-1. **Stay mobile** — Inquisitors track through metal
+1. **Stay mobile** — Sentinels track through metal
 2. **Use cover** — Hide behind non-metal objects
 3. **Counter push** — Push against their push for knockback
 4. **Duralumin burst** — Emergency nuke their metals (future)
@@ -71,7 +71,7 @@ Steel Inquisitors are the Lord Ruler's elite soldiers. They've been pierced with
 
 ## Implementation Notes
 
-See `EnemyBase.cs` and `EnemyCoinshot.cs` for the code base.
+See `EnemyBase.cs` and `EnemyLauncher.cs` for the code base.
 
 ### Needed Hooks
 - [ ] Pewter rage mode trigger

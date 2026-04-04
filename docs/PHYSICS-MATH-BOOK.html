@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Mistborn Physics & Mathematics Handbook</title>
+    <title>The Ashwalker Physics & Mathematics Handbook</title>
     <style>
         @page {
             size: A4;
@@ -99,8 +99,8 @@
 </head>
 <body>
 
-<h1>The Mistborn Physics & Mathematics Handbook</h1>
-<p style="text-align:center; font-style:italic;">A comprehensive analysis of the physics and mathematics of Brandon Sanderson's Mistborn universe</p>
+<h1>The Ashwalker Physics & Mathematics Handbook</h1>
+<p style="text-align:center; font-style:italic;">A comprehensive analysis of the physics and mathematics of the original author's Ashwalker universe</p>
 
 <div class="toc">
 <h2>Table of Contents</h2>
@@ -108,7 +108,7 @@
 <li><a href="#section1">Core Equations</a></li>
 <li><a href="#section2">Steel & Iron: Push/Pull Force Functions</a></li>
 <li><a href="#section3">Coin Velocity Functions</a></li>
-<li><a href="#section4">Feruchemy Storage Functions</a></li>
+<li><a href="#section4">Storecraft Storage Functions</a></li>
 <li><a href="#section5">Compounding Exponential Functions</a></li>
 <li><a href="#section6">Speed Compounding Functions</a></li>
 <li><a href="#section7">Iron Compounding Mass Functions</a></li>
@@ -153,25 +153,25 @@ Where:
 <h2 id="section2">2. Steel & Iron: Push/Pull Force Functions</h2>
 
 <h3>Primary Force Equation</h3>
-<p>The allomantic force follows an inverse-square law:</p>
+<p>The metallurgic force follows an inverse-square law:</p>
 <pre>         A × m₁ × m₂
 F(a) = ─────────────────
               r²
 
 Where:
-  F(a) = Allomantic force (Newtons)
-  A     = Allomantic strength constant (varies by user/flaring)
-  m₁    = Mass of allomancer (kg)
+  F(a) = Metallurgic force (Newtons)
+  A     = Metallurgic strength constant (varies by user/flaring)
+  m₁    = Mass of metallurgist (kg)
   m₂    = Mass of metal being pushed/pulled (kg)
-  r     = Distance between allomancer and metal (m)
+  r     = Distance between metallurgist and metal (m)
 
 Domain:  r ∈ [0, max_range]
 Range:    F(a) ∈ [0, F_max]</pre>
 
-<h3>Allomantic Strength Constant (A)</h3>
-<p>Based on Vin's hover calculation:</p>
+<h3>Metallurgic Strength Constant (A)</h3>
+<p>Based on Ember's hover calculation:</p>
 <pre>Given:
-  Vin mass (m₁) = 40 kg
+  Ember mass (m₁) = 40 kg
   Coin mass (m₂) = 0.01 kg
   Equilibrium distance (r) = 6 m
   g = 9.81 m/s²
@@ -205,14 +205,14 @@ Graph Shape: Linear decrease from F_max to 0</pre>
 
 Where:
   v(d) = Velocity at distance d (m/s)
-  F(a) = Allomantic force (constant, calculated at initial distance)
+  F(a) = Metallurgic force (constant, calculated at initial distance)
   d    = Distance traveled (m)
   m₂   = Mass of coin (kg)</pre>
 
-<h3>Vin Maximum Coin Push Calculation</h3>
+<h3>Ember Maximum Coin Push Calculation</h3>
 <pre>Given:
   A = 35,316
-  m₁ = 40 kg (Vin)
+  m₁ = 40 kg (Ember)
   m₂ = 0.01 kg (coin)
   r  = 5 m (push distance)
   
@@ -237,7 +237,7 @@ Step 4: Top Speed (extended push)
 
 <hr>
 
-<h2 id="section4">4. Feruchemy Storage Functions</h2>
+<h2 id="section4">4. Storecraft Storage Functions</h2>
 
 <h3>Basic Storage Function</h3>
 <pre>S(t) = ∫[0 to t] r(τ) dτ
@@ -322,7 +322,7 @@ Where:
 For m = 1 kg:  r_s ≈ 1.48 × 10⁻²⁷ m
 For m = 70 kg: r_s ≈ 1.04 × 10⁻²⁵ m
 
-Conclusion: Human cannot become black hole through Feruchemy alone</pre>
+Conclusion: Human cannot become black hole through Storecraft alone</pre>
 
 <hr>
 
@@ -366,7 +366,7 @@ Where:
 
 <h2 id="section10">10. Graphical Analysis</h2>
 
-<h3>Graph 1: Allomantic Force vs Distance (Inverse Square)</h3>
+<h3>Graph 1: Metallurgic Force vs Distance (Inverse Square)</h3>
 <div class="graph">F(a)
   ^
   |╲
@@ -410,7 +410,7 @@ Better for game feel (no infinite force at r=0)</div>
   |________╲___________> n (cycles)
   0  1  2  3  4  5</div>
 
-<h3>Graph 4: Feruchemy Storage with Diminishing Returns</h3>
+<h3>Graph 4: Storecraft Storage with Diminishing Returns</h3>
 <div class="graph">Stored
   ^
   |╲___________C_max (asymptote)
@@ -468,7 +468,7 @@ Conclusion: Impractical without pre-placed anchors</pre>
 <pre>v_sound ≈ 343 m/s at sea level
 
 Breaking sound barrier requires:
-  With A = 35,316, Vin can break sound barrier easily
+  With A = 35,316, Ember can break sound barrier easily
   v ≈ 751-2,377 m/s
 
 In-book: Force is deliberately limited for narrative</pre>
@@ -487,10 +487,10 @@ Time to cross USA (4,000 km):
 
 <table>
 <tr><th>Symbol</th><th>Value</th><th>Description</th></tr>
-<tr><td>g</td><td>9.81 m/s²</td><td>Scadrial gravity</td></tr>
+<tr><td>g</td><td>9.81 m/s²</td><td>Ashara gravity</td></tr>
 <tr><td>c</td><td>299,792,458 m/s</td><td>Speed of light</td></tr>
-<tr><td>A_vin_normal</td><td>35,316</td><td>Vin's base allomantic strength</td></tr>
-<tr><td>A_vin_flared</td><td>~353,160</td><td>Vin's flared strength (10x)</td></tr>
+<tr><td>A_vin_normal</td><td>35,316</td><td>Ember's base metallurgic strength</td></tr>
+<tr><td>A_vin_flared</td><td>~353,160</td><td>Ember's flared strength (10x)</td></tr>
 <tr><td>max_range</td><td>75-150 m</td><td>Push/Pull maximum distance</td></tr>
 <tr><td>compound_multiplier</td><td>~10</td><td>Standard compounding gain</td></tr>
 <tr><td>m_human</td><td>~70 kg</td><td>Average human mass</td></tr>
@@ -505,7 +505,7 @@ Time to cross USA (4,000 km):
 <li><strong>Force equation:</strong> Inverse square law, like gravity/EM</li>
 <li><strong>Range limit:</strong> ~100 paces base, 300 with upgrades</li>
 <li><strong>Compounding:</strong> ~10x multiplier, diminishing returns apply</li>
-<li><strong>Steel Feruchemy:</strong> Mental speed is separate from physical speed</li>
+<li><strong>Steel Storecraft:</strong> Mental speed is separate from physical speed</li>
 <li><strong>Iron Compounding:</strong> Called "Deaders" - die from own weight</li>
 <li><strong>Speed bubbles:</strong> Investiture blocks blue/red shift</li>
 </ol>
@@ -513,8 +513,8 @@ Time to cross USA (4,000 km):
 <hr>
 
 <p style="text-align:center; font-size:9pt; color:#666;">
-Document compiled from r/Mistborn and r/Cosmere community analysis<br>
-Cosmere Era: 1022-1025 FE<br>
+Document compiled from r/Ashwalker and r/the greater universe community analysis<br>
+the greater universe Era: 1022-1025 FE<br>
 Version 1.0
 </p>
 

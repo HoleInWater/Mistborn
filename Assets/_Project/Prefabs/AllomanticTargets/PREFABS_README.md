@@ -1,9 +1,9 @@
-# Allomantic Target Prefabs
+# Metallurgic Target Prefabs
 
 Every metal object prefab needs these components:
 
 1. **Rigidbody** — with appropriate mass for the metal type
-2. **AllomanticTarget** — set metalType and isAnchored
+2. **MetallurgicTarget** — set metalType and isAnchored
 3. **Collider** — for physics and overlap detection
 4. **Material** — from Assets/_Project/Materials/
 

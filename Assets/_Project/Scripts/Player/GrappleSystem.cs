@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Allomantic grapple system — Iron Pull toward anchor points or metal objects.
+/// Metallurgic grapple system — Iron Pull toward anchor points or metal objects.
 /// Uses lore-accurate physics: pulling toward a heavier anchor launches the player.
 /// Middle mouse button to fire, hold to swing.
 /// </summary>
@@ -26,7 +26,7 @@ public class GrappleSystem : MonoBehaviour
     [Header("References")]
     public Camera playerCamera;
     public Rigidbody playerRb;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public LayerMask metalLayer;
 
     private bool isGrappling = false;
@@ -38,7 +38,7 @@ public class GrappleSystem : MonoBehaviour
     {
         if (playerCamera == null) playerCamera = Camera.main;
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         metalLayer = LayerMask.GetMask("Metal");
         if (metalLayer == 0) metalLayer = ~0;
 
@@ -94,7 +94,7 @@ public class GrappleSystem : MonoBehaviour
             isGrappling = true;
 
             // Start burn
-            allomancer?.StartBurning(AllomancySkill.MetalType.Iron);
+            metallurgist?.StartBurning(MetallurgySkill.MetalType.Iron);
             SoundManager.Instance?.PlayPullSound();
         }
     }
@@ -123,7 +123,7 @@ public class GrappleSystem : MonoBehaviour
         float targetMass = (targetRb != null && !targetRb.isKinematic) ? targetRb.mass : 10000f;
 
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
-        float force = AllomancyPhysicsFormulas.CalculateAllomanticForce(
+        float force = MetallurgyPhysicsFormulas.CalculateMetallurgicForce(
             grappleStrength * flare, playerRb.mass, targetMass, dist);
 
         // Cap force for gameplay feel
@@ -167,8 +167,8 @@ public class GrappleSystem : MonoBehaviour
 
     void DrainMetal()
     {
-        if (allomancer != null)
-            allomancer.DrainMetal(AllomancySkill.MetalType.Iron, metalCostPerSecond * Time.deltaTime);
+        if (metallurgist != null)
+            metallurgist.DrainMetal(MetallurgySkill.MetalType.Iron, metalCostPerSecond * Time.deltaTime);
     }
 
     public bool IsGrappling() => isGrappling;

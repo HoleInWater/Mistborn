@@ -6,17 +6,17 @@ How the systems fit together.
 
 ```
                     ┌─────────────────────┐
-                    │  AllomancerController │ (owns all reserves)
+                    │  MetallurgistController │ (owns all reserves)
                     └──────────┬──────────┘
                                │
           ┌────────────────────┼────────────────────┐
           │                    │                    │
           ▼                    ▼                    ▼
 ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│  SteelPushAbility│  │  IronPullAbility │  │  AllomanticSight│ (reads targets)
+│  SteelPushAbility│  │  IronPullAbility │  │  MetallurgicSight│ (reads targets)
 └────────┬────────┘  └────────┬────────┘  └─────────────────┘
          │                    │
-         │         AllomanticTarget (many)
+         │         MetallurgicTarget (many)
          │              ▲
          │              │
          └──────────────┘
@@ -24,7 +24,7 @@ How the systems fit together.
 
 ## Core Systems
 
-### AllomancerController
+### MetallurgistController
 - Sits on the Player GameObject
 - Manages all 16 MetalReserve instances
 - Handles consumption over time
@@ -34,15 +34,15 @@ How the systems fit together.
 - Also on the Player GameObject
 - Detect metal targets in range
 - Apply physics forces to targets
-- Call StartBurning/StopBurning on AllomancerController
+- Call StartBurning/StopBurning on MetallurgistController
 
-### AllomanticTarget
+### MetallurgicTarget
 - Sits on any metal object in the world
 - Reports its metal type, mass, and anchored status
 - Required component: Rigidbody
 
-### AllomanticSight
-- Reads all AllomanticTargets in range
+### MetallurgicSight
+- Reads all MetallurgicTargets in range
 - Draws lines for the player to see
 - Purely visual — doesn't affect gameplay
 
@@ -51,10 +51,10 @@ How the systems fit together.
 When setting up a new scene, the Player GameObject needs:
 
 1. `CharacterController` (for movement)
-2. `AllomancerController`
+2. `MetallurgistController`
 3. `SteelPushAbility`
 4. `IronPullAbility`
-5. `AllomanticSight`
+5. `MetallurgicSight`
 6. `PlayerController`
 7. `PlayerCamera` (as child or separate object)
 
@@ -63,7 +63,7 @@ When setting up a new scene, the Player GameObject needs:
 Metal objects in the scene need:
 
 1. `Rigidbody`
-2. `AllomanticTarget` (set metalType, mass, isAnchored)
+2. `MetallurgicTarget` (set metalType, mass, isAnchored)
 3. `Collider` (for overlap detection)
 4. Visual mesh
 

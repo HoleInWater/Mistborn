@@ -4,7 +4,7 @@ using UnityEngine;
 /// Attached to an equipped weapon instance by EquipmentManager.
 /// Follows the hand bone each physics step via Rigidbody.MovePosition so the
 /// weapon is a real physics object (hits walls, pushes barrels, reacts to
-/// Allomantic forces) while still staying in Vin's hand under normal conditions.
+/// Metallurgic forces) while still staying in Ember's hand under normal conditions.
 ///
 /// If an external force drives velocity above DropVelocityThreshold (e.g. a
 /// Steel Push), the weapon is released and flies free.
@@ -30,7 +30,7 @@ public class WeaponFollow : MonoBehaviour
     {
         if (target == null) return;
 
-        // If a force (Allomancy, collision) drove velocity above threshold, drop it
+        // If a force (Metallurgy, collision) drove velocity above threshold, drop it
         if (_rb.linearVelocity.magnitude > dropVelocityThreshold)
         {
             owner?.DropWeapon();

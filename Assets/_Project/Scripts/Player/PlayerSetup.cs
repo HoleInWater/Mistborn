@@ -2,7 +2,7 @@
  * 
  * PURPOSE:
  * This script automatically adds missing required components to the Player GameObject at runtime.
- * It ensures the Player has a PlayerController (BasicPlayerMove), PlayerCamera, AllomanticSight,
+ * It ensures the Player has a PlayerController (BasicPlayerMove), PlayerCamera, MetallurgicSight,
  * and other essential components for the game to function properly.
  * 
  * HOW IT WORKS:
@@ -12,10 +12,10 @@
  * to ensure proper camera setup.
  * 
  * KEY FEATURES:
- * - Automatically adds PlayerCamera and AllomanticSight components if missing
+ * - Automatically adds PlayerCamera and MetallurgicSight components if missing
  * - Copies camera transform/pivot references from existing PlayerController
- * - Sets default values for AllomanticSight metal detection layer
- * - Assigns the main camera to AllomanticSight if not already set
+ * - Sets default values for MetallurgicSight metal detection layer
+ * - Assigns the main camera to MetallurgicSight if not already set
  * 
  * IMPORTANT NOTES:
  * This script is designed to be a one-time setup. Once components are added, they remain.
@@ -45,11 +45,11 @@ public class PlayerSetup : MonoBehaviour
             playerCamera = player.AddComponent<PlayerCamera>();
         }
 
-        // Ensure AllomanticSight component exists
-        AllomanticSight allomanticSight = player.GetComponent<AllomanticSight>();
-        if (allomanticSight == null)
+        // Ensure MetallurgicSight component exists
+        MetallurgicSight metallurgicSight = player.GetComponent<MetallurgicSight>();
+        if (metallurgicSight == null)
         {
-            allomanticSight = player.AddComponent<AllomanticSight>();
+            metallurgicSight = player.AddComponent<MetallurgicSight>();
         }
 
         // Copy camera references from BasicPlayerMove if they are assigned
@@ -71,20 +71,20 @@ public class PlayerSetup : MonoBehaviour
             }
         }
 
-        // Assign metalLayer for AllomanticSight (should be set in inspector, but we can default to everything)
-        if (allomanticSight != null && allomanticSight.metalLayer == 0)
+        // Assign metalLayer for MetallurgicSight (should be set in inspector, but we can default to everything)
+        if (metallurgicSight != null && metallurgicSight.metalLayer == 0)
         {
             // Default to all layers (should be configured in inspector)
-            allomanticSight.metalLayer = ~0; // Everything
+            metallurgicSight.metalLayer = ~0; // Everything
         }
 
-        // Assign playerCamera reference in AllomanticSight if not set
-        if (allomanticSight != null && allomanticSight.playerCamera == null)
+        // Assign playerCamera reference in MetallurgicSight if not set
+        if (metallurgicSight != null && metallurgicSight.playerCamera == null)
         {
             Camera mainCamera = Camera.main;
             if (mainCamera != null)
             {
-                allomanticSight.playerCamera = mainCamera;
+                metallurgicSight.playerCamera = mainCamera;
             }
         }
     }

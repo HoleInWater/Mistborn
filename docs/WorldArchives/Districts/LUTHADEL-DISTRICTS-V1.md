@@ -6,21 +6,21 @@ This archive provides the technical layout and narrative history of the Central 
 ---
 
 ### 1. THE SKAA SLUMS (Sub-Districts 1-12)
-The majority of Luthadel's population lives in squalor.
-- **District 4 (The Hideout):** Where Kelsier's crew established their first base. Narrow alleys, high rooftops, and porous sewer entrances.
-- **The Ash-Sheds:** Large storage areas where Skaa are forced to dump the daily cleared ash.
-- **The Soup-Kitchens:** Rare areas of social gathering, often watched by Obligators.
+The majority of Cinderhold's population lives in squalor.
+- **District 4 (The Hideout):** Where Darius's crew established their first base. Narrow alleys, high rooftops, and porous sewer entrances.
+- **The Ash-Sheds:** Large storage areas where Lowborn are forced to dump the daily cleared ash.
+- **The Soup-Kitchens:** Rare areas of social gathering, often watched by Prelates.
 
 ### 2. THE NOBLE KEEPS
 The architecture of the elite.
-- **Keep Venture:** A fortress of black stone, housing the most powerful Allomantic family.
+- **Keep Venture:** A fortress of black stone, housing the most powerful Metallurgic family.
 - **Keep Elariel:** Famous for its architectural beauty and stained glass.
 - **The Ballrooms:** Massively high ceilings (designed for Steelpushing maneuvers) and crystal chandeliers.
 
 ### 3. THE CITY WALLS
-The divide between the Lord Ruler's order and the mists.
-- **The Steel Gates:** Massive, metal-heavy gates that can be Rioted by Ministry Zinc-Soothers to cause panic or calm in the crowds.
-- **The Guard Towers:** Manned by Hazekillers and a rotating squadron of Steel Obligators.
+The divide between the Ashen King's order and the mists.
+- **The Steel Gates:** Massive, metal-heavy gates that can be Rioted by Ministry Zinc-Quellers to cause panic or calm in the crowds.
+- **The Guard Towers:** Manned by Metalhunters and a rotating squadron of Steel Prelates.
 
 ---
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Extension methods for DateTime struct

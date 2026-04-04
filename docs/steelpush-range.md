@@ -2,10 +2,10 @@
 
 ## Official Range
 
-Based on the **Mistborn Adventure Game** and book references:
+Based on the **Ashwalker Adventure Game** and book references:
 - **~100 paces** (~200-250 feet / 60-75 meters) maximum range
 - Range affected by:
-  - Allomancer strength
+  - Metallurgist strength
   - Flaring (burning faster = extended range)
   - Metal mass (heavier = visible from further)
 
@@ -54,11 +54,11 @@ Force
 There's a maximum height you can reach with a single push:
 - Depends on your weight and the metal's mass
 - Drop more metal = push again = go higher
-- Vin hovered at her zenith until she dropped more metal
+- Ember hovered at her zenith until she dropped more metal
 
 ## Aluminum Note
 
-Aluminum is Allomantically inert — you can't push or pull it. Any aluminum objects are invisible to Allomancy.
+Aluminum is Metallurgically inert — you can't push or pull it. Any aluminum objects are invisible to Metallurgy.
 
 ## Game Implementation
 
@@ -68,7 +68,7 @@ For our game, we use:
 - Heavier objects extend effective range by 1.5x
 
 ## References
-- Mistborn Adventure Game (Crafty Games)
+- Ashwalker Adventure Game (Crafty Games)
 - Coppermind Wiki: Steel/Iron articles
 - 17th Shard physics discussion threads
-- Brandon Sanderson's Arcanum (WoB)
+- the original author's Arcanum (WoB)

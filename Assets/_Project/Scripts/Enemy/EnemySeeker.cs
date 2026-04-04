@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Seeker AI — burns Bronze to detect nearby Allomancers.
-/// Lore: Bronze lets a Seeker sense the "pulses" of active Allomancy.
+/// Seeker AI — burns Bronze to detect nearby Metallurgists.
+/// Lore: Bronze lets a Seeker sense the "pulses" of active Metallurgy.
 /// Copper clouds (Smokers) block detection.
 ///
 /// On detection: alerts AIController (emotion → Aggressive) AND forces
@@ -28,27 +28,27 @@ public class EnemySeeker : MonoBehaviour
 
     void Update()
     {
-        SearchForAllomancy();
+        SearchForMetallurgy();
     }
 
-    void SearchForAllomancy()
+    void SearchForMetallurgy()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange, targetLayer);
         bool anyFound = false;
 
         foreach (var col in hits)
         {
-            Allomancer allomancer = col.GetComponentInParent<Allomancer>();
-            if (allomancer == null || !allomancer.IsBurning()) continue;
+            Metallurgist metallurgist = col.GetComponentInParent<Metallurgist>();
+            if (metallurgist == null || !metallurgist.IsBurning()) continue;
 
-            // Lore: Copper clouds hide Allomantic pulses from Seekers
-            if (Copper.IsPulseHidden(allomancer.transform.position)) continue;
+            // Lore: Copper clouds hide Metallurgic pulses from Seekers
+            if (Copper.IsPulseHidden(metallurgist.transform.position)) continue;
 
             anyFound = true;
             detectionTimer += Time.deltaTime;
 
             if (detectionTimer >= detectionThreshold)
-                AlertAI(allomancer.transform);
+                AlertAI(metallurgist.transform);
 
             break;
         }

@@ -19,10 +19,10 @@ See: `PROJECT-REQUEST-SceneSetup-Kaderator.md`
 - [ ] 3D character model (placeholder capsule exists, needs real model)
 - [ ] Character textures/materials
 - [ ] Character animations (idle, walk, run, jump)
-- [ ] Allomancy VFX for character (blue glow while burning)
+- [ ] Metallurgy VFX for character (blue glow while burning)
 
 ### Environment
-- [ ] Luthadel city environment (placeholder cubes exist)
+- [ ] Cinderhold city environment (placeholder cubes exist)
 - [ ] Ash skybox
 - [ ] Buildings with metal details
 - [ ] Ground textures

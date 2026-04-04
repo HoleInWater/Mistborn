@@ -1,0 +1,225 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+/// <summary>
+/// Implements the Bronze Metallurgy ability (Seeker).
+/// Detects nearby Metallurgic pulses unless hidden by a Copper cloud.
+/// </summary>
+[PlayerComponent("Metallurgy Metals", order: 80)]
+public class Bronze : MonoBehaviour
+{
+    [Header("Settings")]
+    public float baseDetectionRadius = 30f;
+    public float pulseInterval = 0.4f;
+    
+    [Header("Flare Boosts")]
+    public float maxDetectionRadius = 80f;
+
+    [Header("References")]
+    public Metallurgist metallurgist;
+    
+    [Header("Pulse Parameters")]
+    public float minPulseInterval = 0.2f; // Rapid (Physical)
+    public float maxPulseInterval = 2.0f; // Slow (Temporal)
+    public Color pulseColor = new Color(0.8f, 0.5f, 0.1f, 0.5f);
+    public AudioClip pulseAudioClip;
+    
+    public enum MetalCategory { Physical, Mental, Temporal, Enhancement }
+
+    private bool isBurning = false;
+    private Dictionary<Metallurgist, float> targetPulseTimers = new Dictionary<Metallurgist, float>();
+    private List<Metallurgist> detectedMetallurgists = new List<Metallurgist>();
+    private Material pulseMaterial;
+    
+    void Start()
+    {
+        if (metallurgist == null)
+            metallurgist = GetComponentInParent<Metallurgist>();
+
+        // Shared material for all pulse rings — avoids creating one per pulse (memory leak)
+        Shader s = Shader.Find("Sprites/Default") ?? Shader.Find("Unlit/Color");
+        pulseMaterial = new Material(s);
+    }
+
+    void OnDestroy()
+    {
+        if (pulseMaterial != null) Destroy(pulseMaterial);
+    }
+    
+    void Update()
+    {
+        // Check if we are currently burning Bronze according to the central Metallurgist
+        isBurning = metallurgist != null && metallurgist.IsBurning() && metallurgist.GetCurrentMetal() == MetallurgySkill.MetalType.Bronze;
+
+        if (isBurning)
+        {
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
+            DetectPulses(flareMult);
+        }
+    }
+
+    void DetectPulses(float flareMult)
+    {
+        float currentRadius = Mathf.Lerp(baseDetectionRadius, maxDetectionRadius, (flareMult - 1f) / 1.5f);
+        
+        // Optimized: Use the high-performance AshwalkerRegistry
+        var others = AshwalkerRegistry.ActiveMetallurgists;
+        detectedMetallurgists.Clear();
+
+        foreach (var other in others)
+        {
+            if (other == null || other == metallurgist || !other.IsBurning()) continue;
+
+            float dist = Vector3.Distance(transform.position, other.transform.position);
+            if (dist <= currentRadius && !Copper.IsPulseHidden(other.transform.position))
+            {
+                detectedMetallurgists.Add(other);
+                HandleTargetPulse(other, flareMult);
+            }
+        }
+    }
+
+    void HandleTargetPulse(Metallurgist target, float flareMult)
+    {
+        if (!targetPulseTimers.ContainsKey(target))
+            targetPulseTimers[target] = 0f;
+
+        targetPulseTimers[target] -= Time.deltaTime;
+
+        if (targetPulseTimers[target] <= 0f)
+        {
+            MetallurgySkill.MetalType metal = target.GetCurrentMetal();
+            MetalCategory category = GetMetalCategory(metal);
+            float interval = GetPulseInterval(category);
+            
+            // Scaled by flare and distance? Lore: flaring makes them sharper, distance makes them harder to hear/feel.
+            targetPulseTimers[target] = interval;
+            
+            PlayPulseFeedback(target, metal, category);
+        }
+    }
+
+    MetalCategory GetMetalCategory(MetallurgySkill.MetalType metal)
+    {
+        int index = (int)metal;
+        if (index < 4) return MetalCategory.Physical;
+        if (index < 8) return MetalCategory.Mental;
+        if (index < 12) return MetalCategory.Temporal;
+        return MetalCategory.Enhancement;
+    }
+
+    float GetPulseInterval(MetalCategory category)
+    {
+        switch (category)
+        {
+            case MetalCategory.Physical: return 0.4f;
+            case MetalCategory.Mental: return 0.8f;
+            case MetalCategory.Temporal: return 1.5f;
+            case MetalCategory.Enhancement: return 1.2f;
+            default: return 1.0f;
+        }
+    }
+
+    void PlayPulseFeedback(Metallurgist target, MetallurgySkill.MetalType metal, MetalCategory category)
+    {
+        float dist = Vector3.Distance(transform.position, target.transform.position);
+        float volume = Mathf.Clamp01(1f - (dist / baseDetectionRadius));
+        
+        // LORE: Seeker "hears" or "feels" the pulse.
+        
+        // Spawn Visual Pulse
+        CreateVisualPulse(target.transform.position, metal, category);
+        
+        // Play Audio Thump with appropriate pitch
+        if (pulseAudioClip != null)
+        {
+            float pitch = GetPitchForCategory(category);
+            AudioSource.PlayClipAtPoint(pulseAudioClip, target.transform.position, volume);
+            // Note: PlayClipAtPoint doesn't support pitch easily; ideally use a pooled AudioSource
+        }
+    }
+
+    float GetPitchForCategory(MetalCategory category)
+    {
+        switch (category)
+        {
+            case MetalCategory.Physical: return 1.5f;
+            case MetalCategory.Mental: return 1.0f;
+            case MetalCategory.Temporal: return 0.5f;
+            case MetalCategory.Enhancement: return 0.8f;
+            default: return 1.0f;
+        }
+    }
+
+    void CreateVisualPulse(Vector3 position, MetallurgySkill.MetalType metal, MetalCategory category)
+    {
+        GameObject pulse = new GameObject("BronzePulseRing");
+        pulse.transform.position = position;
+        
+        LineRenderer lr = pulse.AddComponent<LineRenderer>();
+        lr.useWorldSpace = false;
+        lr.loop = true;
+        lr.positionCount = 32;
+        lr.startWidth = 0.15f;
+        lr.endWidth = 0.05f;
+        
+        Color c = GetColorForMetal(metal, category);
+        lr.startColor = c;
+        lr.endColor = new Color(c.r, c.g, c.b, 0);
+        
+        lr.material = pulseMaterial;
+
+        for (int i = 0; i < 32; i++)
+        {
+            float angle = i * Mathf.PI * 2 / 32;
+            lr.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)));
+        }
+
+        StartCoroutine(AnimatePulse(pulse, lr, category));
+    }
+
+    Color GetColorForMetal(MetallurgySkill.MetalType metal, MetalCategory category)
+    {
+        // Category bases
+        switch (category)
+        {
+            case MetalCategory.Physical: return new Color(0.7f, 0.7f, 0.9f, 0.6f); // Steel-blue
+            case MetalCategory.Mental: return new Color(1.0f, 0.9f, 0.4f, 0.6f);   // Brass-yellow
+            case MetalCategory.Temporal: return new Color(1.0f, 1.0f, 1.0f, 0.8f); // Ethereal White
+            case MetalCategory.Enhancement: return new Color(0.8f, 0.4f, 1.0f, 0.6f); // Vibrant Purple
+            default: return pulseColor;
+        }
+    }
+
+    System.Collections.IEnumerator AnimatePulse(GameObject obj, LineRenderer lr, MetalCategory category)
+    {
+        float elapsed = 0f;
+        float duration = category == MetalCategory.Temporal ? 1.2f : 0.6f;
+        float targetScale = category == MetalCategory.Enhancement ? 8f : 5f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            obj.transform.localScale = Vector3.one * Mathf.Lerp(0.5f, targetScale, t);
+            
+            Color c = lr.startColor;
+            lr.startColor = new Color(c.r, c.g, c.b, 1f - t);
+            yield return null;
+        }
+        Destroy(obj);
+    }
+
+    public List<Metallurgist> GetDetectedMetallurgists() => detectedMetallurgists;
+
+    void OnDrawGizmosSelected()
+    {
+        if (isBurning)
+        {
+            Gizmos.color = new Color(0.8f, 0.4f, 0f, 0.2f);
+            float flareMult = (FlareManager.Instance != null) ? FlareManager.Instance.FlareMultiplier : 1.0f;
+            float currentRadius = Mathf.Lerp(baseDetectionRadius, maxDetectionRadius, (flareMult - 1f) / 1.5f);
+            Gizmos.DrawWireSphere(transform.position, currentRadius);
+        }
+    }
+}

@@ -1,12 +1,12 @@
 /* MistSystem.cs
  *
- * Lore-accurate Scadrial mist system.
+ * Lore-accurate Ashara mist system.
  *
  * From the books:
  *   - Thick, ground-covering fog — only a few feet deep
  *   - Obscures vision at night (can't see more than 10 feet ahead)
  *   - Rises at night, disappears during the day
- *   - Physical manifestation of Preservation's power
+ *   - Physical manifestation of The Warden's power
  *   - Clings to the surface, low-lying
  *   - Does NOT tower into the sky like clouds
  *
@@ -47,8 +47,8 @@ public class MistSystem : MonoBehaviour
     public Color mistColor = new Color(0.75f, 0.78f, 0.85f, 0.12f);
     public Color mistColorBright = new Color(0.88f, 0.88f, 0.92f, 0.18f);
 
-    [Header("Preservation's Pulse")]
-    [Tooltip("Subtle opacity pulse — Preservation's heartbeat")]
+    [Header("The Warden's Pulse")]
+    [Tooltip("Subtle opacity pulse — The Warden's heartbeat")]
     public float pulseFrequency = 0.12f;
     public float pulseAmplitude = 0.03f;
 
@@ -276,7 +276,7 @@ public class MistSystem : MonoBehaviour
     {
         if (!initialized || layers.Count == 0) return;
 
-        // Preservation's pulse — subtle global opacity shift
+        // The Warden's pulse — subtle global opacity shift
         float pulse = 1f + Mathf.Sin(Time.time * pulseFrequency * Mathf.PI * 2f) * pulseAmplitude;
 
         for (int i = 0; i < layers.Count; i++)

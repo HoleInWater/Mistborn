@@ -2,7 +2,7 @@
 
 ## TestArena.unity
 
-The main testing scene for Allomancy mechanics.
+The main testing scene for Metallurgy mechanics.
 
 ### Required Objects
 
@@ -11,10 +11,10 @@ The main testing scene for Allomancy mechanics.
    - Components:
      - CharacterController
      - Rigidbody (use gravity)
-     - AllomancerController
+     - MetallurgistController
      - SteelPushAbility
      - IronPullAbility
-     - AllomanticSight
+     - MetallurgicSight
      - PlayerController
      - SteelpushAssistedJump
 
@@ -26,7 +26,7 @@ The main testing scene for Allomancy mechanics.
 3. **MetalHUD**
    - Canvas in scene
    - Components: MetalReserveUI
-   - Connect to AllomancerController
+   - Connect to MetallurgistController
 
 ### Metal Objects for Testing
 
@@ -64,5 +64,5 @@ Use a dark, ashy grey skybox to evoke the ash-covered world.
 | Jump | Space |
 | Steel Push | Right Click |
 | Iron Pull | Left Click |
-| Allomantic Sight | Tab |
+| Metallurgic Sight | Tab |
 | Steelpush Jump | Space while burning Steel + anchor below |

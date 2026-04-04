@@ -124,11 +124,11 @@ public class QuestManager : MonoBehaviour
 
         if (quest.reward != null)
         {
-            Allomancer player = FindObjectOfType<Allomancer>();
+            Metallurgist player = FindObjectOfType<Metallurgist>();
             if (player != null)
             {
-                player.RefillMetal(AllomancySkill.MetalType.Steel, quest.reward.metalRewardSteel);
-                player.RefillMetal(AllomancySkill.MetalType.Iron, quest.reward.metalRewardIron);
+                player.RefillMetal(MetallurgySkill.MetalType.Steel, quest.reward.metalRewardSteel);
+                player.RefillMetal(MetallurgySkill.MetalType.Iron, quest.reward.metalRewardIron);
             }
         }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Extension methods for Vector2 and Vector3 structs

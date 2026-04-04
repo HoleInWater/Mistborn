@@ -4,7 +4,7 @@
 
 1. Install Unity 2022 LTS
 2. Clone the repo to your computer
-3. Open the Mistborn folder in Unity Hub
+3. Open the Ashwalker folder in Unity Hub
 4. Wait for import
 5. Open the test scene
 6. Hit Play
@@ -54,8 +54,8 @@ Cloning means downloading the project from GitHub to your computer.
 1. Download GitHub Desktop: https://desktop.github.com/
 2. Install and sign in
 3. Click **Clone a repository from the Internet**
-4. Search for **Mistborn** or **HoleInWater**
-5. Find **HoleInWater/Mistborn**
+4. Search for **Ashwalker** or **HoleInWater**
+5. Find **HoleInWater/Ashwalker**
 6. Choose where to save it on your computer (pick somewhere you'll remember)
 7. Click **Clone**
 
@@ -69,16 +69,16 @@ Cloning means downloading the project from GitHub to your computer.
    ```
 3. Clone the repo:
    ```bash
-   git clone https://github.com/HoleInWater/Mistborn.git
+   git clone https://github.com/HoleInWater/Ashwalker.git
    ```
-4. You now have a **Mistborn** folder
+4. You now have a **Ashwalker** folder
 
 ### Where Did It Download?
 
 Whatever folder you chose. For example:
-- `~/Documents/Mistborn`
-- `~/Desktop/Mistborn`
-- `C:\Users\YourName\Projects\Mistborn`
+- `~/Documents/Ashwalker`
+- `~/Desktop/Ashwalker`
+- `C:\Users\YourName\Projects\Ashwalker`
 
 **Remember this location!** You'll need it for the next step.
 
@@ -93,7 +93,7 @@ People often open the wrong folder. Here's how to do it right.
 ### What NOT to Do
 
 ❌ Don't double-click a `.unity` scene file  
-❌ Don't open a folder inside Mistborn  
+❌ Don't open a folder inside Ashwalker  
 ❌ Don't open the folder without the `.git` inside
 
 ### What TO Do
@@ -102,7 +102,7 @@ People often open the wrong folder. Here's how to do it right.
 2. Click **Projects** (left sidebar)
 3. Click **Open** (the big button)
 4. **Navigate to where you saved the project**
-5. Click on the **Mistborn folder** (the one with the airplane icon or folder icon)
+5. Click on the **Ashwalker folder** (the one with the airplane icon or folder icon)
 6. Click **Select Folder** (Windows) or **Open** (Mac)
 
 ### What You Should See
@@ -110,7 +110,7 @@ People often open the wrong folder. Here's how to do it right.
 When you select the right folder, you should see folders like these inside:
 
 ```
-Mistborn/
+Ashwalker/
 ├── .git/              ← This folder (hidden but must exist)
 ├── Assets/             ← Game assets
 ├── docs/              ← Documentation
@@ -125,12 +125,12 @@ Mistborn/
 Look for the `.git` folder. It proves you're in the root folder.
 
 On Windows:
-- Open the Mistborn folder
+- Open the Ashwalker folder
 - Click View → Hidden items
 - You should see a `.git` folder
 
 On Mac:
-- Open Finder in the Mistborn folder
+- Open Finder in the Ashwalker folder
 - Press Cmd+Shift+. (dot)
 - You should see a `.git` folder
 
@@ -225,7 +225,7 @@ Click the **Play button** (▶️).
 The scene might need to be set up first. This is normal — the code is ready but someone needs to put the objects in the scene.
 
 Try running the setup:
-1. Click **Mistborn** in the top menu
+1. Click **Ashwalker** in the top menu
 2. Click **Setup Test Arena**
 3. Click Play again
 
@@ -239,26 +239,26 @@ Try running the setup:
 
 ---
 
-### Problem: "Can't find the Mistborn folder"
+### Problem: "Can't find the Ashwalker folder"
 
 **Fix:** 
 1. Open File Explorer (Windows) or Finder (Mac)
 2. Navigate to where you saved the project
-3. Make sure there's a folder called **Mistborn** with Assets inside
+3. Make sure there's a folder called **Ashwalker** with Assets inside
 4. If not, clone again
 
 ---
 
 ### Problem: "This is not a Unity project"
 
-**Cause:** You're trying to open a folder inside Mistborn, not the Mistborn folder itself.
+**Cause:** You're trying to open a folder inside Ashwalker, not the Ashwalker folder itself.
 
 **Fix:**
 1. Close Unity
 2. Open Unity Hub
 3. Click Open
 4. Go UP one folder level
-5. Select the Mistborn folder
+5. Select the Ashwalker folder
 6. Make sure you can see Assets, docs, Packages in the list
 
 ---
@@ -271,7 +271,7 @@ Try running the setup:
 1. Wait for import to finish (check progress bar)
 2. Close Unity
 3. Open Unity Hub
-4. Open the Mistborn ROOT folder again
+4. Open the Ashwalker ROOT folder again
 5. Wait for import to finish
 6. If still broken: Assets → Reimport All
 
@@ -282,7 +282,7 @@ Try running the setup:
 **Cause:** The TestArena scene hasn't been set up yet.
 
 **Fix:**
-1. In Unity, click **Mistborn** menu at top
+1. In Unity, click **Ashwalker** menu at top
 2. Click **Setup Test Arena**
 3. Click **Generate Basic Arena**
 4. Click **Add Metal Coins**
@@ -300,13 +300,13 @@ Try running the setup:
 
 ### Problem: Git says "not a repository"
 
-**Cause:** You opened a folder inside Mistborn instead of the Mistborn folder itself.
+**Cause:** You opened a folder inside Ashwalker instead of the Ashwalker folder itself.
 
 **Fix:**
 1. Open terminal/command prompt
-2. Navigate to the Mistborn folder:
+2. Navigate to the Ashwalker folder:
    ```bash
-   cd ~/Documents/Mistborn
+   cd ~/Documents/Ashwalker
    ```
 3. Type:
    ```bash
@@ -321,13 +321,13 @@ Try running the setup:
 
 ---
 
-## Finding the Mistborn Folder — Picture Guide
+## Finding the Ashwalker Folder — Picture Guide
 
 ### Windows
 
 1. Open **File Explorer**
 2. Go to where you saved it (Documents, Desktop, etc.)
-3. You should see a folder called **Mistborn**
+3. You should see a folder called **Ashwalker**
 4. **Double-click it**
 5. Inside, you should see: Assets, docs, Packages, ProjectSettings
 6. If you also see .git (or it's hidden), that's perfect
@@ -337,7 +337,7 @@ Try running the setup:
 
 1. Open **Finder**
 2. Go to where you saved it (Documents, Desktop, etc.)
-3. You should see a folder called **Mistborn**
+3. You should see a folder called **Ashwalker**
 4. **Double-click it**
 5. Inside, you should see: Assets, docs, Packages, ProjectSettings
 6. Press **Cmd+Shift+.** to show hidden files
@@ -362,7 +362,7 @@ Try:
 Once you're in Unity and can hit Play:
 
 1. Read `docs/architecture.md` to understand how the code fits together
-2. Read `docs/allomancy-design.md` to understand the game systems
+2. Read `docs/metallurgy-design.md` to understand the game systems
 3. Check `TODO.md` to see what needs doing
 4. Create a branch and start working!
 
@@ -372,7 +372,7 @@ Once you're in Unity and can hit Play:
 
 | Term | What It Means |
 |------|---------------|
-| **Root folder** | The main project folder with `.git` inside. "Mistborn" is the root. |
+| **Root folder** | The main project folder with `.git` inside. "Ashwalker" is the root. |
 | **Subfolder** | A folder inside another folder. Like Assets/_Project/ |
 | **Repository (Repo)** | The whole project tracked by Git. Contains .git and all files. |
 | **Clone** | Download the repo from GitHub to your computer. |

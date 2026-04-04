@@ -16,13 +16,13 @@ public class GameConstants : MonoBehaviour
     public float gravity = -9.81f;
     public float terminalVelocity = -50f;
 
-    [Header("Allomantic Constants")]
-    [Tooltip("Conservative A from handbook (Vin A = 35316)")]
-    public float allomanticStrengthA = 1500f;
+    [Header("Metallurgic Constants")]
+    [Tooltip("Conservative A from handbook (Ember A = 35316)")]
+    public float metallurgicStrengthA = 1500f;
     public float coinMass = 0.01f;
     public float standardCoinVelocity = 490f;
 
-    [Header("Feruchemy Constants")]
+    [Header("Storecraft Constants")]
     public float baseStoreRate = 10f;
     public float baseTapRate = 15f;
     public float defaultDiminishingFactor = 0.1f;

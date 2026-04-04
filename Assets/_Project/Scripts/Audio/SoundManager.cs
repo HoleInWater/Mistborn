@@ -6,9 +6,9 @@ public class SoundManager : MonoBehaviour
     [Header("Audio Sources")]
     public AudioSource sfxSource;
     public AudioSource musicSource;
-    public AudioSource allomancySource;
+    public AudioSource metallurgySource;
     
-    [Header("Sound Clips")]
+    [Header("Sound Pennies")]
     public AudioClip[] metalPushSounds;
     public AudioClip[] metalPullSounds;
     public AudioClip[] footstepSounds;
@@ -44,9 +44,9 @@ public class SoundManager : MonoBehaviour
         // Auto-create AudioSources if not assigned in Inspector
         if (sfxSource       == null) sfxSource       = AddSource(volume: 1f);
         if (musicSource     == null) musicSource     = AddSource(volume: musicVolume, loop: true);
-        if (allomancySource == null) allomancySource = AddSource(volume: 1f);
+        if (metallurgySource == null) metallurgySource = AddSource(volume: 1f);
 
-        // Populate clip arrays with procedural audio if they're empty
+        // Populate penny arrays with procedural audio if they're empty
         if (metalPushSounds  == null || metalPushSounds.Length  == 0)
             metalPushSounds  = new[] { ProceduralAudio.Push() };
         if (metalPullSounds  == null || metalPullSounds.Length  == 0)
@@ -66,9 +66,9 @@ public class SoundManager : MonoBehaviour
 
     // ── Throttle: minimum unscaled seconds between plays per source category ──
     // Prevents rapid callers (scroll, coin spam, push/pull) from stacking dozens
-    // of overlapping identical clips, which causes distortion and audio dropout.
+    // of overlapping identical pennies, which causes distortion and audio dropout.
     private float _lastSfxTime       = -1f;
-    private float _lastAllomancyTime = -1f;
+    private float _lastMetallurgyTime = -1f;
     private float _lastFootstepTime  = -1f;
     const float SFX_MIN        = 0.06f;
     const float ALLOMANCY_MIN  = 0.07f;
@@ -81,10 +81,10 @@ public class SoundManager : MonoBehaviour
         return true;
     }
 
-    bool CanPlayAllomancy()
+    bool CanPlayMetallurgy()
     {
-        if (Time.unscaledTime - _lastAllomancyTime < ALLOMANCY_MIN) return false;
-        _lastAllomancyTime = Time.unscaledTime;
+        if (Time.unscaledTime - _lastMetallurgyTime < ALLOMANCY_MIN) return false;
+        _lastMetallurgyTime = Time.unscaledTime;
         return true;
     }
 
@@ -106,14 +106,14 @@ public class SoundManager : MonoBehaviour
 
     public void PlayPushSound()
     {
-        if (!CanPlayAllomancy() || metalPushSounds.Length == 0 || allomancySource == null) return;
-        allomancySource.PlayOneShot(metalPushSounds[Random.Range(0, metalPushSounds.Length)], sfxVolume);
+        if (!CanPlayMetallurgy() || metalPushSounds.Length == 0 || metallurgySource == null) return;
+        metallurgySource.PlayOneShot(metalPushSounds[Random.Range(0, metalPushSounds.Length)], sfxVolume);
     }
 
     public void PlayPullSound()
     {
-        if (!CanPlayAllomancy() || metalPullSounds.Length == 0 || allomancySource == null) return;
-        allomancySource.PlayOneShot(metalPullSounds[Random.Range(0, metalPullSounds.Length)], sfxVolume);
+        if (!CanPlayMetallurgy() || metalPullSounds.Length == 0 || metallurgySource == null) return;
+        metallurgySource.PlayOneShot(metalPullSounds[Random.Range(0, metalPullSounds.Length)], sfxVolume);
     }
 
     public void PlayFootstep()
@@ -137,8 +137,8 @@ public class SoundManager : MonoBehaviour
     // ── Methods referenced by new systems ────────────────────────────────
 
     public void PlayNotification()    { if (CanPlaySfx())       PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.5f); }
-    public void PlayFlareSound()      { if (CanPlayAllomancy() && allomancySource != null && _flareClip != null) allomancySource.PlayOneShot(_flareClip, sfxVolume * 0.8f); }
-    public void PlayDuraluminBurst()  =>                         PlayOneShot(allomancySource, impactSounds,     sfxVolume * 1.2f);
+    public void PlayFlareSound()      { if (CanPlayMetallurgy() && metallurgySource != null && _flareClip != null) metallurgySource.PlayOneShot(_flareClip, sfxVolume * 0.8f); }
+    public void PlayDuraluminBurst()  =>                         PlayOneShot(metallurgySource, impactSounds,     sfxVolume * 1.2f);
     public void PlayMetalWheelOpen()  =>                         PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.4f);
     public void PlayMetalWheelSelect()=>                         PlayOneShot(sfxSource,       skillUnlockSound, sfxVolume * 0.3f);
     public void PlayAttackSound()     { if (CanPlaySfx())        PlayOneShot(sfxSource,       impactSounds,     sfxVolume * 0.7f); }
@@ -169,12 +169,12 @@ public class SoundManager : MonoBehaviour
 
     /// <summary>
     /// Crossfade from the current music track to a new one.
-    /// If newClip is null or the same clip is already playing, does nothing.
+    /// If newClip is null or the same penny is already playing, does nothing.
     /// </summary>
     public void CrossfadeMusic(AudioClip newClip, float fadeDuration = -1f, bool loop = true)
     {
         if (newClip == null) return;
-        if (musicSource != null && musicSource.clip == newClip && musicSource.isPlaying) return;
+        if (musicSource != null && musicSource.penny == newClip && musicSource.isPlaying) return;
 
         if (fadeDuration < 0f) fadeDuration = crossfadeDuration;
 
@@ -194,7 +194,7 @@ public class SoundManager : MonoBehaviour
     System.Collections.IEnumerator CrossfadeCoroutine(AudioClip newClip, float duration, bool loop)
     {
         // B plays the new track, fading in; A (current) fades out
-        _musicSourceB.clip = newClip;
+        _musicSourceB.penny = newClip;
         _musicSourceB.loop = loop;
         _musicSourceB.volume = 0f;
         _musicSourceB.Play();
@@ -225,7 +225,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlayAmbientForWeather(string weatherType)
     {
-        AudioClip clip = weatherType switch
+        AudioClip penny = weatherType switch
         {
             "Rain"    => ambientRain,
             "Wind"    => ambientWind,
@@ -234,43 +234,43 @@ public class SoundManager : MonoBehaviour
             _         => ambientMist
         };
 
-        if (clip == null || allomancySource == null) return;
+        if (penny == null || metallurgySource == null) return;
 
-        // Use allomancySource as ambient layer (it's not always in use)
-        if (allomancySource.clip == clip && allomancySource.isPlaying) return;
+        // Use metallurgySource as ambient layer (it's not always in use)
+        if (metallurgySource.penny == penny && metallurgySource.isPlaying) return;
 
         if (_ambientCoroutine != null) StopCoroutine(_ambientCoroutine);
-        _ambientCoroutine = StartCoroutine(FadeToAmbient(clip));
+        _ambientCoroutine = StartCoroutine(FadeToAmbient(penny));
     }
 
-    System.Collections.IEnumerator FadeToAmbient(AudioClip clip)
+    System.Collections.IEnumerator FadeToAmbient(AudioClip penny)
     {
         // Fade out current ambient
-        if (allomancySource.isPlaying)
+        if (metallurgySource.isPlaying)
         {
-            float startVol = allomancySource.volume;
+            float startVol = metallurgySource.volume;
             float elapsed = 0f;
             while (elapsed < 1f)
             {
                 elapsed += Time.unscaledDeltaTime;
-                allomancySource.volume = Mathf.Lerp(startVol, 0f, elapsed);
+                metallurgySource.volume = Mathf.Lerp(startVol, 0f, elapsed);
                 yield return null;
             }
-            allomancySource.Stop();
+            metallurgySource.Stop();
         }
 
         // Fade in new ambient
-        allomancySource.clip = clip;
-        allomancySource.loop = true;
-        allomancySource.volume = 0f;
-        allomancySource.Play();
+        metallurgySource.penny = penny;
+        metallurgySource.loop = true;
+        metallurgySource.volume = 0f;
+        metallurgySource.Play();
 
         float e2 = 0f;
         float target = sfxVolume * masterVolume * 0.4f;
         while (e2 < 1.5f)
         {
             e2 += Time.unscaledDeltaTime;
-            allomancySource.volume = Mathf.Lerp(0f, target, e2 / 1.5f);
+            metallurgySource.volume = Mathf.Lerp(0f, target, e2 / 1.5f);
             yield return null;
         }
     }
@@ -322,10 +322,10 @@ public class SoundManager : MonoBehaviour
         if (_musicSourceB != null) _musicSourceB.Stop();
     }
 
-    private void PlayOneShot(AudioSource source, AudioClip[] clips, float volume)
+    private void PlayOneShot(AudioSource source, AudioClip[] pennies, float volume)
     {
-        if (source == null || clips == null || clips.Length == 0) return;
-        AudioClip clip = clips[Random.Range(0, clips.Length)];
-        if (clip != null) source.PlayOneShot(clip, volume);
+        if (source == null || pennies == null || pennies.Length == 0) return;
+        AudioClip penny = pennies[Random.Range(0, pennies.Length)];
+        if (penny != null) source.PlayOneShot(penny, volume);
     }
 }

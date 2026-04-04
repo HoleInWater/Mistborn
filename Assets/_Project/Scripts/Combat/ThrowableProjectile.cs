@@ -46,7 +46,7 @@ public class ThrowableProjectile : MonoBehaviour
 
             EnemyKnockback kb = collision.gameObject.GetComponent<EnemyKnockback>();
             if (kb != null)
-                kb.ApplyAllomanticKnockback(collision.relativeVelocity.normalized, speed * 0.3f);
+                kb.ApplyMetallurgicKnockback(collision.relativeVelocity.normalized, speed * 0.3f);
 
             if (collision.contactCount > 0)
                 ParticleEffectsManager.Instance?.PlayHitEffect(collision.GetContact(0).point, damage);

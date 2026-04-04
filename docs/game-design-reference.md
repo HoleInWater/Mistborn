@@ -1,4 +1,4 @@
-# Mistborn Era One - Game Design Reference
+# Ashwalker Era One - Game Design Reference
 
 *For Unity development - Era 1 timeline only (1022-1025 FE)*
 
@@ -26,8 +26,8 @@
 
 | Key | Metal | Effect |
 |-----|-------|--------|
-| C | **Copper** | Hide Allomantic pulses |
-| V | **Bronze** | Detect Allomantic pulses |
+| C | **Copper** | Hide Metallurgic pulses |
+| V | **Bronze** | Detect Metallurgic pulses |
 
 ### Temporal
 
@@ -49,8 +49,8 @@
 
 | Key | Metal | Effect |
 |-----|-------|--------|
-| T | **Atium** | See enemy's next moves (ghost them) |
-| Y | **Malatium** | See person's potential future self |
+| T | **Oraculum** | See enemy's next moves (ghost them) |
+| Y | **Revelum** | See person's potential future self |
 
 ### Time Metals
 
@@ -61,9 +61,9 @@
 
 ---
 
-## Player Character: Vin
+## Player Character: Ember
 
-### Vin's Abilities (as of 1022-1025 FE)
+### Ember's Abilities (as of 1022-1025 FE)
 
 **Core (can do from start)**
 - Steel Push (RMB)
@@ -74,18 +74,18 @@
 - Tin Enhancement (E) - learned early
 - Zinc Rioting (Z) - learned during First Empire
 - Brass Soothing (X) - learned during First Empire
-- Copper Cloud (C) - learned from Clubs
-- Bronze Detection (V) - learned from Clubs
-- Atium (T) - stolen from Elend
-- Electrum (5) - after Atium runs out
+- Copper Cloud (C) - learned from Grimshaw
+- Bronze Detection (V) - learned from Grimshaw
+- Oraculum (T) - stolen from Aldric
+- Electrum (5) - after Oraculum runs out
 - Aluminum (F) - known but rarely used
 - Duralumin (R) - known but rarely used
-- Malatium (Y) - near end of Era 1
+- Revelum (Y) - near end of Era 1
 
-### Vin's Combat Style
+### Ember's Combat Style
 
 - Shadow wrestling background (street fighting)
-- Trained by Kelsier in Allomantic combat
+- Trained by Darius in Metallurgic combat
 - Aggressive, fast-paced fighting
 - Uses momentum and momentum flaring
 - Later learns political/social combat
@@ -96,8 +96,8 @@
 
 ### Human Enemies
 
-**Koloss**
-- Hemalurgic soldiers
+**Bloodbrute**
+- Bloodforged soldiers
 - Variable size (6-12 feet)
 - Enhanced strength
 - Blue skin when angry
@@ -107,36 +107,36 @@
 
 **Noble Guards**
 - Trained soldiers
-- Have Allomancy
+- Have Metallurgy
 - Equipped with weapons
 - Organized tactics
 - Can have any metal abilities
 
-**Steel Ministry Obligators**
+**Iron Clergy Prelates**
 - Priests/enforcers
 - Pewter and Copper typically
 - Grey robes
 - Religious zealots
 
-**Inquisitors**
-- Hemalurgic constructs
+**Sentinels**
+- Bloodforged constructs
 - Near-immortal
 - Multiple spikes
 - Holes in skulls
-- Hunt Allomancers
+- Hunt Metallurgists
 - Can regenerate wounds
 - Superhuman strength
 
 ### Creatures
 
 **Mistwraiths**
-- Feed on Allomancers
+- Feed on Metallurgists
 - Mist-like creatures
 - Lurk in caves
 - Can consume metals
-- Weak to Allomancy
+- Weak to Metallurgy
 
-**Kandra**
+**Fleshkin**
 - Shape-shifters
 - Take bodies
 - Bound by contracts
@@ -183,87 +183,87 @@ Each metal has a reserve that drains when burned.
 ### World State
 
 **Pre-Well (1022 FE)**
-- Lord Ruler alive
+- Ashen King alive
 - Ash constantly falling
 - Mists every night
 - Nobles control cities
-- Skaas enslaved
-- Inquisitors hunting
+- Lowborn enslaved
+- Sentinels hunting
 
 **Post-Well (1024-1025 FE)**
-- Lord Ruler dead
+- Ashen King dead
 - Ash increasing
 - Mists gone (protecting crops)
 - Food scarce
-- Koloss unchecked
+- Bloodbrute unchecked
 - Political chaos
-- Ruin manipulating
+- The Unmaker manipulating
 
 ---
 
 ## Locations
 
-### Luthadel
+### Cinderhold
 
 **City Layout**
 - Capital city, ~400,000 people
-- Outer districts (skaa)
+- Outer districts (lowborn)
 - Noble keeps (inner walls)
-- The Pits of Hathsin (nearby)
-- Canton of Inquisition (center)
+- The Ember Pits (nearby)
+- Diocese of Inquisition (center)
 - Assembly Hall (government)
-- Lord Ruler's Palace (destroyed 1022)
+- Ashen King's Palace (destroyed 1022)
 
 **Districts**
 - **Theatern** - Noble district
-- **Vander** - Commercial, skaa
+- **Vander** - Commercial, lowborn
 - **Goves** - Noble, House Venture
 - **Confiscreys** - Government buildings
-- **Urteau** - Skaa slums, later burned
+- **Grimreach** - Lowborn slums, later burned
 
-### The Pits of Hathsin
+### The Ember Pits
 
-- Atium mines
-- Near Luthadel
-- Canton of Inquisition guards
-- Prison labor (skaa)
-- Koloss barracks
+- Oraculum mines
+- Near Cinderhold
+- Diocese of Inquisition guards
+- Prison labor (lowborn)
+- Bloodbrute barracks
 - Deep cavern system
 
-### Kandra Homelands
+### Fleshkin Homelands
 
 - Beneath Dominant Mountains
 - Network of caverns
 - Sacred pools
-- Kandra settlement
-- Later invaded by koloss
+- Fleshkin settlement
+- Later invaded by bloodbrute
 
 ---
 
 ## Factions in Era 1
 
-### Luthadel Assembly
-- Rules after Lord Ruler's death
+### Cinderhold Assembly
+- Rules after Ashen King's death
 - Nobles debating governance
 - House Venture has military power
 - House Elariel has political power
 
-### Kelsier's Crew
+### Darius's Crew
 - Led rebellion
-- Took control of Luthadel
+- Took control of Cinderhold
 - Later formed new government
 - Most members survived
 
 ### The Church of the Survivor
-- Skeptic religion worshipping Kelsier
+- Skeptic religion worshipping Darius
 - Illegal but widespread
-- Helps skaas
-- TenSoon was member
+- Helps lowborns
+- Sevren was member
 
 ### The Set
 - Secret noble organization
 - Preserve social order
-- Existed since Lord Ruler's time
+- Existed since Ashen King's time
 - Later revealed to be manipulators
 
 ---
@@ -276,23 +276,23 @@ Each metal has a reserve that drains when burned.
    - Learn Steel Push
    - Learn Iron Pull
    - Escape abuse
-   - Meet Kelsier
+   - Meet Darius
 
 2. **Rebellion Phase**
    - Join the crew
    - Learn combat
    - Complete heists
-   - Survive Inquisitor attacks
+   - Survive Sentinel attacks
 
 3. **Confrontation Phase**
    - Attack the palace
-   - Face the Lord Ruler
+   - Face the Ashen King
    - Access the Well
    - Witness sacrifice
 
 4. **Post-Victory Phase** (if continuing)
-   - Defend Luthadel
-   - Fight koloss army
+   - Defend Cinderhold
+   - Fight bloodbrute army
    - Discover true enemy
    - Restore the world
 
@@ -302,7 +302,7 @@ Each metal has a reserve that drains when burned.
 
 ### Sounds
 
-**Allomancy**
+**Metallurgy**
 - Steel push: Sharp metallic ring
 - Iron pull: Deep resonant hum
 - Pewter: Power surge, heartbeat
@@ -310,8 +310,8 @@ Each metal has a reserve that drains when burned.
 
 **Combat**
 - Sword clashes
-- Koloss roars
-- Inquisitor breathing (mechanical)
+- Bloodbrute roars
+- Sentinel breathing (mechanical)
 - Ash falling (constant)
 
 ### Visuals
@@ -320,14 +320,14 @@ Each metal has a reserve that drains when burned.
 - Grey/ash sky
 - Red/brown buildings (iron-rust)
 - Dark nobility colors
-- Blue metal lines (Allomantic sight)
+- Blue metal lines (Metallurgic sight)
 
 **Mists**
 - White fog at night
-- Brighter when Preservation weakened
-- Ruin's red tinge (later)
+- Brighter when The Warden weakened
+- The Unmaker's red tinge (later)
 
-**Atium**
+**Oraculum**
 - Silver-white beads
 - Glowing when burned
 - Ghost images of future

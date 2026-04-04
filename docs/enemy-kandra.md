@@ -1,4 +1,4 @@
-# Enemy Design — Kandra
+# Enemy Design — Fleshkin
 
 *Shapeshifters with metal spikes. Can look like anyone.*
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-Kandra are Hemalurgically created beings. They have a metal spine (the Blessing of Stability) and can change their appearance by consuming a body and wearing its skin. They're rare, dangerous, and nearly impossible to detect.
+Fleshkin are Bloodforgedally created beings. They have a metal spine (the Blessing of Stability) and can change their appearance by consuming a body and wearing its skin. They're rare, dangerous, and nearly impossible to detect.
 
 ---
 
@@ -54,7 +54,7 @@ Kandra are Hemalurgically created beings. They have a metal spine (the Blessing 
 
 ## Detection Method
 
-| Normal Enemy | Kandra |
+| Normal Enemy | Fleshkin |
 |-------------|--------|
 | Vision | Metal eyes (sees metal) |
 | Hearing | Hears everything |
@@ -68,7 +68,7 @@ Kandra are Hemalurgically created beings. They have a metal spine (the Blessing 
 **Player CAN use:**
 - Silver weapons
 - Non-metal hiding spots
-- Coppercloud (hides Allomancy)
+- Coppercloud (hides Metallurgy)
 
 ---
 
@@ -91,14 +91,14 @@ Kandra are Hemalurgically created beings. They have a metal spine (the Blessing 
 
 **Why silver works:**
 - Doesn't register as metal to their spikes
-- Disrupts Hemalurgic connection
+- Disrupts Bloodforged connection
 - Natural weakness
 
 ---
 
 ## Identity Mystery
 
-Kandra can look like anyone. This creates narrative tension.
+Fleshkin can look like anyone. This creates narrative tension.
 
 - Is that NPC really who they say?
 - Trust issues
@@ -123,8 +123,8 @@ Kandra can look like anyone. This creates narrative tension.
 
 ## Story Role
 
-Kandra serve:
-- The Lord Ruler's spies
+Fleshkin serve:
+- The Ashen King's spies
 - House assassins
 - Secret agents
 - Double agents
@@ -133,6 +133,6 @@ Kandra serve:
 
 ## Questions
 
-1. Can player become a Kandra (Hemalurgy)?
-2. Can player use Kandra disguises?
-3. Kandra redemption arc possible?
+1. Can player become a Fleshkin (Bloodforge)?
+2. Can player use Fleshkin disguises?
+3. Fleshkin redemption arc possible?

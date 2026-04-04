@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEditor;
 
 /// <summary>
-/// Mistborn → Create Default Weapons
-/// Creates WeaponData ScriptableObject assets for the standard Mistborn weapon roster.
+/// Ashwalker → Create Default Weapons
+/// Creates WeaponData ScriptableObject assets for the standard Ashwalker weapon roster.
 /// Run once — assets are saved to Assets/_Project/Data/Weapons/
 /// </summary>
 public static class CreateDefaultWeapons
 {
-    [MenuItem("Mistborn/Weapons/Create Default Weapons")]
+    [MenuItem("Ashwalker/Weapons/Create Default Weapons")]
     public static void Create()
     {
         const string folder = "Assets/_Project/Data/Weapons";
@@ -21,7 +21,7 @@ public static class CreateDefaultWeapons
 
         MakeWeapon(folder, "Dagger",
             WeaponData.WeaponType.Dagger,
-            description: "A short, fast blade favoured by thieves and Mistborn. Metal — can be Pushed.",
+            description: "A short, fast blade favoured by thieves and Ashwalker. Metal — can be Pushed.",
             damage: 12f, range: 1.8f, speed: 3.5f, heavyMult: 2f,
             knockback: 5f, heavyKnockback: 12f,
             isMetal: true, mass: 0.5f, buy: 80, sell: 40);
@@ -35,7 +35,7 @@ public static class CreateDefaultWeapons
 
         MakeWeapon(folder, "Obsidian Axe",
             WeaponData.WeaponType.Axe,
-            description: "Skaa-forged axe with an obsidian head. Non-metal — cannot be Pushed or Pulled.",
+            description: "Lowborn-forged axe with an obsidian head. Non-metal — cannot be Pushed or Pulled.",
             damage: 30f, range: 2.2f, speed: 1.5f, heavyMult: 3f,
             knockback: 14f, heavyKnockback: 30f,
             isMetal: false, mass: 2.5f, buy: 120, sell: 60);
@@ -54,9 +54,9 @@ public static class CreateDefaultWeapons
             knockback: 22f, heavyKnockback: 45f,
             isMetal: true, mass: 4f, buy: 200, sell: 100);
 
-        MakeWeapon(folder, "Koloss Blade",
-            WeaponData.WeaponType.KolossBlade,
-            description: "A massive sword too heavy for most humans. Only Pewter Mistings can wield it effectively.",
+        MakeWeapon(folder, "Bloodbrute Blade",
+            WeaponData.WeaponType.BloodbruteBlade,
+            description: "A massive sword too heavy for most humans. Only Pewter Sparkbloods can wield it effectively.",
             damage: 70f, range: 3.0f, speed: 0.8f, heavyMult: 3.5f,
             knockback: 40f, heavyKnockback: 80f,
             isMetal: true, mass: 12f, buy: 999, sell: 500);
@@ -107,7 +107,7 @@ public static class CreateDefaultWeapons
 
     // ── Grip offset defaults ──────────────────────────────────────────────────
 
-    [MenuItem("Mistborn/Weapons/Fix Weapon Grip Offsets")]
+    [MenuItem("Ashwalker/Weapons/Fix Weapon Grip Offsets")]
     public static void FixGrips()
     {
         string[] guids = AssetDatabase.FindAssets("t:WeaponData");
@@ -159,7 +159,7 @@ public static class CreateDefaultWeapons
                 w.handRotationOffset = new Vector3(90, 0, 0);
                 w.handPositionOffset = new Vector3(0, 0, 0.05f);
                 break;
-            case WeaponData.WeaponType.KolossBlade:
+            case WeaponData.WeaponType.BloodbruteBlade:
                 w.handRotationOffset = new Vector3(90, 0, 0);
                 w.handPositionOffset = new Vector3(0, 0, 0.15f);
                 break;

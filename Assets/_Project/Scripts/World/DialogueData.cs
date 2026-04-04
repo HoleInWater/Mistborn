@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Data container for a single dialogue sequence.
 /// </summary>
-[CreateAssetMenu(fileName = "NewDialogue", menuName = "Mistborn/Dialogue Data")]
+[CreateAssetMenu(fileName = "NewDialogue", menuName = "Ashwalker/Dialogue Data")]
 public class DialogueData : ScriptableObject
 {
     public string speakerName;

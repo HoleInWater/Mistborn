@@ -1,11 +1,11 @@
-# GitHub Guide for Mistborn Project
+# GitHub Guide for Ashwalker Project
 
 ## Basic Git Commands
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/HoleInWater/Mistborn.git
-cd Mistborn
+git clone https://github.com/HoleInWater/Ashwalker.git
+cd Ashwalker
 ```
 
 ### Check Status
@@ -156,7 +156,7 @@ Make sure `.gitignore` includes:
 ## Working with GitHub Desktop
 
 ### 1. Clone Repository
-- File → Clone Repository → URL → paste `https://github.com/HoleInWater/Mistborn.git`
+- File → Clone Repository → URL → paste `https://github.com/HoleInWater/Ashwalker.git`
 
 ### 2. Create Branch for Changes
 - Branch → New Branch → name it (e.g., `feature/pewter-enhancement`)

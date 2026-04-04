@@ -6,7 +6,7 @@
 
 ## Current State: IN DEVELOPMENT
 
-**The team has implemented Allomancy mechanics, core game systems, movement abilities, and UI systems.**
+**The team has implemented Metallurgy mechanics, core game systems, movement abilities, and UI systems.**
 
 ---
 
@@ -24,9 +24,9 @@
 | `DamageDealer.cs` | ✅ Done | Deal damage to entities |
 | `InputManager.cs` | ✅ Done | Centralized input handling |
 | `AIController.cs` | ✅ Done | Basic enemy AI |
-| `MetalReserveManager.cs` | ✅ Done | Manage allomantic metal reserves |
+| `MetalReserveManager.cs` | ✅ Done | Manage metallurgic metal reserves |
 
-### Allomancy/ - 16 Metal Powers
+### Metallurgy/ - 16 Metal Powers
 | Script | Status | What It Does |
 |--------|--------|--------------|
 | `SteelPush.cs` | ✅ Done | Push metals away |
@@ -35,17 +35,17 @@
 | `TinEnhance.cs` | ✅ Done | Enhanced senses, sight |
 | `ZincRiot.cs` | ✅ Done | Enrage enemies |
 | `BrassSoothe.cs` | ✅ Done | Calm enemies |
-| `CopperCloud.cs` | ✅ Done | Hide Allomantic pulses |
-| `BronzeDetect.cs` | ✅ Done | Detect burning Allomancers |
-| `AtiumBurn.cs` | ✅ Done | See enemy futures |
+| `CopperCloud.cs` | ✅ Done | Hide Metallurgic pulses |
+| `BronzeDetect.cs` | ✅ Done | Detect burning Metallurgists |
+| `OraculumBurn.cs` | ✅ Done | See enemy futures |
 | `GoldPast.cs` | ✅ Done | See past selves |
 | `ElectrumFuture.cs` | ✅ Done | See own futures |
 | `AluminumPurge.cs` | ✅ Done | Purge all metal reserves |
-| `DuraluminBurst.cs` | ✅ Done | Mega Allomancy burst |
-| `MalatiumReveal.cs` | ✅ Done | Reveal true nature |
+| `DuraluminBurst.cs` | ✅ Done | Mega Metallurgy burst |
+| `RevelumReveal.cs` | ✅ Done | Reveal true nature |
 | `TimeBubble.cs` | ✅ Done | Speed/slow time bubbles |
-| `Allomancer.cs` | ✅ Done | Base Allomancer component |
-| `AllomanticSight.cs` | ✅ Done | Blue lines to metals |
+| `Metallurgist.cs` | ✅ Done | Base Metallurgist component |
+| `MetallurgicSight.cs` | ✅ Done | Blue lines to metals |
 | `MetalType.cs` | ✅ Done | Enum for all 20 metals |
 
 ### Player/ - Movement Abilities
@@ -89,20 +89,20 @@
 
 | Doc | Purpose |
 |-----|---------|
-| `allomancy-physics-analysis.md` | Steel/Iron force calculations |
-| `allomancy-coin-physics.md` | Coin flight physics |
-| `allomancy-desmos-functions.md` | Math for graphs |
+| `metallurgy-physics-analysis.md` | Steel/Iron force calculations |
+| `metallurgy-coin-physics.md` | Coin flight physics |
+| `metallurgy-desmos-functions.md` | Math for graphs |
 
 ---
 
 ## What's Left
 
 **Gameplay:**
-- Tune Allomancy physics
+- Tune Metallurgy physics
 - Balance damage numbers
 - Create enemy prefabs
 - Add particle effects
-- Add audio clips
+- Add audio pennies
 
 **UI:**
 - Main Menu polish

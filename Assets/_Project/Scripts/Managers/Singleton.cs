@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {

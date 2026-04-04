@@ -1,4 +1,4 @@
-# Contributing to Mistborn Era One
+# Contributing to Ashwalker Era One
 
 Hey, thanks for jumping in. Here's how we keep things organized so we're not stepping on each other's toes.
 
@@ -16,7 +16,7 @@ When you're starting something new, create a branch with a clear name:
 Keep it short and meaningful. Format: `[SYSTEM] What changed`
 
 Examples:
-- `[Allomancy] Add force calculation for anchored targets`
+- `[Metallurgy] Add force calculation for anchored targets`
 - `[Player] Fix camera clipping through walls`
 - `[Docs] Update TODO with Sprint 2 tasks`
 

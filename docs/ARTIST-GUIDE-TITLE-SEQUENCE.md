@@ -1,6 +1,6 @@
 # Artist Guide — Title Sequence Assets
 
-This document lists every asset needed for the title sequence, organized by phase. The scene is built procedurally via **Mistborn → Scenes → Build Title Sequence Scene** — grey-box geometry, lights, particles, cameras, and UI are all auto-generated. Your job is to replace the grey boxes with real art.
+This document lists every asset needed for the title sequence, organized by phase. The scene is built procedurally via **Ashwalker → Scenes → Build Title Sequence Scene** — grey-box geometry, lights, particles, cameras, and UI are all auto-generated. Your job is to replace the grey boxes with real art.
 
 All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as needed).
 
@@ -8,7 +8,7 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 
 ## How to Replace Grey-Box Objects
 
-1. Run **Mistborn → Scenes → Build Title Sequence Scene** to generate the layout
+1. Run **Ashwalker → Scenes → Build Title Sequence Scene** to generate the layout
 2. Open `Assets/_Project/Scenes/TitleSequence.unity`
 3. Find the grey-box object in the Hierarchy (e.g., `MistyFieldScene → Hill`)
 4. Select it, then either:
@@ -28,13 +28,13 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 | World Scale | 1 Unity unit = 0.762 m = 2.5 ft |
 | Art Style | Dark, gritty, ash-covered. No bright colors. Everything is muted, weathered, oppressive. |
 | Time of Day | Night / pre-dawn. Very little direct sunlight. Mostly ambient + point lights. |
-| Color Palette | Browns, dark greys, muted reds, steel blue-grey. The only bright color is orange (torches/lanterns) and blue (Allomantic lines in the title). |
+| Color Palette | Browns, dark greys, muted reds, steel blue-grey. The only bright color is orange (torches/lanterns) and blue (Metallurgic lines in the title). |
 
 ---
 
 ## Phase 1 — Misty Ash Field (0–9 seconds)
 
-*Camera slowly pushes forward across a desolate field outside Luthadel. Black fades in to reveal this.*
+*Camera slowly pushes forward across a desolate field outside Cinderhold. Black fades in to reveal this.*
 
 ### Terrain / Ground
 
@@ -61,8 +61,8 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 | **Broken fence** | Weathered wooden fence posts (tilted, some fallen). Dark wood, splintering. | `FencePost`, `FallenRail` | LOW |
 | **Ruined cart** | Abandoned wooden cart, one wheel broken, tilted. Rotting wood, rusted iron axle. | `CartBed`, `CartWheel`, `CartAxle` | LOW |
 | **Collapsed ruin** | Remains of an old stone structure. 2 partial walls at angles, rubble scattered around. Grey stone, crumbling mortar. | `RuinWall`, `Rubble` | MEDIUM |
-| **Skaa shanties** | Lean-to shelters made of scrap wood and cloth. Poles, slanted roof panels, ragged blankets. These are where skaa live outside the city. | `ShantyPole`, `ShantyRoof`, `Blanket` | MEDIUM |
-| **Scattered coins** | 5 small copper discs on the ground (Mistborn calling card). Copper color, slightly tarnished. Only ~2cm diameter. | `Coin` | LOW |
+| **Lowborn shanties** | Lean-to shelters made of scrap wood and cloth. Poles, slanted roof panels, ragged blankets. These are where lowborn live outside the city. | `ShantyPole`, `ShantyRoof`, `Blanket` | MEDIUM |
+| **Scattered coins** | 5 small copper discs on the ground (Ashwalker calling card). Copper color, slightly tarnished. Only ~2cm diameter. | `Coin` | LOW |
 
 ### Distant Silhouettes
 
@@ -70,7 +70,7 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 |---|---|---|---|
 | **Distant hills / mountains** | Dark silhouette shapes on the horizon. Barely visible through fog. Multiple overlapping ridgelines at different distances. | `Hill` | LOW |
 | **Ashmount** | Taller volcanic mountain silhouette, center-back of the horizon. Faint red-orange glow at the base (lava). Ash plume rising from the peak (use the existing ember particle system). | `Hill` (tallest one at z=120) | MEDIUM |
-| **Distant Luthadel** | City silhouette on the horizon (z=70). Row of dark building shapes with one tall spire in the center (Kredik Shaw hint). Very dark — almost blends into the fog. | `DistantBuilding`, `DistantKredikHint` | LOW |
+| **Distant Cinderhold** | City silhouette on the horizon (z=70). Row of dark building shapes with one tall spire in the center (Thornspire hint). Very dark — almost blends into the fog. | `DistantBuilding`, `DistantThornspireHint` | LOW |
 
 ### Particle Systems (ALREADY BUILT — tweak only)
 
@@ -89,14 +89,14 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 | Asset | Description | Where to Put It | Priority |
 |---|---|---|---|
 | **Crimson Blade Interactive logo** | Studio logo. PNG with transparency, minimum 512×512. Will be displayed as a UI Image centered on screen. | `CrimsonBladeLogoGroup → LogoImage` (enable the GameObject, assign sprite) | HIGH |
-| **Dragonsteel Entertainment logo** | Brandon Sanderson's company logo. PNG with transparency. Only if/when approved. | `SandersonLogoGroup → LogoImage` (enable the GameObject, assign sprite) | HIGH (when approved) |
+| **the original IP holder logo** | the original author's company logo. PNG with transparency. Only if/when approved. | `the original authorLogoGroup → LogoImage` (enable the GameObject, assign sprite) | HIGH (when approved) |
 | **Logo animations** (optional) | If you want the logos to animate in (scale up, particle reveal, etc.), create Animator Controllers with a "Play" trigger. Assign to the `Animator` field on the controller. | `crimsonBladeLogoAnimator` / `sandersonLogoAnimator` | LOW |
 
 ---
 
-## Phase 3 — Luthadel Streets (~28 seconds)
+## Phase 3 — Cinderhold Streets (~28 seconds)
 
-*Camera dolly pushes through a dark Luthadel street. Credits roll.*
+*Camera dolly pushes through a dark Cinderhold street. Credits roll.*
 
 ### Buildings
 
@@ -105,7 +105,7 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 | **Stone building — dark** | Dark grey-brown stone facade. 2-3 story. Small windows, heavy door. Ash stains running down from the roof. | 3–4 variants | HIGH |
 | **Stone building — medium** | Warmer brown stone. Slightly different window layout. | 2–3 variants | HIGH |
 | **Stone building — reddish** | Brick-like reddish stone. Noble district building — slightly nicer. | 1–2 variants | MEDIUM |
-| **Stone building — grey** | Cool grey stone. Taller, institutional look (Obligator offices?). | 1–2 variants | MEDIUM |
+| **Stone building — grey** | Cool grey stone. Taller, institutional look (Prelate offices?). | 1–2 variants | MEDIUM |
 | **Slate roof** | Blue-grey slate tiles. Flat or slightly angled. Modular piece that sits on top of buildings. | 1 modular piece | HIGH |
 | **Clay tile roof** | Reddish-brown clay tiles. Different from slate for variety. | 1 modular piece | HIGH |
 | **Window (lit)** | Small recessed window with warm orange glow inside. Can be a simple emissive plane. | Reuse | MEDIUM |
@@ -124,7 +124,7 @@ All assets go in `Assets/_Project/Art/TitleSequence/` (create subfolders as need
 | **Crate** | Wooden shipping crate, slightly lighter wood than barrels. | `Crate` | MEDIUM |
 | **Market stall** | Wooden table with legs + draped tarp/canvas on top (closed for night). | `StallTable`, `StallTarp` | LOW |
 | **Hanging sign** | Metal bracket + wooden sign board. Weathered, text unreadable from distance. | `SignBracket`, `SignBoard` | LOW |
-| **Sewer grate** | Iron grate with bars, set into the street. Metal — important for Allomancy world. | `SewerGrate`, `GrateBar` | LOW |
+| **Sewer grate** | Iron grate with bars, set into the street. Metal — important for Metallurgy world. | `SewerGrate`, `GrateBar` | LOW |
 | **Archway** | Stone bridge/archway connecting buildings overhead. Heavy stone. | `Archway` | MEDIUM |
 | **Clothesline** | Thin rope strung between buildings with ragged cloth pieces hanging. | `Clothesline`, `Cloth` | LOW |
 | **Puddle** | Small reflective water puddle in the street gutter. Can be a simple reflective plane. | `Puddle` | LOW |
@@ -138,10 +138,10 @@ These are dark silhouettes — they don't need faces, detailed clothing, or anim
 
 | Asset | Description | Grey-box Name | Priority |
 |---|---|---|---|
-| **Skaa (crouching)** | Huddled figure, knees drawn up, head down. Ragged clothing. | `SkaaSilhouette` | MEDIUM |
-| **Skaa (standing)** | Thin figure in a rough cloak, slightly hunched posture. | `SkaaSilhouette` | MEDIUM |
+| **Lowborn (crouching)** | Huddled figure, knees drawn up, head down. Ragged clothing. | `LowbornSilhouette` | MEDIUM |
+| **Lowborn (standing)** | Thin figure in a rough cloak, slightly hunched posture. | `LowbornSilhouette` | MEDIUM |
 | **Guard** | Wider armored figure, helmet with crest, holding a spear upright. | `GuardSilhouette` | MEDIUM |
-| **Obligator** | Tall robed figure, bald head, visible tattoo lines on face. Distinctive from guards and skaa. | `ObligatorSilhouette` | MEDIUM |
+| **Prelate** | Tall robed figure, bald head, visible tattoo lines on face. Distinctive from guards and lowborn. | `PrelateSilhouette` | MEDIUM |
 | **Noble carriage** | Dark polished wooden carriage with gold trim, 4 wheels. Parked on the street. | `CarriageBody`, `CarriageWheel` | LOW |
 | **Stray animals** | Small dog or cat silhouette. Very simple — just body + head shapes. | `StrayAnimal` | LOW |
 
@@ -156,18 +156,18 @@ These are dark silhouettes — they don't need faces, detailed clothing, or anim
 
 ---
 
-## Phase 4 — Kredik Shaw Aerial Pan (~45 seconds)
+## Phase 4 — Thornspire Aerial Pan (~45 seconds)
 
-*Camera orbits above Luthadel at night, centered on Kredik Shaw.*
+*Camera orbits above Cinderhold at night, centered on Thornspire.*
 
-### Kredik Shaw (The Hill of a Thousand Spires)
+### Thornspire (The Hill of a Thousand Spires)
 
 | Asset | Description | Grey-box Name | Priority |
 |---|---|---|---|
-| **Central spire** | Tallest tower, ~35m. Dark steel/stone, smooth tapering to a sharp point. The Lord Ruler's personal tower. | `Spire` (tallest) | HIGH |
+| **Central spire** | Tallest tower, ~35m. Dark steel/stone, smooth tapering to a sharp point. The Ashen King's personal tower. | `Spire` (tallest) | HIGH |
 | **Major spires (ring of 8)** | 18–28m tall. Varied heights. Dark metal with architectural detail bands. Slight lean for character. | `Spire` (inner ring) | HIGH |
 | **Minor spires (ring of 12)** | 10–18m. Thinner, shorter. Same material family but more weathered. | `Spire` (outer ring) | HIGH |
-| **Base platform** | Large stone/metal platform all spires sit on. ~16m radius. Dark, imposing. | `KredikShawBase` | MEDIUM |
+| **Base platform** | Large stone/metal platform all spires sit on. ~16m radius. Dark, imposing. | `ThornspireBase` | MEDIUM |
 | **Perimeter wall** | Connecting walls between outer spires with battlements on top. Dark stone + metal caps. | `PerimeterWall`, `Battlement` | MEDIUM |
 | **Grand gate** | Two massive pillars with sphere caps, stone arch overhead, dark iron doors. Facing south. | `GatePillar`, `GateArch`, `GateDoorL/R` | MEDIUM |
 | **Courtyard** | Flat stone courtyard inside the walls. Slightly different color/texture from surroundings. | `Courtyard` | LOW |
@@ -176,8 +176,8 @@ These are dark silhouettes — they don't need faces, detailed clothing, or anim
 
 | Asset | Description | Grey-box Name | Priority |
 |---|---|---|---|
-| **Steel Inquisitor** | Standing on top of the central spire. Tall, gaunt, long coat trailing. Axe in hand. TWO METAL SPIKES through the eyes (most important detail). This is THE shot of the intro. | `InquisitorSilhouette` | HIGH |
-| **Mistborn on rooftop** | Crouching figure on a city rooftop. Hooded, mistcloak tassels draping behind. Visible from aerial if you look carefully. | `RooftopMistborn` | MEDIUM |
+| **Iron Sentinel** | Standing on top of the central spire. Tall, gaunt, long coat trailing. Axe in hand. TWO METAL SPIKES through the eyes (most important detail). This is THE shot of the intro. | `SentinelSilhouette` | HIGH |
+| **Ashwalker on rooftop** | Crouching figure on a city rooftop. Hooded, ashcloak tassels draping behind. Visible from aerial if you look carefully. | `RooftopAshwalker` | MEDIUM |
 
 ### City Layout
 
@@ -189,7 +189,7 @@ These are dark silhouettes — they don't need faces, detailed clothing, or anim
 | **Canals** | 3 water channels cutting through the city. Dark water surface, stone retaining walls. | `Canal`, `CanalWall` | MEDIUM |
 | **Canal bridges** | Stone bridges with metal railings crossing the canals. | `CanalBridge`, `BridgeRail` | LOW |
 | **Dock/pier** | Wooden platform over a canal. Cargo crates, barrel. | `DockPlatform`, `DockPost` | LOW |
-| **Roads** | 4 dark strips radiating from Kredik Shaw. Visible from above as darker ground. | `Road` | LOW |
+| **Roads** | 4 dark strips radiating from Thornspire. Visible from above as darker ground. | `Road` | LOW |
 
 ### Particle Systems (ALREADY BUILT)
 
@@ -199,7 +199,7 @@ These are dark silhouettes — they don't need faces, detailed clothing, or anim
 | `MistParticles` (seen from above) | Larger, softer cloud puffs rolling through streets |
 | `ChimneySmoke` (foundries) | Wispy dark smoke |
 
-### Allomantic Line Flashes
+### Metallurgic Line Flashes
 
 Two brief blue lines flash between rooftops during this phase — they're `LineRenderer` objects. If they look wrong, assign a simple additive blue material. Color: `#4D8CFF` with alpha 0.6.
 
@@ -209,20 +209,20 @@ Two brief blue lines flash between rooftops during this phase — they're `LineR
 
 | Asset | Description | Priority |
 |---|---|---|
-| **Custom font** | Angular serif font for "MISTBORN". Trajan Pro, Cinzel, or a custom Mistborn-style typeface. Import the .ttf/.otf, then **Window → TextMeshPro → Font Asset Creator** to generate the TMP font asset. Assign to `TitleGroup → TitleText`. | HIGH |
+| **Custom font** | Angular serif font for "MISTBORN". Trajan Pro, Cinzel, or a custom Ashwalker-style typeface. Import the .ttf/.otf, then **Window → TextMeshPro → Font Asset Creator** to generate the TMP font asset. Assign to `TitleGroup → TitleText`. | HIGH |
 | **Post-processing volume** | Add a Volume to the scene with Bloom (intensity 0.5–1.0) so the blue title text actually glows. Also add Vignette (intensity 0.3) for darkened edges. | HIGH |
-| **Blue line particles** (optional) | Thin blue particle trails radiating from the title after it's drawn. Like Allomantic steel lines shooting outward. | LOW |
+| **Blue line particles** (optional) | Thin blue particle trails radiating from the title after it's drawn. Like Metallurgic steel lines shooting outward. | LOW |
 
 ---
 
-## Mistcloak Wipe Transition (After Title)
+## Ashcloak Wipe Transition (After Title)
 
 A dark silhouette runs across the screen, followed by a black panel with ragged tassels.
 
 | Asset | Description | Priority |
 |---|---|---|
-| **Mistborn run cycle** (optional) | If you want the silhouette to actually animate (legs moving, cloak flowing), create a sprite sheet or UI animation. Currently it's a static dark shape that slides across. | LOW |
-| **Mistcloak tassel texture** | Ragged torn cloth strips. Currently solid black UI rectangles. A proper texture with torn edges would look much better. Transparent PNG, dark grey/black, ~256×64 per strip. | MEDIUM |
+| **Ashwalker run cycle** (optional) | If you want the silhouette to actually animate (legs moving, cloak flowing), create a sprite sheet or UI animation. Currently it's a static dark shape that slides across. | LOW |
+| **Ashcloak tassel texture** | Ragged torn cloth strips. Currently solid black UI rectangles. A proper texture with torn edges would look much better. Transparent PNG, dark grey/black, ~256×64 per strip. | MEDIUM |
 
 ---
 
@@ -269,28 +269,28 @@ Assets/_Project/Art/TitleSequence/
 │   ├── Building_Dark.fbx
 │   ├── Building_Med.fbx
 │   ├── Building_Red.fbx
-│   ├── KredikShaw_Spire.fbx
-│   ├── KredikShaw_Base.fbx
+│   ├── Thornspire_Spire.fbx
+│   ├── Thornspire_Base.fbx
 │   ├── Lantern.fbx
 │   ├── Barrel.fbx
 │   ├── Crate.fbx
 │   └── RuinedCart.fbx
 ├── Characters/
-│   ├── Silhouette_Skaa.fbx
+│   ├── Silhouette_Lowborn.fbx
 │   ├── Silhouette_Guard.fbx
-│   ├── Silhouette_Obligator.fbx
-│   ├── Silhouette_Inquisitor.fbx
-│   └── Silhouette_Mistborn.fbx
+│   ├── Silhouette_Prelate.fbx
+│   ├── Silhouette_Sentinel.fbx
+│   └── Silhouette_Ashwalker.fbx
 ├── Particles/
 │   ├── AshFlake.png
 │   ├── SmokePuff.png
 │   └── RainStreak.png
 ├── UI/
 │   ├── CrimsonBladeLogo.png
-│   ├── DragonsteelLogo.png
-│   └── MistcloakTassel.png
+│   ├── the original IP holderLogo.png
+│   └── AshcloakTassel.png
 └── Fonts/
-    └── MistbornTitle.ttf
+    └── AshwalkerTitle.ttf
 ```
 
 ---
@@ -307,21 +307,21 @@ Assets/_Project/Art/TitleSequence/
 
 **Do these next (building the world):**
 7. Stone wall textures (3–4 variants)
-8. Kredik Shaw spire model
+8. Thornspire spire model
 9. Lantern model
 10. Roof textures (slate + clay)
 11. Particle textures (ash, smoke, rain)
-12. Steel Inquisitor silhouette model
+12. Iron Sentinel silhouette model
 
 **Polish (when everything else is done):**
 13. Character silhouette models
 14. Carriage, cart, market stall details
 15. Metal debris, coins
-16. Mistcloak tassel textures
+16. Ashcloak tassel textures
 17. Logo animations
 18. Blue line particles for title
 
 ---
 
 *Last updated: April 2026*
-*Scene builder: Mistborn → Scenes → Build Title Sequence Scene*
+*Scene builder: Ashwalker → Scenes → Build Title Sequence Scene*

@@ -4,7 +4,7 @@
 
 ---
 
-## Allomancy Sounds
+## Metallurgy Sounds
 
 ### Steel Push
 - **Type:** Whoosh, force, impact
@@ -53,7 +53,7 @@
 - **Type:** Groan, collapse, final
 - **Length:** 1-2s
 - **Mood:** Final, conclusive
-- **Variations:** Skaa, Noble, Koloss, Inquisitor
+- **Variations:** Lowborn, Noble, Bloodbrute, Sentinel
 - **Priority:** MEDIUM
 
 ### Coin Throw
@@ -147,13 +147,13 @@
 - **Mood:** Urgent, threatening
 - **Priority:** MEDIUM
 
-### Koloss
+### Bloodbrute
 - **Type:** Grunting, heavy footsteps, roar
 - **Length:** Variable
 - **Mood:** Terrifying, massive
 - **Priority:** MEDIUM
 
-### Inquisitor
+### Sentinel
 - **Type:** Metal scraping, deep voice, ominous
 - **Length:** Variable
 - **Mood:** Menacing, powerful
@@ -172,7 +172,7 @@
 
 ## Notes
 
-1. All sounds should have a slightly metallic quality (this is Scadrial)
+1. All sounds should have a slightly metallic quality (this is Ashara)
 2. Ash atmosphere should be constant background layer
 3. Combat sounds need to be punchy but not excessive
 4. Consider silence for stealth moments

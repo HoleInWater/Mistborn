@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Enemy targeting and lock-on camera. Middle click to toggle.
-/// Atium burning extends lock-on range and shows target's predicted movement.
+/// Oraculum burning extends lock-on range and shows target's predicted movement.
 /// Tab key to cycle between targets while locked on.
 /// </summary>
 [PlayerComponent("Combat", order: 30)]
@@ -10,7 +10,7 @@ public class LockOnSystem : MonoBehaviour
 {
     [Header("Settings")]
     public float searchRadius = 20f;
-    public float atiumSearchBonus = 15f;
+    public float oraculumSearchBonus = 15f;
     public LayerMask enemyLayer;
     public KeyCode lockOnKey = KeyCode.Mouse2;
     public KeyCode cycleKey = KeyCode.None; // Tab conflicts with MetalWheel — assign in Inspector if needed
@@ -21,7 +21,7 @@ public class LockOnSystem : MonoBehaviour
     [Header("References")]
     public BasicPlayerMove playerMove;
     public Camera mainCamera;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
 
     private Transform currentTarget;
     public Transform CurrentTarget => currentTarget;
@@ -34,7 +34,7 @@ public class LockOnSystem : MonoBehaviour
     {
         if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
         if (mainCamera == null) mainCamera = Camera.main;
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (enemyLayer == 0) enemyLayer = LayerMask.GetMask("Enemy");
         if (enemyLayer == 0) enemyLayer = ~0;
     }
@@ -58,8 +58,8 @@ public class LockOnSystem : MonoBehaviour
             }
 
             float maxDist = searchRadius * 1.5f;
-            if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
-                maxDist += atiumSearchBonus;
+            if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Oraculum))
+                maxDist += oraculumSearchBonus;
 
             if (Vector3.Distance(transform.position, currentTarget.position) > maxDist)
                 ClearLockOn();
@@ -82,8 +82,8 @@ public class LockOnSystem : MonoBehaviour
     {
         if (mainCamera == null) return;
         float range = searchRadius;
-        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
-            range += atiumSearchBonus;
+        if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Oraculum))
+            range += oraculumSearchBonus;
 
         int count = Physics.OverlapSphereNonAlloc(transform.position, range, cachedEnemies, enemyLayer);
         float bestWeight = float.MaxValue;
@@ -126,8 +126,8 @@ public class LockOnSystem : MonoBehaviour
     void CycleTarget()
     {
         float range = searchRadius;
-        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Atium))
-            range += atiumSearchBonus;
+        if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Oraculum))
+            range += oraculumSearchBonus;
 
         int count = Physics.OverlapSphereNonAlloc(transform.position, range, cachedEnemies, enemyLayer);
         if (count <= 1) return;

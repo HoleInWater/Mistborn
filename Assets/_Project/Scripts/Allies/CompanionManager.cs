@@ -34,9 +34,9 @@ public class CompanionManager : MonoBehaviour
 
     public CompanionData[] availableCompanions = new CompanionData[]
     {
-        new CompanionData { name = "Kelsier", title = "The Survivor", specialAbility = "Steel Push Barrage" },
-        new CompanionData { name = "Vin", title = "Mistborn", specialAbility = "Stealth Strike" },
-        new CompanionData { name = "Sazed", title = "Keeper of Terris", specialAbility = "Feruchemy Heal" }
+        new CompanionData { name = "Darius", title = "The Survivor", specialAbility = "Steel Push Barrage" },
+        new CompanionData { name = "Ember", title = "Ashwalker", specialAbility = "Stealth Strike" },
+        new CompanionData { name = "Idris", title = "Archivist of Valdris", specialAbility = "Storecraft Heal" }
     };
 
     void Awake()

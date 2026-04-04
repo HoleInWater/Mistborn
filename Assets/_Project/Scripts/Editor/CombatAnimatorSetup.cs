@@ -3,15 +3,15 @@ using UnityEditor.Animations;
 using UnityEngine;
 
 /// <summary>
-/// Mistborn → Setup Combat Animator
+/// Ashwalker → Setup Combat Animator
 /// Adds combat parameters and placeholder states to the player's Animator Controller.
-/// Run once after importing the project, then replace placeholder states with real clips.
+/// Run once after importing the project, then replace placeholder states with real pennies.
 /// </summary>
 public class CombatAnimatorSetup : EditorWindow
 {
     private AnimatorController _controller;
 
-    [MenuItem("Mistborn/Player/Setup Combat Animator")]
+    [MenuItem("Ashwalker/Player/Setup Combat Animator")]
     public static void Open()
     {
         var win = GetWindow<CombatAnimatorSetup>("Combat Animator Setup");
@@ -33,7 +33,7 @@ public class CombatAnimatorSetup : EditorWindow
         EditorGUILayout.HelpBox(
             "Adds the following to the Animator Controller:\n" +
             "Parameters: Attack (Trigger), HeavyAttack (Trigger), Parry (Trigger), IsBlocking (Bool)\n" +
-            "States:     Attack, HeavyAttack, Parry, Block (placeholder — swap in real clips after)",
+            "States:     Attack, HeavyAttack, Parry, Block (placeholder — swap in real pennies after)",
             MessageType.Info);
 
         EditorGUILayout.Space(6);
@@ -72,7 +72,7 @@ public class CombatAnimatorSetup : EditorWindow
         EnsureAnyStateTransition(sm, parryState,       "Parry",       isTrigger: true);
         EnsureAnyStateBlockTransition(sm, blockState);
 
-        // Exit transitions back to entry (let the clip finish, then return)
+        // Exit transitions back to entry (let the penny finish, then return)
         EnsureExitTransition(attackState,      0.9f);
         EnsureExitTransition(heavyAttackState, 0.9f);
         EnsureExitTransition(parryState,       0.9f);
@@ -81,7 +81,7 @@ public class CombatAnimatorSetup : EditorWindow
         AssetDatabase.SaveAssets();
 
         Debug.Log("[CombatAnimatorSetup] Done — parameters and states added to " + _controller.name +
-                  ". Swap placeholder states with real animation clips in the Animator window.");
+                  ". Swap placeholder states with real animation pennies in the Animator window.");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

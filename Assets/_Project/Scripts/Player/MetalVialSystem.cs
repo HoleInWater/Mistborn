@@ -2,19 +2,19 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Metal vial system — Mistborn carry vials of dissolved metals to replenish reserves.
+/// Metal vial system — Ashwalker carry vials of dissolved metals to replenish reserves.
 /// Lore: Each vial contains specific metal flakes suspended in alcohol.
 /// Drinking a vial restores that metal's reserve. Metal purity matters — impure metals
 /// cause illness (detected by Tin-enhanced taste).
 /// </summary>
-[PlayerComponent("Allomancy Support", order: 40)]
+[PlayerComponent("Metallurgy Support", order: 40)]
 public class MetalVialSystem : MonoBehaviour
 {
     [System.Serializable]
     public class MetalVial
     {
         public string vialId;
-        public AllomancySkill.MetalType metalType;
+        public MetallurgySkill.MetalType metalType;
         public float metalAmount = 50f;
         public float purity = 1f; // 0-1, impure metals cause damage
         public int quantity = 1;
@@ -31,7 +31,7 @@ public class MetalVialSystem : MonoBehaviour
     public KeyCode drinkKey = KeyCode.X;
 
     [Header("References")]
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
 
     private bool isDrinking = false;
@@ -39,7 +39,7 @@ public class MetalVialSystem : MonoBehaviour
 
     void Start()
     {
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (animator == null) animator = GetComponent<Animator>();
 
         // Start with a basic vial set
@@ -57,21 +57,21 @@ public class MetalVialSystem : MonoBehaviour
         }
 
         // Drink vial for current metal
-        if (Input.GetKeyDown(drinkKey) && allomancer != null)
+        if (Input.GetKeyDown(drinkKey) && metallurgist != null)
         {
-            DrinkVialForMetal(allomancer.GetCurrentMetal());
+            DrinkVialForMetal(metallurgist.GetCurrentMetal());
         }
     }
 
     void PopulateStarterVials()
     {
-        AddVial(AllomancySkill.MetalType.Steel, 80f, 1f, 3);
-        AddVial(AllomancySkill.MetalType.Iron, 80f, 1f, 3);
-        AddVial(AllomancySkill.MetalType.Pewter, 80f, 1f, 2);
-        AddVial(AllomancySkill.MetalType.Tin, 60f, 1f, 2);
+        AddVial(MetallurgySkill.MetalType.Steel, 80f, 1f, 3);
+        AddVial(MetallurgySkill.MetalType.Iron, 80f, 1f, 3);
+        AddVial(MetallurgySkill.MetalType.Pewter, 80f, 1f, 2);
+        AddVial(MetallurgySkill.MetalType.Tin, 60f, 1f, 2);
     }
 
-    public void AddVial(AllomancySkill.MetalType metal, float amount, float purity, int qty = 1)
+    public void AddVial(MetallurgySkill.MetalType metal, float amount, float purity, int qty = 1)
     {
         MetalVial existing = vials.Find(v => v.metalType == metal && Mathf.Abs(v.purity - purity) < 0.01f);
         if (existing != null)
@@ -92,7 +92,7 @@ public class MetalVialSystem : MonoBehaviour
         });
     }
 
-    public bool DrinkVialForMetal(AllomancySkill.MetalType metal)
+    public bool DrinkVialForMetal(MetallurgySkill.MetalType metal)
     {
         MetalVial vial = vials.Find(v => v.metalType == metal && v.quantity > 0);
         if (vial == null)
@@ -113,8 +113,8 @@ public class MetalVialSystem : MonoBehaviour
         vial.quantity--;
 
         // Replenish metal reserve
-        if (allomancer != null)
-            allomancer.RefillMetal(vial.metalType, vial.metalAmount);
+        if (metallurgist != null)
+            metallurgist.RefillMetal(vial.metalType, vial.metalAmount);
 
         // Check purity — impure metals cause damage
         if (vial.purity < impurityThreshold)
@@ -151,15 +151,15 @@ public class MetalVialSystem : MonoBehaviour
         List<MetalVial> toDrink = new List<MetalVial>(vials);
         foreach (var vial in toDrink)
         {
-            if (allomancer != null)
-                allomancer.RefillMetal(vial.metalType, vial.metalAmount * vial.quantity);
+            if (metallurgist != null)
+                metallurgist.RefillMetal(vial.metalType, vial.metalAmount * vial.quantity);
             vial.quantity = 0;
         }
         vials.RemoveAll(v => v.quantity <= 0);
         NotificationSystem.Instance?.ShowNotification("Drank all metal vials!");
     }
 
-    public int GetVialCount(AllomancySkill.MetalType metal)
+    public int GetVialCount(MetallurgySkill.MetalType metal)
     {
         MetalVial vial = vials.Find(v => v.metalType == metal);
         return vial != null ? vial.quantity : 0;
@@ -172,7 +172,7 @@ public class MetalVialSystem : MonoBehaviour
         return total;
     }
 
-    public bool HasVial(AllomancySkill.MetalType metal)
+    public bool HasVial(MetallurgySkill.MetalType metal)
     {
         return vials.Exists(v => v.metalType == metal && v.quantity > 0);
     }

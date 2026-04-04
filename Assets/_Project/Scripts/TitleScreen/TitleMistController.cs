@@ -1,9 +1,9 @@
 /* TitleMistController.cs
  *
- * Makes the mists BEHAVE like Preservation's mists from the books:
+ * Makes the mists BEHAVE like The Warden's mists from the books:
  * - They roll in waves, not static clouds
  * - They curl around objects (attracted to metal)
- * - They pulse with a faint inner rhythm (Preservation's heartbeat)
+ * - They pulse with a faint inner rhythm (The Warden's heartbeat)
  * - They react to the camera (part slightly as you move through them)
  * - They thicken over time during the intro (mists are "coming in")
  *
@@ -24,7 +24,7 @@ public class TitleMistController : MonoBehaviour
     [Tooltip("Final emission multiplier (thick at peak)")]
     public float peakDensity = 1.5f;
 
-    [Header("Pulse (Preservation's Heartbeat)")]
+    [Header("Pulse (The Warden's Heartbeat)")]
     [Tooltip("Mists pulse in opacity — frequency in Hz")]
     public float pulseFrequency = 0.15f;
     [Tooltip("How much the opacity varies with each pulse")]
@@ -72,7 +72,7 @@ public class TitleMistController : MonoBehaviour
         // Smooth ease-in — mists creep in slowly then fill quickly
         float densityMult = Mathf.Lerp(startDensity, peakDensity, rollT * rollT);
 
-        // ── Preservation's pulse — subtle opacity rhythm ─────────────────
+        // ── The Warden's pulse — subtle opacity rhythm ─────────────────
         float pulse = 1f + Mathf.Sin(timer * pulseFrequency * Mathf.PI * 2f) * pulseAmplitude;
         densityMult *= pulse;
 

@@ -1,11 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// Fixes Allomancy serialized values after all Awake() calls finish.
+/// Fixes Metallurgy serialized values after all Awake() calls finish.
 /// Unity caches old Inspector values — this forces the correct ones.
-/// Must run in Start() so Allomancer.Awake() has already run
-/// EnsureAllomancyComponents() and added SteelPush/IronPull/etc.
-/// Add to Player GameObject. Only touches Allomancy components.
+/// Must run in Start() so Metallurgist.Awake() has already run
+/// EnsureMetallurgyComponents() and added SteelPush/IronPull/etc.
+/// Add to Player GameObject. Only touches Metallurgy components.
 /// </summary>
 [PlayerComponent("Core", order: 10)]
 public class PlayerAutoSetup : MonoBehaviour
@@ -39,7 +39,7 @@ public class PlayerAutoSetup : MonoBehaviour
             pull.metalCostPerSecond     = 2f;
         }
 
-        // Metal Line Renderer (Allomantic Sight)
+        // Metal Line Renderer (Metallurgic Sight)
         MetalLineRenderer mlr = GetComponentInChildren<MetalLineRenderer>();
         if (mlr != null)
         {

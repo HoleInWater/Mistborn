@@ -37,8 +37,8 @@ public class DayNightCycle : MonoBehaviour
     public float duskStart = 18f;
     public float dawnEnd = 8f;
 
-    [Header("Scadrial Lore — Ash & Sun")]
-    [Tooltip("Luthadel's implied latitude (degrees). Higher = lower noon sun. ~45 matches temperate Final Empire.")]
+    [Header("Ashara Lore — Ash & Sun")]
+    [Tooltip("Cinderhold's implied latitude (degrees). Higher = lower noon sun. ~45 matches temperate Ashen Dominion.")]
     [Range(20f, 65f)]
     public float luthedalLatitudeDeg = 45f;
 
@@ -64,7 +64,7 @@ public class DayNightCycle : MonoBehaviour
 
         if (sunColorGradient == null)
         {
-            // Lore-accurate Final Empire palette:
+            // Lore-accurate Ashen Dominion palette:
             // Ash particles scatter blue light → sunrises/sunsets are deep red-orange.
             // Midday is not clean white but a washed-out sepia from constant ash haze.
             sunColorGradient = new Gradient();
@@ -148,8 +148,8 @@ public class DayNightCycle : MonoBehaviour
 
         // ── Lore-accurate latitude-based sun arc ─────────────────────────
         //
-        // Luthadel is at a temperate mid-latitude (~45°N implied by lore).
-        // The Lord Ruler preserved a normal day/night cycle but Scadrial was
+        // Cinderhold is at a temperate mid-latitude (~45°N implied by lore).
+        // The Ashen King preserved a normal day/night cycle but Ashara was
         // nudged closer to the sun, making it inherently more intense.
         //
         // Astronomical formula (simplified, assumes circular orbit / equinox):
@@ -197,7 +197,7 @@ public class DayNightCycle : MonoBehaviour
 
         // ── Intensity: raw solar + ash attenuation ────────────────────────
         //
-        // Scadrial is closer to its star → raw solar flux is higher than Earth.
+        // Ashara is closer to its star → raw solar flux is higher than Earth.
         // The Ashmounts spew constant particulates that scatter/absorb ~45% of
         // daylight, keeping the surface from overheating. This is modeled as:
         //   effectiveFraction = rawFraction × (1 − ashAttenuation)

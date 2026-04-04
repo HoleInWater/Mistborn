@@ -1,4 +1,4 @@
-# Mistborn Era One — Progress Report
+# Ashwalker Era One — Progress Report
 **Date:** March 20, 2026  
 **Team:** HoleInWater, Tanning, Garrett, Adam
 
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-We've established the **complete design foundation** for a Mistborn Era One Unity game featuring Allomancy mechanics. All documentation is done, project structure is set up, and we're ready to implement.
+We've established the **complete design foundation** for a Ashwalker Era One Unity game featuring Metallurgy mechanics. All documentation is done, project structure is set up, and we're ready to implement.
 
 ---
 
@@ -17,7 +17,7 @@ We've established the **complete design foundation** for a Mistborn Era One Unit
   - All 16 metals with physics specs
   - Combat system design
   - Enemy AI designs (5 types)
-  - Environment/lore (Luthadel, The Final Empire setting)
+  - Environment/lore (Cinderhold, The Ashen Dominion setting)
   - Story outline
   - Player controls and HUD
   - Team workflow guides
@@ -29,14 +29,14 @@ We've established the **complete design foundation** for a Mistborn Era One Unit
 - GitHub workflow documented
 
 ### ✅ Era 1 Lore Verification
-- All content verified against Mistborn Era 1 books
+- All content verified against Ashwalker Era 1 books
 - Era 2 references removed (Wax, Wayne, etc.)
 
 ---
 
 ## What's Ready to Build
 
-### Allomancy System
+### Metallurgy System
 All 16 metals documented with:
 - Physics calculations for push/pull force
 - Range formulas (inverse square with cutoff)
@@ -48,14 +48,14 @@ All 16 metals documented with:
 - WASD + sprint + jump
 - Third-person camera
 - Steel Push (RMB) / Iron Pull (LMB)
-- Allomantic Sight (Tab)
+- Metallurgic Sight (Tab)
 
 ### 5 Enemy Types Designed
-1. **Skaa Soldier** — Basic patrol
+1. **Lowborn Soldier** — Basic patrol
 2. **Noble Guard** — Armored, shield block
-3. **Steel Inquisitor** — Boss with 3 phases
-4. **Koloss** — Hemalurgic brute
-5. **Kandra** — Shapeshifter
+3. **Iron Sentinel** — Boss with 3 phases
+4. **Bloodbrute** — Bloodforged brute
+5. **Fleshkin** — Shapeshifter
 
 ---
 
@@ -73,7 +73,7 @@ All 16 metals documented with:
 
 ## Repository
 
-**GitHub:** https://github.com/HoleInWater/Mistborn
+**GitHub:** https://github.com/HoleInWater/Ashwalker
 
 ---
 
@@ -81,9 +81,9 @@ All 16 metals documented with:
 
 - `README.md` — Main overview
 - `docs/onboarding.md` — How to get started
-- `docs/allomancy-design.md` — How Allomancy works
+- `docs/metallurgy-design.md` — How Metallurgy works
 - `docs/magic-qa-reference.md` — All 16 metals
-- `docs/mistborn-era-one-lore.md` — Full lore reference
+- `docs/ashwalker-era-one-lore.md` — Full lore reference
 - `docs/TODO.md` — Master checklist
 
 ---
@@ -95,7 +95,7 @@ All 16 metals documented with:
 | HoleInWater | DevOps, Documentation |
 | Tanning | Unity setup, VS Code integration |
 | Garrett | UI (MetalHUD, Controls) |
-| Adam | Map development (Scadrial) |
+| Adam | Map development (Ashara) |
 
 ---
 

@@ -13,7 +13,7 @@ using UnityEngine;
 ///   T           = Metal Sight toggle
 ///   B           = Burn toggle
 ///   Tab         = Metal Wheel / Swap metals
-///   H           = Feruchemy mode toggle
+///   H           = Storecraft mode toggle
 ///   Left Ctrl   = Crouch / Toggle flare
 ///   Left Shift  = Sprint
 ///   Left Alt    = Dodge Roll
@@ -37,7 +37,7 @@ public static class Keybinds
     public static KeyCode Crouch = KeyCode.LeftControl;
     public static KeyCode DodgeRoll = KeyCode.LeftAlt;
 
-    // Allomancy (original from handoff)
+    // Metallurgy (original from handoff)
     public static KeyCode SteelPush = KeyCode.E;
     public static KeyCode IronPull  = KeyCode.Q;
 
@@ -60,11 +60,11 @@ public static class Keybinds
     public static KeyCode CoinTrail = KeyCode.Z;
     public static KeyCode CoinRecover = KeyCode.R;
 
-    // Feruchemy (all three are gated behind FeruchemyMode being active)
-    public static KeyCode FeruchemyMode = KeyCode.H;
-    public static KeyCode FeruchemyStore = KeyCode.Z;    // conflicts w/ CoinTrail when in feruchemy mode
-    public static KeyCode FeruchemyTap = KeyCode.X;      // conflicts w/ DrinkVial when in feruchemy mode
-    public static KeyCode FeruchemyStopAll = KeyCode.C;  // conflicts w/ CoinBounce when in feruchemy mode
+    // Storecraft (all three are gated behind StorecraftMode being active)
+    public static KeyCode StorecraftMode = KeyCode.H;
+    public static KeyCode StorecraftStore = KeyCode.Z;    // conflicts w/ CoinTrail when in storecraft mode
+    public static KeyCode StorecraftTap = KeyCode.X;      // conflicts w/ DrinkVial when in storecraft mode
+    public static KeyCode StorecraftStopAll = KeyCode.C;  // conflicts w/ CoinBounce when in storecraft mode
 
     // Combat (original)
     public static int LightAttack = 0;

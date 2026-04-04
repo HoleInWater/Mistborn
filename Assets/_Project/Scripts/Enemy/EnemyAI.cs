@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Core enemy AI controller with type-specific stats and behavior.
-/// Supports Guard, Coinshot, Lurcher, Thug, Smoker, Rioter, Seeker,
-/// Koloss, SteelInquisitor, NobleGuard, Mistwraith, Obligator, SkaaRebel.
+/// Supports Guard, Launcher, Hauler, Thug, Smoker, Igniter, Seeker,
+/// Bloodbrute, IronSentinel, NobleGuard, Mistwraith, Prelate, LowbornRebel.
 ///
-/// Requires AIController so enemies auto-register with MistbornRegistry —
+/// Requires AIController so enemies auto-register with AshwalkerRegistry —
 /// letting Tin heartbeat / vibration and Bronze Seeker detection find them.
 /// AIController defers its own state machine when EnemyAI is present.
 /// </summary>
@@ -19,8 +19,8 @@ public class EnemyAI : MonoBehaviour
     public EnemyType enemyType = EnemyType.Guard;
     public enum EnemyType
     {
-        Guard, Coinshot, Seeker, Koloss, SteelInquisitor, NobleGuard,
-        Mistwraith, Thug, Smoker, Rioter, Obligator, SkaaRebel, Lurcher
+        Guard, Launcher, Seeker, Bloodbrute, IronSentinel, NobleGuard,
+        Mistwraith, Thug, Smoker, Igniter, Prelate, LowbornRebel, Hauler
     }
 
     [Header("Stats")]
@@ -34,8 +34,8 @@ public class EnemyAI : MonoBehaviour
     public float patrolRadius = 12f;  // ~30 ft
 
     [Header("Combat")]
-    public bool canUseAllomancy = false;
-    public AllomancySkill.MetalType[] availableMetals;
+    public bool canUseMetallurgy = false;
+    public MetallurgySkill.MetalType[] availableMetals;
     public float attackCooldown = 2f;
     public bool useMeleeAttacks = true;
     public bool useRangedAttacks = false;
@@ -129,7 +129,7 @@ public class EnemyAI : MonoBehaviour
             navAgent.stoppingDistance = Mathf.Max(0.1f, attackRange - 0.5f);
         }
 
-        if (autoPatrol && enemyType != EnemyType.Koloss)
+        if (autoPatrol && enemyType != EnemyType.Bloodbrute)
             currentState = State.Patrol;
 
         // Equip weapon — override stats and attach visual to hand
@@ -176,7 +176,7 @@ public class EnemyAI : MonoBehaviour
                         Physics.IgnoreCollision(col, ec, true);
                 }
 
-                // Kinematic Rigidbody — follows animation but can be detected by Allomancy.
+                // Kinematic Rigidbody — follows animation but can be detected by Metallurgy.
                 // Discrete mode: ContinuousSpeculative jitters kinematic bodies in animated rigs.
                 foreach (var rb in wObj.GetComponentsInChildren<Rigidbody>(true))
                 {
@@ -190,10 +190,10 @@ public class EnemyAI : MonoBehaviour
                     rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
 
-                // Default layer so Steel/Iron Allomancy raycasts can find metal weapons
+                // Default layer so Steel/Iron Metallurgy raycasts can find metal weapons
                 SetLayerRecursive(wObj, 0);
 
-                // Mark this as a held enemy weapon so Allomancy can disarm the holder
+                // Mark this as a held enemy weapon so Metallurgy can disarm the holder
                 var marker = wObj.AddComponent<HeldWeaponMarker>();
                 marker.owner = this;
             }
@@ -225,66 +225,66 @@ public class EnemyAI : MonoBehaviour
                 health = 120f; moveSpeed = 1.6f; runSpeed = 2.8f; attackDamage = 30f;
                 detectionRange = 9.6f; attackRange = 1.2f; // 24ft detect
                 break;
-            case EnemyType.Coinshot: // Steel Misting — ranged
+            case EnemyType.Launcher: // Steel Sparkblood — ranged
                 health = 60f; moveSpeed = 2f; runSpeed = 3.2f; attackDamage = 15f;
                 detectionRange = 16f; attackRange = 12f; // 40ft detect, 30ft push range
-                canUseAllomancy = true; useRangedAttacks = true;
-                availableMetals = new[] { AllomancySkill.MetalType.Steel };
+                canUseMetallurgy = true; useRangedAttacks = true;
+                availableMetals = new[] { MetallurgySkill.MetalType.Steel };
                 break;
-            case EnemyType.Lurcher: // Iron Misting — ranged pull
+            case EnemyType.Hauler: // Iron Sparkblood — ranged pull
                 health = 70f; moveSpeed = 1.6f; runSpeed = 2.4f; attackDamage = 20f;
                 detectionRange = 12f; attackRange = 8f; // 30ft detect, 20ft pull
-                canUseAllomancy = true; useRangedAttacks = true;
-                availableMetals = new[] { AllomancySkill.MetalType.Iron };
+                canUseMetallurgy = true; useRangedAttacks = true;
+                availableMetals = new[] { MetallurgySkill.MetalType.Iron };
                 break;
-            case EnemyType.Thug: // Pewter Misting — tank
+            case EnemyType.Thug: // Pewter Sparkblood — tank
                 health = 200f; moveSpeed = 2f; runSpeed = 3.6f; attackDamage = 45f;
                 detectionRange = 6.4f; attackRange = 1.6f; // 16ft detect, 4ft melee
-                canUseAllomancy = true; useFlanking = false; canFlee = false;
-                availableMetals = new[] { AllomancySkill.MetalType.Pewter };
+                canUseMetallurgy = true; useFlanking = false; canFlee = false;
+                availableMetals = new[] { MetallurgySkill.MetalType.Pewter };
                 break;
-            case EnemyType.Smoker: // Copper Misting — hider
+            case EnemyType.Smoker: // Copper Sparkblood — hider
                 health = 50f; moveSpeed = 1.2f; runSpeed = 2f; attackDamage = 10f;
                 detectionRange = 4f; attackRange = 1f; // 10ft detect
-                canUseAllomancy = true;
-                availableMetals = new[] { AllomancySkill.MetalType.Copper };
+                canUseMetallurgy = true;
+                availableMetals = new[] { MetallurgySkill.MetalType.Copper };
                 break;
-            case EnemyType.Rioter: // Zinc Misting — emotional
+            case EnemyType.Igniter: // Zinc Sparkblood — emotional
                 health = 55f; moveSpeed = 1.4f; runSpeed = 2.2f; attackDamage = 12f;
                 detectionRange = 12f; attackRange = 8f; // 30ft detect, 20ft riot range
-                canUseAllomancy = true; useRangedAttacks = true;
-                availableMetals = new[] { AllomancySkill.MetalType.Zinc };
+                canUseMetallurgy = true; useRangedAttacks = true;
+                availableMetals = new[] { MetallurgySkill.MetalType.Zinc };
                 break;
-            case EnemyType.Seeker: // Bronze Misting — detector
+            case EnemyType.Seeker: // Bronze Sparkblood — detector
                 health = 50f; moveSpeed = 1.2f; runSpeed = 2f; attackDamage = 10f;
                 detectionRange = 80f; attackRange = 1f; // 200ft seek range!
-                canUseAllomancy = true;
-                availableMetals = new[] { AllomancySkill.MetalType.Bronze };
+                canUseMetallurgy = true;
+                availableMetals = new[] { MetallurgySkill.MetalType.Bronze };
                 break;
-            case EnemyType.Koloss: // 12ft tall brute
+            case EnemyType.Bloodbrute: // 12ft tall brute
                 health = 500f; moveSpeed = 1f; runSpeed = 2.8f; attackDamage = 80f;
                 detectionRange = 12f; attackRange = 2.4f; // 30ft detect, 6ft reach
                 autoPatrol = false; useFlanking = false; canFlee = false;
                 break;
-            case EnemyType.SteelInquisitor: // All metals, Hemalurgic spikes
+            case EnemyType.IronSentinel: // All metals, Bloodforged spikes
                 health = 800f; moveSpeed = 2.8f; runSpeed = 4.8f; attackDamage = 60f;
                 detectionRange = 20f; attackRange = 1.6f; attackCooldown = 0.8f; // 50ft detect
-                canUseAllomancy = true; useFlanking = true; canFlee = false;
+                canUseMetallurgy = true; useFlanking = true; canFlee = false;
                 availableMetals = new[] {
-                    AllomancySkill.MetalType.Steel, AllomancySkill.MetalType.Iron,
-                    AllomancySkill.MetalType.Pewter, AllomancySkill.MetalType.Tin,
-                    AllomancySkill.MetalType.Atium
+                    MetallurgySkill.MetalType.Steel, MetallurgySkill.MetalType.Iron,
+                    MetallurgySkill.MetalType.Pewter, MetallurgySkill.MetalType.Tin,
+                    MetallurgySkill.MetalType.Oraculum
                 };
                 break;
             case EnemyType.Mistwraith: // Shapeless bone creature
                 health = 150f; moveSpeed = 0.8f; runSpeed = 1.6f; attackDamage = 35f;
                 detectionRange = 4f; attackRange = 1.6f; useFlanking = false; canFlee = false; // 10ft detect
                 break;
-            case EnemyType.Obligator: // Bureaucrat, doesn't fight
+            case EnemyType.Prelate: // Bureaucrat, doesn't fight
                 health = 40f; moveSpeed = 1f; runSpeed = 1.6f; attackDamage = 5f;
                 detectionRange = 12f; attackRange = 1f; useMeleeAttacks = false; // 30ft detect
                 break;
-            case EnemyType.SkaaRebel: // Rebellion fighter, ally-ish
+            case EnemyType.LowbornRebel: // Rebellion fighter, ally-ish
                 health = 60f; moveSpeed = 1.6f; runSpeed = 2.6f; attackDamage = 15f;
                 detectionRange = 6.4f; attackRange = 1f; useFlanking = true; // 16ft detect
                 break;
@@ -496,7 +496,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // ── Emotion modifiers (Zinc / Brass / Atium Allomancy affects behaviour) ──
+    // ── Emotion modifiers (Zinc / Brass / Oraculum Metallurgy affects behaviour) ──
 
     void ApplyEmotionModifiers()
     {
@@ -525,7 +525,7 @@ public class EnemyAI : MonoBehaviour
         if (hasAlertedGroup) return;
         hasAlertedGroup = true;
 
-        foreach (var ally in MistbornRegistry.ActiveEnemies)
+        foreach (var ally in AshwalkerRegistry.ActiveEnemies)
         {
             if (ally == null || ally.gameObject == gameObject) continue;
             float dist = Vector3.Distance(transform.position, ally.transform.position);
@@ -597,21 +597,21 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        if (canUseAllomancy && availableMetals != null && availableMetals.Length > 0)
-            UseAllomanticAttack();
+        if (canUseMetallurgy && availableMetals != null && availableMetals.Length > 0)
+            UseMetallurgicAttack();
     }
 
-    void UseAllomanticAttack()
+    void UseMetallurgicAttack()
     {
         if (target == null) return;
         if (availableMetals == null || availableMetals.Length == 0) return;
-        AllomancySkill.MetalType metal = availableMetals[Random.Range(0, availableMetals.Length)];
+        MetallurgySkill.MetalType metal = availableMetals[Random.Range(0, availableMetals.Length)];
         Vector3 dir = (target.position - transform.position).normalized;
         float dist = Vector3.Distance(transform.position, target.position);
 
         switch (metal)
         {
-            case AllomancySkill.MetalType.Steel:
+            case MetallurgySkill.MetalType.Steel:
                 Rigidbody targetRb = target.GetComponent<Rigidbody>();
                 if (targetRb != null)
                 {
@@ -620,7 +620,7 @@ public class EnemyAI : MonoBehaviour
                     targetRb.AddForce(dir * 80f / steelResist, ForceMode.Impulse);
                 }
                 break;
-            case AllomancySkill.MetalType.Iron:
+            case MetallurgySkill.MetalType.Iron:
                 Rigidbody playerRb = target.GetComponent<Rigidbody>();
                 if (playerRb != null)
                 {
@@ -629,7 +629,7 @@ public class EnemyAI : MonoBehaviour
                     playerRb.AddForce(-dir * 50f / ironResist, ForceMode.Impulse);
                 }
                 break;
-            case AllomancySkill.MetalType.Zinc:
+            case MetallurgySkill.MetalType.Zinc:
                 if (dist < 15f)
                 {
                     BasicPlayerMove pm = target.GetComponent<BasicPlayerMove>();
@@ -693,8 +693,8 @@ public class EnemyAI : MonoBehaviour
 
         // Track achievements
         EventManager.TriggerEvent("EnemyKilled");
-        if (enemyType == EnemyType.Koloss)
-            AchievementSystem.Instance?.TryUnlock("kill_koloss_10");
+        if (enemyType == EnemyType.Bloodbrute)
+            AchievementSystem.Instance?.TryUnlock("kill_bloodbrute_10");
 
         // Particle effect
         ParticleEffectsManager.Instance?.PlayDeathEffect(transform.position);
@@ -736,7 +736,7 @@ public class EnemyAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Rips the weapon from this enemy's hand via Allomancy (Steel Push / Iron Pull).
+    /// Rips the weapon from this enemy's hand via Metallurgy (Steel Push / Iron Pull).
     /// The weapon flies free and becomes a pickup.
     /// </summary>
     public void DisarmWeapon()
@@ -769,7 +769,7 @@ public class EnemyAI : MonoBehaviour
         attackRange   = 0.8f;
 
         NotificationSystem.Instance?.ShowNotification("Enemy disarmed!");
-        Debug.Log($"[EnemyAI] {name} was disarmed by Allomancy.");
+        Debug.Log($"[EnemyAI] {name} was disarmed by Metallurgy.");
     }
 
     IEnumerator DeathSequence()
@@ -829,11 +829,11 @@ public class EnemyAI : MonoBehaviour
         {
             case EnemyType.Guard: return 25f;
             case EnemyType.NobleGuard: return 40f;
-            case EnemyType.Coinshot: return 50f;
-            case EnemyType.Lurcher: return 45f;
+            case EnemyType.Launcher: return 50f;
+            case EnemyType.Hauler: return 45f;
             case EnemyType.Thug: return 60f;
-            case EnemyType.Koloss: return 100f;
-            case EnemyType.SteelInquisitor: return 500f;
+            case EnemyType.Bloodbrute: return 100f;
+            case EnemyType.IronSentinel: return 500f;
             case EnemyType.Mistwraith: return 35f;
             default: return 20f;
         }

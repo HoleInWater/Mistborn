@@ -51,7 +51,7 @@ public class StealthDetection : MonoBehaviour
             effectiveRadius *= playerCrouch.GetStealthMultiplier();
 
         // Copper burning hides from detection
-        if (CognitiveAllomancy.IsHiddenByCloud(player.position))
+        if (CognitiveMetallurgy.IsHiddenByCloud(player.position))
             effectiveRadius *= 0.2f;
 
         bool canSee = false;

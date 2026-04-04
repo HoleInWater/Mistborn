@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Creates a lightweight visual ghost of a target's mesh.
-/// Used for Atium Shadows, Gold Shadows, and Electrum Shadows.
+/// Used for Oraculum Shadows, Gold Shadows, and Electrum Shadows.
 /// </summary>
 public class GhostRenderer : MonoBehaviour
 {

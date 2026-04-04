@@ -25,7 +25,7 @@ public class MainMenuController : MonoBehaviour
     public Button quitButton;
 
     [Header("Scene Names")]
-    public string gameplayScene = "Luthadel";
+    public string gameplayScene = "Cinderhold";
 
     [Header("Background")]
     public ParticleSystem mistBackground;

@@ -16034,7 +16034,7 @@ public static class GrandUnifiedResonanceMatrix
         1.2914f,
         1.3179f,
     };
-    public static readonly float[] AtiumResonance = {
+    public static readonly float[] OraculumResonance = {
         1.6250f,
         1.5266f,
         1.4553f,
@@ -17036,7 +17036,7 @@ public static class GrandUnifiedResonanceMatrix
         0.6709f,
         1.9808f,
     };
-    public static readonly float[] MalatiumResonance = {
+    public static readonly float[] RevelumResonance = {
         1.8934f,
         0.9142f,
         0.2159f,

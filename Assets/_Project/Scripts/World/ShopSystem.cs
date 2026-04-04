@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Shop system for purchasing metal vials, weapons, and supplies from skaa merchants.
-/// Uses boxing (currency) as the monetary system. Integrated with Inventory and MetalVialSystem.
+/// Shop system for purchasing metal vials, weapons, and supplies from lowborn merchants.
+/// Uses crown (currency) as the monetary system. Integrated with Inventory and MetalVialSystem.
 /// </summary>
 public class ShopSystem : MonoBehaviour
 {
@@ -16,7 +16,7 @@ public class ShopSystem : MonoBehaviour
         public ShopCategory category;
         public int price;
         public int stock;
-        public AllomancySkill.MetalType? metalType;
+        public MetallurgySkill.MetalType? metalType;
         public float metalPurity = 1f;
         public float metalAmount = 80f;
         [Tooltip("Assign a WeaponData asset for Weapons category items")]
@@ -26,7 +26,7 @@ public class ShopSystem : MonoBehaviour
     public enum ShopCategory { MetalVials, Weapons, Armor, Supplies, Special }
 
     [Header("Shop")]
-    public string shopName = "Skaa Black Market";
+    public string shopName = "Lowborn Black Market";
     public List<ShopItem> inventory = new List<ShopItem>();
 
     [Header("Player Currency")]
@@ -42,34 +42,34 @@ public class ShopSystem : MonoBehaviour
     void PopulateDefaultShop()
     {
         // Metal Vials
-        AddItem("vial_steel", "Steel Vial", "Pure steel flakes in alcohol. Essential for Coinshots.",
-            ShopCategory.MetalVials, 25, 10, AllomancySkill.MetalType.Steel, 1f, 80f);
-        AddItem("vial_iron", "Iron Vial", "Pure iron flakes. For Lurchers.",
-            ShopCategory.MetalVials, 25, 10, AllomancySkill.MetalType.Iron, 1f, 80f);
+        AddItem("vial_steel", "Steel Vial", "Pure steel flakes in alcohol. Essential for Launchers.",
+            ShopCategory.MetalVials, 25, 10, MetallurgySkill.MetalType.Steel, 1f, 80f);
+        AddItem("vial_iron", "Iron Vial", "Pure iron flakes. For Haulers.",
+            ShopCategory.MetalVials, 25, 10, MetallurgySkill.MetalType.Iron, 1f, 80f);
         AddItem("vial_pewter", "Pewter Vial", "Pewter alloy. Thugs' bread and butter.",
-            ShopCategory.MetalVials, 30, 8, AllomancySkill.MetalType.Pewter, 1f, 80f);
-        AddItem("vial_tin", "Tin Vial", "Pure tin. Tineyes love this stuff.",
-            ShopCategory.MetalVials, 20, 10, AllomancySkill.MetalType.Tin, 1f, 60f);
-        AddItem("vial_zinc", "Zinc Vial", "Zinc flakes for Rioters.",
-            ShopCategory.MetalVials, 35, 5, AllomancySkill.MetalType.Zinc, 1f, 50f);
-        AddItem("vial_brass", "Brass Vial", "Brass alloy for Soothers.",
-            ShopCategory.MetalVials, 35, 5, AllomancySkill.MetalType.Brass, 1f, 50f);
-        AddItem("vial_atium", "Atium Bead", "Extremely rare god metal. See the future.",
-            ShopCategory.Special, 500, 1, AllomancySkill.MetalType.Atium, 1f, 30f);
+            ShopCategory.MetalVials, 30, 8, MetallurgySkill.MetalType.Pewter, 1f, 80f);
+        AddItem("vial_tin", "Tin Vial", "Pure tin. Keensenses love this stuff.",
+            ShopCategory.MetalVials, 20, 10, MetallurgySkill.MetalType.Tin, 1f, 60f);
+        AddItem("vial_zinc", "Zinc Vial", "Zinc flakes for Igniters.",
+            ShopCategory.MetalVials, 35, 5, MetallurgySkill.MetalType.Zinc, 1f, 50f);
+        AddItem("vial_brass", "Brass Vial", "Brass alloy for Quellers.",
+            ShopCategory.MetalVials, 35, 5, MetallurgySkill.MetalType.Brass, 1f, 50f);
+        AddItem("vial_oraculum", "Oraculum Bead", "Extremely rare god metal. See the future.",
+            ShopCategory.Special, 500, 1, MetallurgySkill.MetalType.Oraculum, 1f, 30f);
 
         // Impure (cheaper but dangerous)
         AddItem("vial_steel_impure", "Impure Steel Vial", "Cheap steel. Might make you sick.",
-            ShopCategory.MetalVials, 10, 20, AllomancySkill.MetalType.Steel, 0.6f, 60f);
+            ShopCategory.MetalVials, 10, 20, MetallurgySkill.MetalType.Steel, 0.6f, 60f);
 
         // Supplies
-        AddItem("coins_50", "Bag of Coins (50)", "Mistborn currency and ammunition.",
+        AddItem("coins_50", "Bag of Coins (50)", "Ashwalker currency and ammunition.",
             ShopCategory.Supplies, 40, 5);
         AddItem("health_potion", "Healing Salve", "Restores 50 health.",
             ShopCategory.Supplies, 30, 10);
     }
 
     void AddItem(string id, string name, string desc, ShopCategory cat, int price, int stock,
-        AllomancySkill.MetalType? metal = null, float purity = 1f, float amount = 0f)
+        MetallurgySkill.MetalType? metal = null, float purity = 1f, float amount = 0f)
     {
         inventory.Add(new ShopItem
         {
@@ -148,7 +148,7 @@ public class ShopSystem : MonoBehaviour
     public void AddBoxings(int amount)
     {
         playerBoxings += amount;
-        NotificationSystem.Instance?.ShowNotification($"+{amount} boxings");
+        NotificationSystem.Instance?.ShowNotification($"+{amount} crowns");
     }
 
     public int GetBoxings() => playerBoxings;

@@ -1,12 +1,12 @@
 # Level Design — The广场 (The Square)
 
-*The central plaza of Luthadel. Great for tutorial and early game.*
+*The central plaza of Cinderhold. Great for tutorial and early game.*
 
 ---
 
 ## Overview
 
-The Square is the heart of Luthadel. It's a large open plaza where citizens gather, nobles parade, and the Steel Ministry holds ceremonies. For gameplay, it's perfect for learning Allomancy and early combat.
+The Square is the heart of Cinderhold. It's a large open plaza where citizens gather, nobles parade, and the Iron Clergy holds ceremonies. For gameplay, it's perfect for learning Metallurgy and early combat.
 
 ---
 
@@ -38,8 +38,8 @@ The Square is the heart of Luthadel. It's a large open plaza where citizens gath
 ## Key Features
 
 ### The Statue (Center)
-- Large metal statue of the Lord Ruler
-- Acts as a major Allomantic anchor
+- Large metal statue of the Ashen King
+- Acts as a major Metallurgic anchor
 - **Gameplay:** Players can fly by pushing off it
 
 ### Metal Towers (Edges)
@@ -60,7 +60,7 @@ The Square is the heart of Luthadel. It's a large open plaza where citizens gath
 
 ---
 
-## Allomantic Opportunities
+## Metallurgic Opportunities
 
 ### Traversal
 | Anchor | Height | Use |
@@ -85,17 +85,17 @@ The Square is the heart of Luthadel. It's a large open plaza where citizens gath
 ## Enemy Placement
 
 ### Tutorial Phase
-- 2-3 Skaa Guards (patrol)
+- 2-3 Lowborn Guards (patrol)
 - Stationary (no threat, just atmosphere)
 
 ### Combat Phase
 - 4-6 Noble Guards
-- 1 Coinshot (rare, uses push)
+- 1 Launcher (rare, uses push)
 - Patrol routes that overlap
 
 ### Challenge Phase
-- Mix of Guards + Coinshot
-- Inquisitor patrol (rare)
+- Mix of Guards + Launcher
+- Sentinel patrol (rare)
 
 ---
 
@@ -121,7 +121,7 @@ Start → Climb → Rooftop → Jump to plaza
 ```
 Start → Drop coin → Push off ground → Fly to statue → Push to target
 ```
-- Allomancer route
+- Metallurgist route
 - Shows off abilities
 - Requires metal reserves
 
@@ -157,10 +157,10 @@ Start → Drop coin → Push off ground → Fly to statue → Push to target
 
 | Difficulty | Enemies | Types |
 |------------|---------|-------|
-| Easy | 3 | Skaa only |
-| Normal | 5 | Mix Skaa + Noble |
-| Hard | 8 | All types + Coinshot |
-| Nightmare | 10+ | All + Inquisitor |
+| Easy | 3 | Lowborn only |
+| Normal | 5 | Mix Lowborn + Noble |
+| Hard | 8 | All types + Launcher |
+| Nightmare | 10+ | All + Sentinel |
 
 ---
 

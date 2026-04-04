@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Marks an object as a source of sensory input for Allomancers burning Tin.
+/// Marks an object as a source of sensory input for Metallurgists burning Tin.
 /// Used to trigger sensory overload.
 /// </summary>
 public class SensorySource : MonoBehaviour
@@ -24,7 +24,7 @@ public class SensorySource : MonoBehaviour
     [Range(0f, 1f)]
     public float intensity = 0.5f;
 
-    [Tooltip("Maximum distance at which this source affects an Allomancer")]
+    [Tooltip("Maximum distance at which this source affects an Metallurgist")]
     public float radius = 10f;
 
     [Tooltip("How much the effect falls off over distance (1 = linear)")]

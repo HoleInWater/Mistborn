@@ -21,7 +21,7 @@
  * - Mouse sensitivity can be adjusted via SetMouseSensitivity()
  * 
  * LORE ACCURACY:
- * Standard third-person camera for Mistborn game. Not allomancy-specific.
+ * Standard third-person camera for Ashwalker game. Not metallurgy-specific.
  */
 
 using UnityEngine;

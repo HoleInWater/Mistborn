@@ -6,7 +6,7 @@
 
 ## Overview
 
-Metals are the ammunition for Allomancy. Managing them is key to survival. This document covers how metals are acquired, conserved, and upgraded.
+Metals are the ammunition for Metallurgy. Managing them is key to survival. This document covers how metals are acquired, conserved, and upgraded.
 
 ---
 
@@ -44,10 +44,10 @@ Defeating enemies may drop metal.
 
 | Enemy | Drop | Chance |
 |-------|------|--------|
-| Skaa Guard | 10-20 Steel | 50% |
+| Lowborn Guard | 10-20 Steel | 50% |
 | Noble Guard | 20-40 Steel | 75% |
-| Koloss | 50 Steel | 100% |
-| Inquisitor | 100 Steel + Iron | 100% |
+| Bloodbrute | 50 Steel | 100% |
+| Sentinel | 100 Steel + Iron | 100% |
 
 ---
 
@@ -71,9 +71,9 @@ Hidden throughout the world.
 
 | Cache Type | Contents | Rarity |
 |-----------|----------|--------|
-| Skaa Stash | 50 Steel | Common |
+| Lowborn Stash | 50 Steel | Common |
 | Noble Drop | 100 mixed | Uncommon |
-| Inquisitor Supply | 200 all | Rare |
+| Sentinel Supply | 200 all | Rare |
 
 ---
 
@@ -166,4 +166,4 @@ Once upgraded:
 
 1. Metal scarcity or abundance?
 2. Trading system between players?
-3. Special metals (Atium, etc.)?
+3. Special metals (Oraculum, etc.)?

@@ -35,7 +35,7 @@ public class PlayerCombat : MonoBehaviour
     [Tooltip("S = S_base × (1 + k × P), k = pewter efficiency")]
     public float pewterEfficiencyK = 2f;
 
-    [Header("Allomancy Combat")]
+    [Header("Metallurgy Combat")]
     public float coinDamage = 25f;
     public float steelPushKnockback = 30f;
 
@@ -45,7 +45,7 @@ public class PlayerCombat : MonoBehaviour
     public ParrySystem parrySystem;
     public PlayerAnimationController animCtrl;
     public EquipmentManager equipment;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
     public LayerMask enemyLayer;
 
@@ -59,7 +59,7 @@ public class PlayerCombat : MonoBehaviour
 
     void Start()
     {
-        if (allomancer == null)    allomancer   = GetComponent<Allomancer>();
+        if (metallurgist == null)    metallurgist   = GetComponent<Metallurgist>();
         if (animator == null)      animator     = GetComponent<Animator>();
         if (parrySystem == null)   parrySystem  = GetComponentInChildren<ParrySystem>();
         if (parrySystem == null)   parrySystem  = GetComponent<ParrySystem>();
@@ -204,18 +204,18 @@ public class PlayerCombat : MonoBehaviour
         if (comboSystem != null)
             damage *= comboSystem.DamageMultiplier;
 
-        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+        if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter))
         {
             float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
             float P = Mathf.Clamp01(flare / 2.5f);
-            float pewterMult = AllomancyPhysicsFormulas.CalculatePewterStrength(1f, pewterEfficiencyK, P);
+            float pewterMult = MetallurgyPhysicsFormulas.CalculatePewterStrength(1f, pewterEfficiencyK, P);
             damage *= pewterMult;
         }
 
-        if (AllomanticSkillTree.Instance != null)
+        if (MetallurgicSkillTree.Instance != null)
         {
-            float combatBonus = AllomanticSkillTree.Instance.GetSkillValue("Combat_Damage1")
-                              + AllomanticSkillTree.Instance.GetSkillValue("Combat_Damage2");
+            float combatBonus = MetallurgicSkillTree.Instance.GetSkillValue("Combat_Damage1")
+                              + MetallurgicSkillTree.Instance.GetSkillValue("Combat_Damage2");
             damage *= (1f + combatBonus);
         }
 

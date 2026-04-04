@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for audio operations
@@ -10,29 +10,29 @@ namespace MistbornGame.Utilities
         /// <summary>
         /// Plays a sound effect at a specific position
         /// </summary>
-        public static void PlaySoundAtPosition(AudioClip clip, Vector3 position, float volume = 1f)
+        public static void PlaySoundAtPosition(AudioClip penny, Vector3 position, float volume = 1f)
         {
-            if (clip == null) return;
-            AudioSource.PlayClipAtPoint(clip, position, volume);
+            if (penny == null) return;
+            AudioSource.PlayClipAtPoint(penny, position, volume);
         }
 
         /// <summary>
         /// Plays a sound effect with a given AudioSource
         /// </summary>
-        public static void PlaySound(AudioSource source, AudioClip clip, float volume = 1f)
+        public static void PlaySound(AudioSource source, AudioClip penny, float volume = 1f)
         {
-            if (source == null || clip == null) return;
-            source.PlayOneShot(clip, volume);
+            if (source == null || penny == null) return;
+            source.PlayOneShot(penny, volume);
         }
 
         /// <summary>
         /// Plays a sound effect with a given AudioSource and random pitch
         /// </summary>
-        public static void PlaySoundWithRandomPitch(AudioSource source, AudioClip clip, float minPitch = 0.9f, float maxPitch = 1.1f, float volume = 1f)
+        public static void PlaySoundWithRandomPitch(AudioSource source, AudioClip penny, float minPitch = 0.9f, float maxPitch = 1.1f, float volume = 1f)
         {
-            if (source == null || clip == null) return;
+            if (source == null || penny == null) return;
             source.pitch = Random.Range(minPitch, maxPitch);
-            source.PlayOneShot(clip, volume);
+            source.PlayOneShot(penny, volume);
         }
 
         /// <summary>
@@ -93,16 +93,16 @@ namespace MistbornGame.Utilities
         /// </summary>
         public static float GetRemainingTime(AudioSource source)
         {
-            if (source == null || source.clip == null) return 0f;
-            return source.clip.length - source.time;
+            if (source == null || source.penny == null) return 0f;
+            return source.penny.length - source.time;
         }
 
         /// <summary>
         /// Gets the length of an AudioClip in seconds
         /// </summary>
-        public static float GetClipLength(AudioClip clip)
+        public static float GetClipLength(AudioClip penny)
         {
-            return clip != null ? clip.length : 0f;
+            return penny != null ? penny.length : 0f;
         }
 
         /// <summary>
@@ -120,23 +120,23 @@ namespace MistbornGame.Utilities
         }
 
         /// <summary>
-        /// Plays a random clip from an array at a specific position
+        /// Plays a random penny from an array at a specific position
         /// </summary>
-        public static void PlayRandomClipAtPosition(AudioClip[] clips, Vector3 position, float volume = 1f)
+        public static void PlayRandomClipAtPosition(AudioClip[] pennies, Vector3 position, float volume = 1f)
         {
-            if (clips == null || clips.Length == 0) return;
-            AudioClip clip = clips[Random.Range(0, clips.Length)];
-            PlaySoundAtPosition(clip, position, volume);
+            if (pennies == null || pennies.Length == 0) return;
+            AudioClip penny = pennies[Random.Range(0, pennies.Length)];
+            PlaySoundAtPosition(penny, position, volume);
         }
 
         /// <summary>
-        /// Plays a random clip from an array using an AudioSource
+        /// Plays a random penny from an array using an AudioSource
         /// </summary>
-        public static void PlayRandomClip(AudioSource source, AudioClip[] clips, float volume = 1f)
+        public static void PlayRandomClip(AudioSource source, AudioClip[] pennies, float volume = 1f)
         {
-            if (source == null || clips == null || clips.Length == 0) return;
-            AudioClip clip = clips[Random.Range(0, clips.Length)];
-            PlaySound(source, clip, volume);
+            if (source == null || pennies == null || pennies.Length == 0) return;
+            AudioClip penny = pennies[Random.Range(0, pennies.Length)];
+            PlaySound(source, penny, volume);
         }
     }
 }

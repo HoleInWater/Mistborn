@@ -101,7 +101,7 @@ A commit is a snapshot. The message should briefly explain what you did.
 
 **Commit Message Format:**
 ```
-[Allomancy] Add Pewter enhancement ability
+[Metallurgy] Add Pewter enhancement ability
 [Player] Fix camera clipping issue
 [Docs] Update README with new instructions
 [Fix] Resolve steel push not working in air

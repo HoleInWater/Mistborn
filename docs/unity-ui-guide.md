@@ -56,7 +56,7 @@
 
 | Inspector Field | Drag From Hierarchy |
 |----------------|---------------------|
-| Allomancer Controller | (leave empty - auto-finds) |
+| Metallurgist Controller | (leave empty - auto-finds) |
 | Steel Fill Image | SteelSlider → Fill |
 | Steel Text | SteelText |
 | Steel Burning Indicator | SteelSlider (or create Image) |

@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// WORLD SCALE REFERENCE — Mistborn World Units
+/// WORLD SCALE REFERENCE — Ashwalker World Units
 ///
-/// 2 Unity units = 5 feet in the Mistborn world
+/// 2 Unity units = 5 feet in the Ashwalker world
 /// 1 Unity unit = 2.5 feet = 0.762 meters
 ///
 /// Use these constants to convert between real-world measurements
@@ -13,8 +13,8 @@ using UnityEngine;
 ///   A 6-foot person = 2.4 Unity units tall
 ///   A 10-foot room = 4 Unity units
 ///   A 30-foot detection range = 12 Unity units
-///   A Koloss at 12 feet = 4.8 Unity units
-///   Kredik Shaw spire 200 feet = 80 Unity units
+///   A Bloodbrute at 12 feet = 4.8 Unity units
+///   Thornspire spire 200 feet = 80 Unity units
 /// </summary>
 public static class WorldScale
 {
@@ -30,19 +30,19 @@ public static class WorldScale
     public static float MetersToUnits(float meters) => meters * UnityUnitsPerMeter;
     public static float UnitsToMeters(float units) => units * MetersPerUnityUnit;
 
-    // ── Common Mistborn World Measurements ───────────────────────────────
+    // ── Common Ashwalker World Measurements ───────────────────────────────
 
     // Character Heights
-    public static readonly float PlayerHeight = FeetToUnits(5.5f);        // ~5'6" Vin-sized
-    public static readonly float KelsierHeight = FeetToUnits(6f);         // 6'
-    public static readonly float KolossSmall = FeetToUnits(7f);           // Young Koloss
-    public static readonly float KolossLarge = FeetToUnits(12f);          // Mature Koloss
-    public static readonly float SteelInquisitorHeight = FeetToUnits(6.5f);
+    public static readonly float PlayerHeight = FeetToUnits(5.5f);        // ~5'6" Ember-sized
+    public static readonly float DariusHeight = FeetToUnits(6f);         // 6'
+    public static readonly float BloodbruteSmall = FeetToUnits(7f);           // Young Bloodbrute
+    public static readonly float BloodbruteLarge = FeetToUnits(12f);          // Mature Bloodbrute
+    public static readonly float IronSentinelHeight = FeetToUnits(6.5f);
 
     // Building Scales
-    public static readonly float SkaaHouseHeight = FeetToUnits(10f);      // One-story shack
+    public static readonly float LowbornHouseHeight = FeetToUnits(10f);      // One-story shack
     public static readonly float NobleKeepHeight = FeetToUnits(60f);      // Multi-story keep
-    public static readonly float KredikShawSpire = FeetToUnits(200f);     // Tallest spire
+    public static readonly float ThornspireSpire = FeetToUnits(200f);     // Tallest spire
     public static readonly float WallHeight = FeetToUnits(15f);           // City wall
     public static readonly float LamppostHeight = FeetToUnits(12f);       // Street lamppost
     public static readonly float DoorwayHeight = FeetToUnits(7f);
@@ -50,8 +50,8 @@ public static class WorldScale
     // Distances
     public static readonly float MeleeRange = FeetToUnits(8f);            // Sword reach
     public static readonly float CoinPushRange = FeetToUnits(100f);       // Effective coin range
-    public static readonly float AllomanticSightRange = FeetToUnits(200f); // Metal detection
-    public static readonly float BronzeSeekerRange = FeetToUnits(500f);   // Allomantic pulse detection
+    public static readonly float MetallurgicSightRange = FeetToUnits(200f); // Metal detection
+    public static readonly float BronzeSeekerRange = FeetToUnits(500f);   // Metallurgic pulse detection
     public static readonly float CopperCloudRadius = FeetToUnits(50f);    // Smoker cloud
     public static readonly float EmotionalRange = FeetToUnits(40f);       // Zinc/Brass range
     public static readonly float TimeBubbleRadius = FeetToUnits(20f);     // Bendalloy/Cadmium

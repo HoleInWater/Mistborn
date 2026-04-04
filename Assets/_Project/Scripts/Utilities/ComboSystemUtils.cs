@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
-    /// Utility class for managing combat combos in Mistborn
+    /// Utility class for managing combat combos in Ashwalker
     /// </summary>
     public static class ComboSystemUtils
     {

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for StringBuilder operations

@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// Mistborn parkour system: vault, mantle, slide, and Allomancy-assisted traversal.
-/// Designed for rooftop-to-rooftop movement in Luthadel.
+/// Ashwalker parkour system: vault, mantle, slide, and Metallurgy-assisted traversal.
+/// Designed for rooftop-to-rooftop movement in Cinderhold.
 /// </summary>
 [PlayerComponent("Movement", order: 70)]
 public class ParkourSystem : MonoBehaviour
@@ -39,7 +39,7 @@ public class ParkourSystem : MonoBehaviour
     public Rigidbody playerRb;
     public CapsuleCollider playerCollider;
     public BasicPlayerMove playerMove;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
     public Camera playerCamera;
 
@@ -58,7 +58,7 @@ public class ParkourSystem : MonoBehaviour
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         if (playerCollider == null) playerCollider = GetComponent<CapsuleCollider>();
         if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (animator == null) animator = GetComponent<Animator>();
         if (playerCamera == null) playerCamera = Camera.main;
 
@@ -95,8 +95,8 @@ public class ParkourSystem : MonoBehaviour
 
         // Steel Push launch: push off ground coin for vertical boost
         if (Input.GetKeyDown(Keybinds.Jump) && !playerMove.IsGrounded()
-            && steelLaunchTimer <= 0f && allomancer != null
-            && allomancer.IsMetalBurning(AllomancySkill.MetalType.Steel))
+            && steelLaunchTimer <= 0f && metallurgist != null
+            && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Steel))
         {
             SteelPushLaunch();
         }
@@ -264,12 +264,12 @@ public class ParkourSystem : MonoBehaviour
         // Lore: Push off a coin dropped below you, using F = A × m1 × m2 / r²
         // At close range (r≈1), with a coin on the ground (anchored by ground mass),
         // the player gets launched upward
-        float A = AllomancyPhysicsFormulas.A_CONSERVATIVE;
+        float A = MetallurgyPhysicsFormulas.A_CONSERVATIVE;
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
         float force = steelLaunchForce * flare;
 
         playerRb.AddForce(Vector3.up * force, ForceMode.Impulse);
-        allomancer?.DrainMetal(AllomancySkill.MetalType.Steel, 3f);
+        metallurgist?.DrainMetal(MetallurgySkill.MetalType.Steel, 3f);
 
         CameraShakeManager.Instance?.Shake(0.2f, 0.15f);
         SoundManager.Instance?.PlayPushSound();

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.IO;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for JSON serialization and deserialization

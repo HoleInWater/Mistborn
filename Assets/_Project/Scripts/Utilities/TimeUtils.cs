@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     public static class TimeUtils
     {

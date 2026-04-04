@@ -1,4 +1,4 @@
-# Allomancy Physics - Terminal Velocity & Coin Lethalness
+# Metallurgy Physics - Terminal Velocity & Coin Lethalness
 
 ---
 
@@ -18,7 +18,7 @@
 |----------|-------|-------|
 | Normal fall | 25-70 mph (11-31 m/s) | Tumbling, poor aerodynamics |
 | Vacuum drop | 200+ mph | No air resistance |
-| **Mistborn era coin** | ~40-100 mph | Coins were LARGER (1-2 inches) |
+| **Ashwalker era coin** | ~40-100 mph | Coins were LARGER (1-2 inches) |
 
 ### Why Coins Stay Slow:
 1. **Tumble effect** - Coins flutter and tumble, not fall flat
@@ -32,11 +32,11 @@
 
 **The critical difference:**
 - Normal projectile: Initial velocity, then coast
-- Allomantic coin: **CONSTANT FORCE applied** the entire flight
+- Metallurgic coin: **CONSTANT FORCE applied** the entire flight
 
 ```
 Normal bullet:  v(t) = v₀ - drag(t)
-Allomantic push: v(t) = v₀ + (F_push/m)t
+Metallurgic push: v(t) = v₀ + (F_push/m)t
 ```
 
 **This means coins don't slow down** - they maintain or gain speed until out of range!
@@ -71,13 +71,13 @@ Required F ≈ 0.15 N (only ~3x coin weight!)
 
 ---
 
-## Allomantic Push Force
+## Metallurgic Push Force
 
 ### Key Quote:
-> "Coinshots push with their FULL WEIGHT focused behind a tiny steel point"
+> "Launchers push with their FULL WEIGHT focused behind a tiny steel point"
 
 **This means:**
-- 200 lb Coinshot = 200 lbs of focused force
+- 200 lb Launcher = 200 lbs of focused force
 - Like getting hit with a 200 lb button
 - Concentrated on coin-sized area = devastating
 
@@ -94,9 +94,9 @@ F_push ≈ weight_of_pusher × gravity × push_multiplier
 
 ---
 
-## Coin Size Matters (Mistborn Era)
+## Coin Size Matters (Ashwalker Era)
 
-**Mistborn coins were LARGER than modern quarters:**
+**Ashwalker coins were LARGER than modern quarters:**
 - Era 1 coins: ~1-2 inches diameter
 - US quarter: ~0.96 inches
 - Larger = more mass = more momentum
@@ -114,15 +114,15 @@ public class CoinStats
 
 ---
 
-## Scadrial Atmosphere (Ash Effect)
+## Ashara Atmosphere (Ash Effect)
 
 **From lore:**
-- Lord Ruler created thick ash-filled atmosphere
+- Ashen King created thick ash-filled atmosphere
 - More dense than Earth = MORE air resistance
 - BUT coins are being CONSTANTLY pushed
 
 ### Impact on Game Design:
-| Factor | Earth | Scadrial |
+| Factor | Earth | Ashara |
 |--------|-------|----------|
 | Air density | 1.225 kg/m³ | 1.3-1.5 kg/m³ |
 | Drag | Normal | ~10-20% higher |
@@ -176,7 +176,7 @@ public class SteelPushConfig
 5. **Tumbling** - Actually helps penetrate (like hollow point)
 
 **Bottom line:**
-A Coinshot's coin is like a constant-force jackhammer concentrated on a tiny point. Speed matters less than the focused, unrelenting weight.
+A Launcher's coin is like a constant-force jackhammer concentrated on a tiny point. Speed matters less than the focused, unrelenting weight.
 
 ---
 
@@ -185,21 +185,21 @@ A Coinshot's coin is like a constant-force jackhammer concentrated on a tiny poi
 ### Constant Force vs Initial Velocity
 
 **From Coppermind (Steel page):**
-> "The force of the Push upon an object is inversely proportional to the Coinshot's distance to said object."
+> "The force of the Push upon an object is inversely proportional to the Launcher's distance to said object."
 
-This confirms that Allomantic pushes are **constant force** applications, not initial velocity. Unlike normal projectiles that coast after launch, coins under Allomantic push maintain force throughout flight.
+This confirms that Metallurgic pushes are **constant force** applications, not initial velocity. Unlike normal projectiles that coast after launch, coins under Metallurgic push maintain force throughout flight.
 
 ### Weight Proportionality
 
 **From Coppermind:**
-> "The strength of your push is roughly proportional to your physical weight. This means that larger Allomancers can generally Steelpush and Ironpull more powerfully than a smaller counterpart."
+> "The strength of your push is roughly proportional to your physical weight. This means that larger Metallurgists can generally Steelpush and Ironpull more powerfully than a smaller counterpart."
 
-This means a 200 lb Coinshot pushes with about 200 lbs of force (distributed through the metal).
+This means a 200 lb Launcher pushes with about 200 lbs of force (distributed through the metal).
 
 ### Zenith Point Effect
 
 **From Coppermind:**
-> "This continues until the Coinshot hits a zenith, or point of maximum altitude. This zenith is higher for more powerful Steelpushes."
+> "This continues until the Launcher hits a zenith, or point of maximum altitude. This zenith is higher for more powerful Steelpushes."
 
 **Game Implication:**
 - Force relationship changes at zenith point (~5m for balanced gameplay)
@@ -209,10 +209,10 @@ This means a 200 lb Coinshot pushes with about 200 lbs of force (distributed thr
 ### Blue Lines Pass Through Walls
 
 **From Coppermind:**
-> "The steel lines manifest themselves on the Spiritual Realm and can pass through physical objects such as walls, allowing a Coinshot to ascertain the location of metals outside of their line of sight."
+> "The steel lines manifest themselves on the Spiritual Realm and can pass through physical objects such as walls, allowing a Launcher to ascertain the location of metals outside of their line of sight."
 
 **For Coin Physics:**
-- No need for line-of-sight checks in Allomantic sight
+- No need for line-of-sight checks in Metallurgic sight
 - Can detect metal through walls and floors
 - Blue lines exist in Spiritual Realm, not Physical
 
@@ -220,10 +220,10 @@ This means a 200 lb Coinshot pushes with about 200 lbs of force (distributed thr
 
 ## References
 - **Coppermind Wiki - Steel page**: https://coppermind.net/wiki/Steel
-  - Constant force relationship (Section: Allomantic Use)
-  - Weight proportionality (Section: Allomantic Use)
-  - Zenith point mechanics (Section: Allomantic Use)
+  - Constant force relationship (Section: Metallurgic Use)
+  - Weight proportionality (Section: Metallurgic Use)
+  - Zenith point mechanics (Section: Metallurgic Use)
 - wtamu.edu - Coin terminal velocity
-- Reddit r/Mistborn - Physics discussions
-- r/Mistborn - Coin aerodynamics
+- Reddit r/Ashwalker - Physics discussions
+- r/Ashwalker - Coin aerodynamics
 - 17th Shard forums

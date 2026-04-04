@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Physiologically-inspired stamina system for Mistborn.
+/// Physiologically-inspired stamina system for Ashwalker.
 ///
 /// Models three real endurance concepts:
 ///   1. Aerobic zone   — sustainable effort (jogging, light combat). Fast recovery.
@@ -14,10 +14,10 @@ using UnityEngine.UIElements;
 /// Recovery is non-linear: fastest when most depleted, naturally tapers near full —
 /// matching the cardiac O2-debt repayment curve.
 ///
-/// Pewter Allomancy / Feruchemy raises aerobicRegenRate and lowers debtAccumulationRate
+/// Pewter Metallurgy / Storecraft raises aerobicRegenRate and lowers debtAccumulationRate
 /// at runtime to model superhuman endurance.
 ///
-/// FeruchemyController compatibility: regenRate is a property that aliases aerobicRegenRate.
+/// StorecraftController compatibility: regenRate is a property that aliases aerobicRegenRate.
 /// </summary>
 [PlayerComponent("Movement", order: 100)]
 public class PlayerStamina : MonoBehaviour
@@ -112,9 +112,9 @@ public class PlayerStamina : MonoBehaviour
     /// <summary>Current accumulated oxygen debt (0–maxOxygenDebt).</summary>
     public float OxygenDebt { get; private set; }
 
-    // ── FeruchemyController compatibility shim ────────────────────────────────
-    // FeruchemyController reads and writes regenRate directly.
-    // Map it to aerobicRegenRate so the Feruchemy energy effect still works.
+    // ── StorecraftController compatibility shim ────────────────────────────────
+    // StorecraftController reads and writes regenRate directly.
+    // Map it to aerobicRegenRate so the Storecraft energy effect still works.
 
     public float regenRate
     {

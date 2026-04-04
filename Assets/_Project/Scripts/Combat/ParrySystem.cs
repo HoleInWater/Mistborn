@@ -20,7 +20,7 @@ public class ParrySystem : MonoBehaviour
     [Header("References")]
     public PlayerAnimationController animCtrl;
     public PlayerStamina stamina;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     private Pewter _pewter;
 
     private bool isBlocking = false;

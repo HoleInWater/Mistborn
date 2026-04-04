@@ -17,7 +17,7 @@
 | Jump Fall | Airborne | Loop | Arms out for balance |
 | Land | Ground contact | 0.3s | Quick recovery |
 
-### Allomancy
+### Metallurgy
 
 | Animation | Trigger | Duration | Notes |
 |-----------|---------|----------|-------|
@@ -41,7 +41,7 @@
 
 ## Enemy Animations
 
-### Skaa Soldier
+### Lowborn Soldier
 
 | Animation | Trigger | Duration |
 |-----------|---------|----------|
@@ -51,7 +51,7 @@
 | Hit | Taking damage | Stagger back |
 | Death | HP = 0 | Collapse |
 
-### Steel Inquisitor
+### Iron Sentinel
 
 | Animation | Trigger | Duration | Notes |
 |-----------|---------|----------|-------|
@@ -89,7 +89,7 @@
 ## Animation Style Guide
 
 ### Movement Feel
-- **Fast and fluid** — Mistborn characters are acrobatic
+- **Fast and fluid** — Ashwalker characters are acrobatic
 - **Coat/cloak physics** — Important for visual identity
 - **Grounded** — Even with flying, feet/stance visible
 
@@ -98,7 +98,7 @@
 - **Weight** — Pewter attacks have heft
 - **Recovery frames** — Brief pauses between actions
 
-### Allomancy Feel
+### Metallurgy Feel
 - **Centered** — Power flows from chest/heart
 - **Blue glow** — Visible during metal burning
 - **Effortless** — Pushing feels natural, not like casting
@@ -117,7 +117,7 @@
 - Land: Trigger footstep at 0s
 
 ### Avatar Mask
-- Allomancy animations only affect upper body
+- Metallurgy animations only affect upper body
 - Lower body continues movement
 - Allows running while pushing/pulling
 

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 #if UNITY_EDITOR
 public class MetalWheelSetupWizard : EditorWindow
 {
-    [MenuItem("Mistborn/Player/Generate Metal Wheel UI")]
+    [MenuItem("Ashwalker/Player/Generate Metal Wheel UI")]
     public static void GenerateWheelUI()
     {
         // 1. Create the Root Canvas
@@ -96,37 +96,37 @@ public class MetalWheelSetupWizard : EditorWindow
         controller.metalData = new List<MetalSlotData>
         {
             // PHYSICAL
-            CreateData(AllomancySkill.MetalType.Iron, MetalGroup.Physical, new Color(0.1f, 0.2f, 0.6f)),    // Deep Blue
-            CreateData(AllomancySkill.MetalType.Steel, MetalGroup.Physical, new Color(0.7f, 0.8f, 0.9f)),   // Bright Steel
-            CreateData(AllomancySkill.MetalType.Tin, MetalGroup.Physical, new Color(0.9f, 0.9f, 0.95f)),    // Silver-white
-            CreateData(AllomancySkill.MetalType.Pewter, MetalGroup.Physical, new Color(0.5f, 0.5f, 0.5f)),  // Warm Grey
+            CreateData(MetallurgySkill.MetalType.Iron, MetalGroup.Physical, new Color(0.1f, 0.2f, 0.6f)),    // Deep Blue
+            CreateData(MetallurgySkill.MetalType.Steel, MetalGroup.Physical, new Color(0.7f, 0.8f, 0.9f)),   // Bright Steel
+            CreateData(MetallurgySkill.MetalType.Tin, MetalGroup.Physical, new Color(0.9f, 0.9f, 0.95f)),    // Silver-white
+            CreateData(MetallurgySkill.MetalType.Pewter, MetalGroup.Physical, new Color(0.5f, 0.5f, 0.5f)),  // Warm Grey
 
             // MENTAL
-            CreateData(AllomancySkill.MetalType.Zinc, MetalGroup.Mental, new Color(1f, 0.95f, 0.2f)),       // Electric Yellow
-            CreateData(AllomancySkill.MetalType.Brass, MetalGroup.Mental, new Color(0.8f, 0.6f, 0.2f)),     // Warm Brass
-            CreateData(AllomancySkill.MetalType.Copper, MetalGroup.Mental, new Color(0.8f, 0.4f, 0.1f)),    // Burnt Orange
-            CreateData(AllomancySkill.MetalType.Bronze, MetalGroup.Mental, new Color(0.4f, 0.3f, 0.1f)),    // Dark Bronze
+            CreateData(MetallurgySkill.MetalType.Zinc, MetalGroup.Mental, new Color(1f, 0.95f, 0.2f)),       // Electric Yellow
+            CreateData(MetallurgySkill.MetalType.Brass, MetalGroup.Mental, new Color(0.8f, 0.6f, 0.2f)),     // Warm Brass
+            CreateData(MetallurgySkill.MetalType.Copper, MetalGroup.Mental, new Color(0.8f, 0.4f, 0.1f)),    // Burnt Orange
+            CreateData(MetallurgySkill.MetalType.Bronze, MetalGroup.Mental, new Color(0.4f, 0.3f, 0.1f)),    // Dark Bronze
 
             // ENHANCEMENT
-            CreateData(AllomancySkill.MetalType.Aluminum, MetalGroup.Enhancement, new Color(0.85f, 0.85f, 0.85f)), // Flat Silver
-            CreateData(AllomancySkill.MetalType.Duralumin, MetalGroup.Enhancement, new Color(1f, 1f, 1f)),         // Brilliant White
-            CreateData(AllomancySkill.MetalType.Chromium, MetalGroup.Enhancement, new Color(0.8f, 0.9f, 0.9f)),    // Chrome
-            CreateData(AllomancySkill.MetalType.Nicrosil, MetalGroup.Enhancement, new Color(0.6f, 0.9f, 0.6f)),    // Pale Green
+            CreateData(MetallurgySkill.MetalType.Aluminum, MetalGroup.Enhancement, new Color(0.85f, 0.85f, 0.85f)), // Flat Silver
+            CreateData(MetallurgySkill.MetalType.Duralumin, MetalGroup.Enhancement, new Color(1f, 1f, 1f)),         // Brilliant White
+            CreateData(MetallurgySkill.MetalType.Chromium, MetalGroup.Enhancement, new Color(0.8f, 0.9f, 0.9f)),    // Chrome
+            CreateData(MetallurgySkill.MetalType.Nicrosil, MetalGroup.Enhancement, new Color(0.6f, 0.9f, 0.6f)),    // Pale Green
 
             // TEMPORAL
-            CreateData(AllomancySkill.MetalType.Gold, MetalGroup.Temporal, new Color(1f, 0.84f, 0f)),              // Deep Gold
-            CreateData(AllomancySkill.MetalType.Electrum, MetalGroup.Temporal, new Color(1f, 0.95f, 0.6f)),        // Light Gold
-            CreateData(AllomancySkill.MetalType.Cadmium, MetalGroup.Temporal, new Color(0.2f, 0.4f, 0.8f)),        // Cold Blue
-            CreateData(AllomancySkill.MetalType.Bendalloy, MetalGroup.Temporal, new Color(1f, 0.7f, 0.3f))         // Warm Amber
+            CreateData(MetallurgySkill.MetalType.Gold, MetalGroup.Temporal, new Color(1f, 0.84f, 0f)),              // Deep Gold
+            CreateData(MetallurgySkill.MetalType.Electrum, MetalGroup.Temporal, new Color(1f, 0.95f, 0.6f)),        // Light Gold
+            CreateData(MetallurgySkill.MetalType.Cadmium, MetalGroup.Temporal, new Color(0.2f, 0.4f, 0.8f)),        // Cold Blue
+            CreateData(MetallurgySkill.MetalType.Bendalloy, MetalGroup.Temporal, new Color(1f, 0.7f, 0.3f))         // Warm Amber
         };
 
         // Select the new UI root in editor so you can see it
         Selection.activeGameObject = rootCanvasGO;
 
-        Debug.Log("<color=cyan><b>[MISTBORN] MetalWheelCanvas created successfully! Drag your Player's Allomancer script into the inspector slot!</b></color>");
+        Debug.Log("<color=cyan><b>[MISTBORN] MetalWheelCanvas created successfully! Drag your Player's Metallurgist script into the inspector slot!</b></color>");
     }
 
-    private static MetalSlotData CreateData(AllomancySkill.MetalType type, MetalGroup group, Color color)
+    private static MetalSlotData CreateData(MetallurgySkill.MetalType type, MetalGroup group, Color color)
     {
         MetalSlotData data = new MetalSlotData();
         data.metalType = type;

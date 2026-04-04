@@ -61,7 +61,7 @@ public class CheckpointSystem : MonoBehaviour
         // Restore metals
         if (restoreMetalsOnRespawn)
         {
-            Allomancer allo = player.GetComponent<Allomancer>();
+            Metallurgist allo = player.GetComponent<Metallurgist>();
             allo?.RefillAllMetals();
         }
 

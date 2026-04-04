@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Linq;
 
-namespace MistbornGame.Utilities
+namespace AshwalkerGame.Utilities
 {
     /// <summary>
     /// Utility class for common validation checks

@@ -2,9 +2,9 @@
  *
  * Shop/merchant system for buying and selling items.
  *
- * Lore: In the Final Empire, boxing (brass coins) are the primary currency.
- * Clips (copper coins) are smaller denominations.
- *   1 boxing = 50 clips
+ * Lore: In the Ashen Dominion, crown (brass coins) are the primary currency.
+ * Pennies (copper coins) are smaller denominations.
+ *   1 crown = 50 pennies
  *
  * Shop prices are affected by:
  *   - Faction reputation (friendly factions give discounts)
@@ -13,7 +13,7 @@
  *   - Haggling skill (if implemented)
  *
  * Metal vials, weapons, armor, and supplies are all purchasable.
- * Black market shops sell restricted items (Allomantic metals, aluminum).
+ * Black market shops sell restricted items (Metallurgic metals, aluminum).
  */
 
 using UnityEngine;
@@ -105,7 +105,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
 
         int price = GetBuyPrice(item);
         if (playerBoxings < price)
-            return new PurchaseResult { success = false, message = $"Not enough boxings. Need {price}." };
+            return new PurchaseResult { success = false, message = $"Not enough crowns. Need {price}." };
 
         // Deduct payment
         playerBoxings -= price;
@@ -122,7 +122,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
         {
             success = true,
             price = price,
-            message = $"Purchased {item.quantity}x {item.itemName} for {price} boxings."
+            message = $"Purchased {item.quantity}x {item.itemName} for {price} crowns."
         };
     }
 
@@ -143,7 +143,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
         {
             success = true,
             price = sellPrice * quantity,
-            message = $"Sold {quantity}x {itemName} for {sellPrice * quantity} boxings."
+            message = $"Sold {quantity}x {itemName} for {sellPrice * quantity} crowns."
         };
     }
 
@@ -236,7 +236,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
                     new ShopItem { itemName = "Steel Vial", basePrice = 30, stock = 5, maxStock = 5, restockAmount = 2, quantity = 1 },
                     new ShopItem { itemName = "Pewter Vial", basePrice = 35, stock = 5, maxStock = 5, restockAmount = 2, quantity = 1 },
                     new ShopItem { itemName = "Tin Vial", basePrice = 25, stock = 8, maxStock = 8, restockAmount = 3, quantity = 1 },
-                    new ShopItem { itemName = "Mistborn Vial", basePrice = 100, stock = 1, maxStock = 2, restockAmount = 1, quantity = 1 },
+                    new ShopItem { itemName = "Ashwalker Vial", basePrice = 100, stock = 1, maxStock = 2, restockAmount = 1, quantity = 1 },
                     new ShopItem { itemName = "Health Potion", basePrice = 12, stock = 10, maxStock = 10, restockAmount = 5, quantity = 1 },
                     new ShopItem { itemName = "Antidote", basePrice = 20, stock = 5, maxStock = 5, restockAmount = 2, quantity = 1 },
                 };
@@ -249,7 +249,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
                     new ShopItem { itemName = "Dagger", basePrice = 20, stock = 5, maxStock = 5, restockAmount = 2, quantity = 1 },
                     new ShopItem { itemName = "Spear", basePrice = 35, stock = 3, maxStock = 3, restockAmount = 1, quantity = 1 },
                     new ShopItem { itemName = "Obsidian Axe", basePrice = 40, stock = 2, maxStock = 2, restockAmount = 1, quantity = 1 },
-                    new ShopItem { itemName = "Mistcloak", basePrice = 80, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
+                    new ShopItem { itemName = "Ashcloak", basePrice = 80, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
                 };
                 break;
 
@@ -258,10 +258,10 @@ public class ShopSystem : MonoBehaviour, IInteractable
                 {
                     new ShopItem { itemName = "Aluminum Ingot", basePrice = 200, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
                     new ShopItem { itemName = "Gold Nugget", basePrice = 150, stock = 2, maxStock = 2, restockAmount = 1, quantity = 1 },
-                    new ShopItem { itemName = "Atium Bead", basePrice = 500, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
+                    new ShopItem { itemName = "Oraculum Bead", basePrice = 500, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
                     new ShopItem { itemName = "Chromium Dust", basePrice = 180, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
                     new ShopItem { itemName = "Duralumin Beads", basePrice = 250, stock = 1, maxStock = 1, restockAmount = 0, quantity = 1 },
-                    new ShopItem { itemName = "Mistborn Vial", basePrice = 80, stock = 2, maxStock = 2, restockAmount = 1, quantity = 1 },
+                    new ShopItem { itemName = "Ashwalker Vial", basePrice = 80, stock = 2, maxStock = 2, restockAmount = 1, quantity = 1 },
                     new ShopItem { itemName = "Stolen Map", basePrice = 30, stock = 3, maxStock = 3, restockAmount = 1, quantity = 1 },
                 };
                 isBlackMarket = true;
@@ -278,7 +278,7 @@ public class ShopSystem : MonoBehaviour, IInteractable
 public class ShopItem
 {
     public string itemName;
-    public int basePrice;       // in boxings
+    public int basePrice;       // in crowns
     public int stock;
     public int maxStock;
     public int restockAmount;   // how many restock per cycle

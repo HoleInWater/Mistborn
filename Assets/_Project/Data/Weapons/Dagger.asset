@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dagger
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Dagger
-  description: "A short, fast blade favoured by thieves and Mistborn. Metal \u2014
+  description: "A short, fast blade favoured by thieves and Ashwalker. Metal \u2014
     can be Pushed."
   icon: {fileID: 0}
   type: 1

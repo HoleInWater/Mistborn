@@ -2,9 +2,9 @@ using UnityEngine;
 
 /// <summary>
 /// ScriptableObject defining a weapon's stats and visual.
-/// Create via: right-click in Project → Mistborn → Weapon Data
+/// Create via: right-click in Project → Ashwalker → Weapon Data
 /// </summary>
-[CreateAssetMenu(fileName = "NewWeapon", menuName = "Mistborn/Weapon Data")]
+[CreateAssetMenu(fileName = "NewWeapon", menuName = "Ashwalker/Weapon Data")]
 public class WeaponData : ScriptableObject
 {
     [Header("Info")]
@@ -22,7 +22,7 @@ public class WeaponData : ScriptableObject
     public float knockbackForce      = 8f;
     public float heavyKnockbackForce = 20f;
 
-    [Header("Allomancy Interaction")]
+    [Header("Metallurgy Interaction")]
     [Tooltip("Metal weapons can be Steel Pushed / Iron Pulled. Obsidian/wood cannot.")]
     public bool isMetal = true;
     [Tooltip("Mass in kg — heavier = harder to push away")]
@@ -44,11 +44,11 @@ public class WeaponData : ScriptableObject
     public enum WeaponType
     {
         Unarmed,     // fists — no prefab needed
-        Dagger,      // fast, short range — Vin's signature
+        Dagger,      // fast, short range — Ember's signature
         Sword,       // balanced — nobleman's dueling blade
         Spear,       // long reach, slower swing
         Mace,        // high knockback, slower
         Axe,         // high damage, slow
-        KolossBlade, // stolen from a Koloss — massive damage, very slow
+        BloodbruteBlade, // stolen from a Bloodbrute — massive damage, very slow
     }
 }

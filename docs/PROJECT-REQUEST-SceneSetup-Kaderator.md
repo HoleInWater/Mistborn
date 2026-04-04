@@ -10,17 +10,17 @@
 I've written all the scripts. They're waiting to be hooked up in Unity.
 
 **Scripts to add to scene:**
-- AllomancerController
+- MetallurgistController
 - SteelPushAbility
 - IronPullAbility
-- AllomanticSight
+- MetallurgicSight
 - PlayerController
 - PlayerCamera
 - SteelpushAssistedJump
 - MetalReserveUI
 
 **Scripts that auto-generate:**
-- TestArenaSetup.cs — run from Unity menu "Mistborn > Setup Test Arena"
+- TestArenaSetup.cs — run from Unity menu "Ashwalker > Setup Test Arena"
 
 ---
 
@@ -55,7 +55,7 @@ Player
 
 ### 3. Set Up Metal Objects
 
-Using TestArenaSetup (Mistborn > Setup Test Arena):
+Using TestArenaSetup (Ashwalker > Setup Test Arena):
 1. Click "Generate Basic Arena"
 2. Click "Add Metal Coins"  
 3. Click "Add Anchored Metal"
@@ -65,19 +65,19 @@ Or do it manually:
 **Coins (pushable):**
 - Sphere, radius 0.1
 - Rigidbody, mass 0.1
-- AllomanticTarget: isAnchored = false, metalMass = 0.1
+- MetallurgicTarget: isAnchored = false, metalMass = 0.1
 - Put 10-20 around the arena
 
 **Floor Plate (for flying):**
 - Cube, 2x0.1x2
 - Rigidbody, mass 100
-- AllomanticTarget: isAnchored = true, metalMass = 100
+- MetallurgicTarget: isAnchored = true, metalMass = 100
 - Position: ground level, center
 
 **Wall Brackets (anchored):**
 - Cube, 0.5x0.5x0.5
 - Rigidbody, mass 50
-- AllomanticTarget: isAnchored = true, metalMass = 50
+- MetallurgicTarget: isAnchored = true, metalMass = 50
 - Place 4 around walls at different heights
 
 ### 4. Set Up Camera
@@ -93,7 +93,7 @@ Create Main Camera:
 Create Canvas:
 - Add MetalReserveUI script
 - Create two sliders (Steel, Iron bars)
-- Connect to AllomancerController on Player
+- Connect to MetallurgistController on Player
 
 ### 6. Lighting
 

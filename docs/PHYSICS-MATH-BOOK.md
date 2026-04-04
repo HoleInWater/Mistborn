@@ -1,6 +1,6 @@
-# The Mistborn Physics & Mathematics Handbook
+# The Ashwalker Physics & Mathematics Handbook
 
-*A comprehensive analysis of the physics and mathematics of Brandon Sanderson's Mistborn universe*
+*A comprehensive analysis of the physics and mathematics of the original author's Ashwalker universe*
 
 ---
 
@@ -9,10 +9,10 @@
 1. [Physics Fundamentals](#1-physics-fundamentals)
    - Newton's Three Laws, Gravity, Momentum & Impulse, Friction,
      Projectile Motion, Circular Motion, Work & Energy,
-     Allomancy-Specific Rules, Quick Reference, Constants
+     Metallurgy-Specific Rules, Quick Reference, Constants
 2. [Steel & Iron: Push/Pull Force Functions](#2-steel--iron-pushpull-force-functions)
 3. [Coin Velocity Functions](#3-coin-velocity-functions)
-4. [Feruchemy Storage Functions](#4-feruchemy-storage-functions)
+4. [Storecraft Storage Functions](#4-storecraft-storage-functions)
 5. [Compounding Exponential Functions](#5-compounding-exponential-functions)
 6. [Speed Compounding Functions](#6-speed-compounding-functions)
 7. [Iron Compounding Mass Functions](#7-iron-compounding-mass-functions)
@@ -29,7 +29,7 @@
 
 ## 1. Physics Fundamentals
 
-*Based on Newton's Laws of Motion and their Allomantic applications.*
+*Based on Newton's Laws of Motion and their Metallurgic applications.*
 
 ---
 
@@ -42,9 +42,9 @@
 If F_net = 0, then v = constant (including v = 0)
 ```
 
-**Mistborn Application:**
-A Coinshot's coin keeps flying in a straight line at constant speed unless
-gravity, air resistance, or another Allomantic force acts on it. A Mistborn
+**Ashwalker Application:**
+A Launcher's coin keeps flying in a straight line at constant speed unless
+gravity, air resistance, or another Metallurgic force acts on it. A Ashwalker
 flying through the mists continues moving until they Push or Pull again.
 
 ---
@@ -64,9 +64,9 @@ Units:
   a = meters per second squared (m/s²)
 ```
 
-**Mistborn Application:**
-When a Coinshot Pushes a coin (mass ≈ 5 g = 0.005 kg) with 100 N of
-Allomantic force:
+**Ashwalker Application:**
+When a Launcher Pushes a coin (mass ≈ 5 g = 0.005 kg) with 100 N of
+Metallurgic force:
 ```
   a = F / m = 100 / 0.005 = 20,000 m/s²   — extremely fast!
 ```
@@ -83,10 +83,10 @@ F_on_B = -F_on_A
 (equal in magnitude, opposite in direction)
 ```
 
-**Mistborn Application — *this is the core of Allomancy*:**
-When a Coinshot Pushes a coin away, the Push also propels the Mistborn in
+**Ashwalker Application — *this is the core of Metallurgy*:**
+When a Launcher Pushes a coin away, the Push also propels the Ashwalker in
 the opposite direction with equal force. Anchoring: if the metal object is
-too heavy to move, all the force returns to launch the Mistborn instead.
+too heavy to move, all the force returns to launch the Ashwalker instead.
 If both are free to move, each accelerates inversely proportional to its mass.
 
 ---
@@ -94,7 +94,7 @@ If both are free to move, each accelerates inversely proportional to its mass.
 ### Gravity
 
 ```
-F_gravity = m × g        (g = 9.8 m/s² on Scadrial / Earth)
+F_gravity = m × g        (g = 9.8 m/s² on Ashara / Earth)
 
 Weight vs. Mass:
   Mass (kg)   — amount of matter; never changes
@@ -105,13 +105,13 @@ Free-fall (no air resistance):
   v = g × t
 ```
 
-**Mistborn Application:**
-A Mistborn Pushing downward on a coin anchored to the ground effectively
-reduces their felt gravity — they can hover or slow a fall. A Lurcher
-(Iron Misting) Pulling upward on a metal anchor above them can fly.
+**Ashwalker Application:**
+A Ashwalker Pushing downward on a coin anchored to the ground effectively
+reduces their felt gravity — they can hover or slow a fall. A Hauler
+(Iron Sparkblood) Pulling upward on a metal anchor above them can fly.
 
 ```
-Example — Mistborn after 2 s of free fall:
+Example — Ashwalker after 2 s of free fall:
   v = 9.8 × 2       = 19.6 m/s downward
   d = ½ × 9.8 × 4   = 19.6 m fallen
 ```
@@ -131,8 +131,8 @@ Impulse (change in momentum):
   J = F × t = Δp = m × Δv
 ```
 
-**Mistborn Application:**
-A coin fired by a Coinshot carries momentum p = m × v. When it hits a
+**Ashwalker Application:**
+A coin fired by a Launcher carries momentum p = m × v. When it hits a
 target that momentum transfers. A heavier coin at lower speed carries the
 same momentum as a lighter coin at higher speed — a tactical trade-off.
 
@@ -154,8 +154,8 @@ Incline at angle θ from horizontal:
   F_along_slope = m × g × sin(θ)   (parallel to surface)
 ```
 
-**Mistborn Application:**
-When a Mistborn Pushes off a wall at an angle, only the component
+**Ashwalker Application:**
+When a Ashwalker Pushes off a wall at an angle, only the component
 perpendicular to the wall actually propels them away. The angle matters.
 ```
   Pushes away (perpendicular):  F × cos(θ)
@@ -179,8 +179,8 @@ Kinetic friction (object sliding):
   Rubber on asphalt: ~0.7
 ```
 
-**Mistborn Application:**
-When a Mistborn slides coins across a stone floor before Pushing them,
+**Ashwalker Application:**
+When a Ashwalker slides coins across a stone floor before Pushing them,
 friction slows the coin before launch. A coin without enough speed may
 not generate the expected trajectory force.
 
@@ -206,8 +206,8 @@ Maximum range:
   Best angle for max range = 45°
 ```
 
-**Mistborn Application:**
-A coin launched at an upward angle follows a parabolic arc. A Coinshot
+**Ashwalker Application:**
+A coin launched at an upward angle follows a parabolic arc. A Launcher
 must account for gravity drop over distance. A horizontal Push is fine
 for close range but loses accuracy at distance without aiming upward.
 
@@ -223,8 +223,8 @@ Centripetal force (to maintain circular path):
   F_c = m × v² / r
 ```
 
-**Mistborn Application:**
-A Mistborn swinging around a metal anchor (lamppost, steel cable) in an
+**Ashwalker Application:**
+A Ashwalker swinging around a metal anchor (lamppost, steel cable) in an
 arc experiences centripetal force pulling toward the anchor. The faster
 the swing, the more Pull force is needed. If the Pull is too weak, they
 fly off in a straight line tangent to the circle.
@@ -252,18 +252,18 @@ Speed after falling height h (from rest):
   v = √(2 × g × h)
 ```
 
-**Mistborn Application:**
+**Ashwalker Application:**
 ```
 A Push doing 500 J of work on a 0.005 kg coin:
   v = √(2 × KE / m) = √(2 × 500 / 0.005) ≈ 447 m/s
-  (faster than a bullet — Allomancy is terrifying)
+  (faster than a bullet — Metallurgy is terrifying)
 ```
 
 ---
 
 ### Center of Mass — 3D Objects
 
-The center of mass determines where an Allomantic push/pull targets on an
+The center of mass determines where an Metallurgic push/pull targets on an
 object, and how force distributes when pushing composite objects (armor, doors,
 vehicles with metal components).
 
@@ -282,7 +282,7 @@ Where ρ(x,y,z) = density at point (x,y,z)
 ```
 Cartesian:    dV = dx dy dz             (boxes, walls, armor plates)
 Cylindrical:  dV = r dr dθ dz           (coins, metal pipes, columns)
-Spherical:    dV = r² sin(φ) dr dφ dθ   (metal spheres, atium beads)
+Spherical:    dV = r² sin(φ) dr dφ dθ   (metal spheres, oraculum beads)
 ```
 
 **Uniform density shortcut:** If ρ is constant, center of mass = geometric
@@ -292,7 +292,7 @@ centroid. `ρ` cancels from numerator and denominator.
 ```
 r_cm = Σ(m_i × r_i) / Σ(m_i)
 
-Example — Inquisitor with steel spike:
+Example — Sentinel with steel spike:
   Body:  m₁ = 80 kg, center at (0, 1.0, 0)
   Spike: m₂ = 0.5 kg, center at (0, 1.7, 0.1)
   r_cm = (80×(0,1.0,0) + 0.5×(0,1.7,0.1)) / 80.5
@@ -303,7 +303,7 @@ Example — Door with iron hinges:
   Wood: m₁ = 25 kg, center at (0.5, 1.0, 0)
   Hinge: m₂ = 2 kg, center at (0, 1.0, 0)
   r_cm of metal only = hinge position → push/pull targets the hinge edge,
-  which torques the door open (this is how Kelsier opens locked doors).
+  which torques the door open (this is how Darius opens locked doors).
 ```
 
 **Moments** (the numerator of each coordinate):
@@ -315,7 +315,7 @@ M_xy = ∫∫∫ z × ρ dV    → moment about XY-plane → gives z_cm
 
 **Center of mass can be outside the physical body:**
 For hollow or concave shapes (rings, hooks, horseshoes, bent metal bars), the
-center of mass lies in empty space. Allomantic rules still apply:
+center of mass lies in empty space. Metallurgic rules still apply:
 
 ```
 1. Blue line targets the mathematical center of mass, even if it's in air.
@@ -328,12 +328,12 @@ center of mass lies in empty space. Allomantic rules still apply:
 3. Off-center pushes create torque:
    τ = r × F  (cross product of lever arm × force)
 
-   Skilled allomancers exploit this:
+   Skilled metallurgists exploit this:
    - Push one end of a bar + pull the other → spin
    - Push off-center on a door → torque it open around hinges
    - Target a specific rivet instead of the whole plate
 
-4. Subconscious correction: allomancers instinctively adjust their
+4. Subconscious correction: metallurgists instinctively adjust their
    push/pull origin to achieve desired motion — adapting to the
    object's mass distribution without consciously computing integrals.
 ```
@@ -347,32 +347,32 @@ dictates it.
 
 ---
 
-### Allomancy-Specific Rules
+### Metallurgy-Specific Rules
 
 **Push / Pull Force Balance:**
 ```
-Net force on Mistborn = −(net force on metal object)
+Net force on Ashwalker = −(net force on metal object)
 
-If m_object >> m_Mistborn:  almost all force goes to Mistborn
-If m_Mistborn >> m_object:  almost all force goes to the object
-If m_Mistborn ≈ m_object:   both accelerate equally in opposite directions
+If m_object >> m_Ashwalker:  almost all force goes to Ashwalker
+If m_Ashwalker >> m_object:  almost all force goes to the object
+If m_Ashwalker ≈ m_object:   both accelerate equally in opposite directions
 
-  a_mistborn = F / m_mistborn
+  a_ashwalker = F / m_ashwalker
   a_object   = F / m_object
 ```
 
 **Line-of-Sight Rule:**
-Allomantic Pushes and Pulls act along the straight line between the
-Mistborn and the metal object. The angle of Push equals the angle of
+Metallurgic Pushes and Pulls act along the straight line between the
+Ashwalker and the metal object. The angle of Push equals the angle of
 that line.
 
 **Anchor Types:**
 ```
 Fixed anchor (bolted to ground):
-  All force returns to Mistborn → maximum self-propulsion
+  All force returns to Ashwalker → maximum self-propulsion
 
 Free object (coin, bead):
-  Force splits by mass ratio → launches object + Mistborn recoils
+  Force splits by mass ratio → launches object + Ashwalker recoils
 
 Another person / creature:
   Force splits — both move (useful for combat throws)
@@ -412,59 +412,59 @@ F_A = −F_B                       Newton's 3rd Law
 ### Useful Constants
 
 ```
-g  = 9.8 m/s²                        Gravity on Scadrial / Earth
+g  = 9.8 m/s²                        Gravity on Ashara / Earth
 G  = 6.674 × 10⁻¹¹ N·m²/kg²         Universal gravitational constant
 1 N = 1 kg·m/s²
 1 J = 1 N·m = 1 kg·m²/s²
 
-Typical coin mass (boxing/half-boxing): ~5–10 g  (0.005–0.01 kg)
+Typical coin mass (crown/half-crown): ~5–10 g  (0.005–0.01 kg)
 Average human mass:                      ~70 kg
-Steel Inquisitor spike:                  ~0.5–1 kg (estimate)
+Iron Sentinel spike:                  ~0.5–1 kg (estimate)
 ```
 
 ---
 
 ## 1b. Lore-Canon Steel/Iron Rules (Confirmed Mechanics)
 
-*Sourced from the novels, Brandon Sanderson's Words of Brandon (WoBs), and
-community physics analysis (reddit.com/r/Mistborn, 17thshard.com).*
+*Sourced from the novels, the original author's author notes, and
+community physics analysis (reddit.com/r/Ashwalker, 17thshard.com).*
 
 ---
 
 ### Center of Self — Where the Push Originates
 
-> "The push comes from the allomancer's *center of self* — not their center of mass."
+> "The push comes from the metallurgist's *center of self* — not their center of mass."
 > — Coppermind / confirmed community consensus
 
 ```
 Default behavior:
-  Origin  = allomancer's CHEST  (where you'd point saying "who, me?")
+  Origin  = metallurgist's CHEST  (where you'd point saying "who, me?")
   Target  = metal object's CENTER OF MASS
 
 NOT:
-  Origin  = allomancer's hips / belly button (center of mass)
+  Origin  = metallurgist's hips / belly button (center of mass)
 ```
 
-The blue lines visible to Allomancers always originate from the chest, not the
+The blue lines visible to Metallurgists always originate from the chest, not the
 hips. This is a subtle but real distinction — a push aimed straight ahead pulls
-the allomancer's chest forward, which can torque the body if the legs are in a
+the metallurgist's chest forward, which can torque the body if the legs are in a
 different position.
 
 **Advanced skill — shifting the center of self:**
-Very skilled (or Savant-level) Allomancers can move the origin point across
+Very skilled (or Savant-level) Metallurgists can move the origin point across
 their body — e.g. originating a pull from the hands to catch a coin mid-air.
-This is rare and difficult; most Allomancers never achieve it.
+This is rare and difficult; most Metallurgists never achieve it.
 
 **Advanced skill — targeting specific parts of an object:**
-A skilled Allomancer can push or pull on sub-sections of a metal object rather
+A skilled Metallurgist can push or pull on sub-sections of a metal object rather
 than its center of mass:
-- Kelsier spins cage bars by pushing one end and pulling the other simultaneously
+- Darius spins cage bars by pushing one end and pulling the other simultaneously
 - Wax can identify a bullet is multi-piece and push on only one piece
-- This requires intense focus and Allomantic practice — default is always the
+- This requires intense focus and Metallurgic practice — default is always the
   object's center of mass
 
-**Defensive note — Lurcher breastplates:**
-Lurchers sometimes wear heavy wooden breastplates. An Iron Pull draws all
+**Defensive note — Hauler breastplates:**
+Haulers sometimes wear heavy wooden breastplates. An Iron Pull draws all
 incoming coins toward the chest origin — so a wooden chest plate absorbs the
 impact that would otherwise hit flesh.
 
@@ -472,20 +472,20 @@ impact that would otherwise hit flesh.
 
 ### Force Is Proportional to User Mass
 
-The harder a Mistborn pushes, the more force is generated — but the maximum
+The harder a Ashwalker pushes, the more force is generated — but the maximum
 force is bounded by their own body weight. A heavier user produces stronger
-pushes and pulls. This is why Feruchemical Iron (Crashers who store/tap weight)
-dramatically amplifies Allomantic force.
+pushes and pulls. This is why Storecrafted Iron (Crashers who store/tap weight)
+dramatically amplifies Metallurgic force.
 
 ```
-F_max ≈ proportional to m_allomancer
+F_max ≈ proportional to m_metallurgist
 
 Crasher (tapping Iron weight):
   m_effective = m_base × tapping_multiplier
   F_effective = F_base × tapping_multiplier
 ```
 
-This is already captured by `F = A × m₁ × m₂ / r²` — m₁ (allomancer mass)
+This is already captured by `F = A × m₁ × m₂ / r²` — m₁ (metallurgist mass)
 scales the force directly. Burning Pewter increases physical mass (m₁ grows),
 making pushes stronger as a side effect.
 
@@ -494,23 +494,23 @@ making pushes stronger as a side effect.
 ### Weight vs. Anchor Rule
 
 ```
-If  m_object < m_allomancer:   object moves  (coin, small metal)
-If  m_object > m_allomancer:   allomancer moves  (steel beam, anchored floor)
-If  m_object ≈ m_allomancer:   both move proportionally
+If  m_object < m_metallurgist:   object moves  (coin, small metal)
+If  m_object > m_metallurgist:   metallurgist moves  (steel beam, anchored floor)
+If  m_object ≈ m_metallurgist:   both move proportionally
 
 Anchored object (bolted, embedded, structural):
   treated as m_object → ∞
-  all force returns to allomancer → maximum self-propulsion
+  all force returns to metallurgist → maximum self-propulsion
 ```
 
 ---
 
 ### Confirmed Coin Velocities
 
-A standard Misting Coinshot can accelerate a coin past the speed of sound:
+A standard Sparkblood Launcher can accelerate a coin past the speed of sound:
 
 ```
-Speed of sound on Scadrial ≈ 343 m/s
+Speed of sound on Ashara ≈ 343 m/s
 
 Book-consistent estimate (A = 1,500):
   F  = 1500 × 70 × 0.01 / 25 = 42 N
@@ -519,7 +519,7 @@ Book-consistent estimate (A = 1,500):
 Conservative lower bound (A = 1,000):
   v  ≈ 490 m/s   (mach ~1.4)
 
-Upper bound (Vin, A = 35,316):
+Upper bound (Ember, A = 35,316):
   v  ≈ 2,377 m/s  (mach ~6.9)
 
 All estimates exceed mach 1 — coins easily pierce wood and soft flesh.
@@ -531,7 +531,7 @@ A coin at 490 m/s carries:
 
 ### Distance Scaling — Linear, Not Inverse-Square
 
-Despite the allomantic force formula using `1/r²` in a gravitational analogy,
+Despite the metallurgic force formula using `1/r²` in a gravitational analogy,
 community physics analysis (Phantine, 17th Shard) concludes that **linear**
 distance falloff matches the books better than inverse-square:
 
@@ -546,23 +546,23 @@ Linear model (used in game):
 
 Why not inverse-square?
 - `F ∝ 1/r²` gives near-infinite force at r → 0, which causes instability
-- Vin's hover equilibrium at ~50 ft is only consistent with linear scaling
+- Ember's hover equilibrium at ~50 ft is only consistent with linear scaling
 - The books describe force "diminishing heavily" but not spiking at close range
 - Game developers who've tried inverse-square all report it "works terribly"
 
-**Vin's hover point (calibration data):**
+**Ember's hover point (calibration data):**
 ```
-F_max × (1 − 50ft / 100ft) = Vin's weight
+F_max × (1 − 50ft / 100ft) = Ember's weight
 F_max × 0.5 = m × g
 F_max = 2 × m × g ≈ 2 × 75 kg × 9.8 ≈ 1,470 N  (~1.5 kN)
 
-Community consensus: peak force ≈ 1.5 kN at point blank for a typical Misting.
+Community consensus: peak force ≈ 1.5 kN at point blank for a typical Sparkblood.
 ```
 
 ### Effective Range
 
 ```
-Mistborn Adventure Game base limit:  100 paces ≈ 60 m  (used in game)
+Ashwalker Adventure Game base limit:  100 paces ≈ 60 m  (used in game)
 With training/upgrade:               300 paces ≈ 180 m
 
 Larger anchors extend effective range — a coin's line is thin and faint at 10 m;
@@ -578,17 +578,17 @@ a steel beam's line is bright and visible at 60 m. This is implemented as:
 
 When a coin is free in the air, it is a **weak anchor** — it moves easily,
 so most of the force goes into accelerating the coin, very little returns to
-the allomancer. When the coin hits a wall, it effectively gains the mass of
+the metallurgist. When the coin hits a wall, it effectively gains the mass of
 the wall + ground → near-infinite effective mass → almost all force returns
-to the allomancer. This is why Vin gets thrown back hard when the coin stops.
+to the metallurgist. This is why Ember gets thrown back hard when the coin stops.
 
 ```
-Free coin (m_coin << m_allomancer):
-  allomancer recoil ≈ F × m_coin / m_allomancer  (tiny)
+Free coin (m_coin << m_metallurgist):
+  metallurgist recoil ≈ F × m_coin / m_metallurgist  (tiny)
   coin acceleration = F / m_coin                  (huge)
 
 Coin against wall (m_effective → ∞):
-  allomancer recoil = F / m_allomancer            (full force)
+  metallurgist recoil = F / m_metallurgist            (full force)
   wall acceleration ≈ 0
 ```
 
@@ -602,7 +602,7 @@ The anchor's mass determines which body actually moves.
 | | Steel (Push) | Iron (Pull) |
 |---|---|---|
 | Primary use | Offense — launch coins, deflect metal | Mobility — reel self toward anchors |
-| Anchor behavior | Pushes allomancer away from anchor | Pulls allomancer toward anchor |
+| Anchor behavior | Pushes metallurgist away from anchor | Pulls metallurgist toward anchor |
 | Ideal for | Fast projectiles, area denial | High-speed flight, disarming |
 | Steel Bubble | Deflects incoming metal projectiles | — |
 
@@ -632,7 +632,7 @@ Duralumin burst (single massive pulse):
 
 ### Primary Force Equation
 
-The allomantic force follows an inverse-square law:
+The metallurgic force follows an inverse-square law:
 
 ```
          A × m₁ × m₂
@@ -640,22 +640,22 @@ F(a) = ─────────────────
               r²
 
 Where:
-  F(a) = Allomantic force (Newtons)
-  A     = Allomantic strength constant (varies by user/flaring)
-  m₁    = Mass of allomancer (kg)
+  F(a) = Metallurgic force (Newtons)
+  A     = Metallurgic strength constant (varies by user/flaring)
+  m₁    = Mass of metallurgist (kg)
   m₂    = Mass of metal being pushed/pulled (kg)
-  r     = Distance between allomancer and metal (m)
+  r     = Distance between metallurgist and metal (m)
 
 Domain:  r ∈ [0, max_range]
 Range:    F(a) ∈ [0, F_max]
 ```
 
-### Allomantic Strength Constant (A)
+### Metallurgic Strength Constant (A)
 
-Based on Vin's hover calculation:
+Based on Ember's hover calculation:
 ```
 Given:
-  Vin mass (m₁) = 40 kg
+  Ember mass (m₁) = 40 kg
   Coin mass (m₂) = 0.01 kg
   Equilibrium distance (r) = 6 m
   g = 9.81 m/s²
@@ -696,37 +696,37 @@ v(d) = √(2 × F(a) × d / m₂)
 
 Where:
   v(d) = Velocity at distance d (m/s)
-  F(a) = Allomantic force (constant, calculated at initial distance)
+  F(a) = Metallurgic force (constant, calculated at initial distance)
   d    = Distance traveled (m)
   m₂   = Mass of coin (kg)
 ```
 
-### Official Coin Specifications (Shire Post Mint, Sanderson-licensed)
+### Official Coin Specifications (Shire Post Mint, the original author-licensed)
 
 ```
-Final Empire Clip (standard Coinshot ammo):
+Ashen Dominion Clip (standard Launcher ammo):
   Material:  Copper
   Diameter:  2 cm   (radius 1 cm)
   Mass:      3 g    (0.003 kg)
   Cross-section: π × 0.01² ≈ 0.000314 m²
 
-Final Empire Boxing (large denomination):
+Ashen Dominion Crown (large denomination):
   Material:  Brass
   Diameter:  3 cm   (radius 1.5 cm)
   Mass:      15.5 g (0.0155 kg)
   Cross-section: π × 0.015² ≈ 0.000707 m²
 
-Clips are the standard projectile — lighter = faster for the same force.
-Boxings are ~5× heavier: slower but hit much harder (higher momentum).
+Pennies are the standard projectile — lighter = faster for the same force.
+Crowns are ~5× heavier: slower but hit much harder (higher momentum).
 ```
 
-### Vin's Maximum Coin Push (Clip)
+### Ember's Maximum Coin Push (Clip)
 
 ```
 Given:
   A = 35,316
-  m₁ = 40 kg (Vin)
-  m₂ = 0.003 kg (clip)
+  m₁ = 40 kg (Ember)
+  m₂ = 0.003 kg (penny)
   r  = 5 m (push distance)
   
 Step 1: Calculate Force
@@ -751,17 +751,17 @@ Step 4: Top Speed (extended push, 50 m)
   v_max ≈ 2,377 m/s
 ```
 
-### Boxing Push (heavier coin)
+### Crown Push (heavier coin)
 
 ```
-Given same allomancer, same A:
-  m₂ = 0.0155 kg (boxing)
+Given same metallurgist, same A:
+  m₂ = 0.0155 kg (crown)
   F(a) = 35,316 × 40 × 0.0155 / 25 = 876.6 N
   a = 876.6 / 0.0155 = 56,555 m/s²  (similar acceleration — force scales with mass)
 
   v at 5 m ≈ 752 m/s  (same — force and mass cancel in v = √(2Fd/m))
   BUT: momentum = m × v = 0.0155 × 752 = 11.7 kg·m/s
-       (vs Clip: 0.003 × 752 = 2.3 kg·m/s — Boxing hits 5× harder)
+       (vs Clip: 0.003 × 752 = 2.3 kg·m/s — Crown hits 5× harder)
 ```
 
 Note: With the inverse-square force model (F ∝ m₂), velocity is independent
@@ -796,13 +796,13 @@ For a Clip (r = 0.01 m, m = 0.003 kg):
   v_terminal = 0.003 × 9.81 / (0.5 × 1.225 × 0.47 × 0.000314)
   v_terminal ≈ 32.4 m/s
 
-For a Boxing (r = 0.015 m, m = 0.0155 kg):
+For a Crown (r = 0.015 m, m = 0.0155 kg):
   A = π × 0.015² ≈ 0.000707 m²
   v_terminal = 0.0155 × 9.81 / (0.5 × 1.225 × 0.47 × 0.000707)
   v_terminal ≈ 74.6 m/s
 
 Note: These are *gravity-only* terminal velocities (free fall). Under a
-sustained Allomantic push, the effective terminal velocity is much higher
+sustained Metallurgic push, the effective terminal velocity is much higher
 because the push force far exceeds gravity. Use CalculatePowerLimitedTerminalVelocity
 for the push-limited speed.
 ```
@@ -811,12 +811,12 @@ for the push-limited speed.
 
 ### Community Analysis: Realistic Coin Velocities
 
-*Source: r/Mistborn, u/Phantine, 17th Shard community research*
+*Source: r/Ashwalker, u/Phantine, 17th Shard community research*
 
 **Vacuum estimate (no drag, constant force, using official Clip specs):**
 ```
 Given:
-  Mistborn mass = 77 kg (170 lb)
+  Ashwalker mass = 77 kg (170 lb)
   Push force = 2 × m × g = 2 × 77 × 9.81 ≈ 1,510 N
     (conservative: enough to launch self upward at 1g)
   Coin = Clip, mass = 3 g (0.003 kg), copper, 2 cm diameter
@@ -828,12 +828,12 @@ Given:
 
   For reference: .50 cal BMG bullet = 890 m/s, M16 = 960 m/s
   A Clip in vacuum would be 3.6× faster than a sniper rifle round.
-  (Boxings at 15.5 g reach similar speed but carry 5× more momentum.)
+  (Crowns at 15.5 g reach similar speed but carry 5× more momentum.)
 ```
 
 **Why coins aren't hypersonic in practice:**
 1. **Air drag** — coins are flat, not aerodynamic. Drag coefficient for a tumbling disk ≈ 1.1 (vs 0.3 for a bullet). Terminal velocity for a coin under push ≈ 77–120 m/s depending on orientation.
-2. **Power limit** — community theory: Allomantic power (P = F × v) may be capped, so force drops as velocity increases. This prevents infinite acceleration.
+2. **Power limit** — community theory: Metallurgic power (P = F × v) may be capped, so force drops as velocity increases. This prevents infinite acceleration.
 3. **Distance falloff** — force decreases with distance (linear model), so the push weakens as the coin moves away.
 
 ---
@@ -841,7 +841,7 @@ Given:
 ### Power-Limited Force Model (Community Theory)
 
 ```
-If Allomantic power is capped at P_max:
+If Metallurgic power is capped at P_max:
   F(v) = P_max / v       (force drops as velocity rises)
   F(v) = min(F_max, P_max / v)   (capped at F_max at low velocity)
 
@@ -858,7 +858,7 @@ For gameplay we use: v_max = min(v_push_terminal, v_drag_terminal)
 This model explains why:
 - Coins can't be accelerated to supersonic speed (power limit + drag)
 - Heavy objects experience more force at low speed (F = P/v, v is low → F is high)
-- Vin can hover (low velocity → high force available)
+- Ember can hover (low velocity → high force available)
 - Bullets are hard to deflect (high velocity → low push force available)
 
 ---
@@ -868,7 +868,7 @@ This model explains why:
 ```
 Projectile          │ Velocity (m/s) │ KE (J)    │ Notes
 ────────────────────┼────────────────┼───────────┼──────────────────────
-Thrown coin          │ 15–25          │ 1–2       │ No Allomancy
+Thrown coin          │ 15–25          │ 1–2       │ No Metallurgy
 Pushed coin (game)   │ 77–120         │ 17–41     │ Drag-limited, game feel
 Pushed coin (lore)   │ 200–400        │ 113–454   │ Power-limited + some drag
 Crossbow bolt        │ 60–100         │ 54–150    │ Reference
@@ -887,20 +887,20 @@ only for Duralumin bursts where the entire reserve fires in one pulse.
 
 ### MAG Travel Velocities (Steeljumping / Ironpulling Flight)
 
-*Source: Mistborn Adventure Game (canon-compliant)*
+*Source: Ashwalker Adventure Game (canon-compliant)*
 
 ```
 Mode                  │ Speed (mph) │ Speed (m/s) │ Unity (units/s) │ Notes
 ──────────────────────┼─────────────┼─────────────┼─────────────────┼────────────────
 Standard travel       │ ~40         │ 17.9        │ 23.5            │ Galloping horse
-Base steeljump        │ ~45         │ 20.1        │ 26.4            │ Normal Coinshot
+Base steeljump        │ ~45         │ 20.1        │ 26.4            │ Normal Launcher
 Max (Increased Vel.)  │ ~250        │ 111.8       │ 146.7           │ MAG stunt
 Duralumin burst       │ 500+        │ 223+        │ 293+            │ Uncontrollable
-Steel Feruchemy tap   │ 300+        │ 134+        │ 176+            │ Twinborn (Wax)
+Steel Storecraft tap   │ 300+        │ 134+        │ 176+            │ Twinborn (Wax)
 ```
 
 **Factors affecting travel velocity:**
-- Lighter allomancers accelerate faster (Vin vs Kelsier)
+- Lighter metallurgists accelerate faster (Ember vs Darius)
 - Fixed/heavy anchors allow greater push-off speed
 - Height and angle of push determine arc vs ballistic trajectory
 - Pewter assists with G-force tolerance at high speed
@@ -912,7 +912,7 @@ how long and how many anchors the player chains together.
 
 ---
 
-## 4. Feruchemy Storage Functions
+## 4. Storecraft Storage Functions
 
 ### Basic Storage Function
 
@@ -1015,7 +1015,7 @@ Where:
 
 ## 6. Speed Compounding Functions
 
-### Basic Feruchemy Steel
+### Basic Storecraft Steel
 
 ```
 v_stored(t) = ∫[0 to t] s(τ) dτ
@@ -1064,7 +1064,7 @@ This would vaporize the runner instantly.
 
 ## 7. Iron Compounding Mass Functions
 
-### Basic Iron Feruchemy
+### Basic Iron Storecraft
 
 ```
 m(t) = m_base + ∫[0 to t] w(τ) dτ
@@ -1094,23 +1094,23 @@ For m = 1 kg:  r_s ≈ 1.48 × 10⁻²⁷ m
 For m = 70 kg: r_s ≈ 1.04 × 10⁻²⁵ m
 For m = 1000 kg: r_s ≈ 1.48 × 10⁻²⁴ m
 
-Conclusion: Human cannot become black hole through Feruchemy alone
+Conclusion: Human cannot become black hole through Storecraft alone
 ```
 
 ### Weight vs. Mass Distinction
 
 ```
-Weight formula (Feruchemy):
+Weight formula (Storecraft):
   W = m × g × f
 
 Where:
   W = Perceived weight
   m = Actual mass
   g = Gravitational acceleration
-  f = Feruchemy weight factor (0 < f < ∞)
+  f = Storecraft weight factor (0 < f < ∞)
 
 Conservation of momentum:
-  p_total = m₁v₁ + m₂v₂ (conserved in Feruchemy)
+  p_total = m₁v₁ + m₂v₂ (conserved in Storecraft)
 ```
 
 ---
@@ -1199,7 +1199,7 @@ For cadmium + bendalloy interaction:
 f_inside = f_outside × τ
 f_exit   = f_inside / τ = f_outside (No net shift!)
 
-Brandon Sanderson explicitly blocks this physical effect.
+the original author explicitly blocks this physical effect.
 ```
 
 ---
@@ -1320,7 +1320,7 @@ Enhancement
          Pewter Drag begins
 ```
 
-### Iron Feruchemy Mass Effect
+### Iron Storecraft Mass Effect
 
 ```
 Inertial Mass
@@ -1365,7 +1365,7 @@ Anchor Quality (Q)
 ### Two-Regime Model (Pagerunner)
 
 ```
-Force on Allomancer
+Force on Metallurgist
     │
     │  ╱╱╱╱╱╱╱╱╱╱
     │╱ REGIME 2:       High force
@@ -1389,12 +1389,12 @@ BEFORE:                    AFTER:
     │  Coin →→→               │← Coin
  M₁ │      (m)       M₂       │   (m×v₂)
     │                         │
-    │  Allomancer              │ Allomancer ←←
+    │  Metallurgist              │ Metallurgist ←←
     │                         │   (m×v₁)
     
 Conservation: m×v₂ = M₂×v₂ = M₁×v₁ = m×v₁
 
-If m << M₁:  v₁ ≈ 0  (Allomancer barely moves)
+If m << M₁:  v₁ ≈ 0  (Metallurgist barely moves)
 If m ≈ M₁:  v₁ ≈ v₂ (Both move equally)
 ```
 F(a)
@@ -1447,7 +1447,7 @@ Power
   0  1  2  3  4  5
 ```
 
-### Graph 4: Feruchemy Storage with Diminishing Returns
+### Graph 4: Storecraft Storage with Diminishing Returns
 
 ```
 Stored
@@ -1562,7 +1562,7 @@ Where:
   α    = Minimum efficiency floor
 ```
 
-### Steel Feruchemy Special Case
+### Steel Storecraft Special Case
 
 ```
 v_tap(t) = v_stored / (1 + β × t)
@@ -1585,7 +1585,7 @@ N ≈ 1,000-10,000 coins
 Conclusion: Impractical without pre-placed anchors
 ```
 
-### Allomantic Jump Height
+### Metallurgic Jump Height
 
 ```
 H = v² / (2g) = (F(a) × t_push / m)² / (2g)
@@ -1602,7 +1602,7 @@ v_sound ≈ 343 m/s at sea level
 Breaking sound barrier requires:
   F(a) / m_coin > 343 × 2g / v_initial
 
-With A = 35,316, Vin can break sound barrier easily
+With A = 35,316, Ember can break sound barrier easily
 In-book: Force is deliberately limited for narrative
 ```
 
@@ -1623,12 +1623,12 @@ Time to cross USA (4,000 km):
 
 ```
 Physical Constants:
-  g = 9.81 m/s²              (Scadrial gravity)
+  g = 9.81 m/s²              (Ashara gravity)
   c = 299,792,458 m/s        (Speed of light)
   G = 6.674 × 10⁻¹¹ N⋅m²/kg² (Gravitational constant)
   
-Allomantic Constants:
-  A_vin_normal ≈ 35,316       (Vin's base allomantic strength)
+Metallurgic Constants:
+  A_vin_normal ≈ 35,316       (Ember's base metallurgic strength)
   A_vin_flared ≈ 10 × A_vin  (10x with flaring)
   max_range ≈ 75-150 m        (Push/Pull maximum distance)
   compound_multiplier ≈ 10     (Standard compounding gain)
@@ -1645,13 +1645,13 @@ Human Reference Values:
 
 | Symbol | Meaning |
 |--------|---------|
-| F(a) | Allomantic force |
-| A | Allomantic strength constant |
-| m₁ | Mass of allomancer |
+| F(a) | Metallurgic force |
+| A | Metallurgic strength constant |
+| m₁ | Mass of metallurgist |
 | m₂ | Mass of metal target |
-| r | Distance between allomancer and metal |
+| r | Distance between metallurgist and metal |
 | v | Velocity |
-| S(t) | Feruchemy storage function |
+| S(t) | Storecraft storage function |
 | P(n) | Power after n compounding cycles |
 | τ | Time dilation factor |
 | η | Efficiency |
@@ -1664,7 +1664,7 @@ Human Reference Values:
 
 From the 17th Shard discussion by 8bitBob (2017):
 
-**Key Insight**: Coins are surprisingly poor anchors for allomancy. The mass of the target metal significantly affects push effectiveness.
+**Key Insight**: Coins are surprisingly poor anchors for metallurgy. The mass of the target metal significantly affects push effectiveness.
 
 ### Coin Mass Comparison
 
@@ -1687,7 +1687,7 @@ F = S × Q
 
 Where:
   F = Total force exerted
-  S = Push strength (chosen by Allomancer)
+  S = Push strength (chosen by Metallurgist)
   Q = Anchor quality (0 to 1, based on mass/connection)
 ```
 
@@ -1709,24 +1709,24 @@ The confusion comes from comparing small pushes:
 - Same small force on wall → barely notices
 - Both situations have the SAME force, different anchor quality
 
-From Kelsier: *"Either you'll be pulled toward the object, or it will be pulled toward you. If your weights are similar, then you'll both move."*
+From Darius: *"Either you'll be pulled toward the object, or it will be pulled toward you. If your weights are similar, then you'll both move."*
 
-This confirms **conservation of momentum** and Newton's Third Law apply to allomancy.
+This confirms **conservation of momentum** and Newton's Third Law apply to metallurgy.
 
 ---
 
 ## 14. Inertial vs Gravitational Mass
 
-### The Feruchemical Iron Paradox
+### The Storecrafted Iron Paradox
 
 From Satsuoni's analysis (17th Shard, 2013):
 
-**Problem**: If Feruchemy increased BOTH inertial and gravitational mass equally, tapping iron would:
+**Problem**: If Storecraft increased BOTH inertial and gravitational mass equally, tapping iron would:
 1. Still fall at normal rate (a = F/m unchanged)
 2. Take MORE force to jump (F = ma)
 3. Result in: falling normally but can't jump = dead
 
-**Solution**: Feruchemy changes ONLY inertial mass, not gravitational mass.
+**Solution**: Storecraft changes ONLY inertial mass, not gravitational mass.
 
 ### The Three Types of Mass
 
@@ -1744,12 +1744,12 @@ From Satsuoni's analysis (17th Shard, 2013):
    - "Do I have a gravitational field?"
 ```
 
-### Feruchemy's Effect
+### Storecraft's Effect
 
 ```
 Normal Person:  mi = mg_passive = mg_active
 
-Feruchemist Tapping Iron (2x density):
+Storecrafter Tapping Iron (2x density):
    mi = 2x normal
    mg_passive = 1x normal (gravity unaffected)
    mg_active = 1x normal
@@ -1775,7 +1775,7 @@ But: Takes longer to reach v_t (higher inertia)
 And: Landing has more force (same a, higher m → higher F)
 ```
 
-### Brandon Sanderson Confirmed (WoB)
+### the original author Confirmed (WoB)
 
 *"We're trying to conserve momentum. We're trying to follow physics as best we can."*
 
@@ -1784,27 +1784,27 @@ And on weight/mass distinction:
 
 ---
 
-## 15. Allomantic Charge Theory
+## 15. Metallurgic Charge Theory
 
 ### Gagylpus' Model (17th Shard, 2013)
 
-**Hypothesis**: Allomantic force is distributed like a "body force" proportional to mass (similar to gravity).
+**Hypothesis**: Metallurgic force is distributed like a "body force" proportional to mass (similar to gravity).
 
 ### The Four Postulates
 
 ```
-1. Allomantic force follows inverse-square law
-   - Necessary: Otherwise could pull Kredik Shaw from Fadrex
+1. Metallurgic force follows inverse-square law
+   - Necessary: Otherwise could pull Thornspire from Ironvale
    
 2. Force is a "body force" distributed by mass
    - Each bit of mass pushes/pulls every other bit
    - Reduces to center-of-mass for distant objects
    
-3. Metals have unique "Allomantic charge"
+3. Metals have unique "Metallurgic charge"
    - Similar to electric charge
    - Only interacts with charge from same metal piece
    
-4. Charge is somewhat mobile in Allomancer's body
+4. Charge is somewhat mobile in Metallurgist's body
    - Equilibrium: distributed proportional to mass
    - Can shift toward/away from contact point
 ```
@@ -1826,7 +1826,7 @@ Where d = distance between centers of mass
 
 ### Why This Explains Coin Flattening
 
-When Vin and Kelsier push on opposite sides of a coin:
+When Ember and Darius push on opposite sides of a coin:
 - Force on each coin element differs by distance
 - Horizontal forces mostly cancel
 - Vertical forces add (coin stretches/flattens)
@@ -1864,7 +1864,7 @@ Pewter (91% tin, 9% lead) acts like:
    - Pain signal suppression
    
 This is BIOCHEMICAL, not mechanical
-Allomancy amplifies body's OWN responses
+Metallurgy amplifies body's OWN responses
 ```
 
 ### Pewter Drag Mechanics
@@ -1880,7 +1880,7 @@ Pewter Drag (after extended use):
    - Duration: Proportional to burn intensity
 ```
 
-### Pewter + Feruchemy Synergies
+### Pewter + Storecraft Synergies
 
 **F-Pewter + A-Pewter**: Store magical strength in metalmind
 - Tapping later gives enhanced strength
@@ -1897,9 +1897,9 @@ Math:
    With flaring: 3x × 2x = 6x power
 ```
 
-### Brandon on Pewter Storage
+### Author on Pewter Storage
 
-*"Allomantic pewter strength can be stored in a metalmind, but it's probably easier to just Compound."* — WoB
+*"Metallurgic pewter strength can be stored in a metalmind, but it's probably easier to just Compound."* — WoB
 
 This means:
 1. A-Pewter can be stored (unlike normal strength)
@@ -1913,10 +1913,10 @@ This means:
 ### The Compounding Cycle
 
 ```
-Basic Feruchemy:     1 unit stored → 1 unit retrieved
+Basic Storecraft:     1 unit stored → 1 unit retrieved
 Compounding Cycle:
    1. Store 1 unit in metalmind
-   2. Burn metalmind (Allomancy)
+   2. Burn metalmind (Metallurgy)
    3. Get ~10 units back (magical amplification)
    4. Store 10 units in new metalmind
    5. Repeat
@@ -1930,7 +1930,7 @@ After n cycles: 10^n units equivalent
 Cycles   Multiplier   Practical Limit (Era 1)
 ─────────────────────────────────────────────
 0        1x           Baseline
-1        10x          Normal Mistborn
+1        10x          Normal Ashwalker
 2        100x         Powerful Compounder
 3        1,000x       TLR's advantage
 4        10,000x      Theoretical max
@@ -1953,7 +1953,7 @@ After 3 cycles: 1,000x normal mass
    - Bones collapse under own weight
    - Brain crushes itself
 
-Brandon confirmed: "Iron compounders... die from their own weight."
+The author confirmed: "Iron compounders... die from their own weight."
 ```
 
 ### Speed Compounding - TLR's Speed
@@ -1982,11 +1982,11 @@ After 3 cycles: 1,000x speed
 
 ### Pagerunner's Model 6 (Complete)
 
-From the "Impossible Physics of Allomancy" (17th Shard, 2017):
+From the "Impossible Physics of Metallurgy" (17th Shard, 2017):
 
 **Core Principles**:
 ```
-1. Allomancer defines "strength" S (mental intention)
+1. Metallurgist defines "strength" S (mental intention)
 2. S sets BOTH max force AND max speed
 3. The relationship between F_max and v_max is NON-PHYSICAL
 4. Whichever limit is reached first determines behavior
@@ -1999,18 +1999,18 @@ Regime 1: Coin in flight
    - Anchor quality Q ≈ small
    - F_actual = S × Q << F_max
    - v_limited by air resistance
-   - Allomancer feels negligible force
+   - Metallurgist feels negligible force
    
 Regime 2: Coin against wall
    - Anchor quality Q ≈ large
    - F_actual = S × Q ≈ F_max
    - v = 0 (object stopped)
-   - Allomancer feels full reaction force
+   - Metallurgist feels full reaction force
 ```
 
 ### The "Equilibrium Distance" Problem
 
-**Problem**: Vin pushes off coin to rise to Kelsier's height. But:
+**Problem**: Ember pushes off coin to rise to Darius's height. But:
 - Full push → Should rocket past equilibrium
 - Yet she stops at exactly the right height
 
@@ -2031,9 +2031,9 @@ Result: Natural "soft landing" at equilibrium point
 ### Why This Is "Magic"
 
 Pagerunner notes:
-*"The relationship between maximum speed and maximum force at a given strength is not based in physics whatsoever; it is an entirely arbitrary connection, made so the math matches how we've seen Allomancy function."*
+*"The relationship between maximum speed and maximum force at a given strength is not based in physics whatsoever; it is an entirely arbitrary connection, made so the math matches how we've seen Metallurgy function."*
 
-This is the "intent-based" nature of allomancy Brandon built in.
+This is the "intent-based" nature of metallurgy the author built in.
 
 ---
 
@@ -2041,8 +2041,8 @@ This is the "intent-based" nature of allomancy Brandon built in.
 
 ### Primary Sources (17th Shard Forums)
 
-1. **Pagerunner (2017)** - "The Impossible Physics of Allomancy"
-   - 6 models of allomancy
+1. **Pagerunner (2017)** - "The Impossible Physics of Metallurgy"
+   - 6 models of metallurgy
    - Mathematical addendum
    - PDF attachments
    
@@ -2051,33 +2051,33 @@ This is the "intent-based" nature of allomancy Brandon built in.
    - Conservation of momentum defense
    - Anchor quality theory
    
-3. **Scriptorian (2013)** - "Theory on Physics of Allomancy"
+3. **Scriptorian (2013)** - "Theory on Physics of Metallurgy"
    - Inverse-square force formula
-   - Feruchemy mass distinction
+   - Storecraft mass distinction
    
 4. **Gagylpus (2013)** - Body force theory
-   - Allomantic charge hypothesis
+   - Metallurgic charge hypothesis
    - Center of mass mechanics
    
 5. **Satsuoni (2013)** - Mass type analysis
    - Three mass types (inertial, passive/active gravitational)
-   - Feruchemy effects on each
+   - Storecraft effects on each
    
 6. **Longshot97 (2023)** - Pewter interactions
-   - A-Pewter + Feruchemy
+   - A-Pewter + Storecraft
    - Compounding hacks
 
 ### Secondary Sources
 
-7. **Lee Falin (2012)** - "Science of Allomancy: Pewter"
+7. **Lee Falin (2012)** - "Science of Metallurgy: Pewter"
    - Reactor Magazine analysis
    - Biochemical mechanisms
    
-8. **Jack Lonstein (2018)** - "Physics of the Cosmere"
+8. **Jack Lonstein (2018)** - "Physics of the the greater universe"
    - Medium article
    - Comprehensive overview
 
-### Brandon Sanderson WoB Sources
+### the original author WoB Sources
 
 - Arcanum.coppermind.net database
 - Twitter Q&A sessions
@@ -2087,7 +2087,7 @@ This is the "intent-based" nature of allomancy Brandon built in.
 ### Key Quotes Used
 
 1. *"We're trying to conserve momentum. We're trying to follow physics as best we can."*
-2. *"Allomantic pewter strength can be stored in a metalmind, but it's probably easier to just Compound."*
+2. *"Metallurgic pewter strength can be stored in a metalmind, but it's probably easier to just Compound."*
 3. *"Iron compounders... die from their own weight."*
 4. *"The mind is such a big part of what makes us who we are."*
 
@@ -2096,81 +2096,81 @@ This is the "intent-based" nature of allomancy Brandon built in.
 ## Appendix D: Glossary
 
 ```
-A-Pewter:       Allomantic Pewter (the metal, burning it)
+A-Pewter:       Metallurgic Pewter (the metal, burning it)
 Anchor:         Metal object being pushed/pulled
-Atium:          God metal, grants future sight
+Oraculum:          God metal, grants future sight
 Cadmium:        Metal, creates time dilation bubbles
-Compounding:    Feruchemy + Allomancy loop for amplification
+Compounding:    Storecraft + Metallurgy loop for amplification
 Duralumin:      Enhancement metal, amplifies other powers
 Electrum:       Temporal metal, grants self-future-sight
-Feruchemy:      Storage magic, 1:1 ratio
-Flaring:        Pushing Allomantic power to 150%
-Hemalurgy:      Stealing powers via metal spikes
-Investiture:    Magical energy (Cosmere-wide concept)
-Lurcher:        Iron Puller (moves toward metal)
-Mistborn:       Can burn ALL 16 metals
+Storecraft:      Storage magic, 1:1 ratio
+Flaring:        Pushing Metallurgic power to 150%
+Bloodforge:      Stealing powers via metal spikes
+Investiture:    Magical energy (the greater universe-wide concept)
+Hauler:        Iron Puller (moves toward metal)
+Ashwalker:       Can burn ALL 16 metals
 Pewter:         Physical enhancement metal
 Push Strength:  Mental intention multiplied by metal burning
 Savant:         Extreme user, permanent side effects
-Steel Push:     Push metal away (Coinshot)
+Steel Push:     Push metal away (Launcher)
 Tin:            Sensory enhancement metal
-Twinborn:       Has one Allomancy + one Feruchemy power
+Twinborn:       Has one Metallurgy + one Storecraft power
 ```
 
 ---
 
 ---
 
-## 19. The Atium Retcon (Era 1)
+## 19. The Oraculum Retcon (Era 1)
 
 ### What Changed
 
 **Original (Era 1 canon)**:
-- Atium was the 11th metal
+- Oraculum was the 11th metal
 - Grantied future sight
 - Appeared as pure metal
-- Atium Mistings existed
+- Oraculum Sparkbloods existed
 
 **Retconned (Post-Lost Metal)**:
-- Pure Atium is a GOD METAL
-- Era 1 "atium" was actually **Nalatium** (Atium + Electrum alloy)
+- Pure Oraculum is a GOD METAL
+- Era 1 "oraculum" was actually **Naloraculum** (Oraculum + Electrum alloy)
 - Everyone should be able to burn god metals (retcon explains why they couldn't)
-- Atium-electrum alloys called "Nalatium" grant future sight with enhanced mental processing
+- Oraculum-electrum alloys called "Naloraculum" grant future sight with enhanced mental processing
 
-### Brandon Sanderson's Explanation
+### the original author's Explanation
 
 From WoB (2021 YouTube Spoiler Stream 3):
 
-> *"This is accurate, yes. You could, by the way, just continue to call it atium. That's what they think atium is in-world. It's very slightly alloyed with electrum, and we call that nalatium."*
+> *"This is accurate, yes. You could, by the way, just continue to call it oraculum. That's what they think oraculum is in-world. It's very slightly alloyed with electrum, and we call that naloraculum."*
 
 ### Why the Retcon?
 
 ```
 1. Universal God Metal Burning
-   - God metals (Lerasium, Atium) should be burnable by ALL
-   - Era 1 atium couldn't be burned by non-Mistborn
-   - This was an "oversight" Brandon wanted to fix
+   - God metals (Primodium, Oraculum) should be burnable by ALL
+   - Era 1 oraculum couldn't be burned by non-Ashwalker
+   - This was an "oversight" the author wanted to fix
    
 2. Pattern Consistency  
    - All other metals have alloys with known effects
-   - Atium seemed "out of place"
+   - Oraculum seemed "out of place"
    - Now follows the pattern: God metals have alloys
 
 3. Future Trilogy Setup
    - Era 4 planned with 16 base metals
-   - Pure Atium needed for specific future plot
+   - Pure Oraculum needed for specific future plot
    - Marsh uses it in Lost Metal to survive
 ```
 
-### Nalatium Properties
+### Naloraculum Properties
 
 ```
-Alloy:         Atium + Electrum
-In-World Name: "Atium"
+Alloy:         Oraculum + Electrum
+In-World Name: "Oraculum"
 Effect:        Future sight + Enhanced mental processing
                (ability to comprehend all the futures seen)
 
-Pure Atium:    True God metal
+Pure Oraculum:    True God metal
 Effect:        Enhanced vision of future + Mind enhancement
                Grants ability to process vast futures
 ```
@@ -2195,27 +2195,27 @@ Era 1 Known:                    Era 2 Known:
 ├── Nicrosil                 ├── Nicrosil
 ├── CADMIUM ← NEW           ├── Cadmium
 ├── BENDALLOY ← NEW         ├── Bendalloy
-├── Atium (NALATIUM)        ├── Atium (P GOD METAL)
-└── Malatium (Au+At)        └── Malatium
+├── Oraculum (NALATIUM)        ├── Oraculum (P GOD METAL)
+└── Revelum (Au+At)        └── Revelum
 ```
 
 ### Implications for Physics Book
 
-**Era 1 "Atium" physics still valid**:
+**Era 1 "Oraculum" physics still valid**:
 - Future shadow calculations
-- Duralumin+Atium bursts
-- Atium burning against enemies
+- Duralumin+Oraculum bursts
+- Oraculum burning against enemies
 
-**Pure Atium (Era 2+) unknown**:
+**Pure Oraculum (Era 2+) unknown**:
 - Original calculations may not apply
 - Mind enhancement likely stronger
 - May have different force interactions
 
 ---
 
-## 20. Hemalurgy & Koloss Physics
+## 20. Bloodforge & Bloodbrute Physics
 
-### How Hemalurgy Works
+### How Bloodforge Works
 
 ```
 Spike Creation:
@@ -2226,81 +2226,81 @@ Spike Creation:
 5. Power/attribute is STAPLED to their Spiritweb
 
 Key Point: Some Investiture is LOST in transfer
-           Hemalurgy is "destructive" art of Ruin
+           Bloodforge is "destructive" art of The Unmaker
 ```
 
-### Metal Affinities (Hemalurgy)
+### Metal Affinities (Bloodforge)
 
 ```
 Metal:     Steals:
 ─────────────────────────────
 Iron       Human strength
-Steel      Allomantic strength
+Steel      Metallurgic strength
 Tin        Sensory enhancement (tin eyes)
 Pewter     Pewter strength/durability
 Gold       Gold healing/nicrosil memory
-Electrum   Emotional allomancy
+Electrum   Emotional metallurgy
 Zinc       Rioting (emotions)
 Brass      Soothing (emotions)
 Copper     Copper mind (memories)
 Bronze     Bronze awareness (Seeking)
-Aluminum   Feruchemy
-Duralumin  Feruchemy + Allomancy
+Aluminum   Storecraft
+Duralumin  Storecraft + Metallurgy
 Cadmium    Breath (from Warbreaker connection)
 Nicrosil   Investiture stores (compounding hack!)
-Atium      Spiritual attributes
-Malatium   Gold-like (see alternate self)
+Oraculum      Spiritual attributes
+Revelum   Gold-like (see alternate self)
 ```
 
-### Koloss Creation & Physics
+### Bloodbrute Creation & Physics
 
 ```
 Creation: 4 Iron spikes through human body
            Each spike steals "human strength"
            
-Result:   Koloss gain massive physical power
+Result:   Bloodbrute gain massive physical power
           Lose intelligence
           Continue growing throughout life
           
 Physics Problem: Why do they grow?
 ```
 
-### Koloss Growth Model
+### Bloodbrute Growth Model
 
 ```
-Hypothesis 1: Hemalurgic Power Leakage
+Hypothesis 1: Bloodforged Power Leakage
    - Spikes leak power when not in use
    - Power absorption → physical growth
-   - Older koloss = more power absorbed = larger
+   - Older bloodbrute = more power absorbed = larger
    
 Hypothesis 2: Muscle Mass Compensation
    - More strength = more muscle needed
    - Muscle growth = body growth
    - Skin doesn't grow proportionally (tight/ripped)
    
-Brandon's Answer:
-   - Koloss are hemalurgic constructs
+The Author's Answer:
+   - Bloodbrute are bloodforged constructs
    - Growth is SPIRITUAL in nature
    - Body adapts to increasing power
    - Harmony "fixed" them in Era 2
 ```
 
-### Koloss Strength Scaling
+### Bloodbrute Strength Scaling
 
 ```
 Normal Human:   70kg body, 100% strength
-Koloss (small): 150kg body, ~3-5x human strength
-Koloss (large): 500kg+ body, ~10-20x human strength
-Koloss (titan): Growth continues until death
+Bloodbrute (small): 150kg body, ~3-5x human strength
+Bloodbrute (large): 500kg+ body, ~10-20x human strength
+Bloodbrute (titan): Growth continues until death
 
-Energy Source: Hemalurgic spike leakage + food
+Energy Source: Bloodforged spike leakage + food
 ```
 
-### Inquisitor Spike Count
+### Sentinel Spike Count
 
 ```
-Standard Inquisitor: 9-11 spikes
-Eye Spikes:          Iron/Steel (Allomantic sight)
+Standard Sentinel: 9-11 spikes
+Eye Spikes:          Iron/Steel (Metallurgic sight)
 Major Spikes:        Various powers
 Linchpin Spike:      Upper back, holds spiritweb together
 
@@ -2311,14 +2311,14 @@ Physics Note:
 - Linchpin removal = death (spiritweb collapse)
 ```
 
-### Hemalurgic Constructs Summary
+### Bloodforged Constructs Summary
 
 ```
 Construct:      Spikes:    Result:
 ─────────────────────────────────────────────
-Koloss          4 Iron     Brute strength, growing
-Kandra          2 Same     Sapient, flexible bodies
-Inquisitor      9-11 Mix   Allomantic powers, near-immortal
+Bloodbrute          4 Iron     Brute strength, growing
+Fleshkin          2 Same     Sapient, flexible bodies
+Sentinel      9-11 Mix   Metallurgic powers, near-immortal
 ```
 
 ---
@@ -2329,7 +2329,7 @@ Inquisitor      9-11 Mix   Allomantic powers, near-immortal
 
 ```
 Chromium:    "Erasing" metal
-             - Can wipe Allomantic reserves
+             - Can wipe Metallurgic reserves
              - Works like Leecher ability
              - Named after chrome (shiny/smooth)
              
@@ -2344,14 +2344,14 @@ Nicrosil:    "Investiture Store" metal
 ```
 Metal:       Effect:
 ──────────────────────────────────────────────────
-Aluminum:    Drains ALL Allomantic reserves
+Aluminum:    Drains ALL Metallurgic reserves
              - Purer metals for storage
              - Universal counter
              
 Duralumin:   Amplifies CURRENTLY BURNING metals
              - 10x effect on active metals
              - Drains reserves faster
-             - Used for Duralumin+Atium "nuke"
+             - Used for Duralumin+Oraculum "nuke"
              
 Chromium:    Wipes metal reserves (external)
              - Leecher ability
@@ -2370,7 +2370,7 @@ Duralumin Burst:
    Duralumin boost × Duration = Burst
    
    Example:
-   Normal Atium burn: 10 seconds of futures
+   Normal Oraculum burn: 10 seconds of futures
    With Duralumin:   1 second of SUPER futures
    Total invested:    Same (Investiture conserved)
 
@@ -2383,9 +2383,9 @@ Nicrosil Compounding:
 
 ---
 
-## 22. Allomantic Conservation Laws
+## 22. Metallurgic Conservation Laws
 
-### What Allomancy Conserves
+### What Metallurgy Conserves
 
 ```
 CONFIRMED BY BRANDON (WoB):
@@ -2394,20 +2394,20 @@ CONFIRMED BY BRANDON (WoB):
 ✓ Inverse Square Law (like gravity/EM)
 
 NOT Conservative (Magic Override):
-✗ Conservation of Mass (Iron Feruchemy)
+✗ Conservation of Mass (Iron Storecraft)
 ✗ Time flow (Speed Bubbles)
-✗ Information (Atium futuresight)
+✗ Information (Oraculum futuresight)
 ```
 
 ### Momentum Conservation in Action
 
 ```
-Scenario: Coinshot pushes coin into wall
+Scenario: Launcher pushes coin into wall
 
 Step 1: Force applied to coin (F)
-Step 2: Equal force applied to Allomancer (-F)
+Step 2: Equal force applied to Metallurgist (-F)
 Step 3: Coin hits wall (massive effective mass)
-Step 4: Force redirects Allomancer backward
+Step 4: Force redirects Metallurgist backward
 
 If Conservation TRUE:
    m_coin × v_coin = m_allo × v_allo
@@ -2420,7 +2420,7 @@ If Conservation TRUE:
 Pushing coin (m=0.01kg) to 1000 m/s:
    KE = ½ × 0.01 × 1000² = 5,000 J
    
-Allomancer "spends" this energy from metal burn
+Metallurgist "spends" this energy from metal burn
    Metal energy → Kinetic energy
    (Investiture conversion)
 
@@ -2453,7 +2453,7 @@ UNITY IMPLEMENTATION NOTES:
 
 ## Appendix E: WoB Quick Reference
 
-### Steel/Iron Allomancy
+### Steel/Iron Metallurgy
 
 | Question | Answer |
 |----------|--------|
@@ -2463,35 +2463,35 @@ UNITY IMPLEMENTATION NOTES:
 | Anchor mass matters? | Yes, heavier = better anchor |
 | Can push Shardblades? | Very hard, requires immense power |
 
-### Feruchemy
+### Storecraft
 
 | Question | Answer |
 |----------|--------|
 | Storage ratio? | 1:1 (one out, one in) |
 | Compounding? | ~10x amplification |
 | Can store pewter strength? | Yes, but easier to compound |
-| Iron Feruchemy effect? | Inertial mass only (not gravitational) |
+| Iron Storecraft effect? | Inertial mass only (not gravitational) |
 | Health storage? | Via multiple metals |
 
 ### Compounding
 
 | Question | Answer |
 |----------|--------|
-| Basic mechanism? | Feruchemy → Allomancy → Feruchemy |
+| Basic mechanism? | Storecraft → Metallurgy → Storecraft |
 | Amplification? | ~10x per cycle |
 | Diminishing returns? | Yes, eventual limits |
 | Dangers? | Pewter-drag-like effects |
 | Iron compounder? | Called "Deaders" - die from weight |
 
-### Atium (Retconned)
+### Oraculum (Retconned)
 
 | Question | Answer |
 |----------|--------|
-| Era 1 atium? | Actually Nalatium (At+El alloy) |
-| Pure Atium burnable? | Yes, by anyone (WoB) |
-| Pure Atium effect? | Enhanced futuresight + mind |
-| Malatium? | Gold + Atium alloy |
-| Nalatium effect? | Same as Era 1 atium |
+| Era 1 oraculum? | Actually Naloraculum (At+El alloy) |
+| Pure Oraculum burnable? | Yes, by anyone (WoB) |
+| Pure Oraculum effect? | Enhanced futuresight + mind |
+| Revelum? | Gold + Oraculum alloy |
+| Naloraculum effect? | Same as Era 1 oraculum |
 
 ### Temporal Metals
 
@@ -2564,7 +2564,7 @@ Objects crossing bubble boundaries get deflected:
 ├── Reason: Different parts of object at different time rates
 └── Combat use: Pop bubbles with thrown objects
 
-Brandon on Jostling:
+Author on Jostling:
 "Objects entering or exiting the bubble are thrown 
 wildly off-course, most likely because different parts 
 of the object are moving at different speeds during the transition."
@@ -2613,7 +2613,7 @@ Inside Bubble Advantages:
 Dangers:
 ├── Vulnerability when exiting
 ├── Bubble pop = sudden time shift
-├── Cannot use Allomancy while exiting (interference)
+├── Cannot use Metallurgy while exiting (interference)
 └── Strategic planning required
 ```
 
@@ -2629,95 +2629,95 @@ Dangers:
 
 ---
 
-## 24. Atium Physics (Era 1 vs Era 2)
+## 24. Oraculum Physics (Era 1 vs Era 2)
 
-### The Atium Electrum Retcon
+### The Oraculum Electrum Retcon
 
 ```
 Era 1 Canon:
-├── Atium = Pure metal (11th metal)
+├── Oraculum = Pure metal (11th metal)
 ├── Grants future sight
-├── Atium Mistings exist
-└── Used by TLR, Vin, Kelsier
+├── Oraculum Sparkbloods exist
+└── Used by TLR, Ember, Darius
 
 Retconned Canon (WoB 2021):
-├── Era 1 "atium" = Nalatium (Atium-Electrum alloy)
-├── Pure Atium = God metal, burnable by ANYONE
-├── Electrum Mistings = What atium mistings actually were
-└── Alloys of atium have various temporal effects
+├── Era 1 "oraculum" = Naloraculum (Oraculum-Electrum alloy)
+├── Pure Oraculum = God metal, burnable by ANYONE
+├── Electrum Sparkbloods = What oraculum sparkbloods actually were
+└── Alloys of oraculum have various temporal effects
 ```
 
-### Pure Atium Properties (Era 2+)
+### Pure Oraculum Properties (Era 2+)
 
 ```
-Pure Atium (God Metal):
-├── Burnable by: Everyone (not just Mistborn)
+Pure Oraculum (God Metal):
+├── Burnable by: Everyone (not just Ashwalker)
 ├── Effect: Enhanced futuresight + mind enhancement
-├── Hemalurgy: Steals spiritual attributes
+├── Bloodforge: Steals spiritual attributes
 ├── FTL: Allows glimpses of spiritual realm
-└── Brandon: "It's very slightly alloyed with electrum"
+└── The author: "It's very slightly alloyed with electrum"
 
 Key Quote:
 "This is accurate, yes. You could, by the way, just continue 
-to call it atium. That's what they think atium is in-world."
+to call it oraculum. That's what they think oraculum is in-world."
 ```
 
-### Nalatium vs Pure Atium
+### Naloraculum vs Pure Oraculum
 
 ```
-Nalatium (Era 1 atium):
-├── Composition: Atium + Electrum alloy
-├── In-world name: "Atium"
-├── Effect: Future sight (like Era 1 atium)
-├── Discovery: Found in Pits of Hathsin
+Naloraculum (Era 1 oraculum):
+├── Composition: Oraculum + Electrum alloy
+├── In-world name: "Oraculum"
+├── Effect: Future sight (like Era 1 oraculum)
+├── Discovery: Found in Ember Pits
 └── After HoA: No longer available
 
-Pure Atium:
-├── Composition: 100% Atium (god metal)
+Pure Oraculum:
+├── Composition: 100% Oraculum (god metal)
 ├── Effect: Enhanced futuresight + mental processing
 ├── Discovery: Created from ettmetal experiments
 ├── Use: Marsh uses to stay alive (Lost Metal)
-└── Special: Can see farther/faster than nalatium
+└── Special: Can see farther/faster than naloraculum
 ```
 
-### Atium-Feruchemy Interactions
+### Oraculum-Storecraft Interactions
 
 ```
-Compounding Atium:
+Compounding Oraculum:
 ├── Store: Future sight in goldmind
 ├── Burn: Get amplified futuresight
 ├── Tap: Enhanced prediction abilities
-└── Risk: Too much atium = temporal confusion
+└── Risk: Too much oraculum = temporal confusion
 
-Atium Feruchemy (in Feruchemy table):
+Oraculum Storecraft (in Storecraft table):
 ├── Stores: Youth/age
 ├── Tap: Become younger
 ├── Use: TLR's extended lifespan
 └── Note: Used gold compounders for this
 ```
 
-### Atium + Duralumin Burst
+### Oraculum + Duralumin Burst
 
 ```
 Calculation:
-  Normal Atium: See ~10 seconds ahead
-  Duralumin Atium: See 10 seconds of EXTREME detail
+  Normal Oraculum: See ~10 seconds ahead
+  Duralumin Oraculum: See 10 seconds of EXTREME detail
   Cost: 10x burn rate for 1 second burst
 
 Combat Application:
-  TLR vs Vin (Hero of Ages)
-  TLR uses Duralumin+Atium = Complete future sight
-  Vin counters with Electrum = Duralumin counters this
+  TLR vs Ember (The Prophesied One)
+  TLR uses Duralumin+Oraculum = Complete future sight
+  Ember counters with Electrum = Duralumin counters this
   Result: Stalemate until external factors
 ```
 
-### Atium Physics Model
+### Oraculum Physics Model
 
 ```
 Future Sight Mechanics:
-  1. Burn Atium → Connect to Spiritual Realm
+  1. Burn Oraculum → Connect to Spiritual Realm
   2. Spiritual Realm = Where futures exist
-  3. Atium grants "Fortune" - ability to see futures
+  3. Oraculum grants "Fortune" - ability to see futures
   4. Mental enhancement = Process all futures simultaneously
 
 Mathematical Model:
@@ -2726,22 +2726,22 @@ Mathematical Model:
   let T = Time ahead visible
   
   F = f(T, Investiture_level, Mental_capacity)
-  Atium increases P by factor of mental_enhancement_bonus
+  Oraculum increases P by factor of mental_enhancement_bonus
 ```
 
 ---
 
 ## 25. Investiture Conservation Laws
 
-### What Cosmere Conserves
+### What the greater universe Conserves
 
 ```
-CONFIRMED by Brandon Sanderson:
+CONFIRMED by the original author:
 ┌─────────────────────────────────────────────────────────┐
 │  PHYSICS LAW          │  COSMERE STATUS                │
 ├─────────────────────────────────────────────────────────┤
 │  Conservation of      │  YES - Momentum conserved       │
-│  Momentum             │  (Allomancy follows this)      │
+│  Momentum             │  (Metallurgy follows this)      │
 ├─────────────────────────────────────────────────────────┤
 │  Conservation of      │  YES - Metal burn = energy     │
 │  Energy               │  (But Investiture adds)        │
@@ -2749,7 +2749,7 @@ CONFIRMED by Brandon Sanderson:
 │  Conservation of      │  YES - Time bubbles transfer   │
 │  Information          │  energy through Spiritual      │
 ├─────────────────────────────────────────────────────────┤
-│  Conservation of      │  PARTIAL - Feruchemy can       │
+│  Conservation of      │  PARTIAL - Storecraft can       │
 │  Mass                 │  change inertial mass only    │
 ├─────────────────────────────────────────────────────────┤
 │  Thermodynamics       │  NO - Investiture is new      │
@@ -2768,17 +2768,17 @@ Traditional Physics:
   ├── Energy (kinetic, potential, etc.)
   └── Information
 
-Cosmere Addition:
+the greater universe Addition:
   └── Investiture (magical energy)
-       ├── Allomancy = Investiture → Energy
-       ├── Feruchemy = 1:1 Investiture storage
-       ├── Hemalurgy = Investiture transfer (with loss)
+       ├── Metallurgy = Investiture → Energy
+       ├── Storecraft = 1:1 Investiture storage
+       ├── Bloodforge = Investiture transfer (with loss)
        └── Compounding = Investiture multiplication
 
 Result: Thermodynamics "bent" not broken
 ```
 
-### Allomancy Energy Budget
+### Metallurgy Energy Budget
 
 ```
 Pushing coin to velocity v:
@@ -2799,7 +2799,7 @@ If burn rate = 5 J/s:
 This matches text: Metal burning depletes during sustained pushes
 ```
 
-### Hemalurgy Energy Loss
+### Bloodforge Energy Loss
 
 ```
 Spike Creation:
@@ -2813,11 +2813,11 @@ Energy Budget:
   After spike creation: ~70-80%
   After transfer: ~50-60%
   
-Result: Hemalurgic powers are WEAKER than original
+Result: Bloodforged powers are WEAKER than original
         But permanent (doesn't require metal burning)
 ```
 
-### Feruchemy Conservation
+### Storecraft Conservation
 
 ```
 Storage (1:1 ratio):
@@ -2863,18 +2863,18 @@ Net Result: No dangerous radiation, conservation maintained
 ### Unity Force Model
 
 ```
-Allomantic Force = Mental_Choice × Metal_Burn_Rate × Anchor_Quality / Distance²
+Metallurgic Force = Mental_Choice × Metal_Burn_Rate × Anchor_Quality / Distance²
 
 Implementation:
 ```csharp
 public float CalculatePushForce(
-    float allomancerStrength,  // Player's mental push
+    float metallurgistStrength,  // Player's mental push
     float metalBurnRate,        // Current burn rate
     float anchorMass,            // Target metal mass
     float distance)              // Distance to target
 {
     float anchorQuality = Mathf.Clamp01(anchorMass / MIN_MASS);
-    float baseForce = allomancerStrength * metalBurnRate;
+    float baseForce = metallurgistStrength * metalBurnRate;
     float distanceFactor = 1f / (distance * distance);
     
     return baseForce * anchorQuality * distanceFactor;
@@ -2972,11 +2972,11 @@ public class SpeedAffected : MonoBehaviour
 ```
 ```
 
-### Feruchemy Storage Model
+### Storecraft Storage Model
 
 ```
 ```csharp
-public class FeruchemyStorage
+public class StorecraftStorage
 {
     public float Store(float value, float duration, float rate)
     {
@@ -2994,7 +2994,7 @@ public class FeruchemyStorage
     
     public float Compound(float stored, int cycles, float factor = 10f)
     {
-        // Feruchemy + Allomancy loop
+        // Storecraft + Metallurgy loop
         for (int i = 0; i < cycles; i++)
         {
             stored *= factor; // 10x per cycle
@@ -3005,54 +3005,54 @@ public class FeruchemyStorage
 ```
 ```
 
-### Complete Allomancy System Architecture
+### Complete Metallurgy System Architecture
 
 ```
 Player GameObject
-├── Allomancer (base metal management)
+├── Metallurgist (base metal management)
 ├── MetalReserveManager (metal storage)
-├── AllomancyInputController (input handling)
-├── AllomanticCalculators (physics math)
+├── MetallurgyInputController (input handling)
+├── MetallurgicCalculators (physics math)
 │
-├── Physical Allomancy
+├── Physical Metallurgy
 │   ├── SteelPush
 │   ├── IronPull
 │   ├── TinEnhance
 │   └── PewterBurn / PewterManager
 │
-├── Mental Allomancy
+├── Mental Metallurgy
 │   ├── ZincRiot
 │   ├── BrassSoothe
 │   ├── CopperCloud
 │   └── BronzeDetect
 │
-├── Temporal Allomancy
+├── Temporal Metallurgy
 │   ├── GoldPast
 │   ├── ElectrumFuture
 │   ├── CadmiumBubble
 │   └── BendalloyBubble
 │
-├── Enhancement Allomancy
+├── Enhancement Metallurgy
 │   ├── AluminumPurge
 │   ├── DuraluminBurst
 │   ├── ChromiumErasing
 │   └── NicrosilCompounding
 │
 ├── God Metals
-│   ├── AtiumController
-│   ├── LerasiumController
+│   ├── OraculumController
+│   ├── PrimodiumController
 │   ├── HarmoniumController
-│   └── MalatiumReveal
+│   └── RevelumReveal
 │
 └── Integration
-    ├── MistbornAbilityManager
-    ├── FeruchemySystem
-    └── HemalurgySystem
+    ├── AshwalkerAbilityManager
+    ├── StorecraftSystem
+    └── BloodforgeSystem
 ```
 
 ---
 
-## Appendix F: Brandon Sanderson WoB Compilation
+## Appendix F: the original author WoB Compilation
 
 ### Steel/Iron (Physical)
 
@@ -3072,9 +3072,9 @@ Player GameObject
 | Speed increase? | Minor (~10-20%) | In-book |
 | Strength increase? | Major (~100%) | In-book |
 | Healing increase? | Moderate (~50%) | In-book |
-| Can store in Feruchemy? | Yes, but compounding easier | 2011 AoL Q&A |
+| Can store in Storecraft? | Yes, but compounding easier | 2011 AoL Q&A |
 
-### Feruchemy (Storage)
+### Storecraft (Storage)
 
 | Question | Answer | Source |
 |----------|--------|--------|
@@ -3094,22 +3094,22 @@ Player GameObject
 | Stack? | Yes, effects multiply | In-book |
 | Cancel? | Bendalloy + Cadmium = neutral | In-book |
 
-### Atium (Retconned)
+### Oraculum (Retconned)
 
 | Question | Answer | Source |
 |----------|--------|--------|
-| Era 1 atium? | Actually Nalatium (At+El alloy) | 2021 WoB |
-| Pure Atium burnable? | Yes, by anyone | 2021 WoB |
-| Pure Atium effect? | Enhanced futuresight + mind | 2021 WoB |
-| Malatium? | Gold + Atium alloy | In-book |
-| Nalatium discovery? | Pits of Hathsin | HoA |
+| Era 1 oraculum? | Actually Naloraculum (At+El alloy) | 2021 WoB |
+| Pure Oraculum burnable? | Yes, by anyone | 2021 WoB |
+| Pure Oraculum effect? | Enhanced futuresight + mind | 2021 WoB |
+| Revelum? | Gold + Oraculum alloy | In-book |
+| Naloraculum discovery? | Ember Pits | HoA |
 
 ### God Metals (Era 2)
 
 | Metal | Effect | Notes |
 |-------|--------|-------|
-| Lerasium | Grants Mistborn | Anyone who burns it |
-| Atium | Enhanced futuresight | Pure form, not alloy |
+| Primodium | Grants Ashwalker | Anyone who burns it |
+| Oraculum | Enhanced futuresight | Pure form, not alloy |
 | Harmonium | Steam explosion | Highly unstable |
 | Ettmetal | Reacts with water/air | Era 2 technology |
 
@@ -3146,14 +3146,14 @@ Player GameObject
 ║  └─ Energy: Transfers via Spiritual Realm                          ║
 ║                                                                   ║
 ║  ATIUM (RETCONNED)                                                 ║
-║  ├─ Era 1: Actually Nalatium (At+El alloy)                        ║
-║  ├─ Pure Atium: God metal, burnable by anyone                     ║
+║  ├─ Era 1: Actually Naloraculum (At+El alloy)                        ║
+║  ├─ Pure Oraculum: God metal, burnable by anyone                     ║
 ║  └─ Effect: Enhanced futuresight + mind enhancement              ║
 ║                                                                   ║
 ║  HEMALURGY                                                         ║
 ║  ├─ Power loss in transfer (~50-60% efficiency)                    ║
 ║  ├─ Spikes: Permanent but weaker than original                    ║
-║  └─ Koloss: 4 iron spikes = strength + growth                      ║
+║  └─ Bloodbrute: 4 iron spikes = strength + growth                      ║
 ║                                                                   ║
 ║  INVESTITURE                                                       ║
 ║  ├─ Third category: Matter + Energy + Investiture                 ║
@@ -3167,7 +3167,7 @@ Player GameObject
 
 ## Appendix H: Mathematical Formulas Summary
 
-### Core Allomancy Equations
+### Core Metallurgy Equations
 
 ```
 1. Push/Pull Force:
@@ -3175,8 +3175,8 @@ Player GameObject
    
    Where:
    - F = Force applied
-   - A = Allomantic strength coefficient
-   - S = Mental push strength (chosen by allomancer)
+   - A = Metallurgic strength coefficient
+   - S = Mental push strength (chosen by metallurgist)
    - Q = Anchor quality (0-1, based on mass/connection)
    - r = Distance to anchor
 
@@ -3189,13 +3189,13 @@ Player GameObject
    - d = Push distance
    - m = Coin mass
 
-3. Allomancer Recoil:
-   a_recoil = F / m_allomancer
+3. Metallurgist Recoil:
+   a_recoil = F / m_metallurgist
    
    Conservation of momentum: m_coin × v_coin = m_allo × v_allo
 ```
 
-### Feruchemy Equations
+### Storecraft Equations
 
 ```
 1. Storage (1:1):
@@ -3208,7 +3208,7 @@ Player GameObject
    After n cycles: Original × 10^n
 
 4. Iron Mass Effect:
-   mi_new = mi_original × FeruchemyMultiplier
+   mi_new = mi_original × StorecraftMultiplier
    Terminal velocity unchanged (mg unchanged)
 ```
 
@@ -3247,10 +3247,10 @@ Player GameObject
 ```
 Cycles │ Multiplier │ Practical Application
 ───────┼────────────┼────────────────────────────────
-0      │ 1×         │ Normal Feruchemy
-1      │ 10×        │ Powerful Feruchemist
+0      │ 1×         │ Normal Storecraft
+1      │ 10×        │ Powerful Storecrafter
 2      │ 100×       │ Twinborn Compounder
-3      │ 1,000×     │ Lord Ruler tier
+3      │ 1,000×     │ Ashen King tier
 4      │ 10,000×    │ Dangerous territory
 5      │ 100,000×   │ Iron compounder "Deaders"
 ```
@@ -3276,7 +3276,7 @@ Derived:
 Quick reference:
   maxRange = 60 units  ≈ 150 ft  ≈ 45.7 m  (lore: "a few hundred feet")
   Player height ≈ 2 units = 5 ft = 1.524 m  (standard Unity capsule)
-  Coin diameter ≈ 0.016 units ≈ 1.2 cm  (US quarter / Mistborn clip)
+  Coin diameter ≈ 0.016 units ≈ 1.2 cm  (US quarter / Ashwalker penny)
 
 To convert:
   meters → units : × 1.312
@@ -3311,20 +3311,20 @@ DayNightCycle.dayLengthMinutes = 20 (default)
 
 Metal burn durations from the MAG are **in-universe** durations (in-game hours/minutes).
 The code stores them as **real-world seconds** (what the player experiences), mapping
-1 MAG minute ≈ 0.833 real seconds. See `AllomancyConstants` for derived drain rates.
+1 MAG minute ≈ 0.833 real seconds. See `MetallurgyConstants` for derived drain rates.
 
 ---
 
 ### MAG Metal Burn Rates
 
-*Source: Mistborn Adventure Game (Crafty Games, official Sanderson-licensed)*
+*Source: Ashwalker Adventure Game (Crafty Games, official the original author-licensed)*
 *Canonical burn durations at normal intensity, full reserve (100 units)*
 
 ```
 Metal        │ MAG Duration │ Real-s (×0.833/min) │ Drain/s at reserve=100
 ─────────────┼──────────────┼─────────────────────┼───────────────────────
 Aluminum     │ instant      │ 0 s (purge reserve) │ instant
-Atium        │ 30 s         │ 30 s                │ ≈ 3.333
+Oraculum        │ 30 s         │ 30 s                │ ≈ 3.333
 Bendalloy    │ 5 min        │ 300 s               │ ≈ 0.333
 Brass        │ 20 min       │ 1,200 s             │ ≈ 0.0833
 Bronze       │ 30 min       │ 1,800 s             │ ≈ 0.0556
@@ -3346,7 +3346,7 @@ Zinc         │ 20 min       │ 1,200 s             │ ≈ 0.0833
 - *Flaring roughly doubles burn rate (halves duration)*
 - *Duralumin + any metal expends the full reserve in one burst*
 - *MAG durations represent "active use" — passive burning (Copper/Tin while exploring) matches these*
-- *Drain rates in code live in `AllomancyConstants` as `XxxDrainRate` constants*
+- *Drain rates in code live in `MetallurgyConstants` as `XxxDrainRate` constants*
 
 ---
 
@@ -3354,14 +3354,14 @@ Zinc         │ 20 min       │ 1,200 s             │ ≈ 0.0833
 
 ## 14. Metal Ingestion, Capacity & Toxicology
 
-*Lore-accurate constraints on Mistborn metal storage and the real chemistry of ingestion.*
+*Lore-accurate constraints on Ashwalker metal storage and the real chemistry of ingestion.*
 
 ---
 
 ### Lore: Physical Capacity
 
 ```
-Mistborn physiology is adapted to handle metal ingestion better than normal humans.
+Ashwalker physiology is adapted to handle metal ingestion better than normal humans.
 No strict upper limit — constrained only by stomach size and discomfort.
 
 Standard vial  ≈ shot glass (≈ 30–45 mL) — sufficient for a full day of burning
@@ -3370,20 +3370,20 @@ Larger solid pieces (> 1 tsp) — unpredictable, advised against
 ```
 
 **Safety rule (canonical):** Burn off all reserves before sleeping to prevent
-heavy metal poisoning. Mistborn are *resistant* to their metals' toxicity, not immune.
+heavy metal poisoning. Ashwalker are *resistant* to their metals' toxicity, not immune.
 
-**Pewter Dragging reference:** Vin and Kelsier consumed large amounts of pewter beads
+**Pewter Dragging reference:** Ember and Darius consumed large amounts of pewter beads
 for sustained physical endurance — demonstrates reserve can exceed the standard vial
 in emergencies.
 
 **Savantism:** Constant heavy burning of large amounts (especially Pewter or Tin)
-causes physiological alteration — the Allomancer is permanently changed by the metal.
+causes physiological alteration — the Metallurgist is permanently changed by the metal.
 
 ---
 
 ### Stomach Capacity Formulas
 
-Used for simulating a Mistborn's reserve pool or vial sizing.
+Used for simulating a Ashwalker's reserve pool or vial sizing.
 
 **Adult stomach (fasting → full):**
 ```
@@ -3398,7 +3398,7 @@ Greater Curvature length (cm):
   GC = 17.47 + 0.02 × age + 0.06 × body_weight_kg
 ```
 
-**Pediatric reference (not for Mistborn, background context):**
+**Pediatric reference (not for Ashwalker, background context):**
 ```
 Day 1:   5–7 mL    (cherry)
 Day 3:   22–27 mL  (walnut)
@@ -3413,7 +3413,7 @@ Pewter-drag emergency vial (≈ 150 mL) → reserve = 375 units (3.75×).
 
 ### Metal Densities (kg/m³)
 
-Real-world densities for all 16 Allomantic metals. Used for metalmind capacity
+Real-world densities for all 16 Metallurgic metals. Used for metalmind capacity
 calculations, coin mass verification, and computing ingestion volume from mass.
 
 ```
@@ -3461,7 +3461,7 @@ suspended in alcohol solution.
 
 ### Heavy Metal Toxicity — Risk Formulas
 
-For modeling poisoning if a Mistborn fails to burn reserves.
+For modeling poisoning if a Ashwalker fails to burn reserves.
 
 **1. Average Daily Intake (Chronic Daily Intake)**
 ```
@@ -3492,7 +3492,7 @@ HI = Σ HQ_i = HQ_Cd + HQ_Pb + HQ_Sn + ...
 HI > 1 → cumulative toxicity risk exceeds threshold
 ```
 
-**4. Ecological Risk Index (water/sediment — relevant for environmental Allomancy lore)**
+**4. Ecological Risk Index (water/sediment — relevant for environmental Metallurgy lore)**
 ```
 RI = Σ (E_r^i)  where  E_r^i = T_r^i × C_f^i
 
@@ -3548,7 +3548,7 @@ at the `SleepEvent`): `damage = HQ × maxHealth × metalConcentrationFactor`
 
 ## 15. Arc Trajectories — Diagonal Push/Pull Physics
 
-*Allomantic pushes are rarely straight up or straight down. A Mistborn pushing
+*Metallurgic pushes are rarely straight up or straight down. A Ashwalker pushing
 off a coin on a rooftop while running launches at an angle — the resulting path
 is a parabolic arc under the combined influence of the push vector and gravity.*
 
@@ -3558,10 +3558,10 @@ is a parabolic arc under the combined influence of the push vector and gravity.*
 
 ```
 A push/pull force acts along the blue line — the straight line from chest to metal.
-As the Mistborn and the metal source change positions, the blue line's angle changes.
+As the Ashwalker and the metal source change positions, the blue line's angle changes.
 Gravity always pulls straight down.
 
-Combined effect: the Mistborn traces a smooth parabolic arc, not a straight line.
+Combined effect: the Ashwalker traces a smooth parabolic arc, not a straight line.
 
 Examples:
   - Push off a coin below-left → arc curves right and up
@@ -3645,13 +3645,13 @@ Horizontal range = Phase1_x + Phase2_x
 Max height: solve v_y(t) = 0
 ```
 
-**Lurcher swing (pull toward elevated anchor):**
+**Hauler swing (pull toward elevated anchor):**
 ```
-The Lurcher arcs toward the anchor like a pendulum.
+The Hauler arcs toward the anchor like a pendulum.
 The pull force direction tracks the anchor, creating a smooth curve:
   - Start: mostly horizontal pull
   - Midpoint: pull becomes more vertical (passing below anchor)
-  - End: pull decelerates as Lurcher approaches anchor
+  - End: pull decelerates as Hauler approaches anchor
 
 Radial acceleration ≈ pullAccel − g×cos(θ_line)
 Tangential acceleration = −g×sin(θ_line)
@@ -3671,7 +3671,7 @@ More angled (larger θ) → must be closer to metal for hover.
 
 ## 16. Volcanic Ash & Aerosol Particle Physics
 
-*Scadrial's Ashmounts spew constant volcanic ash. These formulas govern how
+*Ashara's Ashmounts spew constant volcanic ash. These formulas govern how
 ash falls, accumulates, and interacts — used by the ash particle systems,
 DayNightCycle ash attenuation, and weather gameplay.*
 
@@ -3702,7 +3702,7 @@ Example — coarse ash (d_p = 2 mm, ρ_p = 2000 kg/m³):
 
 **Game application:** The `AshParticles` system uses `gravityModifier = 0.12`
 which gives effective settling ≈ 1.2 m/s — between fine and coarse ash, which
-looks right for the persistent Scadrial ashfall.
+looks right for the persistent Ashara ashfall.
 
 ---
 
@@ -3728,7 +3728,7 @@ Where:
 ```
 
 Lower sphericity → higher drag → slower settling → ash stays airborne longer.
-Scadrial's constant ash haze is partially explained by low-sphericity fragments
+Ashara's constant ash haze is partially explained by low-sphericity fragments
 from explosive Ashmount eruptions.
 
 ---
@@ -3806,7 +3806,7 @@ Ash Particle Density Ranges:
   Dense basaltic ash:     2000–2600 kg/m³
   Andesitic ash:          1500–2000 kg/m³
   Pumiceous/vesicular:     700–1200 kg/m³
-  Scadrial ash (estimated): ~1500 kg/m³  (mix of dense + vesicular)
+  Ashara ash (estimated): ~1500 kg/m³  (mix of dense + vesicular)
 ```
 
 ---
@@ -3816,10 +3816,10 @@ Ash Particle Density Ranges:
 ```
 Rate (kg/m²/s) = C_ash × v_t × ρ_p × (π/6) × d_p³ × N_particles/m³
 
-For Scadrial's constant ashfall (estimated):
+For Ashara's constant ashfall (estimated):
   ~0.1–1.0 mm/day accumulation on flat surfaces
-  Skaa sweep roofs and streets regularly (lore-confirmed)
-  Without sweeping, ash would bury Luthadel in weeks
+  Lowborn sweep roofs and streets regularly (lore-confirmed)
+  Without sweeping, ash would bury Cinderhold in weeks
 
 Game: DayNightCycle.ashAttenuation = 0.45 represents ~45% of sunlight
 blocked by the ash column — consistent with persistent light ashfall.
@@ -3832,8 +3832,8 @@ blocked by the ash column — consistent with persistent light ashfall.
 ## 17. Pendulum Physics — Hanging Objects & Swinging Metal
 
 *Gibbets, hanging signs, lanterns, chains, and cage traps all swing as
-physical pendulums. Allomantic Pushes on hanging metal objects create
-dramatic pendulum motion — a Coinshot pushing a metal sign makes it
+physical pendulums. Metallurgic Pushes on hanging metal objects create
+dramatic pendulum motion — a Launcher pushing a metal sign makes it
 swing with predictable physics.*
 
 ---
@@ -3882,10 +3882,10 @@ Where L = total length of the rod.
 For a 1m rod: T = 2π × √(2/29.43) ≈ 1.64s
 ```
 
-### Allomantic Interaction
+### Metallurgic Interaction
 
 ```
-When a Coinshot pushes a hanging metal object:
+When a Launcher pushes a hanging metal object:
 
 1. Push force → impulse → initial angular velocity
    ω₀ = J / I  (where J = impulse = F × Δt)
@@ -3897,7 +3897,7 @@ When a Coinshot pushes a hanging metal object:
    θ(t) = θ_max × e^(−γt) × cos(ωt)
    γ = damping coefficient (typically 0.1–0.5 for metal objects)
 
-4. A Lurcher pulling on the same object while it swings
+4. A Hauler pulling on the same object while it swings
    can amplify the oscillation (resonance) if timed to the period.
 ```
 
@@ -3907,8 +3907,8 @@ realistic swing speeds. The gibbet cage at `swaySpeed = 0.85 Hz` matches
 
 ---
 
-*Document compiled from r/Mistborn, r/Cosmere, and 17th Shard community analysis*
-*Brandon Sanderson's official WoB from Arcanum.coppermind.net*
-*Cosmere Era: 1022-1025 FE*
+*Document compiled from r/Ashwalker, r/the greater universe, and 17th Shard community analysis*
+*the original author's official WoB from Arcanum.coppermind.net*
+*the greater universe Era: 1022-1025 FE*
 *Last Updated: April 2026*
 *Version: 5.0 - Includes Pendulum Physics and Ash Aerosols*

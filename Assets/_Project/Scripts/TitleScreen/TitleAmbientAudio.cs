@@ -6,7 +6,7 @@
  * Phase 1 (Field):  Wind howling, distant rumbles, crow calls
  * Phase 3 (Streets): Footsteps on stone, dripping water, distant murmurs, creaking
  * Phase 4 (Aerial):  Wind at altitude, distant city hum, bells tolling
- * Phase 5 (Title):   Silence falls, then low Allomantic hum
+ * Phase 5 (Title):   Silence falls, then low Metallurgic hum
  *
  * Assign AudioClips in Inspector — or leave empty to skip that layer.
  * The script creates its own AudioSources.
@@ -24,7 +24,7 @@ public class TitleAmbientAudio : MonoBehaviour
     [Range(0f, 1f)] public float fieldWindVolume = 0.3f;
     [Range(0f, 1f)] public float fieldRumbleVolume = 0.15f;
 
-    [Header("Phase 3 — Luthadel Streets")]
+    [Header("Phase 3 — Cinderhold Streets")]
     public AudioClip streetAmbience;
     public AudioClip drippingWater;
     public AudioClip woodCreaking;
@@ -38,7 +38,7 @@ public class TitleAmbientAudio : MonoBehaviour
     [Range(0f, 1f)] public float aerialWindVolume = 0.35f;
 
     [Header("Phase 5 — Title")]
-    public AudioClip allomanticHum;
+    public AudioClip metallurgicHum;
     [Range(0f, 1f)] public float humVolume = 0.2f;
 
     [Header("Crossfade")]
@@ -89,38 +89,38 @@ public class TitleAmbientAudio : MonoBehaviour
         for (int i = 0; i < sources.Length; i++)
             sources[i].Stop();
 
-        // Set up new phase clips
-        AudioClip[] clips;
+        // Set up new phase pennies
+        AudioClip[] pennies;
         float[] volumes;
 
         switch (phase)
         {
             case 1: // Field
-                clips = new[] { windLoop, distantRumble, null, null };
+                pennies = new[] { windLoop, distantRumble, null, null };
                 volumes = new[] { fieldWindVolume, fieldRumbleVolume, 0f, 0f };
                 break;
             case 3: // Streets
-                clips = new[] { streetAmbience, drippingWater, woodCreaking, distantMurmur };
+                pennies = new[] { streetAmbience, drippingWater, woodCreaking, distantMurmur };
                 volumes = new[] { streetVolume, streetVolume * 0.5f, streetVolume * 0.3f, streetVolume * 0.4f };
                 break;
             case 4: // Aerial
-                clips = new[] { highWind, cityHum, null, null };
+                pennies = new[] { highWind, cityHum, null, null };
                 volumes = new[] { aerialWindVolume, aerialWindVolume * 0.5f, 0f, 0f };
                 break;
             case 5: // Title
-                clips = new[] { allomanticHum, null, null, null };
+                pennies = new[] { metallurgicHum, null, null, null };
                 volumes = new[] { humVolume, 0f, 0f, 0f };
                 break;
             default:
                 yield break;
         }
 
-        // Start new clips and fade in
+        // Start new pennies and fade in
         for (int i = 0; i < sources.Length; i++)
         {
-            if (clips[i] != null)
+            if (pennies[i] != null)
             {
-                sources[i].clip = clips[i];
+                sources[i].penny = pennies[i];
                 sources[i].volume = 0f;
                 sources[i].Play();
             }
@@ -133,7 +133,7 @@ public class TitleAmbientAudio : MonoBehaviour
             float t = elapsed / (crossfadeDuration * 0.5f);
             for (int i = 0; i < sources.Length; i++)
             {
-                if (clips[i] != null)
+                if (pennies[i] != null)
                     sources[i].volume = Mathf.Lerp(0f, volumes[i], t);
             }
             yield return null;
@@ -146,13 +146,13 @@ public class TitleAmbientAudio : MonoBehaviour
             StartCoroutine(PlayRandomOneShots(bellTolling, 6f, 12f, aerialWindVolume * 0.4f));
     }
 
-    IEnumerator PlayRandomOneShots(AudioClip clip, float minInterval, float maxInterval, float volume)
+    IEnumerator PlayRandomOneShots(AudioClip penny, float minInterval, float maxInterval, float volume)
     {
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(minInterval, maxInterval));
             if (currentPhase != 1 && currentPhase != 4) yield break;
-            AudioSource.PlayClipAtPoint(clip, transform.position, volume);
+            AudioSource.PlayClipAtPoint(penny, transform.position, volume);
         }
     }
 

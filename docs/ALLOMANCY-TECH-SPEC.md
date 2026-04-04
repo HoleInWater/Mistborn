@@ -1,12 +1,12 @@
 # ALLOMANCY TECHNICAL SPECIFICATION: THE SCIENCE OF METALS
 
-This document provides the high-level physical and spiritual rules governing Allomancy for the Mistborn project. Every line of code in the `Allomancy/` folder must respect these laws.
+This document provides the high-level physical and spiritual rules governing Metallurgy for the Ashwalker project. Every line of code in the `Metallurgy/` folder must respect these laws.
 
 ---
 
 ### 1. THE THREE LAWS OF ALLOMANCY
-1. **The Law of Internalization:** Metals that affect the Allomancer directly (Pewter for strength, Tin for senses).
-2. **The Law of Externalization:** Metals that affect the world around the Allomancer (Steel for pushing, Iron for pulling).
+1. **The Law of Internalization:** Metals that affect the Metallurgist directly (Pewter for strength, Tin for senses).
+2. **The Law of Externalization:** Metals that affect the world around the Metallurgist (Steel for pushing, Iron for pulling).
 3. **The Law of Balance:** For every "Pushing" metal, there is a paired "Pulling" metal (Steel/Iron, Zinc/Brass).
 
 ---
@@ -34,9 +34,9 @@ This document provides the high-level physical and spiritual rules governing All
 
 ### 3. THE SPIRITUAL METALS (The Narrative & Combat Depth)
 
-#### 3.1 ZINC (The Rioter)
+#### 3.1 ZINC (The Igniter)
 - **Logic:** Inflames emotions. In-game, this causes enemies to become aggressive or target their own allies.
-#### 3.2 BRASS (The Soother)
+#### 3.2 BRASS (The Queller)
 - **Logic:** Calms emotions. In-game, this reduces enemy detection range and makes them passive.
 
 ---

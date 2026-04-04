@@ -11,7 +11,7 @@
 ///         (can't select), and RefreshAllSlots never reached SetState/SetColor
 ///         (no colors). All accesses now go through SafeIsUnlocked() / SafeGetReserve().
 ///
-/// ACTION REQUIRED: Also resize unlockedMetals and metalReserves on your Allomancer
+/// ACTION REQUIRED: Also resize unlockedMetals and metalReserves on your Metallurgist
 ///                  component to length 18 (or however many metals are in your enum).
 ///                  Add entries for Chromium and Nicrosil in your metalData list in
 ///                  the Inspector, assigned to MetalGroup.Enhancement.
@@ -26,7 +26,7 @@ public enum MetalGroup { Physical, Mental, Enhancement, Temporal }
 [System.Serializable]
 public class MetalSlotData
 {
-    public AllomancySkill.MetalType metalType;
+    public MetallurgySkill.MetalType metalType;
     public MetalGroup group;
     public Color themeColor = Color.white;
     public Sprite slotIcon;
@@ -39,7 +39,7 @@ public class MetalWheelController : MonoBehaviour
     public MetalWheelTimeManager timeManager;
     public MetalWheelInputHandler inputHandler;
     public MetalWheelAudio audioManager;
-    public Allomancer playerAllomancer;
+    public Metallurgist playerMetallurgist;
 
     [Header("UI References")]
     public CanvasGroup wheelCanvasGroup;
@@ -117,21 +117,21 @@ public class MetalWheelController : MonoBehaviour
         }
     }
 
-    // FIX 2: Bounds-safe helpers replace all direct playerAllomancer.array[metalInt] accesses.
+    // FIX 2: Bounds-safe helpers replace all direct playerMetallurgist.array[metalInt] accesses.
     // Raw access throws IndexOutOfRangeException for metals beyond the original array size of 16.
     // Unity swallows exceptions in Update loops — making the failures completely invisible in console.
     private bool SafeIsUnlocked(int metalInt)
     {
-        if (playerAllomancer == null || playerAllomancer.unlockedMetals == null) return false;
-        if (metalInt < 0 || metalInt >= playerAllomancer.unlockedMetals.Length) return false;
-        return playerAllomancer.unlockedMetals[metalInt];
+        if (playerMetallurgist == null || playerMetallurgist.unlockedMetals == null) return false;
+        if (metalInt < 0 || metalInt >= playerMetallurgist.unlockedMetals.Length) return false;
+        return playerMetallurgist.unlockedMetals[metalInt];
     }
 
     private float SafeGetReserve(int metalInt)
     {
-        if (playerAllomancer == null || playerAllomancer.metalReserves == null) return 0f;
-        if (metalInt < 0 || metalInt >= playerAllomancer.metalReserves.Length) return 0f;
-        return playerAllomancer.metalReserves[metalInt];
+        if (playerMetallurgist == null || playerMetallurgist.metalReserves == null) return 0f;
+        if (metalInt < 0 || metalInt >= playerMetallurgist.metalReserves.Length) return 0f;
+        return playerMetallurgist.metalReserves[metalInt];
     }
 
     private void OpenWheel()
@@ -151,9 +151,9 @@ public class MetalWheelController : MonoBehaviour
         MetalWheelMistOverlay.Instance?.Show();
         if (audioManager != null) audioManager.PlayOpenSound();
 
-        if (playerAllomancer != null)
+        if (playerMetallurgist != null)
         {
-            AllomancySkill.MetalType active = playerAllomancer.GetCurrentMetal();
+            MetallurgySkill.MetalType active = playerMetallurgist.GetCurrentMetal();
             int index = metalData.FindIndex(m => m.metalType == active);
             if (index >= 0)
             {
@@ -186,7 +186,7 @@ public class MetalWheelController : MonoBehaviour
 
     private void EquipSelectedMetal(bool asSecondary)
     {
-        if (playerAllomancer == null) return;
+        if (playerMetallurgist == null) return;
         if (currentSlotIndex < 0 || currentSlotIndex >= metalData.Count) return;
 
         MetalSlotData selectedData = metalData[currentSlotIndex];
@@ -197,10 +197,10 @@ public class MetalWheelController : MonoBehaviour
         // preventing ANY equip attempt from succeeding for those two metals.
         if (SafeIsUnlocked(metalInt) && SafeGetReserve(metalInt) > 0)
         {
-            MetalSelector selector = playerAllomancer.GetComponent<MetalSelector>();
+            MetalSelector selector = playerMetallurgist.GetComponent<MetalSelector>();
             if (selector != null)
             {
-                AllomancySkill.MetalType targetType = selectedData.metalType;
+                MetallurgySkill.MetalType targetType = selectedData.metalType;
 
                 if (asSecondary)
                 {
@@ -219,7 +219,7 @@ public class MetalWheelController : MonoBehaviour
             }
             else
             {
-                playerAllomancer.SetCurrentMetal(selectedData.metalType);
+                playerMetallurgist.SetCurrentMetal(selectedData.metalType);
                 if (audioManager != null) audioManager.PlayCloseSound(true);
             }
         }
@@ -328,9 +328,9 @@ public class MetalWheelController : MonoBehaviour
             // leaving Chromium and Nicrosil permanently colorless and unresponsive.
             bool unlocked = SafeIsUnlocked(metalInt);
             float reservePercentage = SafeGetReserve(metalInt) / 100f;
-            bool isBurningThis = playerAllomancer != null
-                && playerAllomancer.IsBurning()
-                && playerAllomancer.GetCurrentMetal() == metalData[i].metalType;
+            bool isBurningThis = playerMetallurgist != null
+                && playerMetallurgist.IsBurning()
+                && playerMetallurgist.GetCurrentMetal() == metalData[i].metalType;
 
             MetalWheelSlot.SlotState state;
             if (!unlocked)                   state = MetalWheelSlot.SlotState.LOCKED;

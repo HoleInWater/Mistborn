@@ -2,21 +2,21 @@
 
 ## Overview
 
-Combat in Mistborn Era One is built around Allomancy. The player doesn't swing swords — they push, pull, and fly. This document defines how combat works.
+Combat in Ashwalker Era One is built around Metallurgy. The player doesn't swing swords — they push, pull, and fly. This document defines how combat works.
 
 ---
 
 ## Core Combat Loop
 
 ### The Flow
-1. **Engage** — Use Allomantic Sight to locate metal on enemies
+1. **Engage** — Use Metallurgic Sight to locate metal on enemies
 2. **Attack** — Push enemies' metal weapons away (disarm) or push enemies into obstacles
 3. **Defend** — Create steel bubble to deflect incoming metal, or use pewter for strength
 4. **Traverse** — Push off metal anchors to reposition, pull to swing
 5. **Finish** — Coins as projectiles, or let physics do the work
 
 ### No Traditional Weapons (At Start)
-Early game: All combat is through Allomancy. No melee weapons, no guns. Everything is steel/iron manipulation.
+Early game: All combat is through Metallurgy. No melee weapons, no guns. Everything is steel/iron manipulation.
 
 ---
 
@@ -48,10 +48,10 @@ Early game: All combat is through Allomancy. No melee weapons, no guns. Everythi
 
 ## Enemy Types
 
-### Skaa Soldier
+### Lowborn Soldier
 - Basic melee attack
 - Metal armor (can be pushed)
-- No Allomancy
+- No Metallurgy
 - HP: 50
 
 ### Noble Guard
@@ -59,8 +59,8 @@ Early game: All combat is through Allomancy. No melee weapons, no guns. Everythi
 - May have metal weapons
 - HP: 100
 
-### Steel Inquisitor (Boss)
-- Multiple Allomantic powers
+### Iron Sentinel (Boss)
+- Multiple Metallurgic powers
 - Metal-detection sight (darkness doesn't work)
 - HP: 500
 - Attacks:
@@ -68,8 +68,8 @@ Early game: All combat is through Allomancy. No melee weapons, no guns. Everythi
   - Ironpull disorientation
   - Pewter rage mode
 
-### Koloss (Future)
-- Hemalurgically enhanced
+### Bloodbrute (Future)
+- Bloodforgedally enhanced
 - Metal spikes visible
 - HP: 200
 - Strong but slow
@@ -89,10 +89,10 @@ Early game: All combat is through Allomancy. No melee weapons, no guns. Everythi
 ### Enemy Damage
 | Enemy | Damage |
 |-------|--------|
-| Skaa Soldier | 15 |
+| Lowborn Soldier | 15 |
 | Noble Guard | 25 |
-| Inquisitor push | 20 |
-| Koloss | 40 |
+| Sentinel push | 20 |
+| Bloodbrute | 40 |
 
 ### Player Health
 - Base HP: 100
@@ -138,4 +138,4 @@ Early game: All combat is through Allomancy. No melee weapons, no guns. Everythi
 
 - Movement feel: Mirror's Edge, Assassin's Creed
 - Combat feel: Warframe, DOOM
-- Allomancy feel: Jet Set Radio (fluid, momentum-based)
+- Metallurgy feel: Jet Set Radio (fluid, momentum-based)

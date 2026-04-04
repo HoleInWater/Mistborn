@@ -16,7 +16,7 @@ using System;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class PlayerComponentAttribute : Attribute
 {
-    /// <summary>Group label shown in the setup window (e.g. "Combat", "Allomancy").</summary>
+    /// <summary>Group label shown in the setup window (e.g. "Combat", "Metallurgy").</summary>
     public string Group { get; }
 
     /// <summary>Lower numbers run first within the same group.</summary>

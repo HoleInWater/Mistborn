@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Scene Names")]
     public string mainMenuScene = "MainMenu";
-    public string gameplayScene = "Luthadel";
+    public string gameplayScene = "Cinderhold";
 
     [Header("Settings")]
     public float gameOverDelay = 2f;
@@ -39,8 +39,8 @@ public class GameManager : MonoBehaviour
     {
         // Listen for player death
         EventManager.RegisterEvent("PlayerDied", OnPlayerDied);
-        EventManager.RegisterEvent("LordRuler_Defeated", OnVictory);
-        EventManager.RegisterEvent("InquisitorDefeated", OnInquisitorDefeated);
+        EventManager.RegisterEvent("AshenKing_Defeated", OnVictory);
+        EventManager.RegisterEvent("SentinelDefeated", OnSentinelDefeated);
     }
 
     void Update()
@@ -203,10 +203,10 @@ public class GameManager : MonoBehaviour
         AchievementSystem.Instance?.TryUnlock("lord_ruler_defeated");
     }
 
-    void OnInquisitorDefeated()
+    void OnSentinelDefeated()
     {
-        AchievementSystem.Instance?.TryUnlock("kill_inquisitor");
-        NotificationSystem.Instance?.ShowNotification("Steel Inquisitor defeated!");
+        AchievementSystem.Instance?.TryUnlock("kill_sentinel");
+        NotificationSystem.Instance?.ShowNotification("Iron Sentinel defeated!");
     }
 
     // ── Scene Management ─────────────────────────────────────────────────

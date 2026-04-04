@@ -25,7 +25,7 @@ public class DodgeRoll : MonoBehaviour
     [Header("References")]
     public Rigidbody playerRb;
     public PlayerStamina stamina;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
 
     private bool isDodging = false;
@@ -37,7 +37,7 @@ public class DodgeRoll : MonoBehaviour
     {
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         if (stamina == null) stamina = GetComponent<PlayerStamina>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (animator == null) animator = GetComponent<Animator>();
         playerCollider = GetComponent<Collider>();
     }
@@ -62,7 +62,7 @@ public class DodgeRoll : MonoBehaviour
         stamina?.UseStamina(staminaCost);
 
         // Pewter enhancement check
-        bool pewterActive = allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter);
+        bool pewterActive = metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter);
         float actualDuration = dodgeDuration;
         float actualIFrames = invincibilityDuration + (pewterActive ? pewterExtraIFrames : 0f);
         float actualCooldown = dodgeCooldown - (pewterActive ? pewterCooldownReduction : 0f);

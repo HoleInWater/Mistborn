@@ -24,7 +24,7 @@ public class InteractionWheel : MonoBehaviour
 
     [Header("References")]
     public Camera playerCamera;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
 
     private bool isOpen = false;
     private float holdTimer = 0f;
@@ -43,7 +43,7 @@ public class InteractionWheel : MonoBehaviour
     void Start()
     {
         if (playerCamera == null) playerCamera = Camera.main;
-        if (allomancer == null) allomancer = GetComponentInParent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponentInParent<Metallurgist>();
         if (wheelPanel != null) wheelPanel.SetActive(false);
     }
 
@@ -102,7 +102,7 @@ public class InteractionWheel : MonoBehaviour
         {
             // Default options
             currentOptions.Add(new WheelOption { name = "Drink Vial", description = "Replenish metal reserves",
-                onSelect = () => GetComponent<MetalVialSystem>()?.DrinkVialForMetal(allomancer.GetCurrentMetal()) });
+                onSelect = () => GetComponent<MetalVialSystem>()?.DrinkVialForMetal(metallurgist.GetCurrentMetal()) });
             currentOptions.Add(new WheelOption { name = "Recover Coins", description = "Pick up nearby coins",
                 onSelect = () => {} });
         }
@@ -135,15 +135,15 @@ public class InteractionWheel : MonoBehaviour
             currentOptions.Add(new WheelOption { name = "Iron Pull", description = "Pull enemy toward you",
                 onSelect = () => {} });
 
-            if (target.GetComponent<KolossAI>() != null)
+            if (target.GetComponent<BloodbruteAI>() != null)
             {
-                currentOptions.Add(new WheelOption { name = "Remove Spike", description = "Pull a Hemalurgic spike",
-                    onSelect = () => target.GetComponent<KolossAI>()?.RemoveSpike() });
+                currentOptions.Add(new WheelOption { name = "Remove Spike", description = "Pull a Bloodforged spike",
+                    onSelect = () => target.GetComponent<BloodbruteAI>()?.RemoveSpike() });
             }
 
-            if (target.GetComponent<SteelInquisitorAI>() != null)
+            if (target.GetComponent<IronSentinelAI>() != null)
             {
-                var inq = target.GetComponent<SteelInquisitorAI>();
+                var inq = target.GetComponent<IronSentinelAI>();
                 if (inq.CanRemoveLinchpin(transform))
                 {
                     currentOptions.Add(new WheelOption { name = "Remove Linchpin", description = "Instant kill!",

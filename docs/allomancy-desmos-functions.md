@@ -1,4 +1,4 @@
-# Allomancy Steel Push - Desmos Math Functions
+# Metallurgy Steel Push - Desmos Math Functions
 
 Use these in Desmos (desmos.com/calculator)
 

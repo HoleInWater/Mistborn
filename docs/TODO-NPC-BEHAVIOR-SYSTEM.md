@@ -39,11 +39,11 @@ The highest score determines current behavior. Scores shift dynamically as the s
 - Escape routes available (doors, alleys, rooftops)
 - Cover positions
 - Terrain advantages
-- Nearby metal objects (Allomancy risk — metal = danger for NPCs who know about Allomancers)
+- Nearby metal objects (Metallurgy risk — metal = danger for NPCs who know about Metallurgists)
 
 ### 5. Memory / Recent Events
 - Witnessed deaths (ally or enemy)
-- Prior Allomancy exposure (first time vs. seasoned)
+- Prior Metallurgy exposure (first time vs. seasoned)
 - Past escape attempts (success → higher Flight, failure → lower Flight)
 - Time since last traumatic event (decay toward baseline)
 
@@ -59,26 +59,26 @@ The highest score determines current behavior. Scores shift dynamically as the s
 Two NPCs can witness the same event and interpret it differently based on their belief system.
 
 ```
-Memory: "I saw a Mistborn kill three guards"
-  → Noble Guard belief: "Mistborn are powerful, but I'm trained for this"  (Fight stays)
-  → Passive Skaa belief: "The world is more dangerous than I thought"       (Flop rises)
-  → Rebel Skaa belief:  "If they can fight back, maybe we all can"          (Fight rises)
+Memory: "I saw a Ashwalker kill three guards"
+  → Noble Guard belief: "Ashwalker are powerful, but I'm trained for this"  (Fight stays)
+  → Passive Lowborn belief: "The world is more dangerous than I thought"       (Flop rises)
+  → Rebel Lowborn belief:  "If they can fight back, maybe we all can"          (Fight rises)
 ```
 
 Memory feeds belief. Belief modifies how memory is interpreted. This creates a feedback loop over time.
 
 ---
 
-## Mistborn-Specific NPC Archetypes
+## Ashwalker-Specific NPC Archetypes
 
 | Archetype | Fight | Flight | Freeze | Flop | Notes |
 |---|---|---|---|---|---|
-| Passive Skaa | Very Low | Low | Medium | High | Learned helplessness from Final Empire oppression |
-| Rebel Skaa | Conditional | Medium | Low | Low | Swing character — Fight if conditions favor it |
-| Witness Skaa | Medium | Medium | Low | Low | Saw resistance succeed; faster Freeze recovery |
-| Noble Guard | High | Low | Low | Delayed | Trained, knows Allomancers exist |
-| Untrained Civilian | Very Low | Medium | Very High | High | Reality collapse on Allomancy reveal |
-| Obligator | Low | Medium | Low | Low | Authority figure; Freeze → summon Inquisitor |
+| Passive Lowborn | Very Low | Low | Medium | High | Learned helplessness from Ashen Dominion oppression |
+| Rebel Lowborn | Conditional | Medium | Low | Low | Swing character — Fight if conditions favor it |
+| Witness Lowborn | Medium | Medium | Low | Low | Saw resistance succeed; faster Freeze recovery |
+| Noble Guard | High | Low | Low | Delayed | Trained, knows Metallurgists exist |
+| Untrained Civilian | Very Low | Medium | Very High | High | Reality collapse on Metallurgy reveal |
+| Prelate | Low | Medium | Low | Low | Authority figure; Freeze → summon Sentinel |
 | Thieving Crew Member | Medium | High | Low | Low | Trained for escape; Flight is preferred |
 
 ---
@@ -87,7 +87,7 @@ Memory feeds belief. Belief modifies how memory is interpreted. This creates a f
 
 ### Event-Driven (Immediate)
 - Ally death → instant morale penalty, Freeze spike for nearby NPCs
-- Allomancy reveal → Freeze spike for NPCs who haven't seen it before
+- Metallurgy reveal → Freeze spike for NPCs who haven't seen it before
 - Taking damage → Fight spike (cornered) or Flight spike (outmatched)
 - Player enters area → Threat Assessment recalculation
 
@@ -147,13 +147,13 @@ belief_shift = event_impact × interpretation_weight × repetition_factor
 
 Where:
   event_impact:         how significant the event is (ally death = high, rumor = low)
-  interpretation_weight: archetype-dependent (Rebel Skaa weight resistance +, Passive Skaa -)
+  interpretation_weight: archetype-dependent (Rebel Lowborn weight resistance +, Passive Lowborn -)
   repetition_factor:    diminishing returns on same event, increasing returns on pattern
 ```
 
 ### Open Questions
 - How fast should beliefs change? (One dramatic event vs gradual shift)
-- Can beliefs regress? (A Witness Skaa who sees resistance crushed — does hope decay?)
+- Can beliefs regress? (A Witness Lowborn who sees resistance crushed — does hope decay?)
 - Do beliefs propagate socially? (NPC tells others what they saw → belief infection)
 - How to model "tipping points"? (Belief crosses threshold → permanent archetype shift)
 
@@ -164,7 +164,7 @@ Where:
 The belief system should allow simulation of:
 
 ### Indoctrination
-- Skaa who never question the system
+- Lowborn who never question the system
 - High Flop baseline, belief: "this is how the world works"
 - Extremely resistant to belief change (high interpretation_weight against hope)
 
@@ -217,10 +217,10 @@ The belief system should allow simulation of:
 - [ ] Implement archetype threshold shifts
 - [ ] Test emergent behaviors (crowd panic, hope cascade, radicalization)
 
-### Phase 6: Allomancy Integration
-- [ ] Metal proximity awareness (NPCs avoid standing near metal if they know about Allomancers)
-- [ ] Allomancy reveal event (first-time → massive Freeze spike)
-- [ ] Inquisitor presence modifier (overrides all behavior → extreme Flop or extreme Fight)
+### Phase 6: Metallurgy Integration
+- [ ] Metal proximity awareness (NPCs avoid standing near metal if they know about Metallurgists)
+- [ ] Metallurgy reveal event (first-time → massive Freeze spike)
+- [ ] Sentinel presence modifier (overrides all behavior → extreme Flop or extreme Fight)
 
 ---
 

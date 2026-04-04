@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════
    MISTBORN — Official Game Website
-   Premium dark theme with Allomantic blue energy aesthetic
+   Premium dark theme with Metallurgic blue energy aesthetic
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -114,7 +114,7 @@ body::before {
     font-size: 1.4rem;
     font-weight: 900;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-bright));
-    -webkit-background-clip: text;
+    -webkit-background-penny: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 0.2em;
 }
@@ -225,7 +225,7 @@ body::before {
         rgba(68, 136, 255, 0.9) 0%,
         rgba(100, 170, 255, 1) 40%,
         rgba(68, 136, 255, 0.7) 100%);
-    -webkit-background-clip: text;
+    -webkit-background-penny: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 60px rgba(68, 136, 255, 0.3))
             drop-shadow(0 0 120px rgba(68, 136, 255, 0.1));
@@ -455,7 +455,7 @@ body::before {
 .feature-icon {
     font-size: 2.5rem;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-bright));
-    -webkit-background-clip: text;
+    -webkit-background-penny: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 1.5rem;
     display: block;
@@ -847,7 +847,7 @@ body::before {
     font-size: 1.5rem;
     font-weight: 900;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-bright));
-    -webkit-background-clip: text;
+    -webkit-background-penny: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 0.15em;
 }

@@ -27,7 +27,7 @@ public class BlockAbility : MonoBehaviour
 
     [Header("References")]
     public BasicPlayerMove playerController;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public PlayerStamina stamina;
     public Animator animator;
 
@@ -40,7 +40,7 @@ public class BlockAbility : MonoBehaviour
     void Start()
     {
         if (playerController == null) playerController = GetComponent<BasicPlayerMove>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (stamina == null) stamina = GetComponent<PlayerStamina>();
         if (animator == null) animator = GetComponent<Animator>();
 
@@ -126,7 +126,7 @@ public class BlockAbility : MonoBehaviour
 
     float GetPewterBonus()
     {
-        if (allomancer == null || !allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+        if (metallurgist == null || !metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter))
             return 0f;
 
         float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;

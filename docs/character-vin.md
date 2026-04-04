@@ -1,22 +1,22 @@
-# Character Design — Vin
+# Character Design — Ember
 
-*Main playable character. Street rat turned Mistborn.*
+*Main playable character. Street rat turned Ashwalker.*
 
 ---
 
 ## Background
 
 ### Early Life
-- Born to a skaa family
-- Mother killed by obligator
+- Born to a lowborn family
+- Mother killed by prelate
 - Abused by noble stepfamily
 - Learned to steal to survive
 - Developed paranoia and mistrust
 
 ### Discovery
 - Snapped during ashfall
-- Revealed as Allomancer
-- Recruited by Kelsier
+- Revealed as Metallurgist
+- Recruited by Darius
 - Learned the crew becomes her family
 
 ---
@@ -36,7 +36,7 @@
 
 ## Abilities
 
-### Allomantic
+### Metallurgic
 | Metal | Skill Level | Use |
 |-------|-------------|-----|
 | Steel | Expert | Primary traversal |
@@ -56,7 +56,7 @@
 
 ### Combat Style
 - Prefers range (coins)
-- Uses Allomancy creatively
+- Uses Metallurgy creatively
 - Adapts to situation
 - Will fight up close if needed
 
@@ -71,7 +71,7 @@
 - Small knife
 
 ### Upgrades (Later)
-- Better Allomancy gear
+- Better Metallurgy gear
 - Noble-quality clothing
 - Armored options
 - Special items
@@ -96,7 +96,7 @@
 ### Late Game
 - Noble-quality attire
 - Confident bearing
-- Mistborn power visible
+- Ashwalker power visible
 - Leader appearance
 
 ---
@@ -112,7 +112,7 @@
 
 ## Arc in Game
 
-1. **Tutorial:** Learning, following Kelsier
+1. **Tutorial:** Learning, following Darius
 2. **Early:** Proving herself, building trust
 3. **Mid:** Leading missions, making choices
 4. **Late:** Becoming leader, facing destiny
@@ -121,14 +121,14 @@
 
 ## Player Connection
 
-Vin is:
+Ember is:
 - Relatable underdog
 - Powerful but not invincible
 - Makes mistakes
 - Grows throughout story
 - Has strong supporting cast
 
-**Goal:** Player sees themselves in Vin.
+**Goal:** Player sees themselves in Ember.
 
 ---
 
@@ -137,4 +137,4 @@ Vin is:
 1. Voice acting?
 2. Age appearance?
 3. Romance options?
-4. Dark path (mistborn villain)?
+4. Dark path (ashwalker villain)?

@@ -63,7 +63,7 @@ public class SceneBootstrap : MonoBehaviour
         if (player == null) return;
 
         // Ensure core player components exist
-        EnsureComponent<Allomancer>(player);
+        EnsureComponent<Metallurgist>(player);
         EnsureComponent<BasicPlayerMove>(player);
         EnsureComponent<PlayerHealth>(player);
         EnsureComponent<PlayerStamina>(player);
@@ -76,9 +76,9 @@ public class SceneBootstrap : MonoBehaviour
         EnsureComponent<MetalMagnet>(player);
         EnsureComponent<ParkourSystem>(player);
         EnsureComponent<MovementExtras>(player);
-        EnsureComponent<EmotionalAllomancy>(player);
-        EnsureComponent<CognitiveAllomancy>(player);
-        EnsureComponent<TemporalAllomancy>(player);
+        EnsureComponent<EmotionalMetallurgy>(player);
+        EnsureComponent<CognitiveMetallurgy>(player);
+        EnsureComponent<TemporalMetallurgy>(player);
 
         // Set up checkpoint at player start position
         CheckpointSystem.Instance?.SetCheckpoint(player.transform.position, player.transform.rotation);

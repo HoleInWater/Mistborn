@@ -86,11 +86,11 @@ public class Door : MonoBehaviour
         isLocked = false;
     }
     
-    void PlaySound(AudioClip clip)
+    void PlaySound(AudioClip penny)
     {
-        if (clip != null && audioSource != null)
+        if (penny != null && audioSource != null)
         {
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(penny);
         }
     }
 }

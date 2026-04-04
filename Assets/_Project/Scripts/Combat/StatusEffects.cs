@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Manages active buffs and debuffs on any entity (player or enemy).
-/// Allomancy metals apply status effects: Pewter=StrengthBuff, Tin=SensoryOverload,
+/// Metallurgy metals apply status effects: Pewter=StrengthBuff, Tin=SensoryOverload,
 /// Zinc=RiotDebuff, Brass=SootheDebuff, etc.
 /// </summary>
 [PlayerComponent("Combat", order: 60)]
@@ -34,9 +34,9 @@ public class StatusEffects : MonoBehaviour
         // Debuffs
         Slow, Weakness, DamageOverTime, SensoryOverload,
         Fear, Confusion, Burning, Frozen, Stunned,
-        // Allomancy-specific
+        // Metallurgy-specific
         RiotInfluence, SootheInfluence, CopperHidden, BronzeRevealed,
-        AtiumSight, DuraluminPrimed, CompoundingActive
+        OraculumSight, DuraluminPrimed, CompoundingActive
     }
 
     [Header("Active Effects")]
@@ -187,7 +187,7 @@ public class StatusEffects : MonoBehaviour
     public StatusEffect GetEffect(string id) => activeEffects.Find(e => e.id == id);
     public int GetActiveEffectCount() => activeEffects.Count;
 
-    // ── Convenience: Allomancy Effects ───────────────────────────────────
+    // ── Convenience: Metallurgy Effects ───────────────────────────────────
 
     public void ApplyPewterBuff(float duration) =>
         ApplyEffect("pewter_strength", "Pewter Strength", EffectType.StrengthBuff, duration, 2f);
@@ -197,6 +197,6 @@ public class StatusEffects : MonoBehaviour
         ApplyEffect("zinc_riot", "Rioted", EffectType.RiotInfluence, duration, 1.5f);
     public void ApplySoothe(float duration) =>
         ApplyEffect("brass_soothe", "Soothed", EffectType.SootheInfluence, duration, 1f);
-    public void ApplyAtiumSight(float duration) =>
-        ApplyEffect("atium_sight", "Atium Vision", EffectType.AtiumSight, duration, 1f);
+    public void ApplyOraculumSight(float duration) =>
+        ApplyEffect("oraculum_sight", "Oraculum Vision", EffectType.OraculumSight, duration, 1f);
 }

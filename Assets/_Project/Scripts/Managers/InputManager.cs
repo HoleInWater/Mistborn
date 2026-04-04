@@ -27,8 +27,8 @@ public class InputManager : MonoBehaviour
     public bool parryPressed;
     public bool dodgePressed;
 
-    // ── Allomancy ────────────────────────────────────────────────────────
-    [Header("Allomancy Input")]
+    // ── Metallurgy ────────────────────────────────────────────────────────
+    [Header("Metallurgy Input")]
     public bool pushPressed;
     public bool pushHeld;
     public bool pullPressed;
@@ -85,7 +85,7 @@ public class InputManager : MonoBehaviour
         parryPressed = Input.GetMouseButtonDown(1);
         dodgePressed = Input.GetKeyDown(dodgeKey);
 
-        // Allomancy
+        // Metallurgy
         pushPressed = Input.GetKeyDown(pushKey);
         pushHeld = Input.GetKey(pushKey);
         pullPressed = Input.GetKeyDown(pullKey);

@@ -1,4 +1,4 @@
-# Tutorial Design — Learning Allomancy
+# Tutorial Design — Learning Metallurgy
 
 *A guided introduction to the game's core mechanics.*
 
@@ -8,19 +8,19 @@
 
 The tutorial should teach:
 1. Basic movement
-2. Allomantic Sight
+2. Metallurgic Sight
 3. Iron Pulling
 4. Steel Pushing
 5. Traversal with metals
 6. Combining abilities
 
-**Goal:** Player understands and can use Allomancy by the end.
+**Goal:** Player understands and can use Metallurgy by the end.
 
 ---
 
 ## Location: Abandoned Warehouse
 
-An empty warehouse on the edge of Luthadel. Owned by a friendly contact. Safe to practice.
+An empty warehouse on the edge of Cinderhold. Owned by a friendly contact. Safe to practice.
 
 ### Features
 - Concrete floor with metal grate
@@ -47,12 +47,12 @@ An empty warehouse on the edge of Luthadel. Owned by a friendly contact. Safe to
 
 ---
 
-### Step 2: Allomantic Sight (2 minutes)
+### Step 2: Metallurgic Sight (2 minutes)
 
 **Teach:** Tab to activate sight, seeing blue lines
 
 **Prompts:**
-> "Press TAB to activate Allomantic Sight."
+> "Press TAB to activate Metallurgic Sight."
 > "You see blue lines pointing to metal objects."
 > "Thicker lines mean heavier metal."
 
@@ -150,7 +150,7 @@ Let player experiment. NPCs can offer hints if they're stuck.
 
 After tutorial, player can:
 - ✅ Move around
-- ✅ Use Allomantic Sight
+- ✅ Use Metallurgic Sight
 - ✅ Pull metal (Iron)
 - ✅ Push metal (Steel)
 - ✅ Fly using anchored pushes

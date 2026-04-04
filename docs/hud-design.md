@@ -64,7 +64,7 @@ How the player sees information about their character, metal reserves, and the w
   - Shown when damaged
   - Red when enemy is attacking
 
-### 4. Allomantic Sight Indicator
+### 4. Metallurgic Sight Indicator
 - **Position:** Center of screen
 - **Style:** Subtle blue glow when active
 - **Shows:** Blue lines rendering to metal objects

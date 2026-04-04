@@ -6,7 +6,7 @@
 
 ## Overview
 
-Noble Guards are elite soldiers hired by noble houses. They're better equipped and trained than Skaa soldiers, but still don't have Allomancy. They serve as mid-game enemies.
+Noble Guards are elite soldiers hired by noble houses. They're better equipped and trained than Lowborn soldiers, but still don't have Metallurgy. They serve as mid-game enemies.
 
 ---
 

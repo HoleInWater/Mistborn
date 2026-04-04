@@ -1,4 +1,4 @@
-# Story Outline — Mistborn Era One
+# Story Outline — Ashwalker Era One
 
 *The story structure for the main campaign.*
 
@@ -6,58 +6,58 @@
 
 ## Acts
 
-### Act 1: The Skaa Rebellion
+### Act 1: The Lowborn Rebellion
 
-**Setting:** Early days of Kelsier's crew. Training Vin. Learning Allomancy.
+**Setting:** Early days of Darius's crew. Training Ember. Learning Metallurgy.
 
 **Chapters:**
 1. The Crew
-2. Learning Allomancy  
+2. Learning Metallurgy  
 3. First Mission
-4. The Lord Ruler's Presence
+4. The Ashen King's Presence
 5. Discovery of the Secret
 
 **Player Actions:**
-- Learn Allomancy (tutorial)
+- Learn Metallurgy (tutorial)
 - Meet the crew
 - Run initial heists
 - Discover the world
 
 ---
 
-### Act 2: The War Against the Lord Ruler
+### Act 2: The War Against the Ashen King
 
-**Setting:** Open rebellion. Growing power. Facing Inquisitors.
+**Setting:** Open rebellion. Growing power. Facing Sentinels.
 
 **Chapters:**
 6. Raising the Stakes
 7. Noble Alliances
-8. Inquisitor Encounters
-9. The Deepness
-10. The Well of Ascension
+8. Sentinel Encounters
+9. The The Blight
+10. The The Wellspring
 
 **Player Actions:**
-- Fight Steel Inquisitors
+- Fight Iron Sentinels
 - Navigate noble politics
-- Survive Koloss attacks
-- Discover the Lord Ruler's secret
+- Survive Bloodbrute attacks
+- Discover the Ashen King's secret
 
 ---
 
 ### Act 3: The Final Push
 
-**Setting:** Battle for Luthadel. Confrontation with the Lord Ruler.
+**Setting:** Battle for Cinderhold. Confrontation with the Ashen King.
 
 **Chapters:**
 11. The Army Gathers
-12. Assault on Kredik Shaw
-13. The Lord Ruler Battle
+12. Assault on Thornspire
+13. The Ashen King Battle
 14. Aftermath
 15. New World
 
 **Player Actions:**
 - Large-scale combat
-- Boss fight: The Lord Ruler
+- Boss fight: The Ashen King
 - Witness the sacrifice
 - See the changed world
 
@@ -67,7 +67,7 @@
 
 ### Beat 1: Meeting the Crew
 
-**Scene:** Kelsier finds Vin in the gutter.
+**Scene:** Darius finds Ember in the gutter.
 
 **Gameplay:** Tutorial area. Learn basics.
 
@@ -79,15 +79,15 @@
 
 **Scene:** Stealing from a noble house.
 
-**Gameplay:** Stealth + Allomancy. Patrols. Guards.
+**Gameplay:** Stealth + Metallurgy. Patrols. Guards.
 
 **Emotional:** The crew works together.
 
 ---
 
-### Beat 3: Inquisitor Introduction
+### Beat 3: Sentinel Introduction
 
-**Scene:** First encounter with an Inquisitor.
+**Scene:** First encounter with an Sentinel.
 
 **Gameplay:** Escape sequence. Running. Can't fight directly.
 
@@ -97,7 +97,7 @@
 
 ### Beat 4: Discovery
 
-**Scene:** Learning about the Lord Ruler's true nature.
+**Scene:** Learning about the Ashen King's true nature.
 
 **Gameplay:** Exploration. Lore. Discovery.
 
@@ -107,7 +107,7 @@
 
 ### Beat 5: The Battle
 
-**Scene:** Large battle for Luthadel.
+**Scene:** Large battle for Cinderhold.
 
 **Gameplay:** Combat sequences. Multiple objectives.
 
@@ -117,7 +117,7 @@
 
 ### Beat 6: The Confrontation
 
-**Scene:** Final battle with the Lord Ruler.
+**Scene:** Final battle with the Ashen King.
 
 **Gameplay:** Boss fight. Use everything learned.
 
@@ -127,31 +127,31 @@
 
 ## Character Moments
 
-### Vin's Journey
-- Street rat → Powerful Allomancer
+### Ember's Journey
+- Street rat → Powerful Metallurgist
 - Trust issues → Finding family
 - Fear → Courage
 
-### Kelsier's Arc
+### Darius's Arc
 - Revenge → Greater cause
 - Survivor guilt → Hope for others
 - Reckless → Strategic
 
 ### Supporting Cast
-- Breeze: Cynicism → Believing
-- Ham: Philosophy → Action  
-- Clubs: Isolation → Connection
-- Dockson: Doubt → Commitment
+- Lysander: Cynicism → Believing
+- Tormund: Philosophy → Action  
+- Grimshaw: Isolation → Connection
+- Harlan: Doubt → Commitment
 
 ---
 
 ## Themes
 
 1. **Power and Responsibility**
-   - Allomancy is power. What do you do with it?
+   - Metallurgy is power. What do you do with it?
 
 2. **Freedom vs Order**
-   - The Lord Ruler claims to protect. Is that true?
+   - The Ashen King claims to protect. Is that true?
 
 3. **Found Family**
    - The crew becomes real family.
@@ -183,24 +183,24 @@
 
 ### Best Ending
 - Everyone survives
-- Lord Ruler defeated
+- Ashen King defeated
 - New world built peacefully
 - All crew alive
 
 ### Good Ending
-- Lord Ruler defeated
+- Ashen King defeated
 - Some losses accepted
 - New world begins
 - Most crew alive
 
 ### Bittersweet Ending
-- Lord Ruler defeated
+- Ashen King defeated
 - Major sacrifice required
 - World changed but not fixed
 - Some crew lost
 
 ### Dark Ending
-- Lord Ruler defeated
+- Ashen King defeated
 - Pyrrhic victory
 - Player becomes new tyrant
 - Crew dead or scattered

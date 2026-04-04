@@ -22,9 +22,9 @@ public class LoreCollectible : MonoBehaviour, IInteractable
     public enum LoreCategory
     {
         History,
-        Allomancy,
-        Feruchemy,
-        Hemalurgy,
+        Metallurgy,
+        Storecraft,
+        Bloodforge,
         Religion,
         Geography,
         Characters,
@@ -83,105 +83,105 @@ public class LoreCodex : MonoBehaviour
     void PopulateCodex()
     {
         // History
-        Add("lore_deepness", "The Deepness", LoreCollectible.LoreCategory.History,
-            "Before the Lord Ruler's Ascension, a terrible force known as the Deepness " +
+        Add("lore_deepness", "The The Blight", LoreCollectible.LoreCategory.History,
+            "Before the Ashen King's Ascension, a terrible force known as the The Blight " +
             "threatened to destroy the world. Legends say it was a dark mist that consumed " +
-            "everything in its path. The Lord Ruler claims to have defeated it at the Well " +
+            "everything in its path. The Ashen King claims to have defeated it at the Well " +
             "of Ascension, though some scholars whisper that the truth is far more complex.");
 
-        Add("lore_ascension", "The Lord Ruler's Ascension", LoreCollectible.LoreCategory.History,
-            "A thousand years ago, the Hero of Ages was prophesied to take the power at the " +
-            "Well of Ascension and save the world. The Lord Ruler — then known as Rashek — " +
-            "was a Terris packman who seized the power instead. He remade the world: moving " +
+        Add("lore_ascension", "The Ashen King's Ascension", LoreCollectible.LoreCategory.History,
+            "A thousand years ago, the The Prophesied One was prophesied to take the power at the " +
+            "The Wellspring and save the world. The Ashen King — then known as Varek — " +
+            "was a Valdris packman who seized the power instead. He remade the world: moving " +
             "the planet closer to the sun, creating the ashfalls, and establishing his eternal empire.");
 
-        Add("lore_final_empire", "The Final Empire", LoreCollectible.LoreCategory.History,
-            "For a thousand years, the Lord Ruler has ruled with absolute power. The nobility " +
-            "— descendants of his original allies — live in luxury, while the skaa toil as slaves. " +
-            "The Obligators serve as his bureaucracy, and the Steel Inquisitors enforce his will. " +
+        Add("lore_final_empire", "The Ashen Dominion", LoreCollectible.LoreCategory.History,
+            "For a thousand years, the Ashen King has ruled with absolute power. The nobility " +
+            "— descendants of his original allies — live in luxury, while the lowborn toil as slaves. " +
+            "The Prelates serve as his bureaucracy, and the Iron Sentinels enforce his will. " +
             "No rebellion has ever succeeded. Until now.");
 
-        Add("lore_skaa_rebellion", "The Skaa Rebellion", LoreCollectible.LoreCategory.History,
-            "Kelsier, the Survivor of Hathsin, has done what no one thought possible — he has " +
-            "united the underground skaa resistance into a true rebellion. His plan is audacious: " +
-            "overthrow the Lord Ruler himself. The crew he has assembled includes Mistings, " +
-            "scholars, and ordinary skaa who have had enough of a thousand years of oppression.");
+        Add("lore_lowborn_rebellion", "The Lowborn Rebellion", LoreCollectible.LoreCategory.History,
+            "Darius, the Survivor of Ember Pits, has done what no one thought possible — he has " +
+            "united the underground lowborn resistance into a true rebellion. His plan is audacious: " +
+            "overthrow the Ashen King himself. The crew he has assembled includes Sparkbloods, " +
+            "scholars, and ordinary lowborn who have had enough of a thousand years of oppression.");
 
-        // Allomancy
-        Add("lore_allomancy_origin", "The Origin of Allomancy", LoreCollectible.LoreCategory.Allomancy,
-            "Allomancy is a power of Preservation, one of the two primal forces of creation. " +
-            "An Allomancer ingests and 'burns' specific metals, using them as a catalyst to draw " +
-            "upon Preservation's power. The metal is not the source of power — it is a key that " +
+        // Metallurgy
+        Add("lore_metallurgy_origin", "The Origin of Metallurgy", LoreCollectible.LoreCategory.Metallurgy,
+            "Metallurgy is a power of The Warden, one of the two primal forces of creation. " +
+            "An Metallurgist ingests and 'burns' specific metals, using them as a catalyst to draw " +
+            "upon The Warden's power. The metal is not the source of power — it is a key that " +
             "unlocks a connection to something far greater. Each metal produces a different effect.");
 
-        Add("lore_mistborn", "What is a Mistborn?", LoreCollectible.LoreCategory.Allomancy,
-            "Most Allomancers can only burn a single metal — they are called Mistings. A Coinshot " +
-            "burns Steel, a Lurcher burns Iron, a Thug burns Pewter. But extremely rarely, a person " +
-            "can burn ALL sixteen Allomantic metals. These people are called Mistborn, and they are " +
-            "among the most powerful beings in the Final Empire.");
+        Add("lore_ashwalker", "What is a Ashwalker?", LoreCollectible.LoreCategory.Metallurgy,
+            "Most Metallurgists can only burn a single metal — they are called Sparkbloods. A Launcher " +
+            "burns Steel, a Hauler burns Iron, a Thug burns Pewter. But extremely rarely, a person " +
+            "can burn ALL sixteen Metallurgic metals. These people are called Ashwalker, and they are " +
+            "among the most powerful beings in the Ashen Dominion.");
 
-        Add("lore_snapping", "Snapping", LoreCollectible.LoreCategory.Allomancy,
-            "Allomantic power is hereditary, passed through noble bloodlines. But the power lies " +
+        Add("lore_snapping", "Snapping", LoreCollectible.LoreCategory.Metallurgy,
+            "Metallurgic power is hereditary, passed through noble bloodlines. But the power lies " +
             "dormant until activated through extreme physical or emotional trauma — a process called " +
             "'Snapping.' The nobility beat their children in secret ceremonies, hoping to awaken " +
-            "Allomantic abilities. Many Snap and gain nothing. Some Snap and gain everything.");
+            "Metallurgic abilities. Many Snap and gain nothing. Some Snap and gain everything.");
 
-        Add("lore_metal_purity", "Metal Purity", LoreCollectible.LoreCategory.Allomancy,
-            "An Allomancer must burn metals of precise alloy composition. Impure metals cause " +
-            "violent illness — nausea, pain, and potentially death. This is why Allomancers carry " +
+        Add("lore_metal_purity", "Metal Purity", LoreCollectible.LoreCategory.Metallurgy,
+            "An Metallurgist must burn metals of precise alloy composition. Impure metals cause " +
+            "violent illness — nausea, pain, and potentially death. This is why Metallurgists carry " +
             "carefully prepared metal vials. The exact ratios of each alloy are closely guarded " +
             "secrets, often passed down through noble houses.");
 
-        // Feruchemy
-        Add("lore_feruchemy", "The Art of Feruchemy", LoreCollectible.LoreCategory.Feruchemy,
-            "Feruchemy is the power of the Terris people, balanced between Preservation and Ruin. " +
-            "Unlike Allomancy which creates power from nothing, Feruchemy is end-neutral — it stores " +
-            "an attribute now to use later. A Feruchemist wearing a steel metalmind can store speed, " +
+        // Storecraft
+        Add("lore_storecraft", "The Art of Storecraft", LoreCollectible.LoreCategory.Storecraft,
+            "Storecraft is the power of the Valdris people, balanced between The Warden and The Unmaker. " +
+            "Unlike Metallurgy which creates power from nothing, Storecraft is end-neutral — it stores " +
+            "an attribute now to use later. A Storecrafter wearing a steel metalmind can store speed, " +
             "becoming slow now but blazingly fast when they tap that stored speed later.");
 
-        Add("lore_compounding", "Compounding", LoreCollectible.LoreCategory.Feruchemy,
-            "When a person has BOTH Allomantic and Feruchemical ability with the same metal, they " +
-            "can 'Compound' — burning a charged metalmind Allomantically produces a massive burst " +
-            "of Feruchemical power. This is the Lord Ruler's secret to immortality: he Compounds " +
+        Add("lore_compounding", "Compounding", LoreCollectible.LoreCategory.Storecraft,
+            "When a person has BOTH Metallurgic and Storecrafted ability with the same metal, they " +
+            "can 'Compound' — burning a charged metalmind Metallurgically produces a massive burst " +
+            "of Storecrafted power. This is the Ashen King's secret to immortality: he Compounds " +
             "gold, gaining virtually unlimited healing. He has survived for a thousand years this way.");
 
-        // Hemalurgy
-        Add("lore_hemalurgy", "The Dark Art of Hemalurgy", LoreCollectible.LoreCategory.Hemalurgy,
-            "Hemalurgy is the power of Ruin — it steals abilities by driving metal spikes through " +
-            "one person and into another. The Steel Inquisitors are created through Hemalurgy, their " +
-            "eye-socket spikes granting them stolen Allomantic abilities. But Hemalurgy always loses " +
-            "something in the transfer, and the spikes create a weakness Ruin can exploit.");
+        // Bloodforge
+        Add("lore_bloodforge", "The Dark Art of Bloodforge", LoreCollectible.LoreCategory.Bloodforge,
+            "Bloodforge is the power of The Unmaker — it steals abilities by driving metal spikes through " +
+            "one person and into another. The Iron Sentinels are created through Bloodforge, their " +
+            "eye-socket spikes granting them stolen Metallurgic abilities. But Bloodforge always loses " +
+            "something in the transfer, and the spikes create a weakness The Unmaker can exploit.");
 
-        Add("lore_inquisitors", "Steel Inquisitors", LoreCollectible.LoreCategory.Hemalurgy,
-            "The Lord Ruler's most terrifying enforcers. Each Inquisitor has metal spikes driven " +
-            "through their eyes, granting them Allomantic abilities stolen from murdered Mistings. " +
-            "They can burn Steel, Iron, Pewter, Tin, and sometimes Atium. Their one weakness: a " +
+        Add("lore_sentinels", "Iron Sentinels", LoreCollectible.LoreCategory.Bloodforge,
+            "The Ashen King's most terrifying enforcers. Each Sentinel has metal spikes driven " +
+            "through their eyes, granting them Metallurgic abilities stolen from murdered Sparkbloods. " +
+            "They can burn Steel, Iron, Pewter, Tin, and sometimes Oraculum. Their one weakness: a " +
             "single 'linchpin' spike in their back. Remove it, and they die instantly.");
 
         // Religion
         Add("lore_church_survivor", "The Church of the Survivor", LoreCollectible.LoreCategory.Religion,
-            "Among the skaa, a new religion has begun to spread — the Church of the Survivor. " +
-            "They worship Kelsier, the only man to escape the Pits of Hathsin alive. His message " +
-            "is simple: the skaa can fight back. The Lord Ruler is not a god. Hope is not dead.");
+            "Among the lowborn, a new religion has begun to spread — the Church of the Survivor. " +
+            "They worship Darius, the only man to escape the Ember Pits alive. His message " +
+            "is simple: the lowborn can fight back. The Ashen King is not a god. Hope is not dead.");
 
-        Add("lore_terris_prophecy", "The Terris Prophecy", LoreCollectible.LoreCategory.Religion,
-            "The Terris people have long prophesied the coming of the Hero of Ages — one who would " +
-            "take the power at the Well of Ascension and use it to save the world. The prophecy " +
+        Add("lore_terris_prophecy", "The Valdris Prophecy", LoreCollectible.LoreCategory.Religion,
+            "The Valdris people have long prophesied the coming of the The Prophesied One — one who would " +
+            "take the power at the The Wellspring and use it to save the world. The prophecy " +
             "has been altered over the centuries, its original meaning obscured. Some believe " +
-            "Kelsier is the Hero. Others say the Hero has not yet come.");
+            "Darius is the Hero. Others say the Hero has not yet come.");
 
         // Creatures
-        Add("lore_koloss", "Koloss", LoreCollectible.LoreCategory.Creatures,
-            "Koloss are massive, blue-skinned creatures created through Hemalurgy. They grow " +
+        Add("lore_bloodbrute", "Bloodbrute", LoreCollectible.LoreCategory.Creatures,
+            "Bloodbrute are massive, blue-skinned creatures created through Bloodforge. They grow " +
             "continuously throughout their lives — their skin tears and stretches over their " +
             "expanding bodies, held together by metal spikes. They are mindlessly violent, " +
-            "controlled only by the Lord Ruler's Allomantic power. Without control, they rampage.");
+            "controlled only by the Ashen King's Metallurgic power. Without control, they rampage.");
 
         Add("lore_mistwraith", "Mistwraiths", LoreCollectible.LoreCategory.Creatures,
             "Mistwraiths are shapeless creatures that absorb the bones and flesh of the dead, " +
             "incorporating them into their own amorphous bodies. They lurk in the mists at night, " +
             "terrifying to encounter. Legend says they were once something else entirely — something " +
-            "that was changed when the Lord Ruler remade the world.");
+            "that was changed when the Ashen King remade the world.");
 
         // Build lookup
         foreach (var entry in allEntries)

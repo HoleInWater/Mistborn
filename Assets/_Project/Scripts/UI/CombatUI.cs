@@ -35,7 +35,7 @@ public class CombatUI : MonoBehaviour
     private float comboTimer;
     private PlayerHealth playerHealth;
     private PlayerStamina playerStamina;
-    private Allomancer allomancer;
+    private Metallurgist metallurgist;
     private ComboSystem comboSystem;
 
     void Start()
@@ -45,7 +45,7 @@ public class CombatUI : MonoBehaviour
         {
             playerHealth = player.GetComponent<PlayerHealth>();
             playerStamina = player.GetComponent<PlayerStamina>();
-            allomancer = player.GetComponent<Allomancer>();
+            metallurgist = player.GetComponent<Metallurgist>();
             comboSystem = player.GetComponent<ComboSystem>();
         }
 
@@ -79,9 +79,9 @@ public class CombatUI : MonoBehaviour
 
     void UpdateMetalBar()
     {
-        if (allomancer == null || metalBarFill == null) return;
-        var metal = allomancer.GetCurrentMetal();
-        float reserve = allomancer.GetMetalReserve(metal);
+        if (metallurgist == null || metalBarFill == null) return;
+        var metal = metallurgist.GetCurrentMetal();
+        float reserve = metallurgist.GetMetalReserve(metal);
         metalBarFill.fillAmount = reserve / 100f;
         if (metalNameText != null) metalNameText.text = metal.ToString();
     }

@@ -1,8 +1,8 @@
 /* AlloyForge.cs
  *
- * Metal alloy crafting system for Mistborn.
+ * Metal alloy crafting system for Ashwalker.
  *
- * Lore: Allomantic metals must be in precise alloy ratios to work.
+ * Lore: Metallurgic metals must be in precise alloy ratios to work.
  * Wrong ratios cause sickness or death. The exact compositions are:
  *   Steel  = Iron + Carbon (precise ratio)
  *   Pewter = Tin + Lead
@@ -13,7 +13,7 @@
  *   Duralumin = Aluminum + Copper
  *   Nicrosil = Chromium + Nickel + Silicon
  *
- * The player can craft alloys at forges found throughout Luthadel.
+ * The player can craft alloys at forges found throughout Cinderhold.
  * Pure metals (Iron, Tin, Zinc, Copper, Gold, Cadmium, Aluminum, Chromium)
  * are found or purchased. Alloys must be crafted.
  *
@@ -29,7 +29,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
     public static AlloyForge ActiveForge { get; private set; }
 
     [Header("Forge Settings")]
-    public string forgeName = "Skaa Forge";
+    public string forgeName = "Lowborn Forge";
     public float qualityBonus = 0f;  // 0 = standard, 0.1 = good, 0.2 = master forge
     public bool requiresFuel = true;
     public int fuelRemaining = 10;
@@ -134,10 +134,10 @@ public class AlloyForge : MonoBehaviour, IInteractable
         // Forge quality bonus
         basePurity += qualityBonus;
 
-        // Skill bonus (if AllomanticSkillTree exists)
-        if (AllomanticSkillTree.Instance != null)
+        // Skill bonus (if MetallurgicSkillTree exists)
+        if (MetallurgicSkillTree.Instance != null)
         {
-            float craftSkill = AllomanticSkillTree.Instance.GetSkillValue("Craft_Alloys");
+            float craftSkill = MetallurgicSkillTree.Instance.GetSkillValue("Craft_Alloys");
             basePurity += craftSkill * 0.05f;
         }
 
@@ -164,7 +164,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Iron Ore", amount = 3 },
                     new RecipeIngredient { itemName = "Carbon", amount = 1 }
                 },
-                loreNote = "Steel must be precisely alloyed or it won't respond to Allomantic Pushing."
+                loreNote = "Steel must be precisely alloyed or it won't respond to Metallurgic Pushing."
             },
 
             new AlloyRecipe
@@ -192,7 +192,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Copper Nugget", amount = 2 },
                     new RecipeIngredient { itemName = "Zinc Dust", amount = 2 }
                 },
-                loreNote = "Brass is the Soother's metal — precise ratios allow emotional dampening."
+                loreNote = "Brass is the Queller's metal — precise ratios allow emotional dampening."
             },
 
             new AlloyRecipe
@@ -206,7 +206,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Copper Nugget", amount = 2 },
                     new RecipeIngredient { itemName = "Tin Ingot", amount = 1 }
                 },
-                loreNote = "Bronze lets a Seeker detect Allomantic pulses — the alloy ratio determines sensitivity."
+                loreNote = "Bronze lets a Seeker detect Metallurgic pulses — the alloy ratio determines sensitivity."
             },
 
             new AlloyRecipe
@@ -220,7 +220,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Gold Nugget", amount = 2 },
                     new RecipeIngredient { itemName = "Silver Ingot", amount = 1 }
                 },
-                loreNote = "Electrum — the poor man's Atium. Hard to alloy correctly, but it counters future-sight."
+                loreNote = "Electrum — the poor man's Oraculum. Hard to alloy correctly, but it counters future-sight."
             },
 
             new AlloyRecipe
@@ -234,7 +234,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Aluminum Ingot", amount = 2 },
                     new RecipeIngredient { itemName = "Copper Nugget", amount = 1 }
                 },
-                loreNote = "Duralumin is tricky — aluminum is extremely rare in the Final Empire. The Lord Ruler controls all aluminum supply."
+                loreNote = "Duralumin is tricky — aluminum is extremely rare in the Ashen Dominion. The Ashen King controls all aluminum supply."
             },
 
             new AlloyRecipe
@@ -265,7 +265,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Nickel Ingot", amount = 1 },
                     new RecipeIngredient { itemName = "Silicon Shard", amount = 1 }
                 },
-                loreNote = "Nicrosil is a modern discovery — most Era 1 Allomancers don't know it exists."
+                loreNote = "Nicrosil is a modern discovery — most Era 1 Metallurgists don't know it exists."
             },
 
             // ── Metal Vial Crafting ──────────────────────────────────────────
@@ -302,8 +302,8 @@ public class AlloyForge : MonoBehaviour, IInteractable
 
             new AlloyRecipe
             {
-                recipeName = "Full Mistborn Vial",
-                resultItemName = "Mistborn Vial",
+                recipeName = "Full Ashwalker Vial",
+                resultItemName = "Ashwalker Vial",
                 resultAmount = 1,
                 basePurity = 0.85f,
                 ingredients = new List<RecipeIngredient>
@@ -319,7 +319,7 @@ public class AlloyForge : MonoBehaviour, IInteractable
                     new RecipeIngredient { itemName = "Alcohol Solution", amount = 1 },
                     new RecipeIngredient { itemName = "Glass Vial", amount = 1 }
                 },
-                loreNote = "A full Mistborn vial contains all eight basic metals. Expensive and rare — only a Mistborn can use it."
+                loreNote = "A full Ashwalker vial contains all eight basic metals. Expensive and rare — only a Ashwalker can use it."
             },
         };
     }

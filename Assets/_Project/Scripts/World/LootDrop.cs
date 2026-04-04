@@ -16,12 +16,12 @@ public class LootDrop : MonoBehaviour
     public float bobHeight = 0.3f;
 
     [Header("Metal Loot")]
-    public AllomancySkill.MetalType metalType = AllomancySkill.MetalType.Steel;
+    public MetallurgySkill.MetalType metalType = MetallurgySkill.MetalType.Steel;
 
     [Header("References")]
     public GameObject pickupEffect;
 
-    public enum LootType { MetalVial, Coin, HealthPotion, SkillPoint, Boxing }
+    public enum LootType { MetalVial, Coin, HealthPotion, SkillPoint, Crown }
 
     private float spawnY;
     private float spawnTime;
@@ -60,7 +60,7 @@ public class LootDrop : MonoBehaviour
                 if (vials != null) vials.AddVial(metalType, amount * 20f, 1f);
                 else
                 {
-                    Allomancer allo = player.GetComponent<Allomancer>();
+                    Metallurgist allo = player.GetComponent<Metallurgist>();
                     if (allo != null) allo.RefillMetal(metalType, amount * 20f);
                 }
                 NotificationSystem.Instance?.ShowPickup($"{metalType} Vial x{amount}");
@@ -84,10 +84,10 @@ public class LootDrop : MonoBehaviour
                 NotificationSystem.Instance?.ShowPickup($"XP +{amount * 50}");
                 break;
 
-            case LootType.Boxing:
+            case LootType.Crown:
                 ShopSystem shop = FindObjectOfType<ShopSystem>();
                 if (shop != null) shop.AddBoxings(amount * 10);
-                NotificationSystem.Instance?.ShowPickup($"Boxings +{amount * 10}");
+                NotificationSystem.Instance?.ShowPickup($"Crowns +{amount * 10}");
                 break;
         }
 

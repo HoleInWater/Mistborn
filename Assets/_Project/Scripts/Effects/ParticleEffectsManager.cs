@@ -3,19 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// Object-pooled particle effect manager for all Allomancy, combat, and environmental effects.
+/// Object-pooled particle effect manager for all Metallurgy, combat, and environmental effects.
 /// </summary>
 public class ParticleEffectsManager : MonoBehaviour
 {
     public static ParticleEffectsManager Instance { get; private set; }
 
-    [Header("Allomancy Effects")]
+    [Header("Metallurgy Effects")]
     public GameObject metalBurnParticles;
     public GameObject steelPushParticles;
     public GameObject ironPullParticles;
     public GameObject pewterBurstParticles;
     public GameObject tinSensoryParticles;
-    public GameObject atiumGhostParticles;
+    public GameObject oraculumGhostParticles;
     public GameObject duraluminBurstParticles;
 
     [Header("Combat Effects")]
@@ -81,7 +81,7 @@ public class ParticleEffectsManager : MonoBehaviour
         pools[name].Enqueue(obj);
     }
 
-    public void PlayMetalBurnEffect(Vector3 position, AllomancySkill.MetalType metal, float intensity = 1f)
+    public void PlayMetalBurnEffect(Vector3 position, MetallurgySkill.MetalType metal, float intensity = 1f)
     {
         GameObject effect = GetFromPool("MetalBurn");
         if (effect == null) return;
@@ -163,26 +163,26 @@ public class ParticleEffectsManager : MonoBehaviour
         ReturnToPool(pool, effect);
     }
 
-    Color GetMetalColor(AllomancySkill.MetalType metal)
+    Color GetMetalColor(MetallurgySkill.MetalType metal)
     {
         switch (metal)
         {
-            case AllomancySkill.MetalType.Steel:     return new Color(0.3f,  0.5f,  1f);
-            case AllomancySkill.MetalType.Iron:      return new Color(0.2f,  0.8f,  1f);
-            case AllomancySkill.MetalType.Pewter:    return new Color(0.8f,  0.2f,  0.2f);
-            case AllomancySkill.MetalType.Tin:       return new Color(1f,    1f,    0.5f);
-            case AllomancySkill.MetalType.Zinc:      return new Color(1f,    0.5f,  0f);
-            case AllomancySkill.MetalType.Brass:     return new Color(0.2f,  0.9f,  0.5f);
-            case AllomancySkill.MetalType.Copper:    return new Color(0.2f,  0.8f,  0.2f);
-            case AllomancySkill.MetalType.Bronze:    return new Color(0.8f,  0.3f,  0.8f);
-            case AllomancySkill.MetalType.Atium:     return new Color(0.9f,  0.9f,  1f);
-            case AllomancySkill.MetalType.Malatium:  return new Color(0.50f, 0.28f, 0.62f);
-            case AllomancySkill.MetalType.Gold:      return new Color(1f,    0.85f, 0.2f);
-            case AllomancySkill.MetalType.Electrum:  return new Color(0.90f, 0.90f, 0.40f);
-            case AllomancySkill.MetalType.Aluminum:  return new Color(0.90f, 0.92f, 0.96f);
-            case AllomancySkill.MetalType.Duralumin: return new Color(0.45f, 0.75f, 1.00f);
-            case AllomancySkill.MetalType.Bendalloy: return new Color(0.90f, 0.58f, 0.18f);
-            case AllomancySkill.MetalType.Cadmium:   return new Color(0.20f, 0.72f, 0.70f);
+            case MetallurgySkill.MetalType.Steel:     return new Color(0.3f,  0.5f,  1f);
+            case MetallurgySkill.MetalType.Iron:      return new Color(0.2f,  0.8f,  1f);
+            case MetallurgySkill.MetalType.Pewter:    return new Color(0.8f,  0.2f,  0.2f);
+            case MetallurgySkill.MetalType.Tin:       return new Color(1f,    1f,    0.5f);
+            case MetallurgySkill.MetalType.Zinc:      return new Color(1f,    0.5f,  0f);
+            case MetallurgySkill.MetalType.Brass:     return new Color(0.2f,  0.9f,  0.5f);
+            case MetallurgySkill.MetalType.Copper:    return new Color(0.2f,  0.8f,  0.2f);
+            case MetallurgySkill.MetalType.Bronze:    return new Color(0.8f,  0.3f,  0.8f);
+            case MetallurgySkill.MetalType.Oraculum:     return new Color(0.9f,  0.9f,  1f);
+            case MetallurgySkill.MetalType.Revelum:  return new Color(0.50f, 0.28f, 0.62f);
+            case MetallurgySkill.MetalType.Gold:      return new Color(1f,    0.85f, 0.2f);
+            case MetallurgySkill.MetalType.Electrum:  return new Color(0.90f, 0.90f, 0.40f);
+            case MetallurgySkill.MetalType.Aluminum:  return new Color(0.90f, 0.92f, 0.96f);
+            case MetallurgySkill.MetalType.Duralumin: return new Color(0.45f, 0.75f, 1.00f);
+            case MetallurgySkill.MetalType.Bendalloy: return new Color(0.90f, 0.58f, 0.18f);
+            case MetallurgySkill.MetalType.Cadmium:   return new Color(0.20f, 0.72f, 0.70f);
             default:                                  return Color.white;
         }
     }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Fall damage system with Pewter negation.
-/// Lore: Pewter lets a Mistborn survive falls that would kill a normal person.
+/// Lore: Pewter lets a Ashwalker survive falls that would kill a normal person.
 /// Burning Pewter at the moment of impact negates most fall damage.
 /// Uses KE = ½mv² from PHYSICS-MATH-BOOK.md Section 1.
 /// </summary>
@@ -26,7 +26,7 @@ public class FallDamage : MonoBehaviour
 
     [Header("References")]
     public Rigidbody playerRb;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
     private Pewter _pewter;
 
@@ -36,7 +36,7 @@ public class FallDamage : MonoBehaviour
     void Start()
     {
         if (playerRb  == null) playerRb  = GetComponent<Rigidbody>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (animator   == null) animator   = GetComponent<Animator>();
         _pewter = GetComponentInChildren<Pewter>();
     }
@@ -96,9 +96,9 @@ public class FallDamage : MonoBehaviour
         }
 
         // Skill tree reduction
-        if (AllomanticSkillTree.Instance != null)
+        if (MetallurgicSkillTree.Instance != null)
         {
-            float fallReduction = AllomanticSkillTree.Instance.GetSkillValue("Move_FallDamage");
+            float fallReduction = MetallurgicSkillTree.Instance.GetSkillValue("Move_FallDamage");
             damage *= (1f - fallReduction);
         }
 

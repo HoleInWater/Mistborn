@@ -23,7 +23,7 @@ public class DamageNumbersUI : MonoBehaviour
     [Header("Colors")]
     public Color normalDamageColor = Color.white;
     public Color criticalDamageColor = Color.yellow;
-    public Color allomancyDamageColor = new Color(0.3f, 0.5f, 1f);
+    public Color metallurgyDamageColor = new Color(0.3f, 0.5f, 1f);
     public Color healColor = Color.green;
     public Color pewterDamageColor = new Color(0.8f, 0.2f, 0.2f);
 
@@ -155,12 +155,12 @@ public class DamageNumbersUI : MonoBehaviour
         switch (type)
         {
             case DamageType.Critical: return criticalDamageColor;
-            case DamageType.Allomancy: return allomancyDamageColor;
+            case DamageType.Metallurgy: return metallurgyDamageColor;
             case DamageType.Pewter: return pewterDamageColor;
             case DamageType.Heal: return healColor;
             default: return normalDamageColor;
         }
     }
 
-    public enum DamageType { Normal, Critical, Allomancy, Pewter, Heal }
+    public enum DamageType { Normal, Critical, Metallurgy, Pewter, Heal }
 }

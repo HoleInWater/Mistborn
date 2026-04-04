@@ -12,8 +12,8 @@ public class ComboSystem : MonoBehaviour
     public float metalCostReduction = 0.05f;
 
     [Header("Rage Settings")]
-    public float ragePerHit = AllomancyConstants.RagePerHit;
-    public float rageDecayRate = AllomancyConstants.RageDecayRate;
+    public float ragePerHit = MetallurgyConstants.RagePerHit;
+    public float rageDecayRate = MetallurgyConstants.RageDecayRate;
 
     private int currentCombo = 0;
     private float lastHitTime = 0f;

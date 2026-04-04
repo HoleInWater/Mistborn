@@ -10,7 +10,7 @@ using UnityEngine.AI;
 ///   CapsuleCollider (from CreatePrimitive)
 ///   Rigidbody       — kinematic; NavMeshAgent controls movement
 ///   NavMeshAgent    — pathfinding
-///   AIController    — MistbornRegistry marker + emotion (auto-added via EnemyAI RequireComponent)
+///   AIController    — AshwalkerRegistry marker + emotion (auto-added via EnemyAI RequireComponent)
 ///   EnemyAI         — full state machine
 ///   EnemyHealth     — health / IDamageable (synced from EnemyAI type defaults)
 ///   EnemyHitFlash   — red flash on damage
@@ -25,28 +25,28 @@ public static class EnemyFactory
         {
             case EnemyAI.EnemyType.Guard:          return new Color(0.55f, 0.55f, 0.6f);   // grey
             case EnemyAI.EnemyType.NobleGuard:     return new Color(0.3f,  0.3f,  0.7f);   // blue
-            case EnemyAI.EnemyType.Coinshot:       return new Color(0.9f,  0.8f,  0.2f);   // gold
-            case EnemyAI.EnemyType.Lurcher:        return new Color(0.2f,  0.7f,  0.9f);   // cyan
+            case EnemyAI.EnemyType.Launcher:       return new Color(0.9f,  0.8f,  0.2f);   // gold
+            case EnemyAI.EnemyType.Hauler:        return new Color(0.2f,  0.7f,  0.9f);   // cyan
             case EnemyAI.EnemyType.Thug:           return new Color(0.7f,  0.2f,  0.2f);   // red
             case EnemyAI.EnemyType.Smoker:         return new Color(0.3f,  0.5f,  0.3f);   // dark green
-            case EnemyAI.EnemyType.Rioter:         return new Color(0.9f,  0.4f,  0.0f);   // orange
+            case EnemyAI.EnemyType.Igniter:         return new Color(0.9f,  0.4f,  0.0f);   // orange
             case EnemyAI.EnemyType.Seeker:         return new Color(0.7f,  0.7f,  0.1f);   // yellow
-            case EnemyAI.EnemyType.Koloss:         return new Color(0.15f, 0.1f,  0.05f);  // dark brown
-            case EnemyAI.EnemyType.SteelInquisitor:return new Color(0.1f,  0.1f,  0.15f);  // near black
+            case EnemyAI.EnemyType.Bloodbrute:         return new Color(0.15f, 0.1f,  0.05f);  // dark brown
+            case EnemyAI.EnemyType.IronSentinel:return new Color(0.1f,  0.1f,  0.15f);  // near black
             case EnemyAI.EnemyType.Mistwraith:     return new Color(0.5f,  0.5f,  0.6f);   // pale blue-grey
-            case EnemyAI.EnemyType.Obligator:      return new Color(0.6f,  0.5f,  0.3f);   // tan
-            case EnemyAI.EnemyType.SkaaRebel:      return new Color(0.4f,  0.25f, 0.15f);  // brown
+            case EnemyAI.EnemyType.Prelate:      return new Color(0.6f,  0.5f,  0.3f);   // tan
+            case EnemyAI.EnemyType.LowbornRebel:      return new Color(0.4f,  0.25f, 0.15f);  // brown
             default:                               return Color.grey;
         }
     }
 
-    // Scale per type (Koloss is huge; Mistwraith is shorter)
+    // Scale per type (Bloodbrute is huge; Mistwraith is shorter)
     private static Vector3 TypeScale(EnemyAI.EnemyType type)
     {
         switch (type)
         {
-            case EnemyAI.EnemyType.Koloss:          return new Vector3(1.6f, 2.4f, 1.6f);
-            case EnemyAI.EnemyType.SteelInquisitor: return new Vector3(1.1f, 1.3f, 1.1f);
+            case EnemyAI.EnemyType.Bloodbrute:          return new Vector3(1.6f, 2.4f, 1.6f);
+            case EnemyAI.EnemyType.IronSentinel: return new Vector3(1.1f, 1.3f, 1.1f);
             case EnemyAI.EnemyType.Mistwraith:      return new Vector3(0.9f, 0.7f, 0.9f);
             case EnemyAI.EnemyType.Thug:            return new Vector3(1.2f, 1.2f, 1.2f);
             default:                                return Vector3.one;

@@ -25,7 +25,7 @@ public class GroundSlam : MonoBehaviour
     [Header("References")]
     public Rigidbody playerRb;
     public BasicPlayerMove playerMove;
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     public Animator animator;
     public LayerMask groundLayer;
 
@@ -35,7 +35,7 @@ public class GroundSlam : MonoBehaviour
     {
         if (playerRb == null) playerRb = GetComponent<Rigidbody>();
         if (playerMove == null) playerMove = GetComponent<BasicPlayerMove>();
-        if (allomancer == null) allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null) metallurgist = GetComponent<Metallurgist>();
         if (animator == null) animator = GetComponent<Animator>();
     }
 
@@ -60,11 +60,11 @@ public class GroundSlam : MonoBehaviour
 
         // Pewter makes the slam faster
         float force = slamForce;
-        if (allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+        if (metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter))
         {
             float flare = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1f;
             float P = Mathf.Clamp01(flare / 2.5f);
-            force *= AllomancyPhysicsFormulas.CalculatePewterStrength(1f, 1f, P);
+            force *= MetallurgyPhysicsFormulas.CalculatePewterStrength(1f, 1f, P);
         }
 
         playerRb.linearVelocity = new Vector3(0, -force, 0);
@@ -75,7 +75,7 @@ public class GroundSlam : MonoBehaviour
     {
         isSlamming = false;
 
-        bool pewterActive = allomancer != null && allomancer.IsMetalBurning(AllomancySkill.MetalType.Pewter);
+        bool pewterActive = metallurgist != null && metallurgist.IsMetalBurning(MetallurgySkill.MetalType.Pewter);
         float damage = baseSlamDamage * (pewterActive ? pewterDamageMultiplier : 1f);
         float radius = impactRadius * (pewterActive ? pewterRadiusMultiplier : 1f);
 

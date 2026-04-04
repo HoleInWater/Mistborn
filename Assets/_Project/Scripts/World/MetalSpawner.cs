@@ -10,7 +10,7 @@ public class MetalSpawner : MonoBehaviour
     public void SpawnMetal()
     {
         // Optimized high-performance count via Registry
-        int metalCount = MistbornRegistry.ActiveMetalTargets.Count;
+        int metalCount = AshwalkerRegistry.ActiveMetalTargets.Count;
         if (metalCount >= maxMetals) return;
         
         // Random position around spawner
@@ -31,9 +31,9 @@ public class MetalSpawner : MonoBehaviour
             metal.transform.position = spawnPos;
             metal.transform.localScale = Vector3.one * 0.2f; // Small coin size
             
-            // Add AllomanticTarget
-            AllomanticTarget target = metal.AddComponent<AllomanticTarget>();
-            target.metalType = AllomancySkill.MetalType.Steel;
+            // Add MetallurgicTarget
+            MetallurgicTarget target = metal.AddComponent<MetallurgicTarget>();
+            target.metalType = MetallurgySkill.MetalType.Steel;
             target.canBePushed = true;
             target.canBePulled = true;
             target.mass = 0.01f; // 10 gram coin

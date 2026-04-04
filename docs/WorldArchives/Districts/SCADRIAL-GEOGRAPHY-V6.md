@@ -1,11 +1,11 @@
 # WORLD ARCHIVE: THE GEOGRAPHY OF SCADRIAL (VOLUME VI)
 ## THE 12 DOMINANCES AND THE ASHMOUNTS
 
-A comprehensive guide to the physical world under the Lord Ruler's reign.
+A comprehensive guide to the physical world under the Ashen King's reign.
 
 ---
 
-### 1. THE CENTRAL DOMINANCE (Luthadel Area)
+### 1. THE CENTRAL DOMINANCE (Cinderhold Area)
 The capital region and the seat of power.
 - **Topography:** Flat, ash-covered plains surrounded by distant mountains.
 - **Climate:** Controlled by the Ashmounts. Permanent twilight.
@@ -26,4 +26,4 @@ The capital region and the seat of power.
 ---
 
 ### [TECHNICAL SCALE: VOLUME CONTINUES FOR 1,000+ PAGES]
-(The text details every river, every mining camp, and the specific soil composition of every dominance across Scadrial.)
+(The text details every river, every mining camp, and the specific soil composition of every dominance across Ashara.)

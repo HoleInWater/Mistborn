@@ -1,0 +1,99 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+/// <summary>
+/// Implements the Copper Metallurgy ability (Smoker).
+/// Lore: Creates a "Coppercloud" that hides Metallurgic pulses from Bronze seekers.
+/// </summary>
+[PlayerComponent("Metallurgy Metals", order: 70)]
+public class Copper : MonoBehaviour
+{
+    [Header("Settings")]
+    public float baseCloudRadius = 15f;
+    public float maxCloudRadius = 40f;
+
+    [Header("UI Feedback")]
+    [Tooltip("Optional screen overlay Image to tint amber while Coppercloud is active. Assign in Inspector.")]
+    public Image copperOverlay;
+    [Tooltip("Opacity of the screen tint while the Coppercloud is active.")]
+    [Range(0f, 0.3f)]
+    public float overlayAlpha = 0.12f;
+
+    private Metallurgist metallurgist;
+    private bool isBurning = false;
+    private bool wasBurning = false;
+    private static List<Copper> activeClouds = new List<Copper>();
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState() => activeClouds = new List<Copper>();
+
+    void Start()
+    {
+        metallurgist = GetComponentInParent<Metallurgist>();
+        if (copperOverlay != null)
+            copperOverlay.color = new Color(0.8f, 0.4f, 0.1f, 0f);
+    }
+
+    void OnEnable()
+    {
+        if (!activeClouds.Contains(this)) activeClouds.Add(this);
+    }
+
+    void OnDisable()
+    {
+        activeClouds.Remove(this);
+        SetOverlay(false);
+    }
+
+    void Update()
+    {
+        isBurning = metallurgist != null && metallurgist.IsBurning() && metallurgist.GetCurrentMetal() == MetallurgySkill.MetalType.Copper;
+
+        if (isBurning != wasBurning)
+        {
+            SetOverlay(isBurning);
+            wasBurning = isBurning;
+        }
+    }
+
+    void SetOverlay(bool active)
+    {
+        if (copperOverlay == null) return;
+        Color c = copperOverlay.color;
+        c.a = active ? overlayAlpha : 0f;
+        copperOverlay.color = c;
+    }
+
+    /// <summary>
+    /// Checks if a position is currently hidden by any active Coppercloud.
+    /// Used by Bronze.cs to determine if it can detect an Metallurgist.
+    /// </summary>
+    public static bool IsPulseHidden(Vector3 position)
+    {
+        foreach (var cloud in activeClouds)
+        {
+            if (cloud == null || !cloud.isBurning) continue;
+
+            float flareMult = FlareManager.Instance != null ? FlareManager.Instance.FlareMultiplier : 1.0f;
+            
+            float radius = Mathf.Lerp(cloud.baseCloudRadius, cloud.maxCloudRadius, (flareMult - 1f) / 1.5f);
+            
+            if (Vector3.Distance(position, cloud.transform.position) <= radius)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (isBurning)
+        {
+            Gizmos.color = new Color(0.8f, 0.4f, 0.2f, 0.3f);
+            float radius = baseCloudRadius; // Simple preview
+            Gizmos.DrawWireSphere(transform.position, radius);
+        }
+    }
+}

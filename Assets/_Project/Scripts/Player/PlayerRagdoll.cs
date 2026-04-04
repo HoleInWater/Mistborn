@@ -80,8 +80,8 @@ public class PlayerRagdoll : MonoBehaviour
 
         // Pewter resistance
         float threshold = minImpactForce;
-        Allomancer allo = GetComponent<Allomancer>();
-        if (allo != null && allo.IsMetalBurning(AllomancySkill.MetalType.Pewter))
+        Metallurgist allo = GetComponent<Metallurgist>();
+        if (allo != null && allo.IsMetalBurning(MetallurgySkill.MetalType.Pewter))
             threshold *= pewterImpactResistance;
 
         if (force < threshold) return;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// File-based save/load with comprehensive state persistence.
-/// Saves player position, Allomancy state, inventory, quests, story flags, XP.
+/// Saves player position, Metallurgy state, inventory, quests, story flags, XP.
 /// </summary>
 public class SaveLoadManager : MonoBehaviour
 {
@@ -26,7 +26,7 @@ public class SaveLoadManager : MonoBehaviour
         public Quaternion playerRotation;
         public float playerHealth;
 
-        // Allomancy
+        // Metallurgy
         public float[] metalReserves = new float[20];
         public bool[] unlockedMetals = new bool[20];
 
@@ -59,7 +59,7 @@ public class SaveLoadManager : MonoBehaviour
             data.playerPosition = player.transform.position;
             data.playerRotation = player.transform.rotation;
 
-            Allomancer allo = player.GetComponent<Allomancer>();
+            Metallurgist allo = player.GetComponent<Metallurgist>();
             if (allo != null)
             {
                 System.Array.Copy(allo.metalReserves, data.metalReserves,
@@ -86,8 +86,8 @@ public class SaveLoadManager : MonoBehaviour
         if (GameFlowManager.Instance != null)
             data.chapterIndex = GameFlowManager.Instance.GetChapterIndex();
 
-        if (AllomanticSkillTree.Instance != null)
-            data.unlockedSkills = AllomanticSkillTree.Instance.GetUnlockedSkillIds();
+        if (MetallurgicSkillTree.Instance != null)
+            data.unlockedSkills = MetallurgicSkillTree.Instance.GetUnlockedSkillIds();
 
         string json = JsonUtility.ToJson(data, true);
         string path = GetPath(slot);
@@ -114,7 +114,7 @@ public class SaveLoadManager : MonoBehaviour
             player.transform.position = data.playerPosition;
             player.transform.rotation = data.playerRotation;
 
-            Allomancer allo = player.GetComponent<Allomancer>();
+            Metallurgist allo = player.GetComponent<Metallurgist>();
             if (allo != null)
             {
                 System.Array.Copy(data.metalReserves, allo.metalReserves,
@@ -134,8 +134,8 @@ public class SaveLoadManager : MonoBehaviour
         if (GameFlowManager.Instance != null)
             GameFlowManager.Instance.SetChapterIndex(data.chapterIndex);
 
-        if (AllomanticSkillTree.Instance != null)
-            AllomanticSkillTree.Instance.LoadUnlockedSkills(data.unlockedSkills);
+        if (MetallurgicSkillTree.Instance != null)
+            MetallurgicSkillTree.Instance.LoadUnlockedSkills(data.unlockedSkills);
     }
 
     public bool HasSave(int slot) => System.IO.File.Exists(GetPath(slot));

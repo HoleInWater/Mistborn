@@ -1,6 +1,6 @@
-# Mistborn Era One — Unity Game
+# Ashwalker Era One — Unity Game
 
-A third-person action RPG built in Unity, set in Brandon Sanderson's Mistborn universe. The core gameplay loop is **Allomancy** — a hard magic system where Mistborn ingest metals and "burn" them for supernatural abilities.
+A third-person action RPG built in Unity, set in the original author's Ashwalker universe. The core gameplay loop is **Metallurgy** — a hard magic system where Ashwalker ingest metals and "burn" them for supernatural abilities.
 
 The current focus is on getting all 18 metals feeling correct before expanding into full level design, story, and enemy variety.
 
@@ -10,11 +10,11 @@ The current focus is on getting all 18 metals feeling correct before expanding i
 
 | # | Task | Status |
 |---|------|--------|
-| 1 | Tin Allomancy — full 5-sense implementation | In Progress |
+| 1 | Tin Metallurgy — full 5-sense implementation | In Progress |
 | 2 | Particle effects — metal burn/flare VFX prefabs | Pending |
 | 3 | Animation Controllers — character state machines | Pending |
-| 4 | Enemy polish — Koloss, Inquisitor, Hazekiller | Pending |
-| 5 | Level design — playable Luthadel environment | Pending |
+| 4 | Enemy polish — Bloodbrute, Sentinel, Metalhunter | Pending |
+| 5 | Level design — playable Cinderhold environment | Pending |
 | 6 | Audio system integration | Pending |
 | 7 | Save/Load system | Pending |
 
@@ -26,12 +26,12 @@ See `TODO.md` for the full breakdown.
 
 - **Steel Push / Iron Pull** — physics-based push/pull with anchor detection, flaring, lore-accurate force math
 - **2-Metal Selection HUD** — bottom-right bars showing primary/secondary metal reserves + proportional ring indicator
-- **Allomantic Sight** — Tab to toggle blue lines to all metal objects in range
+- **Metallurgic Sight** — Tab to toggle blue lines to all metal objects in range
 - **Flaring** — Left Ctrl or Shift+Push/Pull, synced across burn state
 - **Metal Wheel** — radial menu for selecting metals
 - **Enemy AI** — patrol, chase, flee with NavMesh
 - **Time Bubbles** — Bendalloy (speed) and Cadmium (slow)
-- **Auto Setup Player** — `Mistborn > Auto Setup Player` editor tool to wire up a player GameObject without manual scene work
+- **Auto Setup Player** — `Ashwalker > Auto Setup Player` editor tool to wire up a player GameObject without manual scene work
 
 ---
 
@@ -45,11 +45,11 @@ See `TODO.md` for the full breakdown.
 ### Clone and Open
 
 ```bash
-git clone https://github.com/HoleInWater/Mistborn.git
-cd Mistborn
+git clone https://github.com/HoleInWater/Ashwalker.git
+cd Ashwalker
 ```
 
-Open Unity Hub → **Add project from disk** → select the `Mistborn` folder → open with Unity 6000.4 LTS.
+Open Unity Hub → **Add project from disk** → select the `Ashwalker` folder → open with Unity 6000.4 LTS.
 
 Unity will import everything on first open (a few minutes).
 
@@ -72,7 +72,7 @@ Hit the Play button (or `Ctrl+P`). Use the controls below.
 | Jump | Space |
 | Iron Pull | Hold LMB |
 | Steel Push | Hold RMB |
-| Allomantic Sight | Tab |
+| Metallurgic Sight | Tab |
 | Burn Toggle | B |
 | Flare | Left Ctrl (while burning) |
 | Swap Metal (Primary/Secondary) | Left Alt |
@@ -109,7 +109,7 @@ Unity scene files don't merge. Check with the team before editing `Scene 1.unity
 
 ### Auto Setup Player
 
-If the Player GameObject in a scene is missing components, run `Mistborn > Auto Setup Player` from the Unity menu bar. It scans all scripts tagged with `[PlayerComponent]` and lets you add them in one click with full Undo support.
+If the Player GameObject in a scene is missing components, run `Ashwalker > Auto Setup Player` from the Unity menu bar. It scans all scripts tagged with `[PlayerComponent]` and lets you add them in one click with full Undo support.
 
 ---
 
@@ -118,14 +118,14 @@ If the Player GameObject in a scene is missing components, run `Mistborn > Auto 
 ```
 Assets/_Project/
 ├── Scripts/
-│   ├── Allomancy/
-│   │   ├── Allomancer Types/   # Allomancer.cs, AllomanticTarget, Feruchemist
+│   ├── Metallurgy/
+│   │   ├── Metallurgist Types/   # Metallurgist.cs, MetallurgicTarget, Storecrafter
 │   │   ├── Metals/             # One script per metal (SteelPush, IronPull, Tin, etc.)
 │   │   ├── Dependancies/       # MetalReserve, MetalSelector, FlareManager
 │   │   └── Coins/              # CoinPouch, CoinPhysics, trajectory preview
 │   ├── Player/                 # Movement, camera, stamina, parkour
 │   ├── Combat/                 # Health, damage, melee
-│   ├── Enemy/                  # EnemyAI, KolossAI, SteelInquisitorAI, LordRulerBoss
+│   ├── Enemy/                  # EnemyAI, BloodbruteAI, IronSentinelAI, AshenKingBoss
 │   ├── UI/                     # HUD, menus, dialogue, tutorial
 │   └── World/                  # Spawners, checkpoints, interactions
 ├── Scenes/                     # Scene 1.unity
@@ -142,7 +142,7 @@ docs/                           # Design docs, lore, physics handbook
 ## Reference
 
 - **Lore / physics rules:** `docs/PHYSICS-MATH-BOOK.md`
-- **Allomancy design:** `docs/allomancy-design.md`
+- **Metallurgy design:** `docs/metallurgy-design.md`
 - **Onboarding:** `docs/onboarding.md`
 - **Git workflow:** `docs/git-guide.md`
 
@@ -151,13 +151,13 @@ docs/                           # Design docs, lore, physics handbook
 ## Common Issues
 
 **"Scripts are missing" errors after clone**
-→ Make sure you opened the root `Mistborn/` folder in Unity, not a subfolder. Try Assets → Reimport All.
+→ Make sure you opened the root `Ashwalker/` folder in Unity, not a subfolder. Try Assets → Reimport All.
 
 **Scene looks empty or wrong**
 → Ensure you have `Scene 1.unity` open (`Assets/_Project/Scenes/`).
 
 **Player missing components in scene**
-→ Use `Mistborn > Auto Setup Player` from the menu bar.
+→ Use `Ashwalker > Auto Setup Player` from the menu bar.
 
 **Pulled new code and Unity is broken**
 → Close Unity, delete `Library/` and `Temp/`, reopen Unity. It will rebuild.
@@ -167,4 +167,4 @@ docs/                           # Design docs, lore, physics handbook
 ## Team
 
 - Owner: HoleInWater
-- Contributors: Kelsier's Crew
+- Contributors: Darius's Crew

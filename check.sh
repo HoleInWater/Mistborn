@@ -1,5 +1,5 @@
 #!/bin/bash
-# check.sh — Mistborn Project Health Check
+# check.sh — Ashwalker Project Health Check
 # Run: bash check.sh
 
 echo ""

@@ -56,12 +56,12 @@ public class AIController : MonoBehaviour
         originalSpeed = moveSpeed;
         originalDetectionRange = detectionRange;
 
-        MistbornRegistry.RegisterEnemy(this);
+        AshwalkerRegistry.RegisterEnemy(this);
     }
 
     void OnDestroy()
     {
-        MistbornRegistry.UnregisterEnemy(this);
+        AshwalkerRegistry.UnregisterEnemy(this);
     }
 
     void Update()
@@ -181,7 +181,7 @@ public class AIController : MonoBehaviour
     {
         if (auraParticles == null) CreateAuraParticles();
 
-        auraExpiryTimer = 0.5f; // Short duration, must be refreshed by the burning Allomancer
+        auraExpiryTimer = 0.5f; // Short duration, must be refreshed by the burning Metallurgist
         
         var main = auraParticles.main;
         main.startColor = color;

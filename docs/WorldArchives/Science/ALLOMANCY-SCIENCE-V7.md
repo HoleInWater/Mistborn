@@ -1,20 +1,20 @@
 # THE TERRIS KEEPER ARCHIVES: THE SCIENCE OF ALLOMANCY (VOLUME VII)
 ## ATOMIC STRUCTURE AND SPIRITUAL RESONANCE
 
-This archive documents the forbidden science of the metallic arts as preserved by the Keepers.
+This archive documents the forbidden science of the metallic arts as preserved by the Archivists.
 
 ---
 
 ### 1. THE SPIRITUAL CHARGE OF METALS
-Allomancy is not merely chemical; it is the interaction between a metal's atomic structure and the Shard Preservation's Investiture.
+Metallurgy is not merely chemical; it is the interaction between a metal's atomic structure and the Shard The Warden's Investiture.
 
 #### 1.1 IRON (Atomic #26)
-- **Allomantic Rank:** Physical Pull.
+- **Metallurgic Rank:** Physical Pull.
 - **Spiritual Charge:** Negative External.
 - **Interaction:** Pulls the soul's center of mass toward the physical center of the target metal.
 
 #### 1.2 STEEL (Carbon-Iron Alloy)
-- **Allomantic Rank:** Physical Push.
+- **Metallurgic Rank:** Physical Push.
 - **Spiritual Charge:** Positive External.
 - **Interaction:** Repels the physical manifestation of the target metal.
 

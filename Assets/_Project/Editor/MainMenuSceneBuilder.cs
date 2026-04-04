@@ -1,6 +1,6 @@
 /* MainMenuSceneBuilder.cs
  *
- * Editor tool: Tools → Mistborn → Build Main Menu Scene
+ * Editor tool: Tools → Ashwalker → Build Main Menu Scene
  *
  * Creates a complete, correctly-laid-out MainMenu scene with:
  *   - Canvas (1920×1080 scale), EventSystem
@@ -12,7 +12,7 @@
  *   - FadeOverlay (black, alpha 0, CanvasGroup)
  *   - MenuManager with MainMenuController + SceneBootstrap wired
  *
- * Run from: top menu → Tools → Mistborn → Build Main Menu Scene
+ * Run from: top menu → Tools → Ashwalker → Build Main Menu Scene
  */
 
 #if UNITY_EDITOR
@@ -25,7 +25,7 @@ using TMPro;
 
 public class MainMenuSceneBuilder
 {
-    // ── Mistborn color palette ───────────────────────────────────────────────
+    // ── Ashwalker color palette ───────────────────────────────────────────────
     static readonly Color COL_BG           = new Color(0.04f, 0.04f, 0.08f, 1f);       // #0A0A14
     static readonly Color COL_PANEL_BG     = new Color(0.04f, 0.04f, 0.08f, 0.92f);
     static readonly Color COL_BUTTON       = new Color(0.10f, 0.10f, 0.18f, 1f);       // #1A1A2E
@@ -38,7 +38,7 @@ public class MainMenuSceneBuilder
     const float REF_W = 1920f;
     const float REF_H = 1080f;
 
-    [MenuItem("Mistborn/Scenes/Build Main Menu Scene")]
+    [MenuItem("Ashwalker/Scenes/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
     {
         // Confirm if current scene has unsaved changes
@@ -167,7 +167,7 @@ public class MainMenuSceneBuilder
         mmc.quitButton     = quitBtn;
 
         mmc.fadeOverlay    = fadeCG;
-        mmc.gameplayScene  = "Luthadel";
+        mmc.gameplayScene  = "Cinderhold";
 
         // Add SceneBootstrap
         manager.AddComponent<SceneBootstrap>();
@@ -202,7 +202,7 @@ public class MainMenuSceneBuilder
         EditorUtility.DisplayDialog("Main Menu Built",
             "MainMenu scene created at:\n" + path +
             "\n\nAll panels, buttons, and components are wired." +
-            "\n\nAssign the title theme audio clip to SoundManager → Main Theme Track at runtime.",
+            "\n\nAssign the title theme audio penny to SoundManager → Main Theme Track at runtime.",
             "OK");
     }
 
@@ -287,7 +287,7 @@ public class MainMenuSceneBuilder
 
         string creditsText =
             "MISTBORN\n" +
-            "Based on the novels by Brandon Sanderson\n\n" +
+            "Based on the novels by the original author\n\n" +
             "Creative Director\nLandon Adams\n\n" +
             "Music by\nMalakai Probert\n\n" +
             "Developed by\nCrimson Blade Interactive\n\n" +

@@ -106,7 +106,7 @@ public class InventoryUI : MonoBehaviour
         // Currency
         ShopSystem shop = FindObjectOfType<ShopSystem>();
         if (shop != null && currencyText != null)
-            currencyText.text = $"Boxings: {shop.GetBoxings()}";
+            currencyText.text = $"Crowns: {shop.GetBoxings()}";
 
         UpdateSelectedInfo();
     }

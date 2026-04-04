@@ -1,61 +1,61 @@
 # NARRATIVE CHAPTERS 11-20 SUMMARY
 
 CHAPTER 11: THE SEWERS OF LUTHADEL
-Speaker: Vin
+Speaker: Ember
 Lines:
-- Vin explores the massive sewer network under the city to map Ministry routes.
-- She discovers the "Mist-wraiths" and the lingering effects of the Deepness.
+- Ember explores the massive sewer network under the city to map Ministry routes.
+- She discovers the "Mist-wraiths" and the lingering effects of the The Blight.
 
 CHAPTER 12: ELEND'S REBELLION
-Speaker: Elend Venture
+Speaker: Aldric Ashford
 Lines:
-- Elend and Vin discuss the possibility of a better government.
-- Elend reveals his research into why the Lord Ruler's regime is unsustainable.
+- Aldric and Ember discuss the possibility of a better government.
+- Aldric reveals his research into why the Ashen King's regime is unsustainable.
 
 CHAPTER 13: THE REBEL CAMP
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- Kelsier visits the Skaa army, refining their tactics for the upcoming assault.
+- Darius visits the Lowborn army, refining their tactics for the upcoming assault.
 - He performs "miracles" with Steel to cement his status as a god.
 
 CHAPTER 14: THE MINISTRY MISSION
-Speaker: Vin
+Speaker: Ember
 Lines:
-- Vin infiltrates the Steel Ministry's central records.
-- She learns about the "Steel Spikes" and the true nature of the Inquisitors.
+- Ember infiltrates the Iron Clergy's central records.
+- She learns about the "Steel Spikes" and the true nature of the Sentinels.
 
 CHAPTER 15: THE NOBLE FEUD
-Speaker: Breeze
+Speaker: Lysander
 Lines:
 - The crew successfully Riots two rival houses into open warfare.
-- Luthadel descends into chaos, distracting the Lord Ruler's enforcers.
+- Cinderhold descends into chaos, distracting the Ashen King's enforcers.
 
 CHAPTER 16: THE SURVIVOR'S SECRET
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- Kelsier reveals his past in the Pits of Hathsin to Vin.
-- He explains how the Eleventh Metal (Malatium) might be the key to his plan.
+- Darius reveals his past in the Ember Pits to Ember.
+- He explains how the Eleventh Metal (Revelum) might be the key to his plan.
 
 CHAPTER 17: THE TRAINING ACCIDENT
-Speaker: Ham
+Speaker: Tormund
 Lines:
-- During a high-intensity Pewter sparring session, Vin nearly kills a recruit.
+- During a high-intensity Pewter sparring session, Ember nearly kills a recruit.
 - She struggles with the morality of her power and her role in the rebellion.
 
 CHAPTER 18: THE REVOLT BEGINS
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- The Skaa in Luthadel begin a series of coordinated strikes on warehouses.
-- The Lord Ruler finally takes notice, deploying a legion of Koloss.
+- The Lowborn in Cinderhold begin a series of coordinated strikes on warehouses.
+- The Ashen King finally takes notice, deploying a legion of Bloodbrute.
 
 CHAPTER 19: THE KOLOSS ASSAULT
-Speaker: Vin
+Speaker: Ember
 Lines:
-- Vin witnesses the horror of the Koloss first-hand as they raze a Skaa district.
-- She uses her Allomancy to save a group of children from the carnage.
+- Ember witnesses the horror of the Bloodbrute first-hand as they raze a Lowborn district.
+- She uses her Metallurgy to save a group of children from the carnage.
 
 CHAPTER 20: THE EVE OF DESTRUCTION
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- The crew prepares for the final push on Kredik Shaw.
-- Kelsier gives his final instructions, entrusting the future of Scadrial to Vin and Elend.
+- The crew prepares for the final push on Thornspire.
+- Darius gives his final instructions, entrusting the future of Ashara to Ember and Aldric.

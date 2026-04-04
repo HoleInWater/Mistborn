@@ -1,62 +1,62 @@
-# Mistborn Lore Notes
+# Ashwalker Lore Notes
 
 ## Where We Get Our Lore
 
-- **Coppermind Wiki**: https://coppermind.net/wiki/Allomancy
+- **Coppermind Wiki**: https://coppermind.net/wiki/Metallurgy
 - **Arcanum (WoB)**: https://wob.coppermind.net
-- **Official Mistborn books**: The Final Empire, Well of Ascension, Hero of Ages
+- **Official Ashwalker books**: The Ashen Dominion, The Wellspring, The Prophesied One
 
-## Steel Allomancy — Key Facts
+## Steel Metallurgy — Key Facts
 
 From https://coppermind.net/wiki/Steel:
 
 > "The strength of your push is roughly proportional to your physical weight."
 
-> "The force of the Push upon an object is inversely proportional to the Coinshot's distance to said object."
+> "The force of the Push upon an object is inversely proportional to the Launcher's distance to said object."
 
 > "Metal that is at least partially inside a person's body cannot be affected by steel."
 
-> "Blue lines... can typically only be seen by the Coinshot."
+> "Blue lines... can typically only be seen by the Launcher."
 
 > "The steel lines manifest themselves on the Spiritual Realm and can be cut or interfered with."
 
 > "Supposedly due to their lack of physicality, they can pass through physical objects such as walls."
 
-### Coinshot Tactics (from the books)
+### Launcher Tactics (from the books)
 1. Crouch before pushing (gives more lift)
-2. Look for anchors below AND behind (unpracticed coinshots forget behind)
+2. Look for anchors below AND behind (unpracticed launchers forget behind)
 3. Can shoot bullet then push it for extra speed/damage
 4. Can create steel bubble to deflect projectiles
 
-## Iron Allomancy — Key Facts
+## Iron Metallurgy — Key Facts
 
 Same rules as Steel but reversed direction.
 
 ## Character Names
 
 ### Era 1 Characters
-- **Vin** — Mistborn, burns all metals
-- **Kelsier** — Mistborn, "The Survivor"
-- **Elend Venture** — Mistborn, emperor
-- **Marsh** — Inquisitor (atium + iron spikes)
-- **Spook** — Tin (Tineye)
+- **Ember** — Ashwalker, burns all metals
+- **Darius** — Ashwalker, "The Survivor"
+- **Aldric Ashford** — Ashwalker, emperor
+- **Marsh** — Sentinel (oraculum + iron spikes)
+- **Spook** — Tin (Keensense)
 
-## The Final Empire Setting
+## The Ashen Dominion Setting
 
 ### Society
-- **Lord Ruler** — Immortal emperor, stored some kind of power in Atium mines
-- **Noble houses** — Upper class, more likely to be Allomancers
-- **Skaa** — Working class, slaves basically
-- **Steel Ministry** — Theocracy that controls knowledge of metals
+- **Ashen King** — Immortal emperor, stored some kind of power in Oraculum mines
+- **Noble houses** — Upper class, more likely to be Metallurgists
+- **Lowborn** — Working class, slaves basically
+- **Iron Clergy** — Theocracy that controls knowledge of metals
 
 ### Cities
-- **Luthadel** — Capital, largest city, lots of metal (great for Allomancy)
-- **Kredik Shaw** — Lord Ruler's palace
+- **Cinderhold** — Capital, largest city, lots of metal (great for Metallurgy)
+- **Thornspire** — Ashen King's palace
 
 ### The Mists
 - Come at night
-- Make normal people sick (but trigger latent Allomancy in 16%)
-- Mistborn can burn them for power
+- Make normal people sick (but trigger latent Metallurgy in 16%)
+- Ashwalker can burn them for power
 
 ## Gameplay Implications
 
@@ -83,7 +83,7 @@ Same rules as Steel but reversed direction.
 - Everything is grey/red from ash
 - Ashborn (mutant creatures) roam at night
 
-### The Deepness
+### The The Blight
 - The world was in perpetual darkness before TLR
 - Now there's a sun but ash blocks it
 - Creates a perpetual twilight feel
@@ -91,5 +91,5 @@ Same rules as Steel but reversed direction.
 ### Music References
 - Opera/metal fusion
 - Dark, moody, epic
-- Kelsier's theme = rebellious folk
+- Darius's theme = rebellious folk
 - TLR's theme = ominous, ancient

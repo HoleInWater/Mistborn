@@ -44,7 +44,7 @@ Longer explanation if needed.
 ```
 
 Examples:
-- `[Allomancy] Add weight-proportional push force`
+- `[Metallurgy] Add weight-proportional push force`
 - `[UI] Hook up metal reserve bars`
 - `[Docs] Update lore notes with Coppermind references`
 - `[Fix] Resolve camera clipping through walls`
@@ -70,7 +70,7 @@ Examples:
 
 ### Prefab Rules
 - All metal objects must follow naming: `Metal_[Type]_[Number]`
-- Every AllomanticTarget must have correct mass and isAnchored set
+- Every MetallurgicTarget must have correct mass and isAnchored set
 
 ### Script Rules
 - Every script needs the header template (see CONTRIBUTING.md)
@@ -93,9 +93,9 @@ Before approving a PR:
 
 ## Reference Resources
 
-- **Lore**: https://coppermind.net/wiki/Allomancy
+- **Lore**: https://coppermind.net/wiki/Metallurgy
 - **Physics Reference**: https://github.com/austin-j-taylor/Invested
-- **Brandon's FAQ**: https://faq.brandonsanderson.com
+- **
 
 ---
 

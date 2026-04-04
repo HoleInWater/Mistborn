@@ -11,7 +11,7 @@ public class MetalBurnEffect : MonoBehaviour
     public ParticleSystem flareParticles;
     
     [Header("References")]
-    public Allomancer allomancer;
+    public Metallurgist metallurgist;
     
     [Header("Effects")]
     public Gradient burnColorGradient;
@@ -34,8 +34,8 @@ public class MetalBurnEffect : MonoBehaviour
 
     void Start()
     {
-        if (allomancer == null)
-            allomancer = GetComponent<Allomancer>();
+        if (metallurgist == null)
+            metallurgist = GetComponent<Metallurgist>();
         
         // Start with burn particles off
         var burnMain = burnParticles.main;
@@ -59,9 +59,9 @@ public class MetalBurnEffect : MonoBehaviour
         // [AGENT REVIEW] Particle emissions disabled globally per user request
         return;
 
-        if (allomancer == null) return;
+        if (metallurgist == null) return;
 
-        bool isBurning = allomancer.IsBurning();
+        bool isBurning = metallurgist.IsBurning();
         var main = burnParticles.main;
 
         if (isBurning != burnParticles.isPlaying)
@@ -72,7 +72,7 @@ public class MetalBurnEffect : MonoBehaviour
                 // Set color based on current metal
                 if (burnColorGradient != null)
                 {
-                    float t = (float)allomancer.GetCurrentMetal() / 15f; 
+                    float t = (float)metallurgist.GetCurrentMetal() / 15f; 
                     main.startColor = burnColorGradient.Evaluate(t);
                 }
             }
@@ -85,7 +85,7 @@ public class MetalBurnEffect : MonoBehaviour
         // Adjust size based on reserve
         if (isBurning)
         {
-            float reserve = allomancer.GetMetalReserve(allomancer.GetCurrentMetal());
+            float reserve = metallurgist.GetMetalReserve(metallurgist.GetCurrentMetal());
             float intensity = Mathf.Clamp01(reserve / 100f);
             main.startSize = baseSize * (0.5f + intensity * 0.5f);
         }
@@ -96,7 +96,7 @@ public class MetalBurnEffect : MonoBehaviour
         // [AGENT REVIEW] Particle emissions disabled globally per user request
         return;
 
-        if (allomancer == null || flareParticles == null) return;
+        if (metallurgist == null || flareParticles == null) return;
 
         // Check global flare state from FlareManager
         bool isFlaring = FlareManager.Instance != null && FlareManager.Instance.IsFlaring;
@@ -110,7 +110,7 @@ public class MetalBurnEffect : MonoBehaviour
                 // Set color based on active metal (assuming flaring corresponds to active metal)
                 if (flareColorGradient != null)
                 {
-                    float t = (float)allomancer.GetCurrentMetal() / 15f;
+                    float t = (float)metallurgist.GetCurrentMetal() / 15f;
                     main.startColor = flareColorGradient.Evaluate(t);
                 }
                 

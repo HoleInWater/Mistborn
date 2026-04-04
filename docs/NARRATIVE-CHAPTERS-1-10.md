@@ -3,72 +3,72 @@
 
 /*
 CHAPTER 1: THE Tresting PLANTATION
-Speaker: Kelsier
+Speaker: Darius
 Lines: 
-- Kelsier arrives at the Tresting plantation, demonstrating his Allomancy to the Skaa. 
-- He encourages them to hope for a future without the Lord Ruler.
-- He eliminates the oppressive Obligators, marking the return of the Survivor.
+- Darius arrives at the Tresting plantation, demonstrating his Metallurgy to the Lowborn. 
+- He encourages them to hope for a future without the Ashen King.
+- He eliminates the oppressive Prelates, marking the return of the Survivor.
 
 CHAPTER 2: THE SKAA STREETS
-Speaker: Vin
+Speaker: Ember
 Lines:
-- Vin, a young street urchin, struggles to survive in Luthadel under the thumb of Camon's crew.
+- Ember, a young street urchin, struggles to survive in Cinderhold under the thumb of Camon's crew.
 - She feels a strange "Luck" that helps her survive dangerous encounters.
-- She is unaware that her "Luck" is actually the Allomantic power to Soothe others.
+- She is unaware that her "Luck" is actually the Metallurgic power to Soothe others.
 
 CHAPTER 3: THE RECRUITMENT
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- Kelsier and Dockson identify Vin's potential after she Soothes an Obligator.
+- Darius and Harlan identify Ember's potential after she Soothes an Prelate.
 - They "recruit" her from Camon's crew, bringing her to their hideout.
-- Vin meets the specialized crew: Ham, Breeze, and Clubs.
+- Ember meets the specialized crew: Tormund, Lysander, and Grimshaw.
 
 CHAPTER 4: THE LESSONS BEGIN
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- Kelsier begins Vin's training, explaining the existence of the 16 Allomantic metals.
+- Darius begins Ember's training, explaining the existence of the 16 Metallurgic metals.
 - He teaches her to "burn" Tin to enhance her senses and Pewter for strength.
-- Vin realizes the scale of the world she has entered.
+- Ember realizes the scale of the world she has entered.
 
 CHAPTER 5: THE GREAT PLAN
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- Kelsier reveals his plan to topple the Final Empire: starting a Skaa rebellion.
+- Darius reveals his plan to topple the Ashen Dominion: starting a Lowborn rebellion.
 - He details the "Great Game" of the noble houses and how the crew will exploit it.
-- Vin is tasked with infiltrating the noble balls as Valette Renoux.
+- Ember is tasked with infiltrating the noble balls as Valette Haleworth.
 
 CHAPTER 6: THE BALLROOM
-Speaker: Vin (Valette)
+Speaker: Ember (Valette)
 Lines:
-- Vin attends her first noble ball, learning the complex social cues of the elite.
-- She encounters Elend Venture, a cynical noble with unusual views on the Empire.
-- She uses her Allomancy to navigate political tensions.
+- Ember attends her first noble ball, learning the complex social cues of the elite.
+- She encounters Aldric Ashford, a cynical noble with unusual views on the Empire.
+- She uses her Metallurgy to navigate political tensions.
 
 CHAPTER 7: THE REBELLION BREWS
-Speaker: Ham
+Speaker: Tormund
 Lines:
-- The crew begins training a secret Skaa army in the caves of the outer dominance.
+- The crew begins training a secret Lowborn army in the caves of the outer dominance.
 - Logistics are discussed: smuggling weapons and organizing cells.
 - Tensions rise as the scale of the task becomes clear.
 
 CHAPTER 8: THE MISTS
-Speaker: Sazed
+Speaker: Idris
 Lines:
-- Sazed teaches Vin about the "Deepness" and the history of Scadrial.
+- Idris teaches Ember about the "The Blight" and the history of Ashara.
 - They discuss the mists that haunt the world every night.
-- Sazed explains his role as a Keeper, preserving knowledge for the future.
+- Idris explains his role as a Keeper, preserving knowledge for the future.
 
 CHAPTER 9: THE INQUISITOR STRIKE
-Speaker: Kelsier
+Speaker: Darius
 Lines:
-- A Steel Inquisitor attacks the hideout, forcing the crew to scatter.
-- Kelsier demonstrates high-level Steelpushing to protect Vin.
+- A Iron Sentinel attacks the hideout, forcing the crew to scatter.
+- Darius demonstrates high-level Steelpushing to protect Ember.
 - The threat of the Ministry becomes terrifyingly personal.
 
 CHAPTER 10: THE WELL OF ASCENSION
-Speaker: Sazed
+Speaker: Idris
 Lines:
-- Sazed reveals the legend of the Hero of Ages and the Well of Ascension.
-- They speculate on the Lord Ruler's source of immortality.
+- Idris reveals the legend of the The Prophesied One and the The Wellspring.
+- They speculate on the Ashen King's source of immortality.
 - The mission shifts focus toward finding the legendary Well.
 */
