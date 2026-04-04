@@ -60,9 +60,11 @@ public class TitleSequenceSceneBuilder
 
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
-        // Reset material counter
-        _matCounter = 0;
-        // Clean old generated materials (only used for LineRenderer materials)
+        // Reset material caches
+        _sourceMat = null;
+        _matCache.Clear();
+        _namedMats.Clear();
+        // Clean old generated materials and recreate fresh
         if (AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
             AssetDatabase.DeleteAsset("Assets/_Project/Materials/TitleSequence");
         AssetDatabase.Refresh();
@@ -3474,40 +3476,121 @@ public class TitleSequenceSceneBuilder
     // ═════════════════════════════════════════════════════════════════════════
 
     // ═════════════════════════════════════════════════════════════════════════
-    // MATERIAL SYSTEM — TitleSequenceMaterialOverride component
+    // MATERIAL SYSTEM — Clone from existing HDRP material, save to disk
     //
-    // Instead of trying to create/clone/save materials (which all fail on HDRP
-    // in different ways), we attach a runtime component to each object that
-    // applies a MaterialPropertyBlock every frame. This:
-    //   - Never touches the material reference (no pink ever)
-    //   - Works on any pipeline (HDRP, URP, Standard)
-    //   - Persists correctly in saved scenes (it's a MonoBehaviour)
-    //   - Overrides color at the renderer level without creating material instances
+    // Clones Ground(Temp).mat (known working HDRP Lit material) and sets
+    // _BaseColor. Saved to organized subfolders under Materials/TitleSequence/.
+    // Applied via sharedMaterial — no runtime components, no pink.
     // ═════════════════════════════════════════════════════════════════════════
 
-    private static int _matCounter = 0;
+    private static Material _sourceMat;
+    private static Dictionary<string, Material> _matCache = new Dictionary<string, Material>();
 
-    static Material CreateSavedMaterial(Color color, string label = "Mat")
+    static readonly string MAT_ROOT = "Assets/_Project/Materials/TitleSequence";
+
+    static void EnsureMatFolder(string subfolder)
     {
-        // Only used for LineRenderers (which need actual materials, not property blocks)
-        if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
-            AssetDatabase.CreateFolder("Assets/_Project", "Materials");
-        if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/TitleSequence"))
-            AssetDatabase.CreateFolder("Assets/_Project/Materials", "TitleSequence");
+        string[] parts = ($"Assets/_Project/Materials/TitleSequence/{subfolder}").Split('/');
+        string current = "";
+        for (int i = 0; i < parts.Length; i++)
+        {
+            string parent = current;
+            current = i == 0 ? parts[0] : current + "/" + parts[i];
+            if (!AssetDatabase.IsValidFolder(current))
+                AssetDatabase.CreateFolder(
+                    string.IsNullOrEmpty(parent) ? parts[0] : parent,
+                    parts[i]);
+        }
+    }
 
-        var temp = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        var shader = temp.GetComponent<Renderer>().sharedMaterial.shader;
-        Object.DestroyImmediate(temp);
+    static Material GetSourceMaterial()
+    {
+        if (_sourceMat != null) return _sourceMat;
 
-        var mat = new Material(shader);
-        mat.name = $"TS_{label}_{_matCounter++}";
+        // Load a known working HDRP material from the project
+        string[] candidates = {
+            "Assets/_Project/Materials/Ground(Temp).mat",
+            "Assets/_Project/Materials/Metal.mat",
+            "Assets/_Project/Materials/Wood.mat",
+            "Assets/_Project/Materials/White.mat",
+            "Assets/_Project/Materials/Obsidian.mat",
+            "Assets/_Project/Materials/Ground(Temp) 1.mat",
+            "Assets/_Project/Materials/Player(Temp).mat",
+        };
+        foreach (var p in candidates)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(p);
+            if (m != null) { _sourceMat = m; return m; }
+        }
+
+        // Fallback: search for any .mat
+        string[] guids = AssetDatabase.FindAssets("t:Material", new[] { "Assets/_Project/Materials" });
+        foreach (var guid in guids)
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+            if (m != null) { _sourceMat = m; return m; }
+        }
+
+        Debug.LogError("[TitleSequenceBuilder] No source material found! Create any material in Assets/_Project/Materials/ first.");
+        return null;
+    }
+
+    static Material GetOrCreateMaterial(string subfolder, string name, Color color, bool emissive = false)
+    {
+        string path = $"{MAT_ROOT}/{subfolder}/{name}.mat";
+
+        // Check cache first
+        if (_matCache.TryGetValue(path, out Material cached)) return cached;
+
+        // Check if already exists on disk
+        var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (existing != null)
+        {
+            _matCache[path] = existing;
+            return existing;
+        }
+
+        // Clone from source
+        var source = GetSourceMaterial();
+        if (source == null) return null;
+
+        EnsureMatFolder(subfolder);
+
+        var mat = new Material(source);
+        mat.name = name;
+
+        // Set color
+        if (mat.HasProperty("_BaseColor"))   mat.SetColor("_BaseColor", color);
+        if (mat.HasProperty("_Color"))       mat.SetColor("_Color", color);
         mat.color = color;
-        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-        if (mat.HasProperty("_Color"))     mat.SetColor("_Color", color);
 
-        string path = $"Assets/_Project/Materials/TitleSequence/{mat.name}.mat";
+        if (mat.HasProperty("_Smoothness"))  mat.SetFloat("_Smoothness", 0.1f);
+        if (mat.HasProperty("_Metallic"))    mat.SetFloat("_Metallic", 0f);
+
+        if (emissive)
+        {
+            mat.EnableKeyword("_EMISSION");
+            if (mat.HasProperty("_EmissiveColor"))        mat.SetColor("_EmissiveColor", color * 3f);
+            if (mat.HasProperty("_EmissionColor"))        mat.SetColor("_EmissionColor", color * 3f);
+            if (mat.HasProperty("_UseEmissiveIntensity")) mat.SetFloat("_UseEmissiveIntensity", 1f);
+            if (mat.HasProperty("_EmissiveIntensity"))    mat.SetFloat("_EmissiveIntensity", 3f);
+        }
+
         AssetDatabase.CreateAsset(mat, path);
+        _matCache[path] = mat;
         return mat;
+    }
+
+    // Pre-create all named materials so they're organized and reusable
+    static Dictionary<string, Material> _namedMats = new Dictionary<string, Material>();
+
+    static Material Mat(string subfolder, string name, Color color, bool emissive = false)
+    {
+        string key = $"{subfolder}/{name}";
+        if (_namedMats.TryGetValue(key, out Material m)) return m;
+        m = GetOrCreateMaterial(subfolder, name, color, emissive);
+        if (m != null) _namedMats[key] = m;
+        return m;
     }
 
     static void ApplyColor(GameObject go, Color color)
@@ -3515,12 +3598,11 @@ public class TitleSequenceSceneBuilder
         var rend = go.GetComponent<Renderer>();
         if (rend == null) return;
 
-        // Attach a component that applies the color via MaterialPropertyBlock at runtime.
-        // This never changes the material — no pink, ever, on any pipeline.
-        var over = go.GetComponent<TitleSequenceMaterialOverride>();
-        if (over == null) over = go.AddComponent<TitleSequenceMaterialOverride>();
-        over.overrideColor = color;
-        over.isEmissive = false;
+        // Generate a deterministic name from the color
+        string hex = ColorUtility.ToHtmlStringRGB(color);
+        string subfolder = CategorizeColor(color);
+        Material mat = Mat(subfolder, $"Col_{hex}", color);
+        if (mat != null) rend.sharedMaterial = mat;
     }
 
     static void ApplyEmissive(GameObject go, Color color)
@@ -3530,12 +3612,27 @@ public class TitleSequenceSceneBuilder
 
         Color bright = color * 2.5f;
         bright.a = 1f;
+        string hex = ColorUtility.ToHtmlStringRGB(bright);
+        Material mat = Mat("Emissive", $"Emit_{hex}", bright, true);
+        if (mat != null) rend.sharedMaterial = mat;
+    }
 
-        var over = go.GetComponent<TitleSequenceMaterialOverride>();
-        if (over == null) over = go.AddComponent<TitleSequenceMaterialOverride>();
-        over.overrideColor = bright;
-        over.isEmissive = true;
-        over.emissiveColor = bright;
+    static Material CreateSavedMaterial(Color color, string label)
+    {
+        // For LineRenderers
+        string hex = ColorUtility.ToHtmlStringRGB(color);
+        return Mat("Lines", $"{label}_{hex}", color);
+    }
+
+    static string CategorizeColor(Color c)
+    {
+        float brightness = (c.r + c.g + c.b) / 3f;
+        if (brightness < 0.08f) return "Silhouettes";
+        if (c.b > c.r * 1.3f && c.b > c.g * 1.3f) return "Water";
+        if (c.r > c.g * 1.4f && c.r > c.b * 1.4f) return "Warm";
+        if (Mathf.Abs(c.r - c.g) < 0.05f && Mathf.Abs(c.g - c.b) < 0.05f) return "Stone";
+        if (c.r > 0.3f && c.g > 0.2f && c.b < 0.15f) return "Wood";
+        return "General";
     }
 
     static TextMeshProUGUI CreateTMP(Transform parent, string name, string text,

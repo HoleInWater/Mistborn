@@ -502,12 +502,55 @@ public class LuthadelCityBuilder
     // HELPERS
     // ═════════════════════════════════════════════════════════════════════════
 
+    static Material _citySourceMat;
+    static Dictionary<string, Material> _cityMatCache = new Dictionary<string, Material>();
+
     static void ApplyColor(GameObject go, Color color)
     {
-        var over = go.GetComponent<TitleSequenceMaterialOverride>();
-        if (over == null) over = go.AddComponent<TitleSequenceMaterialOverride>();
-        over.overrideColor = color;
-        over.isEmissive = false;
+        var rend = go.GetComponent<Renderer>();
+        if (rend == null) return;
+
+        string hex = ColorUtility.ToHtmlStringRGB(color);
+        string key = $"City_{hex}";
+
+        if (!_cityMatCache.TryGetValue(key, out Material mat))
+        {
+            if (_citySourceMat == null)
+            {
+                string[] sources = {
+                    "Assets/_Project/Materials/Ground(Temp).mat",
+                    "Assets/_Project/Materials/Metal.mat",
+                    "Assets/_Project/Materials/Wood.mat",
+                };
+                foreach (var p in sources)
+                {
+                    _citySourceMat = AssetDatabase.LoadAssetAtPath<Material>(p);
+                    if (_citySourceMat != null) break;
+                }
+            }
+            if (_citySourceMat == null) return;
+
+            if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials/City"))
+            {
+                if (!AssetDatabase.IsValidFolder("Assets/_Project/Materials"))
+                    AssetDatabase.CreateFolder("Assets/_Project", "Materials");
+                AssetDatabase.CreateFolder("Assets/_Project/Materials", "City");
+            }
+
+            mat = new Material(_citySourceMat);
+            mat.name = key;
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+            if (mat.HasProperty("_Color"))     mat.SetColor("_Color", color);
+            mat.color = color;
+            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.1f);
+            if (mat.HasProperty("_Metallic"))   mat.SetFloat("_Metallic", 0f);
+
+            string path = $"Assets/_Project/Materials/City/{key}.mat";
+            AssetDatabase.CreateAsset(mat, path);
+            _cityMatCache[key] = mat;
+        }
+
+        rend.sharedMaterial = mat;
     }
 
     static void SetLayer(GameObject go, string layerName)
