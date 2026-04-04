@@ -70,7 +70,7 @@ MonoBehaviour:
     m_Value: 1
   fixedExposure:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 10
   compensation:
     m_OverrideState: 1
     m_Value: 0
@@ -326,7 +326,7 @@ MonoBehaviour:
     m_Value: 0
   exposure:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 10
   multiplier:
     m_OverrideState: 1
     m_Value: 1
@@ -350,13 +350,13 @@ MonoBehaviour:
     m_Value: 0
   top:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 0, b: 1, a: 1}
+    m_Value: {r: 0.019607844, g: 0.019607844, b: 0.0627451, a: 1}
   middle:
     m_OverrideState: 1
-    m_Value: {r: 0.3, g: 0.7, b: 1, a: 1}
+    m_Value: {r: 0.050980393, g: 0.039215688, b: 0.03137255, a: 1}
   bottom:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    m_Value: {r: 0.101960786, g: 0.07058824, b: 0.0627451, a: 1}
   gradientDiffusion:
     m_OverrideState: 1
     m_Value: 1
@@ -2168,7 +2168,7 @@ MonoBehaviour:
   m_Version: 1
   skyType:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 3
   cloudType:
     m_OverrideState: 1
     m_Value: 0
@@ -5111,7 +5111,7 @@ MonoBehaviour:
     m_Value: 1
   enabled:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   colorMode:
     m_OverrideState: 1
     m_Value: 1
@@ -5123,7 +5123,7 @@ MonoBehaviour:
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   maxFogDistance:
     m_OverrideState: 1
-    m_Value: 5000
+    m_Value: 20
   mipFogMaxMip:
     m_OverrideState: 1
     m_Value: 0.5
@@ -5138,7 +5138,7 @@ MonoBehaviour:
     m_Value: 0
   maximumHeight:
     m_OverrideState: 1
-    m_Value: 50
+    m_Value: 20
   meanFreePath:
     m_OverrideState: 1
     m_Value: 400
